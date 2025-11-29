@@ -1,0 +1,72 @@
+site_name: DragonFly BSD Kernel Documentation
+site_description: Comprehensive documentation for the DragonFly BSD kernel source code
+site_author: DragonFly BSD Community
+
+theme:
+  name: material
+  palette:
+    # Light mode
+    - scheme: default
+      primary: indigo
+      accent: indigo
+      toggle:
+        icon: material/brightness-7
+        name: Switch to dark mode
+    # Dark mode
+    - scheme: slate
+      primary: indigo
+      accent: indigo
+      toggle:
+        icon: material/brightness-4
+        name: Switch to light mode
+  features:
+    - navigation.tabs
+    - navigation.sections
+    - navigation.expand
+    - navigation.top
+    - search.suggest
+    - search.highlight
+    - content.code.copy
+
+markdown_extensions:
+  - admonition
+  - codehilite
+  - toc:
+      permalink: true
+  - pymdownx.highlight:
+      anchor_linenums: true
+  - pymdownx.superfences
+  - pymdownx.inlinehilite
+  - pymdownx.keys
+  - pymdownx.snippets
+  - pymdownx.tabbed:
+      alternate_style: true
+  - pymdownx.details
+  - def_list
+  - footnotes
+
+plugins:
+  - search
+
+# Navigation structure
+nav:
+  - Home: index.md
+  - Getting Started: getting-started.md
+  - Kernel Subsystems:
+    - Overview: sys/index.md
+    - kern/:
+      - Overview: sys/kern/index.md
+      - LWKT Threading: sys/kern/lwkt.md
+      - Synchronization: sys/kern/synchronization.md
+      - Memory Management: sys/kern/memory.md
+      - Processes & Threads: sys/kern/processes.md
+      - Scheduling: sys/kern/scheduling.md
+      - Virtual Filesystem:
+        - Overview: sys/kern/vfs/index.md
+      - IPC & Sockets: sys/kern/ipc.md
+      - Devices & Drivers: sys/kern/devices.md
+      - System Calls: sys/kern/syscalls.md
+    - vm/:
+      - Overview: sys/vm/index.md
+    - cpu/x86_64/:
+      - Overview: sys/cpu/x86_64/index.md
