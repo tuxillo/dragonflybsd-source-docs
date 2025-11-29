@@ -11,12 +11,18 @@
    - All documentation files must live in this repository only (`~/s/dragonfly-docs`).
    - Do not write documentation into `~/s/dragonfly` or into directories outside this docs repository.
 
-4. **Commit discipline**
+4. **Documentation format and output**
+   - The end goal is to generate publishable documentation that can be rendered using a static site generator (such as MkDocs).
+   - `PLAN.md` files serve only as reading and planning guides; they are not the final documentation.
+   - Create actual Markdown documentation files (`.md`) that explain subsystems, data structures, and code flows in a clear, accessible manner.
+   - These documentation files will be the consumable output for users trying to understand the DragonFly BSD kernel.
+
+5. **Commit discipline**
    - Make small, focused commits frequently.
    - Avoid bundling large, unrelated changes into a single commit.
 
-5. **No pushing to remotes**
+6. **No pushing to remotes**
    - Never run `git push` or any other command that modifies remote repositories.
 
-6. **System safety**
+7. **System safety**
    - Do not run commands that are dangerous to the host operating system (for example, destructive filesystem operations, disk formatting, low-level system reconfiguration, or privilege-escalation tooling).
