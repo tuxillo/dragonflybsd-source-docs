@@ -60,6 +60,7 @@ nav:
       - Synchronization: sys/kern/synchronization.md
       - Time & Timers: sys/kern/time.md
       - Memory Management: sys/kern/memory.md
+      - Initialization & Bootstrap: sys/kern/initialization.md
       - Processes & Threads: sys/kern/processes.md
       - Scheduling: sys/kern/scheduling.md
       - Virtual Filesystem:
