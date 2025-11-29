@@ -12,6 +12,7 @@ Current top-level entries under `sys/` in the source tree include:
   - `include/` — low-level machine headers (CPU, MMU, traps, types, etc.).
   - `misc/` — assorted machine-dependent code (assembly stubs, debugger helpers, ELF glue).
 - `ddb/` — in-kernel debugger support.
+- `kern/` — **kernel core** (~180 files): LWKT threading, process/thread management, VFS, IPC, scheduling, device framework, syscalls, and more. See dedicated plan at `sys/kern/PLAN.md`.
 - `libiconv/` — character set conversion library used in the system (iconv core and converters).
 - `libkern/` — common kernel utility functions (C library–style primitives used in the kernel).
 - `libprop/` — property list / proplib library used by kernel and userland.
@@ -93,6 +94,10 @@ All documentation produced must be written under `~/s/dragonfly-docs`, never in 
   - [ ] Survey `include/` headers and categorize interfaces.
   - [ ] Review `misc` implementations for those interfaces.
   - [ ] Draft `sys/cpu/x86_64/` overview doc and notes for critical headers.
+
+- **`kern/` — see dedicated plan**
+  - The kernel core directory has its own detailed 12-phase plan at `sys/kern/PLAN.md`.
+  - It covers LWKT threading, synchronization, memory allocation, processes, scheduling, VFS, IPC, devices, syscalls, and more.
 
 - Later phases / backlog (to be scheduled)
   - `compile/`, `config/` — configuration and build plumbing.
