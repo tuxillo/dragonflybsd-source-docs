@@ -58,6 +58,7 @@ nav:
       - Overview: sys/kern/index.md
       - LWKT Threading: sys/kern/lwkt.md
       - Synchronization: sys/kern/synchronization.md
+      - Time & Timers: sys/kern/time.md
       - Memory Management: sys/kern/memory.md
       - Processes & Threads: sys/kern/processes.md
       - Scheduling: sys/kern/scheduling.md
