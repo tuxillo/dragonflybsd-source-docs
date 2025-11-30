@@ -1,0 +1,2838 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Comprehensive documentation for the DragonFly BSD kernel source code">
+      
+      
+        <meta name="author" content="DragonFly BSD Community">
+      
+      
+      
+        <link rel="prev" href="../scheduling/">
+      
+      
+        <link rel="next" href="namecache/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.0">
+    
+    
+      
+        <title>Overview - DragonFly BSD Kernel Documentation</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.618322db.min.css">
+      
+        
+        <link rel="stylesheet" href="../../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#virtual-filesystem-vfs" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../../.." title="DragonFly BSD Kernel Documentation" class="md-header__button md-logo" aria-label="DragonFly BSD Kernel Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            DragonFly BSD Kernel Documentation
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Overview
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/tuxillo/dragonflybsd-source-docs" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    tuxillo/dragonflybsd-source-docs
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../.." class="md-tabs__link">
+        
+  
+  
+    
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../getting-started/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Getting Started
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+    
+  
+  
+    
+    
+      <li class="md-tabs__item md-tabs__item--active">
+        <a href="../../" class="md-tabs__link">
+          
+  
+  
+  Kernel Subsystems
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../.." title="DragonFly BSD Kernel Documentation" class="md-nav__button md-logo" aria-label="DragonFly BSD Kernel Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    DragonFly BSD Kernel Documentation
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/tuxillo/dragonflybsd-source-docs" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    tuxillo/dragonflybsd-source-docs
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../getting-started/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Getting Started
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Kernel Subsystems
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Kernel Subsystems
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+          
+          
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_2" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_3_2" id="__nav_3_2_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    kern/
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_2_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_3_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    kern/
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../lwkt/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    LWKT Threading
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../synchronization/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Synchronization
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../time/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Time & Timers
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../memory/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Memory Management
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../initialization/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Initialization & Bootstrap
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../processes/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Processes & Threads
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../resources/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Process Resources & Credentials
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../signals/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Signals
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../scheduling/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Scheduling
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_2_11" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_3_2_11" id="__nav_3_2_11_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Virtual Filesystem
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_3_2_11_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_3_2_11">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Virtual Filesystem
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#overview" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Overview
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#vfs-initialization-vfs_initc" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        VFS Initialization (vfs_init.c)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="VFS Initialization (vfs_init.c)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#initialization-flow" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Initialization Flow
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#vnode-operations-vector-management" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Vnode Operations Vector Management
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#filesystem-registration-vfsconf" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Filesystem Registration (vfsconf)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#root-filesystem-mounting-vfs_confc" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Root Filesystem Mounting (vfs_conf.c)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Root Filesystem Mounting (vfs_conf.c)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#boot-sequence" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Boot Sequence
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#vfs_mountroot_try" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        vfs_mountroot_try()
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#interactive-root-prompt" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Interactive Root Prompt
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#devfs-mounting" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        devfs Mounting
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#vnode-lifecycle-vfs_subrc" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Vnode Lifecycle (vfs_subr.c)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Vnode Lifecycle (vfs_subr.c)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#vnode-subsystem-initialization" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Vnode Subsystem Initialization
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#vnode-buffer-tree-management" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Vnode Buffer Tree Management
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#buffer-invalidation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Buffer Invalidation
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#buffer-truncation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Buffer Truncation
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#filesystem-sync-vfsync" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Filesystem Sync (vfsync)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#timestamp-precision" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Timestamp Precision
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#vfs-operations-vfs_vfsopsc" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        VFS Operations (vfs_vfsops.c)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="VFS Operations (vfs_vfsops.c)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#mpsafe-wrapper-layer" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        MPSAFE Wrapper Layer
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#high-level-vnode-operations-vfs_vnopsc" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        High-Level Vnode Operations (vfs_vnops.c)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="High-Level Vnode Operations (vfs_vnops.c)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#vn_open-opencreate-files" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        vn_open() - Open/Create Files
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#vn_close-close-files" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        vn_close() - Close Files
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#vn_rdwr-kernel-file-io" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        vn_rdwr() - Kernel File I/O
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#vn_writechk-write-permission-check" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        vn_writechk() - Write Permission Check
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#ncp_writechk-namecache-write-check" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        ncp_writechk() - Namecache Write Check
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#file-descriptor-operations" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        File Descriptor Operations
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#vnode-operation-dispatch-vfs_vopopsc" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Vnode Operation Dispatch (vfs_vopops.c)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Vnode Operation Dispatch (vfs_vopops.c)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#purpose" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Purpose
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#wrapper-pattern" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Wrapper Pattern
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#key-vnode-operations" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Key Vnode Operations
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#mpsafe-optimization" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        MPSAFE Optimization
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#quota-integration" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Quota Integration
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#default-vnode-operations-vfs_defaultc" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Default Vnode Operations (vfs_default.c)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Default Vnode Operations (vfs_default.c)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#default-operations-table" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Default Operations Table
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#standard-error-returns" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Standard Error Returns
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#standard-implementations" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Standard Implementations
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#compatibility-layer-old-new-namespace-api" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Compatibility Layer (Old → New Namespace API)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#summary-phase-6a" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Summary: Phase 6a
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="namecache/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Name Lookup & Caching
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ipc/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    IPC & Sockets
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../devices/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Devices & Drivers
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../syscalls/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    System Calls
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+          
+          
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_3_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3_3" id="__nav_3_3_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    vm/
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    vm/
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../vm/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+          
+          
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_3_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_3_4" id="__nav_3_4_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    cpu/x86_64/
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    cpu/x86_64/
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../cpu/x86_64/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#overview" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Overview
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#vfs-initialization-vfs_initc" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        VFS Initialization (vfs_init.c)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="VFS Initialization (vfs_init.c)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#initialization-flow" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Initialization Flow
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#vnode-operations-vector-management" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Vnode Operations Vector Management
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#filesystem-registration-vfsconf" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Filesystem Registration (vfsconf)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#root-filesystem-mounting-vfs_confc" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Root Filesystem Mounting (vfs_conf.c)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Root Filesystem Mounting (vfs_conf.c)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#boot-sequence" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Boot Sequence
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#vfs_mountroot_try" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        vfs_mountroot_try()
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#interactive-root-prompt" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Interactive Root Prompt
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#devfs-mounting" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        devfs Mounting
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#vnode-lifecycle-vfs_subrc" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Vnode Lifecycle (vfs_subr.c)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Vnode Lifecycle (vfs_subr.c)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#vnode-subsystem-initialization" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Vnode Subsystem Initialization
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#vnode-buffer-tree-management" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Vnode Buffer Tree Management
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#buffer-invalidation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Buffer Invalidation
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#buffer-truncation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Buffer Truncation
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#filesystem-sync-vfsync" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Filesystem Sync (vfsync)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#timestamp-precision" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Timestamp Precision
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#vfs-operations-vfs_vfsopsc" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        VFS Operations (vfs_vfsops.c)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="VFS Operations (vfs_vfsops.c)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#mpsafe-wrapper-layer" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        MPSAFE Wrapper Layer
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#high-level-vnode-operations-vfs_vnopsc" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        High-Level Vnode Operations (vfs_vnops.c)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="High-Level Vnode Operations (vfs_vnops.c)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#vn_open-opencreate-files" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        vn_open() - Open/Create Files
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#vn_close-close-files" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        vn_close() - Close Files
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#vn_rdwr-kernel-file-io" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        vn_rdwr() - Kernel File I/O
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#vn_writechk-write-permission-check" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        vn_writechk() - Write Permission Check
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#ncp_writechk-namecache-write-check" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        ncp_writechk() - Namecache Write Check
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#file-descriptor-operations" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        File Descriptor Operations
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#vnode-operation-dispatch-vfs_vopopsc" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Vnode Operation Dispatch (vfs_vopops.c)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Vnode Operation Dispatch (vfs_vopops.c)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#purpose" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Purpose
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#wrapper-pattern" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Wrapper Pattern
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#key-vnode-operations" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Key Vnode Operations
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#mpsafe-optimization" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        MPSAFE Optimization
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#quota-integration" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Quota Integration
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#default-vnode-operations-vfs_defaultc" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Default Vnode Operations (vfs_default.c)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Default Vnode Operations (vfs_default.c)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#default-operations-table" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Default Operations Table
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#standard-error-returns" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Standard Error Returns
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#standard-implementations" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Standard Implementations
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#compatibility-layer-old-new-namespace-api" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Compatibility Layer (Old → New Namespace API)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#summary-phase-6a" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Summary: Phase 6a
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="virtual-filesystem-vfs">Virtual Filesystem (VFS)<a class="headerlink" href="#virtual-filesystem-vfs" title="Permanent link">&para;</a></h1>
+<h2 id="overview">Overview<a class="headerlink" href="#overview" title="Permanent link">&para;</a></h2>
+<p>The Virtual Filesystem (VFS) layer is DragonFly BSD's abstraction layer that provides a uniform interface between the kernel and concrete filesystem implementations. It allows the kernel to support multiple filesystem types (UFS, HAMMER, HAMMER2, NFS, tmpfs, devfs, etc.) through a common API.</p>
+<p><strong>Architecture:</strong>
+- <strong>Vnodes</strong> - In-memory representation of files, directories, devices
+- <strong>VFS operations</strong> - Filesystem-level operations (mount, statfs, sync)
+- <strong>Vnode operations (VOPs)</strong> - File/directory-level operations (open, read, write, lookup)
+- <strong>Name cache</strong> - High-performance path component caching
+- <strong>Buffer cache</strong> - Disk block caching and I/O management</p>
+<p><strong>Key source files (Phase 6a - Initialization and Core):</strong>
+- <code>vfs_init.c</code> (504 lines) — VFS subsystem initialization
+- <code>vfs_conf.c</code> (713 lines) — Filesystem type registration, root mounting
+- <code>vfs_subr.c</code> (2,650 lines) — Vnode lifecycle, buffer management utilities
+- <code>vfs_vfsops.c</code> (321 lines) — VFS operation wrappers (mount, unmount, sync, etc.)
+- <code>vfs_vnops.c</code> (1,352 lines) — High-level vnode operations (vn_open, vn_close, vn_rdwr)
+- <code>vfs_vopops.c</code> (2,227 lines) — Vnode operation dispatch layer
+- <code>vfs_default.c</code> (1,684 lines) — Default vnode operation implementations</p>
+<hr />
+<h2 id="vfs-initialization-vfs_initc">VFS Initialization (vfs_init.c)<a class="headerlink" href="#vfs-initialization-vfs_initc" title="Permanent link">&para;</a></h2>
+<h3 id="initialization-flow">Initialization Flow<a class="headerlink" href="#initialization-flow" title="Permanent link">&para;</a></h3>
+<p>Called during kernel bootstrap via <code>SYSINIT(vfs, SI_SUB_VFS, SI_ORDER_FIRST, vfsinit, NULL)</code>:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">vfsinit</span><span class="p">()</span>
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="err">├─</span><span class="w"> </span><span class="n">TAILQ_INIT</span><span class="p">(</span><span class="o">&amp;</span><span class="n">vnodeopv_list</span><span class="p">)</span><span class="w">           </span><span class="c1">// Initialize vop vector list</span>
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="err">├─</span><span class="w"> </span><span class="n">namei_oc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">objcache_create_simple</span><span class="p">()</span><span class="w">  </span><span class="c1">// Create namei path buffer cache</span>
+<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="err">├─</span><span class="w"> </span><span class="n">vfs_subr_init</span><span class="p">()</span><span class="w">                      </span><span class="c1">// Initialize vnode subsystem</span>
+<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a><span class="err">├─</span><span class="w"> </span><span class="n">vfs_mount_init</span><span class="p">()</span><span class="w">                     </span><span class="c1">// Initialize mount structures</span>
+<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a><span class="err">├─</span><span class="w"> </span><span class="n">vfs_lock_init</span><span class="p">()</span><span class="w">                      </span><span class="c1">// Initialize vnode locking</span>
+<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a><span class="err">├─</span><span class="w"> </span><span class="n">nchinit</span><span class="p">()</span><span class="w">                            </span><span class="c1">// Initialize name cache</span>
+<a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a><span class="err">└─</span><span class="w"> </span><span class="n">vattr_null</span><span class="p">(</span><span class="o">&amp;</span><span class="n">va_null</span><span class="p">)</span><span class="w">                 </span><span class="c1">// Initialize null vattr template</span>
+</code></pre></div>
+<h3 id="vnode-operations-vector-management">Vnode Operations Vector Management<a class="headerlink" href="#vnode-operations-vector-management" title="Permanent link">&para;</a></h3>
+<p><strong>Key functions:</strong>
+- <code>vfs_add_vnodeops()</code> - Add/register vnode operations vector
+- <code>vfs_rm_vnodeops()</code> - Remove vnode operations vector<br />
+- <code>vfs_calc_vnodeops()</code> - Fill in NULL entries with defaults</p>
+<p>Each filesystem provides a <code>struct vop_ops</code> with function pointers for file operations. The VFS layer ensures NULL entries are replaced with default implementations.</p>
+<h3 id="filesystem-registration-vfsconf">Filesystem Registration (vfsconf)<a class="headerlink" href="#filesystem-registration-vfsconf" title="Permanent link">&para;</a></h3>
+<p><strong>Data structures:</strong></p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="k">struct</span><span class="w"> </span><span class="nc">vfsconf</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="w">    </span><span class="k">struct</span><span class="w"> </span><span class="nc">vfsops</span><span class="w"> </span><span class="o">*</span><span class="n">vfc_vfsops</span><span class="p">;</span><span class="w">       </span><span class="c1">// Filesystem operations</span>
+<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="w">    </span><span class="kt">char</span><span class="w">          </span><span class="n">vfc_name</span><span class="p">[</span><span class="n">MFSNAMELEN</span><span class="p">];</span><span class="w"> </span><span class="c1">// Filesystem type name (e.g., &quot;ufs&quot;)</span>
+<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a><span class="w">    </span><span class="kt">int</span><span class="w">           </span><span class="n">vfc_typenum</span><span class="p">;</span><span class="w">       </span><span class="c1">// Unique type number</span>
+<a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a><span class="w">    </span><span class="kt">int</span><span class="w">           </span><span class="n">vfc_refcount</span><span class="p">;</span><span class="w">      </span><span class="c1">// Active mount count</span>
+<a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a><span class="w">    </span><span class="p">...</span>
+<a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a><span class="p">};</span>
+</code></pre></div>
+<p><strong>Global registry:</strong>
+- <code>vfsconf_list</code> - STAILQ of all registered filesystem types
+- <code>vfsconf_maxtypenum</code> - Highest assigned type number</p>
+<p><strong>Key functions (vfs_init.c):</strong>
+- <code>vfs_register(struct vfsconf *)</code> - Register a filesystem type
+  - Assigns unique <code>vfc_typenum</code>
+  - Fills in default vfsops entries (vfs_root, vfs_statfs, vfs_sync, etc.)
+  - Calls filesystem's <code>vfs_init()</code> method
+  - Registers sysctl nodes under <code>vfs.&lt;fsname&gt;</code>
+- <code>vfs_unregister(struct vfsconf *)</code> - Unregister (checks refcount)
+- <code>vfsconf_find_by_name(const char *)</code> - Lookup filesystem by name
+- <code>vfsconf_find_by_typenum(int)</code> - Lookup by type number</p>
+<p><strong>Module integration:</strong>
+<code>vfs_modevent()</code> handles MOD_LOAD/MOD_UNLOAD for filesystem kernel modules.</p>
+<hr />
+<h2 id="root-filesystem-mounting-vfs_confc">Root Filesystem Mounting (vfs_conf.c)<a class="headerlink" href="#root-filesystem-mounting-vfs_confc" title="Permanent link">&para;</a></h2>
+<h3 id="boot-sequence">Boot Sequence<a class="headerlink" href="#boot-sequence" title="Permanent link">&para;</a></h3>
+<p><code>SYSINIT(mountroot, SI_SUB_MOUNT_ROOT, SI_ORDER_SECOND, vfs_mountroot, NULL)</code> orchestrates root filesystem mounting:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="n">vfs_mountroot</span><span class="p">()</span>
+<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="err">├─</span><span class="w"> </span><span class="n">sync_devs</span><span class="p">()</span><span class="w">                    </span><span class="c1">// Wait for disk device probing</span>
+<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="err">├─</span><span class="w"> </span><span class="n">tsleep</span><span class="p">(...,</span><span class="w"> </span><span class="n">hz</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">wakedelay</span><span class="p">)</span><span class="w">    </span><span class="c1">// Default 2s delay (vfs.root.wakedelay)</span>
+<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a><span class="err">├─</span><span class="w"> </span><span class="n">Try</span><span class="w"> </span><span class="n">boot</span><span class="o">-</span><span class="n">time</span><span class="w"> </span><span class="n">root</span><span class="w"> </span><span class="n">specifications</span><span class="o">:</span>
+<a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a><span class="err">│</span><span class="w">  </span><span class="err">├─</span><span class="w"> </span><span class="n">RB_CDROM</span><span class="w"> </span><span class="n">flag</span><span class="w"> </span><span class="err">→</span><span class="w"> </span><span class="n">try</span><span class="w"> </span><span class="n">cdrom_rootdevnames</span><span class="p">[]</span><span class="w"> </span><span class="n">array</span>
+<a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a><span class="err">│</span><span class="w">  </span><span class="err">├─</span><span class="w"> </span><span class="n">ROOTDEVNAME</span><span class="w"> </span><span class="p">(</span><span class="n">compile</span><span class="o">-</span><span class="n">time</span><span class="p">)</span>
+<a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a><span class="err">│</span><span class="w">  </span><span class="err">├─</span><span class="w"> </span><span class="n">kgetenv</span><span class="p">(</span><span class="s">&quot;vfs.root.mountfrom&quot;</span><span class="p">)</span><span class="w"> </span><span class="n">from</span><span class="w"> </span><span class="n">loader</span>
+<a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a><span class="err">│</span><span class="w">  </span><span class="err">├─</span><span class="w"> </span><span class="n">rootdevnames</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span><span class="w"> </span><span class="n">rootdevnames</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="w"> </span><span class="p">(</span><span class="n">machine</span><span class="o">-</span><span class="n">dependent</span><span class="w"> </span><span class="n">legacy</span><span class="p">)</span>
+<a id="__codelineno-2-9" name="__codelineno-2-9" href="#__codelineno-2-9"></a><span class="err">│</span><span class="w">  </span><span class="err">└─</span><span class="w"> </span><span class="n">RB_ASKNAME</span><span class="w"> </span><span class="err">→</span><span class="w"> </span><span class="n">vfs_mountroot_ask</span><span class="p">()</span><span class="w"> </span><span class="p">(</span><span class="n">interactive</span><span class="w"> </span><span class="n">prompt</span><span class="p">)</span>
+<a id="__codelineno-2-10" name="__codelineno-2-10" href="#__codelineno-2-10"></a><span class="err">└─</span><span class="w"> </span><span class="n">Panic</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="n">all</span><span class="w"> </span><span class="n">methods</span><span class="w"> </span><span class="n">fail</span>
+</code></pre></div>
+<p><strong>Root mount string format:</strong> <code>&lt;fstype&gt;:&lt;device&gt;</code> (e.g., <code>"hammer2:da0s1a"</code>, <code>"ufs:da0s1a"</code>)</p>
+<h3 id="vfs_mountroot_try">vfs_mountroot_try()<a class="headerlink" href="#vfs_mountroot_try" title="Permanent link">&para;</a></h3>
+<p>Attempts to mount a specified root:</p>
+<ol>
+<li>Parse <code>&lt;fstype&gt;:&lt;devname&gt;</code> string</li>
+<li>Call <code>vfs_rootmountalloc()</code> to allocate <code>struct mount</code></li>
+<li>Set <code>mp-&gt;mnt_flag |= MNT_ROOTFS</code></li>
+<li>Call <code>VFS_MOUNT(mp, NULL, NULL, cred)</code></li>
+<li>On success:</li>
+<li>Insert into <code>mountlist</code> (first position)</li>
+<li>Call <code>inittodr()</code> to sync system clock from fs timestamp</li>
+<li>Get root vnode via <code>VFS_ROOT()</code></li>
+<li>Setup <code>proc0</code>'s fd_cdir, fd_rdir, fd_ncdir, fd_nrdir</li>
+<li>Call <code>vfs_cache_setroot()</code> for global rootnch</li>
+<li>Allocate syncer vnode via <code>vfs_allocate_syncvnode()</code></li>
+<li>Call <code>VFS_START(mp, 0)</code></li>
+</ol>
+<h3 id="interactive-root-prompt">Interactive Root Prompt<a class="headerlink" href="#interactive-root-prompt" title="Permanent link">&para;</a></h3>
+<p><code>vfs_mountroot_ask()</code> - when RB_ASKNAME boot flag set:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>mountroot&gt; ?           # List available disk devices
+<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>mountroot&gt; ufs:da0s1a  # Try mount
+<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a>mountroot&gt; panic       # Panic the kernel
+<a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a>mountroot&gt; abort       # Give up
+</code></pre></div>
+<p>Uses <code>devfs_scan_callback()</code> to enumerate disk devices.</p>
+<h3 id="devfs-mounting">devfs Mounting<a class="headerlink" href="#devfs-mounting" title="Permanent link">&para;</a></h3>
+<p><code>vfs_mountroot_devfs()</code> - Mounts <code>/dev</code> (or <code>&lt;init_chroot&gt;/dev</code>):</p>
+<ol>
+<li>nlookup <code>/dev</code> path</li>
+<li>Allocate mount structure</li>
+<li>Call <code>VFS_MOUNT(mp, "/dev", NULL, cred)</code></li>
+<li>Mark ncp with <code>NCF_ISMOUNTPT</code></li>
+<li>Insert into mountlist</li>
+</ol>
+<hr />
+<h2 id="vnode-lifecycle-vfs_subrc">Vnode Lifecycle (vfs_subr.c)<a class="headerlink" href="#vnode-lifecycle-vfs_subrc" title="Permanent link">&para;</a></h2>
+<h3 id="vnode-subsystem-initialization">Vnode Subsystem Initialization<a class="headerlink" href="#vnode-subsystem-initialization" title="Permanent link">&para;</a></h3>
+<p><strong>vfs_subr_init()</strong> (called from vfsinit):</p>
+<p>Calculates <code>maxvnodes</code> based on available RAM:
+- Base formula: <code>maxvnodes = freemem / (80 * (sizeof(struct vm_object) + sizeof(struct vnode)))</code>
+- Non-linear scaling for systems &gt; 1GB and &gt; 8GB
+- Minimum: max(MINVNODES=2000, maxproc * 8)
+- Maximum: MAXVNODES=4000000
+- Bounded by kernel VA space (KvaSize)</p>
+<p><strong>Global state:</strong>
+- <code>numvnodes</code> - Current vnode count (sysctl <code>debug.numvnodes</code>)
+- <code>maxvnodes</code> - Maximum vnodes (sysctl <code>kern.maxvnodes</code>)
+- <code>spechash_token</code> - Token protecting device vnode hash</p>
+<h3 id="vnode-buffer-tree-management">Vnode Buffer Tree Management<a class="headerlink" href="#vnode-buffer-tree-management" title="Permanent link">&para;</a></h3>
+<p>Vnodes maintain red-black trees for buffer management (defined in vfs_subr.c:133):</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="k">struct</span><span class="w"> </span><span class="nc">vnode</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a><span class="w">    </span><span class="k">struct</span><span class="w"> </span><span class="nc">buf_rb_tree</span><span class="w"> </span><span class="n">v_rbclean_tree</span><span class="p">;</span><span class="w">  </span><span class="c1">// Clean buffers</span>
+<a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a><span class="w">    </span><span class="k">struct</span><span class="w"> </span><span class="nc">buf_rb_tree</span><span class="w"> </span><span class="n">v_rbdirty_tree</span><span class="p">;</span><span class="w">  </span><span class="c1">// Dirty buffers</span>
+<a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a><span class="w">    </span><span class="k">struct</span><span class="w"> </span><span class="nc">buf_rb_hash</span><span class="w"> </span><span class="n">v_rbhash_tree</span><span class="p">;</span><span class="w">   </span><span class="c1">// All buffers (hash by b_loffset)</span>
+<a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a><span class="w">    </span><span class="p">...</span>
+<a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a><span class="p">};</span>
+</code></pre></div>
+<p><strong>Buffer-vnode association:</strong>
+- <code>bgetvp(struct vnode *, struct buf *)</code> - Associate buffer with vnode (vfs_subr.c:964)
+  - Inserts into <code>v_rbhash_tree</code>
+  - Diagnostics check for overlapping buffers
+- <code>brelvp(struct buf *)</code> - Disassociate buffer from vnode</p>
+<h3 id="buffer-invalidation">Buffer Invalidation<a class="headerlink" href="#buffer-invalidation" title="Permanent link">&para;</a></h3>
+<p><strong>vinvalbuf()</strong> (vfs_subr.c:313) - Flush and invalidate all buffers for a vnode:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="n">vinvalbuf</span><span class="p">(</span><span class="k">struct</span><span class="w"> </span><span class="nc">vnode</span><span class="w"> </span><span class="o">*</span><span class="n">vp</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">flags</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">slpflag</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">slptimeo</span><span class="p">)</span>
+</code></pre></div>
+<p><strong>Flags:</strong>
+- <code>V_SAVE</code> - Call <code>VOP_FSYNC()</code> before invalidating</p>
+<p><strong>Algorithm:</strong>
+1. If V_SAVE: wait for write I/O, then <code>VOP_FSYNC()</code>
+2. Loop:
+   - Scan <code>v_rbclean_tree</code> and <code>v_rbdirty_tree</code> with <code>vinvalbuf_bp()</code>
+   - Wait for all I/O completion (<code>bio_track_wait()</code>)
+   - Wait for VM paging I/O
+3. Remove VM pages via <code>vm_object_page_remove()</code>
+4. Panic if any buffers remain</p>
+<p><strong>Used during:</strong>
+- Vnode reclamation
+- Truncation/unmount operations</p>
+<h3 id="buffer-truncation">Buffer Truncation<a class="headerlink" href="#buffer-truncation" title="Permanent link">&para;</a></h3>
+<p><strong>vtruncbuf()</strong> (vfs_subr.c:475) - Truncate file buffers to new length:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="n">vtruncbuf</span><span class="p">(</span><span class="k">struct</span><span class="w"> </span><span class="nc">vnode</span><span class="w"> </span><span class="o">*</span><span class="n">vp</span><span class="p">,</span><span class="w"> </span><span class="kt">off_t</span><span class="w"> </span><span class="n">length</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">blksize</span><span class="p">)</span>
+</code></pre></div>
+<ol>
+<li>Round <code>length</code> up to next block boundary</li>
+<li>Scan clean/dirty trees with <code>vtruncbuf_bp_trunc_cmp()</code></li>
+<li>Destroy buffers with <code>b_loffset &gt;= truncloffset</code></li>
+<li>For non-zero truncation: fsync remaining metadata buffers</li>
+<li>Call <code>vnode_pager_setsize()</code> to truncate VM backing store</li>
+<li>Wait for I/O completion</li>
+</ol>
+<h3 id="filesystem-sync-vfsync">Filesystem Sync (vfsync)<a class="headerlink" href="#filesystem-sync-vfsync" title="Permanent link">&para;</a></h3>
+<p><strong>vfsync()</strong> (vfs_subr.c:680) - Sync dirty buffers for a vnode:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="n">vfsync</span><span class="p">(</span><span class="k">struct</span><span class="w"> </span><span class="nc">vnode</span><span class="w"> </span><span class="o">*</span><span class="n">vp</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">waitfor</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">passes</span><span class="p">,</span>
+<a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a><span class="w">       </span><span class="kt">int</span><span class="w"> </span><span class="p">(</span><span class="o">*</span><span class="n">checkdef</span><span class="p">)(</span><span class="k">struct</span><span class="w"> </span><span class="nc">buf</span><span class="w"> </span><span class="o">*</span><span class="p">),</span>
+<a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a><span class="w">       </span><span class="kt">int</span><span class="w"> </span><span class="p">(</span><span class="o">*</span><span class="n">waitoutput</span><span class="p">)(</span><span class="k">struct</span><span class="w"> </span><span class="nc">vnode</span><span class="w"> </span><span class="o">*</span><span class="p">,</span><span class="w"> </span><span class="k">struct</span><span class="w"> </span><span class="nc">thread</span><span class="w"> </span><span class="o">*</span><span class="p">))</span>
+</code></pre></div>
+<p><strong>Wait modes:</strong>
+- <code>MNT_LAZY</code> - Lazy flush (limit to 1MB data), used by syncer
+- <code>MNT_NOWAIT</code> - Asynchronous flush (one data pass, one metadata pass)
+- <code>MNT_WAIT</code> - Synchronous (multiple passes until clean)</p>
+<p><strong>Algorithm for MNT_WAIT:</strong>
+1. Data-only pass (fast, no waiting)
+2. Wait for I/O
+3. Full pass (data + metadata)
+4. Additional passes (up to <code>passes</code> count) until no dirty buffers remain
+5. On final pass: set <code>info.synchronous = 1</code> to force blocking writes</p>
+<p><strong>Lazy mode</strong> (<code>MNT_LAZY</code>):
+- Scan from <code>vp-&gt;v_lazyw</code> offset
+- Stop after flushing 1MB (<code>info.lazylimit</code>)
+- Updates <code>v_lazyw</code> to track progress
+- Reschedules vnode for syncer if incomplete</p>
+<p><strong>Used by:</strong>
+- <code>VOP_FSYNC()</code> implementations
+- Periodic sync daemon</p>
+<h3 id="timestamp-precision">Timestamp Precision<a class="headerlink" href="#timestamp-precision" title="Permanent link">&para;</a></h3>
+<p><strong>vfs_timestamp()</strong> (vfs_subr.c:238) - Get current timestamp with configurable precision:</p>
+<p><strong>Sysctl <code>vfs.timestamp_precision</code>:</strong>
+- 0 = Seconds only
+- 1 = Microseconds (tick precision, default if hz &gt;= 100)
+- 2 = Microseconds (tick precision)
+- 3 = Nanoseconds (tick precision)
+- 4 = Microseconds (maximum precision, default if hz &lt; 100)
+- 5 = Nanoseconds (maximum precision)</p>
+<hr />
+<h2 id="vfs-operations-vfs_vfsopsc">VFS Operations (vfs_vfsops.c)<a class="headerlink" href="#vfs-operations-vfs_vfsopsc" title="Permanent link">&para;</a></h2>
+<h3 id="mpsafe-wrapper-layer">MPSAFE Wrapper Layer<a class="headerlink" href="#mpsafe-wrapper-layer" title="Permanent link">&para;</a></h3>
+<p><code>vfs_vfsops.c</code> provides MPSAFE wrappers for all <code>struct vfsops</code> methods. Each wrapper:</p>
+<ol>
+<li>Acquires mount's MP lock (<code>VFS_MPLOCK(mp)</code>)</li>
+<li>Calls filesystem's method via function pointer</li>
+<li>Releases MP lock (<code>VFS_MPUNLOCK()</code>)</li>
+</ol>
+<p><strong>Key wrappers:</strong></p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a><span class="kt">int</span><span class="w"> </span><span class="n">vfs_mount</span><span class="p">(</span><span class="k">struct</span><span class="w"> </span><span class="nc">mount</span><span class="w"> </span><span class="o">*</span><span class="n">mp</span><span class="p">,</span><span class="w"> </span><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="n">path</span><span class="p">,</span><span class="w"> </span><span class="n">caddr_t</span><span class="w"> </span><span class="n">data</span><span class="p">,</span><span class="w"> </span><span class="k">struct</span><span class="w"> </span><span class="nc">ucred</span><span class="w"> </span><span class="o">*</span><span class="n">cred</span><span class="p">)</span>
+<a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a><span class="kt">int</span><span class="w"> </span><span class="n">vfs_start</span><span class="p">(</span><span class="k">struct</span><span class="w"> </span><span class="nc">mount</span><span class="w"> </span><span class="o">*</span><span class="n">mp</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">flags</span><span class="p">)</span>
+<a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a><span class="kt">int</span><span class="w"> </span><span class="n">vfs_unmount</span><span class="p">(</span><span class="k">struct</span><span class="w"> </span><span class="nc">mount</span><span class="w"> </span><span class="o">*</span><span class="n">mp</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">mntflags</span><span class="p">)</span>
+<a id="__codelineno-8-4" name="__codelineno-8-4" href="#__codelineno-8-4"></a><span class="kt">int</span><span class="w"> </span><span class="n">vfs_root</span><span class="p">(</span><span class="k">struct</span><span class="w"> </span><span class="nc">mount</span><span class="w"> </span><span class="o">*</span><span class="n">mp</span><span class="p">,</span><span class="w"> </span><span class="k">struct</span><span class="w"> </span><span class="nc">vnode</span><span class="w"> </span><span class="o">**</span><span class="n">vpp</span><span class="p">)</span>
+<a id="__codelineno-8-5" name="__codelineno-8-5" href="#__codelineno-8-5"></a><span class="kt">int</span><span class="w"> </span><span class="n">vfs_sync</span><span class="p">(</span><span class="k">struct</span><span class="w"> </span><span class="nc">mount</span><span class="w"> </span><span class="o">*</span><span class="n">mp</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">waitfor</span><span class="p">)</span>
+<a id="__codelineno-8-6" name="__codelineno-8-6" href="#__codelineno-8-6"></a><span class="kt">int</span><span class="w"> </span><span class="n">vfs_statfs</span><span class="p">(</span><span class="k">struct</span><span class="w"> </span><span class="nc">mount</span><span class="w"> </span><span class="o">*</span><span class="n">mp</span><span class="p">,</span><span class="w"> </span><span class="k">struct</span><span class="w"> </span><span class="nc">statfs</span><span class="w"> </span><span class="o">*</span><span class="n">sbp</span><span class="p">,</span><span class="w"> </span><span class="k">struct</span><span class="w"> </span><span class="nc">ucred</span><span class="w"> </span><span class="o">*</span><span class="n">cred</span><span class="p">)</span>
+<a id="__codelineno-8-7" name="__codelineno-8-7" href="#__codelineno-8-7"></a><span class="kt">int</span><span class="w"> </span><span class="n">vfs_statvfs</span><span class="p">(</span><span class="k">struct</span><span class="w"> </span><span class="nc">mount</span><span class="w"> </span><span class="o">*</span><span class="n">mp</span><span class="p">,</span><span class="w"> </span><span class="k">struct</span><span class="w"> </span><span class="nc">statvfs</span><span class="w"> </span><span class="o">*</span><span class="n">sbp</span><span class="p">,</span><span class="w"> </span><span class="k">struct</span><span class="w"> </span><span class="nc">ucred</span><span class="w"> </span><span class="o">*</span><span class="n">cred</span><span class="p">)</span>
+<a id="__codelineno-8-8" name="__codelineno-8-8" href="#__codelineno-8-8"></a><span class="kt">int</span><span class="w"> </span><span class="n">vfs_vget</span><span class="p">(</span><span class="k">struct</span><span class="w"> </span><span class="nc">mount</span><span class="w"> </span><span class="o">*</span><span class="n">mp</span><span class="p">,</span><span class="w"> </span><span class="k">struct</span><span class="w"> </span><span class="nc">vnode</span><span class="w"> </span><span class="o">*</span><span class="n">dvp</span><span class="p">,</span><span class="w"> </span><span class="kt">ino_t</span><span class="w"> </span><span class="n">ino</span><span class="p">,</span><span class="w"> </span><span class="k">struct</span><span class="w"> </span><span class="nc">vnode</span><span class="w"> </span><span class="o">**</span><span class="n">vpp</span><span class="p">)</span>
+<a id="__codelineno-8-9" name="__codelineno-8-9" href="#__codelineno-8-9"></a><span class="kt">int</span><span class="w"> </span><span class="n">vfs_fhtovp</span><span class="p">(</span><span class="k">struct</span><span class="w"> </span><span class="nc">mount</span><span class="w"> </span><span class="o">*</span><span class="n">mp</span><span class="p">,</span><span class="w"> </span><span class="k">struct</span><span class="w"> </span><span class="nc">vnode</span><span class="w"> </span><span class="o">*</span><span class="n">rootvp</span><span class="p">,</span><span class="w"> </span><span class="k">struct</span><span class="w"> </span><span class="nc">fid</span><span class="w"> </span><span class="o">*</span><span class="n">fhp</span><span class="p">,</span><span class="w"> </span><span class="k">struct</span><span class="w"> </span><span class="nc">vnode</span><span class="w"> </span><span class="o">**</span><span class="n">vpp</span><span class="p">)</span>
+<a id="__codelineno-8-10" name="__codelineno-8-10" href="#__codelineno-8-10"></a><span class="kt">int</span><span class="w"> </span><span class="n">vfs_vptofh</span><span class="p">(</span><span class="k">struct</span><span class="w"> </span><span class="nc">vnode</span><span class="w"> </span><span class="o">*</span><span class="n">vp</span><span class="p">,</span><span class="w"> </span><span class="k">struct</span><span class="w"> </span><span class="nc">fid</span><span class="w"> </span><span class="o">*</span><span class="n">fhp</span><span class="p">)</span>
+<a id="__codelineno-8-11" name="__codelineno-8-11" href="#__codelineno-8-11"></a><span class="kt">int</span><span class="w"> </span><span class="n">vfs_checkexp</span><span class="p">(</span><span class="k">struct</span><span class="w"> </span><span class="nc">mount</span><span class="w"> </span><span class="o">*</span><span class="n">mp</span><span class="p">,</span><span class="w"> </span><span class="k">struct</span><span class="w"> </span><span class="nc">sockaddr</span><span class="w"> </span><span class="o">*</span><span class="n">nam</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="o">*</span><span class="n">extflagsp</span><span class="p">,</span><span class="w"> </span><span class="k">struct</span><span class="w"> </span><span class="nc">ucred</span><span class="w"> </span><span class="o">**</span><span class="n">credanonp</span><span class="p">)</span>
+<a id="__codelineno-8-12" name="__codelineno-8-12" href="#__codelineno-8-12"></a><span class="kt">int</span><span class="w"> </span><span class="n">vfs_extattrctl</span><span class="p">(</span><span class="k">struct</span><span class="w"> </span><span class="nc">mount</span><span class="w"> </span><span class="o">*</span><span class="n">mp</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">cmd</span><span class="p">,</span><span class="w"> </span><span class="k">struct</span><span class="w"> </span><span class="nc">vnode</span><span class="w"> </span><span class="o">*</span><span class="n">vp</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">attrnamespace</span><span class="p">,</span><span class="w"> </span>
+<a id="__codelineno-8-13" name="__codelineno-8-13" href="#__codelineno-8-13"></a><span class="w">                   </span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="n">attrname</span><span class="p">,</span><span class="w"> </span><span class="k">struct</span><span class="w"> </span><span class="nc">ucred</span><span class="w"> </span><span class="o">*</span><span class="n">cred</span><span class="p">)</span>
+</code></pre></div>
+<p><strong>Quota integration:</strong>
+- <code>vfs_start()</code> calls <code>VFS_ACINIT()</code> on successful start
+- <code>vfs_unmount()</code> calls <code>VFS_ACDONE()</code> before unmounting</p>
+<p><strong>Mount point locking strategy:</strong>
+- Most operations use exclusive MP lock
+- Some operations conditionally use MP lock via <code>VFS_MPLOCK_FLAG()</code>
+- Filesystems can opt-in to MPSAFE via <code>MNTK_*_MPSAFE</code> flags</p>
+<hr />
+<h2 id="high-level-vnode-operations-vfs_vnopsc">High-Level Vnode Operations (vfs_vnops.c)<a class="headerlink" href="#high-level-vnode-operations-vfs_vnopsc" title="Permanent link">&para;</a></h2>
+<h3 id="vn_open-opencreate-files">vn_open() - Open/Create Files<a class="headerlink" href="#vn_open-opencreate-files" title="Permanent link">&para;</a></h3>
+<p><strong>Signature:</strong></p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a><span class="kt">int</span><span class="w"> </span><span class="n">vn_open</span><span class="p">(</span><span class="k">struct</span><span class="w"> </span><span class="nc">nlookupdata</span><span class="w"> </span><span class="o">*</span><span class="n">nd</span><span class="p">,</span><span class="w"> </span><span class="k">struct</span><span class="w"> </span><span class="nc">file</span><span class="w"> </span><span class="o">**</span><span class="n">fpp</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">fmode</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">cmode</span><span class="p">)</span>
+</code></pre></div>
+<p><strong>Purpose:</strong> Unified entry point for opening and creating files/directories.</p>
+<p><strong>Flow:</strong></p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a><span class="n">vn_open</span><span class="p">()</span>
+<a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a><span class="err">├─</span><span class="w"> </span><span class="n">Setup</span><span class="w"> </span><span class="n">nd</span><span class="o">-&gt;</span><span class="n">nl_flags</span><span class="w"> </span><span class="p">(</span><span class="n">NLC_OPEN</span><span class="p">,</span><span class="w"> </span><span class="n">NLC_APPEND</span><span class="p">,</span><span class="w"> </span><span class="n">NLC_READ</span><span class="p">,</span><span class="w"> </span><span class="n">NLC_WRITE</span><span class="p">,</span><span class="w"> </span><span class="n">etc</span><span class="p">.)</span>
+<a id="__codelineno-10-3" name="__codelineno-10-3" href="#__codelineno-10-3"></a><span class="err">├─</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">fmode</span><span class="w"> </span><span class="o">&amp;</span><span class="w"> </span><span class="n">O_CREAT</span><span class="p">)</span><span class="o">:</span>
+<a id="__codelineno-10-4" name="__codelineno-10-4" href="#__codelineno-10-4"></a><span class="err">│</span><span class="w">  </span><span class="err">├─</span><span class="w"> </span><span class="n">Set</span><span class="w"> </span><span class="n">NLC_CREATE</span><span class="p">,</span><span class="w"> </span><span class="n">NLC_REFDVP</span><span class="p">,</span><span class="w"> </span><span class="n">call</span><span class="w"> </span><span class="n">nlookup</span><span class="p">()</span>
+<a id="__codelineno-10-5" name="__codelineno-10-5" href="#__codelineno-10-5"></a><span class="err">│</span><span class="w">  </span><span class="err">└─</span><span class="w"> </span><span class="n">bwillinode</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="w">  </span><span class="c1">// Reserve inode space</span>
+<a id="__codelineno-10-6" name="__codelineno-10-6" href="#__codelineno-10-6"></a><span class="err">├─</span><span class="w"> </span><span class="k">else</span><span class="o">:</span>
+<a id="__codelineno-10-7" name="__codelineno-10-7" href="#__codelineno-10-7"></a><span class="err">│</span><span class="w">  </span><span class="err">└─</span><span class="w"> </span><span class="n">nlookup</span><span class="p">()</span><span class="w">  </span><span class="c1">// Normal lookup</span>
+<a id="__codelineno-10-8" name="__codelineno-10-8" href="#__codelineno-10-8"></a><span class="err">├─</span><span class="w"> </span><span class="n">Check</span><span class="w"> </span><span class="n">filesystem</span><span class="w"> </span><span class="n">modification</span><span class="w"> </span><span class="n">stall</span><span class="w"> </span><span class="p">(</span><span class="n">ncp_writechk</span><span class="p">())</span>
+<a id="__codelineno-10-9" name="__codelineno-10-9" href="#__codelineno-10-9"></a><span class="err">├─</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">O_CREAT</span><span class="w"> </span><span class="n">and</span><span class="w"> </span><span class="n">ncp</span><span class="o">-&gt;</span><span class="n">nc_vp</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="nb">NULL</span><span class="p">)</span><span class="o">:</span>
+<a id="__codelineno-10-10" name="__codelineno-10-10" href="#__codelineno-10-10"></a><span class="err">│</span><span class="w">  </span><span class="err">└─</span><span class="w"> </span><span class="n">VOP_NCREATE</span><span class="p">(</span><span class="o">&amp;</span><span class="n">nl_nch</span><span class="p">,</span><span class="w"> </span><span class="n">nl_dvp</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">vp</span><span class="p">,</span><span class="w"> </span><span class="n">cred</span><span class="p">,</span><span class="w"> </span><span class="n">vap</span><span class="p">)</span><span class="w">  </span><span class="c1">// Create new file</span>
+<a id="__codelineno-10-11" name="__codelineno-10-11" href="#__codelineno-10-11"></a><span class="err">├─</span><span class="w"> </span><span class="k">else</span><span class="o">:</span>
+<a id="__codelineno-10-12" name="__codelineno-10-12" href="#__codelineno-10-12"></a><span class="err">│</span><span class="w">  </span><span class="err">└─</span><span class="w"> </span><span class="n">cache_vget</span><span class="p">(</span><span class="o">&amp;</span><span class="n">nl_nch</span><span class="p">,</span><span class="w"> </span><span class="n">cred</span><span class="p">,</span><span class="w"> </span><span class="n">LK_EXCLUSIVE</span><span class="o">/</span><span class="n">LK_SHARED</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">vp</span><span class="p">)</span><span class="w">  </span><span class="c1">// Get existing</span>
+<a id="__codelineno-10-13" name="__codelineno-10-13" href="#__codelineno-10-13"></a><span class="err">├─</span><span class="w"> </span><span class="n">Validate</span><span class="w"> </span><span class="n">vnode</span><span class="w"> </span><span class="n">type</span><span class="w"> </span><span class="p">(</span><span class="n">reject</span><span class="w"> </span><span class="n">VLNK</span><span class="p">,</span><span class="w"> </span><span class="n">VSOCK</span><span class="p">;</span><span class="w"> </span><span class="n">check</span><span class="w"> </span><span class="n">O_DIRECTORY</span><span class="p">)</span>
+<a id="__codelineno-10-14" name="__codelineno-10-14" href="#__codelineno-10-14"></a><span class="err">├─</span><span class="w"> </span><span class="n">Check</span><span class="w"> </span><span class="n">write</span><span class="w"> </span><span class="n">permission</span><span class="w"> </span><span class="p">(</span><span class="n">vn_writechk</span><span class="p">())</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="n">FWRITE</span><span class="o">|</span><span class="n">O_TRUNC</span>
+<a id="__codelineno-10-15" name="__codelineno-10-15" href="#__codelineno-10-15"></a><span class="err">├─</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">O_TRUNC</span><span class="p">)</span><span class="o">:</span>
+<a id="__codelineno-10-16" name="__codelineno-10-16" href="#__codelineno-10-16"></a><span class="err">│</span><span class="w">  </span><span class="err">├─</span><span class="w"> </span><span class="n">VOP_SETATTR_FP</span><span class="p">(</span><span class="n">vp</span><span class="p">,</span><span class="w"> </span><span class="n">vap</span><span class="o">-&gt;</span><span class="n">va_size</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="n">cred</span><span class="p">,</span><span class="w"> </span><span class="n">fp</span><span class="p">)</span>
+<a id="__codelineno-10-17" name="__codelineno-10-17" href="#__codelineno-10-17"></a><span class="err">│</span><span class="w">  </span><span class="err">└─</span><span class="w"> </span><span class="n">VFS_ACCOUNT</span><span class="p">()</span><span class="w">  </span><span class="c1">// Quota adjustment</span>
+<a id="__codelineno-10-18" name="__codelineno-10-18" href="#__codelineno-10-18"></a><span class="err">├─</span><span class="w"> </span><span class="n">Setup</span><span class="w"> </span><span class="n">VNSWAPCACHE</span><span class="w"> </span><span class="n">flags</span><span class="w"> </span><span class="n">based</span><span class="w"> </span><span class="n">on</span><span class="w"> </span><span class="n">NCF_UF_CACHE</span><span class="o">/</span><span class="n">NCF_SF_NOCACHE</span>
+<a id="__codelineno-10-19" name="__codelineno-10-19" href="#__codelineno-10-19"></a><span class="err">├─</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">fp</span><span class="p">)</span><span class="o">:</span>
+<a id="__codelineno-10-20" name="__codelineno-10-20" href="#__codelineno-10-20"></a><span class="err">│</span><span class="w">  </span><span class="err">└─</span><span class="w"> </span><span class="n">fp</span><span class="o">-&gt;</span><span class="n">f_nchandle</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">nd</span><span class="o">-&gt;</span><span class="n">nl_nch</span><span class="w">  </span><span class="c1">// Store namecache handle</span>
+<a id="__codelineno-10-21" name="__codelineno-10-21" href="#__codelineno-10-21"></a><span class="err">├─</span><span class="w"> </span><span class="n">VOP_OPEN</span><span class="p">(</span><span class="n">vp</span><span class="p">,</span><span class="w"> </span><span class="n">fmode</span><span class="p">,</span><span class="w"> </span><span class="n">cred</span><span class="p">,</span><span class="w"> </span><span class="n">fpp</span><span class="p">)</span><span class="w">  </span><span class="c1">// Call filesystem&#39;s open method</span>
+<a id="__codelineno-10-22" name="__codelineno-10-22" href="#__codelineno-10-22"></a><span class="err">└─</span><span class="w"> </span><span class="n">Return</span><span class="w"> </span><span class="n">vnode</span><span class="w"> </span><span class="n">in</span><span class="w"> </span><span class="n">nd</span><span class="o">-&gt;</span><span class="n">nl_open_vp</span><span class="w"> </span><span class="p">(</span><span class="k">if</span><span class="w"> </span><span class="n">fp</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="nb">NULL</span><span class="p">)</span><span class="w"> </span><span class="n">or</span><span class="w"> </span><span class="n">fp</span><span class="o">-&gt;</span><span class="n">f_data</span><span class="w"> </span><span class="p">(</span><span class="k">if</span><span class="w"> </span><span class="n">fp</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="nb">NULL</span><span class="p">)</span>
+</code></pre></div>
+<p><strong>Key features:</strong>
+- <strong>Shared locking optimization:</strong> Uses LK_SHARED for read-only opens (when appropriate)
+- <strong>ESTALE handling:</strong> Re-resolves namecache on ESTALE errors
+- <strong>Quota integration:</strong> Checks/accounts for size changes on O_TRUNC
+- <strong>Swapcache control:</strong> Propagates NCF_UF_CACHE flags to VNSWAPCACHE vnode flag</p>
+<p><strong>Error cases:</strong>
+- <code>EACCES</code> - Permission denied
+- <code>EEXIST</code> - O_CREAT | O_EXCL and file exists
+- <code>EISDIR</code> - Attempting to write/truncate a directory
+- <code>ENOTDIR</code> - O_DIRECTORY on non-directory
+- <code>EMLINK</code> - Opened a symlink (shouldn't happen with NLC_FOLLOW)
+- <code>ETXTBSY</code> - File is executing, cannot write
+- <code>EROFS</code> - Read-only filesystem
+- <code>ESTALE</code> - NFS stale file handle (triggers retry)</p>
+<h3 id="vn_close-close-files">vn_close() - Close Files<a class="headerlink" href="#vn_close-close-files" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a><span class="kt">int</span><span class="w"> </span><span class="n">vn_close</span><span class="p">(</span><span class="k">struct</span><span class="w"> </span><span class="nc">vnode</span><span class="w"> </span><span class="o">*</span><span class="n">vp</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">flags</span><span class="p">,</span><span class="w"> </span><span class="k">struct</span><span class="w"> </span><span class="nc">file</span><span class="w"> </span><span class="o">*</span><span class="n">fp</span><span class="p">)</span>
+</code></pre></div>
+<ol>
+<li>Lock vnode (LK_SHARED | LK_RETRY | LK_FAILRECLAIM)</li>
+<li>Call <code>VOP_CLOSE(vp, flags, fp)</code></li>
+<li>Unlock vnode</li>
+</ol>
+<p><strong>Flags:</strong>
+- <code>FREAD</code>, <code>FWRITE</code> - Indicating how file was opened
+- <code>FNONBLOCK</code> - Non-blocking close</p>
+<h3 id="vn_rdwr-kernel-file-io">vn_rdwr() - Kernel File I/O<a class="headerlink" href="#vn_rdwr-kernel-file-io" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a><span class="kt">int</span><span class="w"> </span><span class="n">vn_rdwr</span><span class="p">(</span><span class="k">enum</span><span class="w"> </span><span class="n">uio_rw</span><span class="w"> </span><span class="n">rw</span><span class="p">,</span><span class="w"> </span><span class="k">struct</span><span class="w"> </span><span class="nc">vnode</span><span class="w"> </span><span class="o">*</span><span class="n">vp</span><span class="p">,</span><span class="w"> </span><span class="n">caddr_t</span><span class="w"> </span><span class="n">base</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">len</span><span class="p">,</span>
+<a id="__codelineno-12-2" name="__codelineno-12-2" href="#__codelineno-12-2"></a><span class="w">            </span><span class="kt">off_t</span><span class="w"> </span><span class="n">offset</span><span class="p">,</span><span class="w"> </span><span class="k">enum</span><span class="w"> </span><span class="n">uio_seg</span><span class="w"> </span><span class="n">segflg</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">ioflags</span><span class="p">,</span>
+<a id="__codelineno-12-3" name="__codelineno-12-3" href="#__codelineno-12-3"></a><span class="w">            </span><span class="k">struct</span><span class="w"> </span><span class="nc">ucred</span><span class="w"> </span><span class="o">*</span><span class="n">cred</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="o">*</span><span class="n">aresid</span><span class="p">)</span>
+</code></pre></div>
+<p><strong>Purpose:</strong> Synchronous read/write from kernel context.</p>
+<p><strong>Used by:</strong>
+- Executable loading (imgact_elf.c)
+- Core dumps (kern_sig.c)
+- Swap pager
+- Kernel module loading</p>
+<p><strong>Steps:</strong>
+1. Setup struct uio with I/O parameters
+2. If UIO_SYSSPACE and vnode has VM object: use <code>vn_cache_strategy()</code>
+3. Else: call <code>VOP_READ()</code> or <code>VOP_WRITE()</code>
+4. Return residual count in <code>*aresid</code></p>
+<h3 id="vn_writechk-write-permission-check">vn_writechk() - Write Permission Check<a class="headerlink" href="#vn_writechk-write-permission-check" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a><span class="kt">int</span><span class="w"> </span><span class="n">vn_writechk</span><span class="p">(</span><span class="k">struct</span><span class="w"> </span><span class="nc">vnode</span><span class="w"> </span><span class="o">*</span><span class="n">vp</span><span class="p">)</span>
+</code></pre></div>
+<p><strong>Checks:</strong>
+- <code>VTEXT</code> flag - File is executing (returns ETXTBSY)
+- <code>MNT_RDONLY</code> - Filesystem is read-only (returns EROFS)</p>
+<p><strong>Called after vnode is locked.</strong></p>
+<h3 id="ncp_writechk-namecache-write-check">ncp_writechk() - Namecache Write Check<a class="headerlink" href="#ncp_writechk-namecache-write-check" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-14-1" name="__codelineno-14-1" href="#__codelineno-14-1"></a><span class="kt">int</span><span class="w"> </span><span class="n">ncp_writechk</span><span class="p">(</span><span class="k">struct</span><span class="w"> </span><span class="nc">nchandle</span><span class="w"> </span><span class="o">*</span><span class="n">nch</span><span class="p">)</span>
+</code></pre></div>
+<p><strong>Checks:</strong>
+- <code>MNT_RDONLY</code> - Associated mount is read-only (returns EROFS)
+- Calls <code>VFS_MODIFYING()</code> if filesystem has special modifying callback</p>
+<p><strong>Called BEFORE vnodes are locked</strong> (allows filesystem to stall modifications).</p>
+<h3 id="file-descriptor-operations">File Descriptor Operations<a class="headerlink" href="#file-descriptor-operations" title="Permanent link">&para;</a></h3>
+<p><strong>vnode_fileops</strong> structure (vfs_vnops.c:77) - Provides file operations for vnodes:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-15-1" name="__codelineno-15-1" href="#__codelineno-15-1"></a><span class="k">struct</span><span class="w"> </span><span class="nc">fileops</span><span class="w"> </span><span class="n">vnode_fileops</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-15-2" name="__codelineno-15-2" href="#__codelineno-15-2"></a><span class="w">    </span><span class="p">.</span><span class="n">fo_read</span><span class="w">     </span><span class="o">=</span><span class="w"> </span><span class="n">vn_read</span><span class="p">,</span>
+<a id="__codelineno-15-3" name="__codelineno-15-3" href="#__codelineno-15-3"></a><span class="w">    </span><span class="p">.</span><span class="n">fo_write</span><span class="w">    </span><span class="o">=</span><span class="w"> </span><span class="n">vn_write</span><span class="p">,</span>
+<a id="__codelineno-15-4" name="__codelineno-15-4" href="#__codelineno-15-4"></a><span class="w">    </span><span class="p">.</span><span class="n">fo_ioctl</span><span class="w">    </span><span class="o">=</span><span class="w"> </span><span class="n">vn_ioctl</span><span class="p">,</span>
+<a id="__codelineno-15-5" name="__codelineno-15-5" href="#__codelineno-15-5"></a><span class="w">    </span><span class="p">.</span><span class="n">fo_kqfilter</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">vn_kqfilter</span><span class="p">,</span>
+<a id="__codelineno-15-6" name="__codelineno-15-6" href="#__codelineno-15-6"></a><span class="w">    </span><span class="p">.</span><span class="n">fo_stat</span><span class="w">     </span><span class="o">=</span><span class="w"> </span><span class="n">vn_statfile</span><span class="p">,</span>
+<a id="__codelineno-15-7" name="__codelineno-15-7" href="#__codelineno-15-7"></a><span class="w">    </span><span class="p">.</span><span class="n">fo_close</span><span class="w">    </span><span class="o">=</span><span class="w"> </span><span class="n">vn_closefile</span><span class="p">,</span>
+<a id="__codelineno-15-8" name="__codelineno-15-8" href="#__codelineno-15-8"></a><span class="w">    </span><span class="p">.</span><span class="n">fo_shutdown</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">nofo_shutdown</span><span class="p">,</span>
+<a id="__codelineno-15-9" name="__codelineno-15-9" href="#__codelineno-15-9"></a><span class="w">    </span><span class="p">.</span><span class="n">fo_seek</span><span class="w">     </span><span class="o">=</span><span class="w"> </span><span class="n">vn_seek</span>
+<a id="__codelineno-15-10" name="__codelineno-15-10" href="#__codelineno-15-10"></a><span class="p">};</span>
+</code></pre></div>
+<p>These functions bridge between file descriptor operations (<code>read(2)</code>, <code>write(2)</code>, etc.) and vnode operations (<code>VOP_READ()</code>, <code>VOP_WRITE()</code>).</p>
+<p><strong>vn_read():</strong>
+- Validates file is open for reading
+- For VREG: updates <code>f_offset</code> optimistically
+- Calls <code>VOP_READ(vp, uio, ioflag, cred, fp)</code>
+- Handles <code>f_offset</code> races</p>
+<p><strong>vn_write():</strong>
+- Validates file is open for writing
+- Handles <code>IO_APPEND</code> flag
+- Quota checks for regular files
+- Calls <code>VOP_WRITE(vp, uio, ioflag, cred, fp)</code>
+- Quota accounting on success</p>
+<p><strong>vn_ioctl():</strong>
+- Validates vnode type (reject directories)
+- Calls <code>VOP_IOCTL(vp, cmd, data, fflag, cred, msg)</code></p>
+<p><strong>vn_statfile():</strong>
+- Calls <code>VOP_GETATTR(vp, &amp;vattr)</code>
+- Converts <code>struct vattr</code> to <code>struct stat</code>
+- Fills in st_dev, st_ino, st_mode, st_size, timestamps, etc.</p>
+<p><strong>vn_seek():</strong>
+- Validates seek offset (no negative offsets)
+- For VREG: allows seeks beyond EOF
+- For VDIR: offset must be &lt;= current size</p>
+<hr />
+<h2 id="vnode-operation-dispatch-vfs_vopopsc">Vnode Operation Dispatch (vfs_vopops.c)<a class="headerlink" href="#vnode-operation-dispatch-vfs_vopopsc" title="Permanent link">&para;</a></h2>
+<h3 id="purpose">Purpose<a class="headerlink" href="#purpose" title="Permanent link">&para;</a></h3>
+<p><code>vfs_vopops.c</code> provides MPSAFE dispatch wrappers for all vnode operations. Similar to <code>vfs_vfsops.c</code> but for per-vnode operations rather than per-mount operations.</p>
+<h3 id="wrapper-pattern">Wrapper Pattern<a class="headerlink" href="#wrapper-pattern" title="Permanent link">&para;</a></h3>
+<p>Each VOP wrapper:</p>
+<ol>
+<li>Initializes <code>struct vop_*_args</code> with operation parameters</li>
+<li>Sets <code>a_head.a_desc</code> (operation descriptor)</li>
+<li>Sets <code>a_head.a_ops</code> (vnode's ops vector)</li>
+<li>Acquires mount's MP lock (<code>VFS_MPLOCK(vp-&gt;v_mount)</code>)</li>
+<li>Calls operation via <code>DO_OPS(ops, error, &amp;ap, vop_field)</code></li>
+<li>Releases MP lock (<code>VFS_MPUNLOCK()</code>)</li>
+<li>Returns error</li>
+</ol>
+<p><strong>Example - VOP_OPEN():</strong></p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-16-1" name="__codelineno-16-1" href="#__codelineno-16-1"></a><span class="kt">int</span><span class="w"> </span><span class="nf">vop_open</span><span class="p">(</span><span class="k">struct</span><span class="w"> </span><span class="nc">vop_ops</span><span class="w"> </span><span class="o">*</span><span class="n">ops</span><span class="p">,</span><span class="w"> </span><span class="k">struct</span><span class="w"> </span><span class="nc">vnode</span><span class="w"> </span><span class="o">*</span><span class="n">vp</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">mode</span><span class="p">,</span>
+<a id="__codelineno-16-2" name="__codelineno-16-2" href="#__codelineno-16-2"></a><span class="w">             </span><span class="k">struct</span><span class="w"> </span><span class="nc">ucred</span><span class="w"> </span><span class="o">*</span><span class="n">cred</span><span class="p">,</span><span class="w"> </span><span class="k">struct</span><span class="w"> </span><span class="nc">file</span><span class="w"> </span><span class="o">**</span><span class="n">fpp</span><span class="p">)</span>
+<a id="__codelineno-16-3" name="__codelineno-16-3" href="#__codelineno-16-3"></a><span class="p">{</span>
+<a id="__codelineno-16-4" name="__codelineno-16-4" href="#__codelineno-16-4"></a><span class="w">    </span><span class="k">struct</span><span class="w"> </span><span class="nc">vop_open_args</span><span class="w"> </span><span class="n">ap</span><span class="p">;</span>
+<a id="__codelineno-16-5" name="__codelineno-16-5" href="#__codelineno-16-5"></a><span class="w">    </span><span class="n">VFS_MPLOCK_DECLARE</span><span class="p">;</span>
+<a id="__codelineno-16-6" name="__codelineno-16-6" href="#__codelineno-16-6"></a><span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="n">error</span><span class="p">;</span>
+<a id="__codelineno-16-7" name="__codelineno-16-7" href="#__codelineno-16-7"></a>
+<a id="__codelineno-16-8" name="__codelineno-16-8" href="#__codelineno-16-8"></a><span class="w">    </span><span class="c1">// Decrement VAGE0/VAGE1 flags (aging mechanism)</span>
+<a id="__codelineno-16-9" name="__codelineno-16-9" href="#__codelineno-16-9"></a><span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">vp</span><span class="o">-&gt;</span><span class="n">v_flag</span><span class="w"> </span><span class="o">&amp;</span><span class="w"> </span><span class="n">VAGE0</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-16-10" name="__codelineno-16-10" href="#__codelineno-16-10"></a><span class="w">        </span><span class="n">vclrflags</span><span class="p">(</span><span class="n">vp</span><span class="p">,</span><span class="w"> </span><span class="n">VAGE0</span><span class="p">);</span>
+<a id="__codelineno-16-11" name="__codelineno-16-11" href="#__codelineno-16-11"></a><span class="w">    </span><span class="p">}</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">vp</span><span class="o">-&gt;</span><span class="n">v_flag</span><span class="w"> </span><span class="o">&amp;</span><span class="w"> </span><span class="n">VAGE1</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-16-12" name="__codelineno-16-12" href="#__codelineno-16-12"></a><span class="w">        </span><span class="n">vclrflags</span><span class="p">(</span><span class="n">vp</span><span class="p">,</span><span class="w"> </span><span class="n">VAGE1</span><span class="p">);</span>
+<a id="__codelineno-16-13" name="__codelineno-16-13" href="#__codelineno-16-13"></a><span class="w">        </span><span class="n">vsetflags</span><span class="p">(</span><span class="n">vp</span><span class="p">,</span><span class="w"> </span><span class="n">VAGE0</span><span class="p">);</span>
+<a id="__codelineno-16-14" name="__codelineno-16-14" href="#__codelineno-16-14"></a><span class="w">    </span><span class="p">}</span>
+<a id="__codelineno-16-15" name="__codelineno-16-15" href="#__codelineno-16-15"></a>
+<a id="__codelineno-16-16" name="__codelineno-16-16" href="#__codelineno-16-16"></a><span class="w">    </span><span class="n">ap</span><span class="p">.</span><span class="n">a_head</span><span class="p">.</span><span class="n">a_desc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="o">&amp;</span><span class="n">vop_open_desc</span><span class="p">;</span>
+<a id="__codelineno-16-17" name="__codelineno-16-17" href="#__codelineno-16-17"></a><span class="w">    </span><span class="n">ap</span><span class="p">.</span><span class="n">a_head</span><span class="p">.</span><span class="n">a_ops</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ops</span><span class="p">;</span>
+<a id="__codelineno-16-18" name="__codelineno-16-18" href="#__codelineno-16-18"></a><span class="w">    </span><span class="n">ap</span><span class="p">.</span><span class="n">a_vp</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">vp</span><span class="p">;</span>
+<a id="__codelineno-16-19" name="__codelineno-16-19" href="#__codelineno-16-19"></a><span class="w">    </span><span class="n">ap</span><span class="p">.</span><span class="n">a_fpp</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">fpp</span><span class="p">;</span>
+<a id="__codelineno-16-20" name="__codelineno-16-20" href="#__codelineno-16-20"></a><span class="w">    </span><span class="n">ap</span><span class="p">.</span><span class="n">a_mode</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">mode</span><span class="p">;</span>
+<a id="__codelineno-16-21" name="__codelineno-16-21" href="#__codelineno-16-21"></a><span class="w">    </span><span class="n">ap</span><span class="p">.</span><span class="n">a_cred</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">cred</span><span class="p">;</span>
+<a id="__codelineno-16-22" name="__codelineno-16-22" href="#__codelineno-16-22"></a>
+<a id="__codelineno-16-23" name="__codelineno-16-23" href="#__codelineno-16-23"></a><span class="w">    </span><span class="n">VFS_MPLOCK</span><span class="p">(</span><span class="n">vp</span><span class="o">-&gt;</span><span class="n">v_mount</span><span class="p">);</span>
+<a id="__codelineno-16-24" name="__codelineno-16-24" href="#__codelineno-16-24"></a><span class="w">    </span><span class="n">DO_OPS</span><span class="p">(</span><span class="n">ops</span><span class="p">,</span><span class="w"> </span><span class="n">error</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">ap</span><span class="p">,</span><span class="w"> </span><span class="n">vop_open</span><span class="p">);</span>
+<a id="__codelineno-16-25" name="__codelineno-16-25" href="#__codelineno-16-25"></a><span class="w">    </span><span class="n">VFS_MPUNLOCK</span><span class="p">();</span>
+<a id="__codelineno-16-26" name="__codelineno-16-26" href="#__codelineno-16-26"></a>
+<a id="__codelineno-16-27" name="__codelineno-16-27" href="#__codelineno-16-27"></a><span class="w">    </span><span class="k">return</span><span class="p">(</span><span class="n">error</span><span class="p">);</span>
+<a id="__codelineno-16-28" name="__codelineno-16-28" href="#__codelineno-16-28"></a><span class="p">}</span>
+</code></pre></div>
+<h3 id="key-vnode-operations">Key Vnode Operations<a class="headerlink" href="#key-vnode-operations" title="Permanent link">&para;</a></h3>
+<p><strong>Namespace operations (new API):</strong>
+- <code>vop_nresolve()</code> - Resolve namecache entry to vnode
+- <code>vop_nlookupdotdot()</code> - Lookup parent directory (..)
+- <code>vop_ncreate()</code> - Create file via namecache
+- <code>vop_nmkdir()</code> - Create directory via namecache
+- <code>vop_nmknod()</code> - Create device node via namecache
+- <code>vop_nlink()</code> - Create hard link via namecache
+- <code>vop_nsymlink()</code> - Create symbolic link via namecache
+- <code>vop_nwhiteout()</code> - Create/delete whiteout entry
+- <code>vop_nremove()</code> - Remove file via namecache
+- <code>vop_nrmdir()</code> - Remove directory via namecache
+- <code>vop_nrename()</code> - Rename file/directory via namecache</p>
+<p><strong>File operations:</strong>
+- <code>vop_open()</code> - Open file
+- <code>vop_close()</code> - Close file
+- <code>vop_read()</code> - Read data
+- <code>vop_write()</code> - Write data (with quota accounting)
+- <code>vop_ioctl()</code> - I/O control operations
+- <code>vop_poll()</code> - Poll for events
+- <code>vop_kqfilter()</code> - Register kqueue filter
+- <code>vop_fsync()</code> - Sync dirty data/metadata
+- <code>vop_fdatasync()</code> - Sync data only</p>
+<p><strong>Metadata operations:</strong>
+- <code>vop_getattr()</code> - Get vnode attributes
+- <code>vop_getattr_lite()</code> - Get lightweight attributes
+- <code>vop_setattr()</code> - Set vnode attributes
+- <code>vop_access()</code> - Check access permissions</p>
+<p><strong>I/O operations:</strong>
+- <code>vop_bmap()</code> - Map logical block to physical
+- <code>vop_strategy()</code> - Perform I/O strategy
+- <code>vop_getpages()</code> - Get VM pages
+- <code>vop_putpages()</code> - Flush VM pages</p>
+<p><strong>Directory operations:</strong>
+- <code>vop_readdir()</code> - Read directory entries
+- <code>vop_readlink()</code> - Read symbolic link target</p>
+<p><strong>Lifecycle operations:</strong>
+- <code>vop_inactive()</code> - Vnode is no longer referenced
+- <code>vop_reclaim()</code> - Reclaim vnode resources</p>
+<p><strong>Special operations:</strong>
+- <code>vop_mmap()</code> - Memory-map file
+- <code>vop_advlock()</code> - Advisory locking
+- <code>vop_balloc()</code> - Allocate blocks
+- <code>vop_freeblks()</code> - Free blocks (sparse files/truncation)
+- <code>vop_pathconf()</code> - Get filesystem path configuration
+- <code>vop_markatime()</code> - Mark access time (deferred atime updates)
+- <code>vop_allocate()</code> - Preallocate space (fallocate)</p>
+<p><strong>Extended attributes:</strong>
+- <code>vop_getacl()</code> - Get ACL
+- <code>vop_setacl()</code> - Set ACL
+- <code>vop_aclcheck()</code> - Check ACL validity
+- <code>vop_getextattr()</code> - Get extended attribute
+- <code>vop_setextattr()</code> - Set extended attribute</p>
+<h3 id="mpsafe-optimization">MPSAFE Optimization<a class="headerlink" href="#mpsafe-optimization" title="Permanent link">&para;</a></h3>
+<p>Some operations support conditional locking for better concurrency:</p>
+<p><strong>VFS_MPLOCK_FLAG()</strong> variants:
+- <code>MNTK_GA_MPSAFE</code> - Getattr is MP-safe
+- <code>MNTK_RD_MPSAFE</code> - Read is MP-safe
+- <code>MNTK_WR_MPSAFE</code> - Write is MP-safe
+- <code>MNTK_ST_MPSAFE</code> - Start is MP-safe</p>
+<p>If the mount has the appropriate flag set, the wrapper skips MP lock acquisition.</p>
+<h3 id="quota-integration">Quota Integration<a class="headerlink" href="#quota-integration" title="Permanent link">&para;</a></h3>
+<p><strong>vop_write()</strong> wrapper includes comprehensive quota handling:</p>
+<ol>
+<li>Before write: <code>VOP_GETATTR()</code> to get current size and ownership</li>
+<li>Calculate potential new size (accounting for IO_APPEND)</li>
+<li>Check quota: <code>vq_write_ok(mp, uid, gid, delta)</code></li>
+<li>Perform write via filesystem's method</li>
+<li>On success: <code>VFS_ACCOUNT(mp, uid, gid, actual_delta)</code></li>
+</ol>
+<hr />
+<h2 id="default-vnode-operations-vfs_defaultc">Default Vnode Operations (vfs_default.c)<a class="headerlink" href="#default-vnode-operations-vfs_defaultc" title="Permanent link">&para;</a></h2>
+<h3 id="default-operations-table">Default Operations Table<a class="headerlink" href="#default-operations-table" title="Permanent link">&para;</a></h3>
+<p><code>default_vnode_vops</code> provides fallback implementations when filesystems don't implement specific operations:</p>
+<p><strong>Common defaults:</strong>
+- <code>.vop_default = vop_eopnotsupp</code> - Return EOPNOTSUPP for unimplemented ops
+- <code>.vop_advlock = vop_einval</code> - Advisory locking not supported
+- <code>.vop_fsync = vop_null</code> - Successful no-op (for filesystems with no dirty buffers)
+- <code>.vop_fdatasync = vop_stdfdatasync</code> - Calls vop_fsync
+- <code>.vop_open = vop_stdopen</code> - Standard open logic
+- <code>.vop_close = vop_stdclose</code> - Standard close logic
+- <code>.vop_mmap = vop_einval</code> - Memory-mapping not supported by default
+- <code>.vop_readlink = vop_einval</code> - Not a symlink
+- <code>.vop_markatime = vop_stdmarkatime</code> - Standard atime marking</p>
+<p><strong>Compatibility wrappers</strong> (old namespace API → new):
+- <code>.vop_nresolve = vop_compat_nresolve</code>
+- <code>.vop_ncreate = vop_compat_ncreate</code>
+- <code>.vop_nmkdir = vop_compat_nmkdir</code>
+- <code>.vop_nremove = vop_compat_nremove</code>
+- <code>.vop_nrename = vop_compat_nrename</code></p>
+<p>These wrappers translate new-style namecache operations (VOPs taking <code>struct nchandle *</code>) to old-style operations (VOPs taking <code>struct componentname *</code>), allowing legacy filesystems to work with modern code.</p>
+<h3 id="standard-error-returns">Standard Error Returns<a class="headerlink" href="#standard-error-returns" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-17-1" name="__codelineno-17-1" href="#__codelineno-17-1"></a><span class="kt">int</span><span class="w"> </span><span class="nf">vop_eopnotsupp</span><span class="p">(</span><span class="k">struct</span><span class="w"> </span><span class="nc">vop_generic_args</span><span class="w"> </span><span class="o">*</span><span class="n">ap</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="n">EOPNOTSUPP</span><span class="p">;</span><span class="w"> </span><span class="p">}</span>
+<a id="__codelineno-17-2" name="__codelineno-17-2" href="#__codelineno-17-2"></a><span class="kt">int</span><span class="w"> </span><span class="nf">vop_ebadf</span><span class="p">(</span><span class="k">struct</span><span class="w"> </span><span class="nc">vop_generic_args</span><span class="w"> </span><span class="o">*</span><span class="n">ap</span><span class="p">)</span><span class="w">      </span><span class="p">{</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="n">EBADF</span><span class="p">;</span><span class="w"> </span><span class="p">}</span>
+<a id="__codelineno-17-3" name="__codelineno-17-3" href="#__codelineno-17-3"></a><span class="kt">int</span><span class="w"> </span><span class="nf">vop_enotty</span><span class="p">(</span><span class="k">struct</span><span class="w"> </span><span class="nc">vop_generic_args</span><span class="w"> </span><span class="o">*</span><span class="n">ap</span><span class="p">)</span><span class="w">     </span><span class="p">{</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="n">ENOTTY</span><span class="p">;</span><span class="w"> </span><span class="p">}</span>
+<a id="__codelineno-17-4" name="__codelineno-17-4" href="#__codelineno-17-4"></a><span class="kt">int</span><span class="w"> </span><span class="nf">vop_einval</span><span class="p">(</span><span class="k">struct</span><span class="w"> </span><span class="nc">vop_generic_args</span><span class="w"> </span><span class="o">*</span><span class="n">ap</span><span class="p">)</span><span class="w">     </span><span class="p">{</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="n">EINVAL</span><span class="p">;</span><span class="w"> </span><span class="p">}</span>
+<a id="__codelineno-17-5" name="__codelineno-17-5" href="#__codelineno-17-5"></a><span class="kt">int</span><span class="w"> </span><span class="nf">vop_null</span><span class="p">(</span><span class="k">struct</span><span class="w"> </span><span class="nc">vop_generic_args</span><span class="w"> </span><span class="o">*</span><span class="n">ap</span><span class="p">)</span><span class="w">       </span><span class="p">{</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="p">}</span>
+</code></pre></div>
+<h3 id="standard-implementations">Standard Implementations<a class="headerlink" href="#standard-implementations" title="Permanent link">&para;</a></h3>
+<p><strong>vop_stdopen():</strong>
+- For VCHR (character device): calls <code>spec_open()</code>
+- For VFIFO: calls <code>fifo_open()</code>
+- Otherwise: returns 0</p>
+<p><strong>vop_stdclose():</strong>
+- For VCHR: calls <code>spec_close()</code>
+- For VFIFO: calls <code>fifo_close()</code>
+- Otherwise: returns 0</p>
+<p><strong>vop_stdgetattr_lite():</strong>
+- Calls <code>VOP_GETATTR()</code> and extracts lightweight fields
+- Used for stat-like operations that don't need full vattr</p>
+<p><strong>vop_stdmarkatime():</strong>
+- Sets <code>VN_ATIME</code> flag on vnode
+- Actual atime update deferred until vnode is written back</p>
+<p><strong>vop_stdpathconf():</strong>
+- Returns standard POSIX path configuration values
+- <code>_PC_LINK_MAX</code>, <code>_PC_NAME_MAX</code>, <code>_PC_PATH_MAX</code>, etc.</p>
+<p><strong>vop_stdallocate():</strong>
+- Default fallocate(2) implementation
+- Simply extends file size via <code>VOP_SETATTR()</code> (non-sparse)</p>
+<h3 id="compatibility-layer-old-new-namespace-api">Compatibility Layer (Old → New Namespace API)<a class="headerlink" href="#compatibility-layer-old-new-namespace-api" title="Permanent link">&para;</a></h3>
+<p><strong>vop_compat_nresolve():</strong>
+Translates <code>VOP_NRESOLVE(nch, dvp, cred)</code> to:
+1. Extract componentname from nch
+2. Call <code>VOP_OLD_LOOKUP(dvp, &amp;vp, cnp)</code>
+3. Cache result in nch</p>
+<p><strong>vop_compat_ncreate():</strong>
+Translates <code>VOP_NCREATE(nch, dvp, &amp;vp, cred, vap)</code> to:
+1. Lock parent directory exclusively
+2. Call <code>VOP_OLD_CREATE(dvp, &amp;vp, cnp, vap)</code>
+3. Cache new vnode in nch</p>
+<p><strong>vop_compat_nremove():</strong>
+Translates <code>VOP_NREMOVE(nch, dvp, cred)</code> to:
+1. Extract componentname
+2. Lock parent and target
+3. Call <code>VOP_OLD_REMOVE(dvp, vp, cnp)</code></p>
+<p>Similar wrappers exist for nmkdir, nmknod, nlink, nsymlink, nrmdir, nrename, nwhiteout.</p>
+<p><strong>Purpose:</strong> Allows old filesystems (written for the componentname API) to work transparently with the modern namecache-centric API.</p>
+<hr />
+<h2 id="summary-phase-6a">Summary: Phase 6a<a class="headerlink" href="#summary-phase-6a" title="Permanent link">&para;</a></h2>
+<p><strong>Files analyzed (7 files, 9,451 lines):</strong>
+1. vfs_init.c (504 lines) - VFS/vfsconf initialization, vnode ops registration
+2. vfs_conf.c (713 lines) - Root filesystem mounting, interactive prompt
+3. vfs_subr.c (2,650 lines) - Vnode lifecycle, buffer management, sync operations
+4. vfs_vfsops.c (321 lines) - MPSAFE VFS operation wrappers
+5. vfs_vnops.c (1,352 lines) - High-level vnode operations (vn_open, vn_close, vn_rdwr)
+6. vfs_vopops.c (2,227 lines) - Vnode operation dispatch layer
+7. vfs_default.c (1,684 lines) - Default VOP implementations, compatibility layer</p>
+<p><strong>Key Concepts:</strong>
+- <strong>Vnode</strong> - In-memory file/directory representation
+- <strong>VFS operations</strong> - Filesystem-level (mount, statfs, sync)
+- <strong>Vnode operations</strong> - File-level (open, read, write, lookup)
+- <strong>vfsconf</strong> - Filesystem type registry
+- <strong>MPSAFE wrappers</strong> - Per-mount/vnode operation locking
+- <strong>Namespace API</strong> - Modern namecache-centric operations (VOP_NRESOLVE, VOP_NCREATE)
+- <strong>Compatibility layer</strong> - Old componentname API → new namecache API</p>
+<p><strong>Next Phase 6 Steps:</strong>
+- 6b: Name lookup and caching (vfs_cache.c, vfs_nlookup.c)
+- 6c: Mounting and syscalls (vfs_mount.c, vfs_syscalls.c)
+- 6d: Buffer cache and I/O (vfs_bio.c, vfs_cluster.c)
+- 6e: Extensions (locking, journaling, quota, AIO)</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": ["navigation.tabs", "navigation.sections", "navigation.expand", "navigation.top", "search.suggest", "search.highlight", "content.code.copy"], "search": "../../../assets/javascripts/workers/search.7a47a382.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../../assets/javascripts/bundle.e71a0d61.min.js"></script>
+      
+    
+  </body>
+</html>

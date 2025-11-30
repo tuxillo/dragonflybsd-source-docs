@@ -1,0 +1,3618 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Comprehensive documentation for the DragonFly BSD kernel source code">
+      
+      
+        <meta name="author" content="DragonFly BSD Community">
+      
+      
+      
+        <link rel="prev" href="../">
+      
+      
+        <link rel="next" href="../synchronization/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.0">
+    
+    
+      
+        <title>LWKT Threading - DragonFly BSD Kernel Documentation</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.618322db.min.css">
+      
+        
+        <link rel="stylesheet" href="../../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#lwkt-threading" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../../.." title="DragonFly BSD Kernel Documentation" class="md-header__button md-logo" aria-label="DragonFly BSD Kernel Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            DragonFly BSD Kernel Documentation
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              LWKT Threading
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/tuxillo/dragonflybsd-source-docs" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    tuxillo/dragonflybsd-source-docs
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../.." class="md-tabs__link">
+        
+  
+  
+    
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../getting-started/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Getting Started
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+    
+  
+  
+    
+    
+      <li class="md-tabs__item md-tabs__item--active">
+        <a href="../../" class="md-tabs__link">
+          
+  
+  
+  Kernel Subsystems
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../.." title="DragonFly BSD Kernel Documentation" class="md-nav__button md-logo" aria-label="DragonFly BSD Kernel Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    DragonFly BSD Kernel Documentation
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/tuxillo/dragonflybsd-source-docs" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    tuxillo/dragonflybsd-source-docs
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../getting-started/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Getting Started
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Kernel Subsystems
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Kernel Subsystems
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+          
+          
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_2" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_3_2" id="__nav_3_2_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    kern/
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_2_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_3_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    kern/
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    LWKT Threading
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    LWKT Threading
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#overview" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Overview
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Overview">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#why-lwkt-exists" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Why LWKT Exists
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#where-lwkt-fits-in-the-architecture" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Where LWKT Fits in the Architecture
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#key-concepts" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Key Concepts
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Key Concepts">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#threads-vs-processes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Threads vs Processes
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#message-passing" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Message Passing
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tokens-serialization-without-traditional-locking" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Tokens: Serialization Without Traditional Locking
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#token-types" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Token Types
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#per-cpu-scheduling" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Per-CPU Scheduling
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#ipiqs-inter-processor-interrupt-queues" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        IPIQs: Inter-Processor Interrupt Queues
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#critical-sections" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Critical Sections
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#thread-ownership" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Thread Ownership
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#data-structures" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Data Structures
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Data Structures">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#struct-thread" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        struct thread
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#struct-lwkt_msg" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        struct lwkt_msg
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#struct-lwkt_port" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        struct lwkt_port
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#struct-lwkt_token" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        struct lwkt_token
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#struct-lwkt_tokref" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        struct lwkt_tokref
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#struct-lwkt_ipiq" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        struct lwkt_ipiq
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#key-functions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Key Functions
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Key Functions">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#thread-management" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Thread Management
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Thread Management">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#lwkt_init_thread" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        lwkt_init_thread()
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#lwkt_alloc_thread" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        lwkt_alloc_thread()
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#lwkt_switch" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        lwkt_switch()
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#lwkt_schedule_self" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        lwkt_schedule_self()
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#lwkt_schedule" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        lwkt_schedule()
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#message-passing_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Message Passing
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Message Passing">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#lwkt_sendmsg" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        lwkt_sendmsg()
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#lwkt_sendmsg_async" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        lwkt_sendmsg_async()
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#lwkt_waitmsg" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        lwkt_waitmsg()
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#lwkt_replymsg" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        lwkt_replymsg()
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#lwkt_initmsg" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        lwkt_initmsg()
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#token-operations" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Token Operations
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Token Operations">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#lwkt_gettoken" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        lwkt_gettoken()
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#lwkt_reltoken" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        lwkt_reltoken()
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#lwkt_gettoken_shared" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        lwkt_gettoken_shared()
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#lwkt_token_pool_lookup" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        lwkt_token_pool_lookup()
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#ipiq-operations" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        IPIQ Operations
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="IPIQ Operations">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#lwkt_send_ipiq" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        lwkt_send_ipiq()
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#lwkt_process_ipiq" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        lwkt_process_ipiq()
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#lwkt_synchronous_ipiq" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        lwkt_synchronous_ipiq()
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#port-operations" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Port Operations
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Port Operations">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#lwkt_initport_thread" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        lwkt_initport_thread()
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#lwkt_waitport" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        lwkt_waitport()
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#lwkt_getport" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        lwkt_getport()
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#subsystem-interactions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Subsystem Interactions
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Subsystem Interactions">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#with-the-scheduler" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        With the Scheduler
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#with-processes-and-lwps" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        With Processes and LWPs
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#with-the-virtual-filesystem-vfs" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        With the Virtual Filesystem (VFS)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#with-device-drivers" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        With Device Drivers
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#with-the-vm-system" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        With the VM System
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#code-flow-examples" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Code Flow Examples
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Code Flow Examples">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#example-1-thread-creation-and-scheduling" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Example 1: Thread Creation and Scheduling
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#example-2-synchronous-message-send" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Example 2: Synchronous Message Send
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#example-3-token-acquisition-across-sleep" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Example 3: Token Acquisition Across Sleep
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#example-4-cross-cpu-scheduling-via-ipiq" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Example 4: Cross-CPU Scheduling via IPIQ
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#traditional-bsd-vs-dragonfly-lwkt" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Traditional BSD vs DragonFly LWKT
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Traditional BSD vs DragonFly LWKT">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#traditional-bsd-approach" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Traditional BSD Approach
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#dragonfly-lwkt-approach" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        DragonFly LWKT Approach
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#multiprocessor-scalability" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Multiprocessor Scalability
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#important-notes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Important Notes
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Important Notes">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#token-deadlock-freedom" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Token Deadlock Freedom
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#when-to-use-what" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        When to Use What
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#performance-considerations" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Performance Considerations
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#files" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Files
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#references" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        References
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#further-reading" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Further Reading
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../synchronization/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Synchronization
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../time/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Time & Timers
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../memory/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Memory Management
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../initialization/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Initialization & Bootstrap
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../processes/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Processes & Threads
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../resources/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Process Resources & Credentials
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../signals/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Signals
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../scheduling/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Scheduling
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_3_2_11" >
+        
+          
+          <label class="md-nav__link" for="__nav_3_2_11" id="__nav_3_2_11_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Virtual Filesystem
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_3_2_11_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_2_11">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Virtual Filesystem
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../vfs/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../vfs/namecache/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Name Lookup & Caching
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ipc/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    IPC & Sockets
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../devices/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Devices & Drivers
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../syscalls/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    System Calls
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+          
+          
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_3_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3_3" id="__nav_3_3_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    vm/
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    vm/
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../vm/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+          
+          
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_3_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_3_4" id="__nav_3_4_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    cpu/x86_64/
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    cpu/x86_64/
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../cpu/x86_64/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#overview" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Overview
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Overview">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#why-lwkt-exists" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Why LWKT Exists
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#where-lwkt-fits-in-the-architecture" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Where LWKT Fits in the Architecture
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#key-concepts" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Key Concepts
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Key Concepts">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#threads-vs-processes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Threads vs Processes
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#message-passing" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Message Passing
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tokens-serialization-without-traditional-locking" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Tokens: Serialization Without Traditional Locking
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#token-types" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Token Types
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#per-cpu-scheduling" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Per-CPU Scheduling
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#ipiqs-inter-processor-interrupt-queues" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        IPIQs: Inter-Processor Interrupt Queues
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#critical-sections" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Critical Sections
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#thread-ownership" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Thread Ownership
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#data-structures" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Data Structures
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Data Structures">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#struct-thread" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        struct thread
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#struct-lwkt_msg" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        struct lwkt_msg
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#struct-lwkt_port" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        struct lwkt_port
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#struct-lwkt_token" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        struct lwkt_token
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#struct-lwkt_tokref" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        struct lwkt_tokref
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#struct-lwkt_ipiq" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        struct lwkt_ipiq
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#key-functions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Key Functions
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Key Functions">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#thread-management" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Thread Management
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Thread Management">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#lwkt_init_thread" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        lwkt_init_thread()
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#lwkt_alloc_thread" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        lwkt_alloc_thread()
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#lwkt_switch" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        lwkt_switch()
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#lwkt_schedule_self" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        lwkt_schedule_self()
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#lwkt_schedule" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        lwkt_schedule()
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#message-passing_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Message Passing
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Message Passing">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#lwkt_sendmsg" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        lwkt_sendmsg()
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#lwkt_sendmsg_async" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        lwkt_sendmsg_async()
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#lwkt_waitmsg" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        lwkt_waitmsg()
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#lwkt_replymsg" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        lwkt_replymsg()
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#lwkt_initmsg" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        lwkt_initmsg()
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#token-operations" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Token Operations
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Token Operations">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#lwkt_gettoken" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        lwkt_gettoken()
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#lwkt_reltoken" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        lwkt_reltoken()
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#lwkt_gettoken_shared" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        lwkt_gettoken_shared()
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#lwkt_token_pool_lookup" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        lwkt_token_pool_lookup()
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#ipiq-operations" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        IPIQ Operations
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="IPIQ Operations">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#lwkt_send_ipiq" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        lwkt_send_ipiq()
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#lwkt_process_ipiq" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        lwkt_process_ipiq()
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#lwkt_synchronous_ipiq" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        lwkt_synchronous_ipiq()
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#port-operations" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Port Operations
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Port Operations">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#lwkt_initport_thread" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        lwkt_initport_thread()
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#lwkt_waitport" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        lwkt_waitport()
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#lwkt_getport" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        lwkt_getport()
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#subsystem-interactions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Subsystem Interactions
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Subsystem Interactions">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#with-the-scheduler" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        With the Scheduler
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#with-processes-and-lwps" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        With Processes and LWPs
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#with-the-virtual-filesystem-vfs" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        With the Virtual Filesystem (VFS)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#with-device-drivers" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        With Device Drivers
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#with-the-vm-system" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        With the VM System
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#code-flow-examples" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Code Flow Examples
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Code Flow Examples">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#example-1-thread-creation-and-scheduling" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Example 1: Thread Creation and Scheduling
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#example-2-synchronous-message-send" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Example 2: Synchronous Message Send
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#example-3-token-acquisition-across-sleep" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Example 3: Token Acquisition Across Sleep
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#example-4-cross-cpu-scheduling-via-ipiq" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Example 4: Cross-CPU Scheduling via IPIQ
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#traditional-bsd-vs-dragonfly-lwkt" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Traditional BSD vs DragonFly LWKT
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Traditional BSD vs DragonFly LWKT">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#traditional-bsd-approach" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Traditional BSD Approach
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#dragonfly-lwkt-approach" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        DragonFly LWKT Approach
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#multiprocessor-scalability" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Multiprocessor Scalability
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#important-notes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Important Notes
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Important Notes">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#token-deadlock-freedom" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Token Deadlock Freedom
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#when-to-use-what" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        When to Use What
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#performance-considerations" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Performance Considerations
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#files" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Files
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#references" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        References
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#further-reading" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Further Reading
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="lwkt-threading">LWKT Threading<a class="headerlink" href="#lwkt-threading" title="Permanent link">&para;</a></h1>
+<p>LWKT (Lightweight Kernel Threading) is DragonFly BSD's unique message-passing based concurrency model. It is the architectural foundation that distinguishes DragonFly from traditional BSD systems and is essential to understand before exploring any other kernel subsystem.</p>
+<h2 id="overview">Overview<a class="headerlink" href="#overview" title="Permanent link">&para;</a></h2>
+<p>LWKT implements a <strong>message-passing</strong> threading model designed for multiprocessor scalability. Instead of relying primarily on locks to protect shared data, DragonFly uses:</p>
+<ul>
+<li><strong>Message passing</strong> between threads via message ports</li>
+<li><strong>Serializing tokens</strong> that can be held across blocking operations</li>
+<li><strong>Per-CPU thread schedulers</strong> that minimize cross-CPU synchronization</li>
+<li><strong>Inter-processor interrupt queues (IPIQs)</strong> for cross-CPU communication</li>
+</ul>
+<h3 id="why-lwkt-exists">Why LWKT Exists<a class="headerlink" href="#why-lwkt-exists" title="Permanent link">&para;</a></h3>
+<p>Traditional BSD kernels use pervasive locking (mutexes, spinlocks, read-write locks) to protect shared data structures in multiprocessor environments. This approach suffers from:</p>
+<ul>
+<li><strong>Lock contention</strong> — Multiple CPUs waiting for the same lock</li>
+<li><strong>Cache-line bouncing</strong> — Locks ping-pong between CPU caches</li>
+<li><strong>Priority inversion</strong> — Lower-priority threads holding locks needed by higher-priority threads</li>
+<li><strong>Deadlock potential</strong> — Complex lock ordering requirements</li>
+</ul>
+<p>DragonFly's LWKT addresses these issues by:</p>
+<ul>
+<li><strong>Minimizing shared state</strong> — Each CPU has its own scheduler and thread queues</li>
+<li><strong>Using message passing</strong> — Threads communicate via asynchronous messages instead of shared memory</li>
+<li><strong>Allowing tokens across sleeps</strong> — Tokens don't have the strict semantics of traditional locks</li>
+<li><strong>Deferring to thread owner</strong> — Operations on a thread are sent as messages to its owning CPU</li>
+</ul>
+<h3 id="where-lwkt-fits-in-the-architecture">Where LWKT Fits in the Architecture<a class="headerlink" href="#where-lwkt-fits-in-the-architecture" title="Permanent link">&para;</a></h3>
+<p>LWKT is the <strong>lowest-level</strong> threading abstraction in DragonFly. It sits below:</p>
+<ul>
+<li>Process/LWP management (<code>kern_proc.c</code>, <code>kern_fork.c</code>, etc.)</li>
+<li>CPU scheduling policies (<code>usched_*.c</code>)</li>
+<li>All kernel subsystems (VFS, VM, networking, etc.)</li>
+</ul>
+<p>Everything in the kernel runs in the context of an LWKT thread. Even interrupt handlers run as threads in DragonFly.</p>
+<h2 id="key-concepts">Key Concepts<a class="headerlink" href="#key-concepts" title="Permanent link">&para;</a></h2>
+<h3 id="threads-vs-processes">Threads vs Processes<a class="headerlink" href="#threads-vs-processes" title="Permanent link">&para;</a></h3>
+<p>In DragonFly:</p>
+<ul>
+<li><strong>Thread</strong> (<code>struct thread</code>) — The basic unit of execution in LWKT</li>
+<li><strong>LWP</strong> (<code>struct lwp</code>) — Light Weight Process, represents a user-level thread of execution</li>
+<li><strong>Process</strong> (<code>struct proc</code>) — A collection of LWPs sharing an address space and resources</li>
+</ul>
+<p>An LWKT thread may be:</p>
+<ul>
+<li>A <strong>kernel thread</strong> (no associated LWP or process)</li>
+<li>A <strong>user thread</strong> (has an associated LWP and process)</li>
+</ul>
+<p>All execution happens via LWKT threads. User threads enter the kernel via system calls, traps, or signals and execute in kernel mode using their LWKT thread context.</p>
+<h3 id="message-passing">Message Passing<a class="headerlink" href="#message-passing" title="Permanent link">&para;</a></h3>
+<p>Threads communicate via <strong>message ports</strong> (<code>lwkt_port</code>). Each thread has an embedded message port (<code>td_msgport</code>).</p>
+<p><strong>Synchronous messaging:</strong>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="c1">// Send message, block until reply</span>
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="n">lwkt_sendmsg</span><span class="p">(</span><span class="n">target_port</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">msg</span><span class="p">);</span>
+</code></pre></div></p>
+<p><strong>Asynchronous messaging:</strong>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="c1">// Send message, don&#39;t wait for reply</span>
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="n">lwkt_sendmsg_async</span><span class="p">(</span><span class="n">target_port</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">msg</span><span class="p">);</span>
+<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="c1">// ... do other work ...</span>
+<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a><span class="c1">// Later, check for reply</span>
+<a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a><span class="n">lwkt_waitmsg</span><span class="p">(</span><span class="o">&amp;</span><span class="n">msg</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">);</span>
+</code></pre></div></p>
+<p>Messages (<code>struct lwkt_msg</code>) contain:</p>
+<ul>
+<li>Target and reply ports</li>
+<li>Result fields (error code, return value)</li>
+<li>State flags (DONE, REPLY, QUEUED, SYNC, etc.)</li>
+</ul>
+<h3 id="tokens-serialization-without-traditional-locking">Tokens: Serialization Without Traditional Locking<a class="headerlink" href="#tokens-serialization-without-traditional-locking" title="Permanent link">&para;</a></h3>
+<p><strong>Tokens</strong> (<code>struct lwkt_token</code>) are DragonFly's primary synchronization primitive. They differ fundamentally from traditional locks:</p>
+<p><strong>Traditional locks (mutexes, spinlocks):</strong>
+- Must be released before blocking
+- Strict acquire/release semantics
+- Can deadlock if ordering is incorrect
+- Cause cache-line bouncing</p>
+<p><strong>DragonFly tokens:</strong>
+- <strong>Can be held across blocking operations</strong>
+- Automatically released on sleep, reacquired on wakeup
+- <strong>Cannot deadlock</strong> regardless of acquisition order
+- Serialization only effective while thread is running</p>
+<p><strong>Example:</strong>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="n">lwkt_gettoken</span><span class="p">(</span><span class="o">&amp;</span><span class="n">mp</span><span class="o">-&gt;</span><span class="n">mnt_token</span><span class="p">);</span><span class="w">  </span><span class="c1">// Acquire token</span>
+<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>
+<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="c1">// Can safely sleep here!</span>
+<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a><span class="c1">// Token is temporarily released, reacquired on wakeup</span>
+<a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a><span class="n">tsleep</span><span class="p">(</span><span class="n">wchan</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;wait&quot;</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">);</span>
+<a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a>
+<a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a><span class="c1">// Still holding token after wakeup</span>
+<a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a><span class="n">lwkt_reltoken</span><span class="p">(</span><span class="o">&amp;</span><span class="n">mp</span><span class="o">-&gt;</span><span class="n">mnt_token</span><span class="p">);</span>
+</code></pre></div></p>
+<p>The key insight: tokens provide <strong>logical serialization</strong> rather than physical lock-holding. If you block, another thread may run and access the same data, but it will also hold the token, maintaining serialization.</p>
+<h3 id="token-types">Token Types<a class="headerlink" href="#token-types" title="Permanent link">&para;</a></h3>
+<p>Tokens support two acquisition modes:</p>
+<ul>
+<li><strong>Exclusive</strong> — Only one thread at a time (TOK_EXCLUSIVE bit set)</li>
+<li><strong>Shared</strong> — Multiple threads simultaneously (reference count in <code>t_count</code>)</li>
+</ul>
+<p>Multiple exclusive acquisitions by the same thread are allowed and tracked.</p>
+<h3 id="per-cpu-scheduling">Per-CPU Scheduling<a class="headerlink" href="#per-cpu-scheduling" title="Permanent link">&para;</a></h3>
+<p>Each CPU has its own <strong>thread scheduler</strong>:</p>
+<ul>
+<li>Thread queues are per-CPU (<code>gd_tdrunq</code>, <code>gd_tdallq</code>)</li>
+<li>Switching threads on the same CPU requires <strong>only a critical section</strong></li>
+<li>No locks or cross-CPU synchronization for local scheduling</li>
+</ul>
+<p>To schedule a thread on another CPU, use <strong>IPIQs</strong> (see below).</p>
+<h3 id="ipiqs-inter-processor-interrupt-queues">IPIQs: Inter-Processor Interrupt Queues<a class="headerlink" href="#ipiqs-inter-processor-interrupt-queues" title="Permanent link">&para;</a></h3>
+<p>When one CPU needs to operate on a thread owned by another CPU, it sends a message via an <strong>IPIQ</strong> (<code>struct lwkt_ipiq</code>):</p>
+<ul>
+<li>Lock-free circular buffer (FIFO)</li>
+<li>Source CPU writes functions to execute</li>
+<li>Target CPU processes them in interrupt context</li>
+<li>Used for cross-CPU thread migration, scheduling, etc.</li>
+</ul>
+<p><strong>Example:</strong> To schedule a thread on CPU 1 from CPU 0:
+1. CPU 0 writes a scheduling function to CPU 1's IPIQ
+2. CPU 0 sends an inter-processor interrupt (IPI) to CPU 1
+3. CPU 1 handles the IPI, processes the IPIQ entry
+4. CPU 1 adds the thread to its local run queue</p>
+<h3 id="critical-sections">Critical Sections<a class="headerlink" href="#critical-sections" title="Permanent link">&para;</a></h3>
+<p><strong>Critical sections</strong> prevent preemption and must be used carefully:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="n">crit_enter</span><span class="p">();</span>
+<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="c1">// Cannot be preempted here</span>
+<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a><span class="c1">// Keep this SHORT!</span>
+<a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a><span class="n">crit_exit</span><span class="p">();</span>
+</code></pre></div>
+<p>Critical sections do <strong>not</strong> prevent interrupts, but LWKT threads (including interrupt threads) will not preempt code in a critical section on the same CPU.</p>
+<h3 id="thread-ownership">Thread Ownership<a class="headerlink" href="#thread-ownership" title="Permanent link">&para;</a></h3>
+<p>A thread is <strong>owned by the CPU</strong> in its <code>td_gd</code> (globaldata) field. Only the owning CPU can directly manipulate the thread. Other CPUs must use:</p>
+<ul>
+<li><strong>IPIQs</strong> to send requests to the owning CPU</li>
+<li><strong>Messaging</strong> to communicate with the thread</li>
+</ul>
+<p>This ownership model eliminates many locking requirements.</p>
+<h2 id="data-structures">Data Structures<a class="headerlink" href="#data-structures" title="Permanent link">&para;</a></h2>
+<h3 id="struct-thread"><code>struct thread</code><a class="headerlink" href="#struct-thread" title="Permanent link">&para;</a></h3>
+<p>Defined in <code>sys/sys/thread.h</code>. Key fields:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="k">struct</span><span class="w"> </span><span class="nc">thread</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a><span class="w">    </span><span class="n">TAILQ_ENTRY</span><span class="p">(</span><span class="kr">thread</span><span class="p">)</span><span class="w"> </span><span class="n">td_threadq</span><span class="p">;</span><span class="w">   </span><span class="c1">// Queue linkage (run/sleep/etc.)</span>
+<a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a><span class="w">    </span><span class="n">TAILQ_ENTRY</span><span class="p">(</span><span class="kr">thread</span><span class="p">)</span><span class="w"> </span><span class="n">td_allq</span><span class="p">;</span><span class="w">      </span><span class="c1">// Link in gd_tdallq</span>
+<a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a><span class="w">    </span><span class="n">lwkt_port</span><span class="w"> </span><span class="n">td_msgport</span><span class="p">;</span><span class="w">             </span><span class="c1">// Built-in message port</span>
+<a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a>
+<a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a><span class="w">    </span><span class="k">struct</span><span class="w"> </span><span class="nc">lwp</span><span class="w"> </span><span class="o">*</span><span class="n">td_lwp</span><span class="p">;</span><span class="w">                </span><span class="c1">// Associated LWP (if user thread)</span>
+<a id="__codelineno-4-7" name="__codelineno-4-7" href="#__codelineno-4-7"></a><span class="w">    </span><span class="k">struct</span><span class="w"> </span><span class="nc">proc</span><span class="w"> </span><span class="o">*</span><span class="n">td_proc</span><span class="p">;</span><span class="w">              </span><span class="c1">// Associated process (if user thread)</span>
+<a id="__codelineno-4-8" name="__codelineno-4-8" href="#__codelineno-4-8"></a><span class="w">    </span><span class="k">struct</span><span class="w"> </span><span class="nc">pcb</span><span class="w"> </span><span class="o">*</span><span class="n">td_pcb</span><span class="p">;</span><span class="w">                </span><span class="c1">// Process control block, top of kstack</span>
+<a id="__codelineno-4-9" name="__codelineno-4-9" href="#__codelineno-4-9"></a><span class="w">    </span><span class="k">struct</span><span class="w"> </span><span class="nc">globaldata</span><span class="w"> </span><span class="o">*</span><span class="n">td_gd</span><span class="p">;</span><span class="w">          </span><span class="c1">// Owning CPU&#39;s globaldata</span>
+<a id="__codelineno-4-10" name="__codelineno-4-10" href="#__codelineno-4-10"></a>
+<a id="__codelineno-4-11" name="__codelineno-4-11" href="#__codelineno-4-11"></a><span class="w">    </span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="n">td_wmesg</span><span class="p">;</span><span class="w">              </span><span class="c1">// Reason for blocking</span>
+<a id="__codelineno-4-12" name="__codelineno-4-12" href="#__codelineno-4-12"></a><span class="w">    </span><span class="k">const</span><span class="w"> </span><span class="k">volatile</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="o">*</span><span class="n">td_wchan</span><span class="p">;</span><span class="w">     </span><span class="c1">// Wait channel</span>
+<a id="__codelineno-4-13" name="__codelineno-4-13" href="#__codelineno-4-13"></a><span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="n">td_pri</span><span class="p">;</span><span class="w">                        </span><span class="c1">// Priority (0-31, 31=highest)</span>
+<a id="__codelineno-4-14" name="__codelineno-4-14" href="#__codelineno-4-14"></a><span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="n">td_critcount</span><span class="p">;</span><span class="w">                  </span><span class="c1">// Critical section nesting count</span>
+<a id="__codelineno-4-15" name="__codelineno-4-15" href="#__codelineno-4-15"></a><span class="w">    </span><span class="n">u_int</span><span class="w"> </span><span class="n">td_flags</span><span class="p">;</span><span class="w">                    </span><span class="c1">// TDF_* flags</span>
+<a id="__codelineno-4-16" name="__codelineno-4-16" href="#__codelineno-4-16"></a>
+<a id="__codelineno-4-17" name="__codelineno-4-17" href="#__codelineno-4-17"></a><span class="w">    </span><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="n">td_kstack</span><span class="p">;</span><span class="w">                   </span><span class="c1">// Kernel stack base</span>
+<a id="__codelineno-4-18" name="__codelineno-4-18" href="#__codelineno-4-18"></a><span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="n">td_kstack_size</span><span class="p">;</span><span class="w">                </span><span class="c1">// Kernel stack size</span>
+<a id="__codelineno-4-19" name="__codelineno-4-19" href="#__codelineno-4-19"></a><span class="w">    </span><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="n">td_sp</span><span class="p">;</span><span class="w">                       </span><span class="c1">// Saved stack pointer for context switch</span>
+<a id="__codelineno-4-20" name="__codelineno-4-20" href="#__codelineno-4-20"></a>
+<a id="__codelineno-4-21" name="__codelineno-4-21" href="#__codelineno-4-21"></a><span class="w">    </span><span class="n">thread_t</span><span class="w"> </span><span class="p">(</span><span class="o">*</span><span class="n">td_switch</span><span class="p">)(</span><span class="k">struct</span><span class="w"> </span><span class="nc">thread</span><span class="w"> </span><span class="o">*</span><span class="p">);</span><span class="w"> </span><span class="c1">// Context switch function</span>
+<a id="__codelineno-4-22" name="__codelineno-4-22" href="#__codelineno-4-22"></a>
+<a id="__codelineno-4-23" name="__codelineno-4-23" href="#__codelineno-4-23"></a><span class="w">    </span><span class="n">lwkt_tokref_t</span><span class="w"> </span><span class="n">td_toks_have</span><span class="p">;</span><span class="w">        </span><span class="c1">// Tokens currently held</span>
+<a id="__codelineno-4-24" name="__codelineno-4-24" href="#__codelineno-4-24"></a><span class="w">    </span><span class="n">lwkt_tokref_t</span><span class="w"> </span><span class="n">td_toks_stop</span><span class="p">;</span><span class="w">        </span><span class="c1">// Tokens to acquire</span>
+<a id="__codelineno-4-25" name="__codelineno-4-25" href="#__codelineno-4-25"></a><span class="w">    </span><span class="k">struct</span><span class="w"> </span><span class="nc">lwkt_tokref</span><span class="w"> </span><span class="n">td_toks_array</span><span class="p">[</span><span class="n">LWKT_MAXTOKENS</span><span class="p">];</span>
+<a id="__codelineno-4-26" name="__codelineno-4-26" href="#__codelineno-4-26"></a>
+<a id="__codelineno-4-27" name="__codelineno-4-27" href="#__codelineno-4-27"></a><span class="w">    </span><span class="kt">char</span><span class="w"> </span><span class="n">td_comm</span><span class="p">[</span><span class="n">MAXCOMLEN</span><span class="o">+</span><span class="mi">1</span><span class="p">];</span><span class="w">         </span><span class="c1">// Thread name</span>
+<a id="__codelineno-4-28" name="__codelineno-4-28" href="#__codelineno-4-28"></a><span class="w">    </span><span class="k">struct</span><span class="w"> </span><span class="nc">ucred</span><span class="w"> </span><span class="o">*</span><span class="n">td_ucred</span><span class="p">;</span><span class="w">            </span><span class="c1">// Credentials (synchronized from proc)</span>
+<a id="__codelineno-4-29" name="__codelineno-4-29" href="#__codelineno-4-29"></a>
+<a id="__codelineno-4-30" name="__codelineno-4-30" href="#__codelineno-4-30"></a><span class="w">    </span><span class="k">struct</span><span class="w"> </span><span class="nc">md_thread</span><span class="w"> </span><span class="n">td_mach</span><span class="p">;</span><span class="w">          </span><span class="c1">// Machine-dependent state</span>
+<a id="__codelineno-4-31" name="__codelineno-4-31" href="#__codelineno-4-31"></a><span class="p">};</span>
+</code></pre></div>
+<p><strong>Important fields:</strong></p>
+<ul>
+<li><code>td_gd</code> — Identifies the owning CPU</li>
+<li><code>td_msgport</code> — Every thread has a built-in message port</li>
+<li><code>td_toks_have</code> / <code>td_toks_stop</code> — Token stack for serialization</li>
+<li><code>td_pri</code> — Determines scheduling priority</li>
+<li><code>td_critcount</code> — Critical section depth (&gt;0 means non-preemptible)</li>
+<li><code>td_switch</code> — Function pointer for machine-dependent context switching</li>
+</ul>
+<h3 id="struct-lwkt_msg"><code>struct lwkt_msg</code><a class="headerlink" href="#struct-lwkt_msg" title="Permanent link">&para;</a></h3>
+<p>Defined in <code>sys/sys/msgport.h</code>. Messages sent between threads:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="k">struct</span><span class="w"> </span><span class="nc">lwkt_msg</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a><span class="w">    </span><span class="n">TAILQ_ENTRY</span><span class="p">(</span><span class="n">lwkt_msg</span><span class="p">)</span><span class="w"> </span><span class="n">ms_node</span><span class="p">;</span><span class="w">    </span><span class="c1">// Queue linkage</span>
+<a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a><span class="w">    </span><span class="n">lwkt_port_t</span><span class="w"> </span><span class="n">ms_target_port</span><span class="p">;</span><span class="w">       </span><span class="c1">// Current target port</span>
+<a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a><span class="w">    </span><span class="n">lwkt_port_t</span><span class="w"> </span><span class="n">ms_reply_port</span><span class="p">;</span><span class="w">        </span><span class="c1">// Reply sent here</span>
+<a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a>
+<a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a><span class="w">    </span><span class="kt">void</span><span class="w"> </span><span class="p">(</span><span class="o">*</span><span class="n">ms_abortfn</span><span class="p">)(</span><span class="k">struct</span><span class="w"> </span><span class="nc">lwkt_msg</span><span class="w"> </span><span class="o">*</span><span class="p">);</span><span class="w">  </span><span class="c1">// Abort handler</span>
+<a id="__codelineno-5-7" name="__codelineno-5-7" href="#__codelineno-5-7"></a><span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="n">ms_flags</span><span class="p">;</span><span class="w">                     </span><span class="c1">// MSGF_* flags</span>
+<a id="__codelineno-5-8" name="__codelineno-5-8" href="#__codelineno-5-8"></a><span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="n">ms_error</span><span class="p">;</span><span class="w">                     </span><span class="c1">// Error code (0 = success)</span>
+<a id="__codelineno-5-9" name="__codelineno-5-9" href="#__codelineno-5-9"></a>
+<a id="__codelineno-5-10" name="__codelineno-5-10" href="#__codelineno-5-10"></a><span class="w">    </span><span class="k">union</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-5-11" name="__codelineno-5-11" href="#__codelineno-5-11"></a><span class="w">        </span><span class="kt">void</span><span class="w"> </span><span class="o">*</span><span class="n">ms_resultp</span><span class="p">;</span><span class="w">             </span><span class="c1">// Pointer result</span>
+<a id="__codelineno-5-12" name="__codelineno-5-12" href="#__codelineno-5-12"></a><span class="w">        </span><span class="kt">int</span><span class="w"> </span><span class="n">ms_result</span><span class="p">;</span><span class="w">                </span><span class="c1">// Integer result</span>
+<a id="__codelineno-5-13" name="__codelineno-5-13" href="#__codelineno-5-13"></a><span class="w">        </span><span class="kt">long</span><span class="w"> </span><span class="n">ms_lresult</span><span class="p">;</span><span class="w">              </span><span class="c1">// Long result</span>
+<a id="__codelineno-5-14" name="__codelineno-5-14" href="#__codelineno-5-14"></a><span class="w">        </span><span class="n">__int64_t</span><span class="w"> </span><span class="n">ms_result64</span><span class="p">;</span><span class="w">        </span><span class="c1">// 64-bit result</span>
+<a id="__codelineno-5-15" name="__codelineno-5-15" href="#__codelineno-5-15"></a><span class="w">        </span><span class="n">__off_t</span><span class="w"> </span><span class="n">ms_offset</span><span class="p">;</span><span class="w">            </span><span class="c1">// Offset result</span>
+<a id="__codelineno-5-16" name="__codelineno-5-16" href="#__codelineno-5-16"></a><span class="w">    </span><span class="p">}</span><span class="w"> </span><span class="n">u</span><span class="p">;</span>
+<a id="__codelineno-5-17" name="__codelineno-5-17" href="#__codelineno-5-17"></a>
+<a id="__codelineno-5-18" name="__codelineno-5-18" href="#__codelineno-5-18"></a><span class="w">    </span><span class="kt">void</span><span class="w"> </span><span class="p">(</span><span class="o">*</span><span class="n">ms_receiptfn</span><span class="p">)(</span><span class="k">struct</span><span class="w"> </span><span class="nc">lwkt_msg</span><span class="w"> </span><span class="o">*</span><span class="p">,</span><span class="w"> </span><span class="n">lwkt_port_t</span><span class="p">);</span>
+<a id="__codelineno-5-19" name="__codelineno-5-19" href="#__codelineno-5-19"></a><span class="p">};</span>
+</code></pre></div>
+<p><strong>Message flags</strong> (<code>ms_flags</code>):</p>
+<ul>
+<li><code>MSGF_DONE</code> — Message complete</li>
+<li><code>MSGF_REPLY</code> — Message is a reply</li>
+<li><code>MSGF_QUEUED</code> — Queued on a port</li>
+<li><code>MSGF_SYNC</code> — Synchronous (caller blocked)</li>
+<li><code>MSGF_INTRANSIT</code> — Being passed via IPI</li>
+<li><code>MSGF_ABORTABLE</code> — Can be aborted</li>
+<li><code>MSGF_PRIORITY</code> — High-priority message</li>
+</ul>
+<h3 id="struct-lwkt_port"><code>struct lwkt_port</code><a class="headerlink" href="#struct-lwkt_port" title="Permanent link">&para;</a></h3>
+<p>Message ports for receiving messages:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="k">struct</span><span class="w"> </span><span class="nc">lwkt_port</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a><span class="w">    </span><span class="n">lwkt_msg_queue</span><span class="w"> </span><span class="n">mp_msgq</span><span class="p">;</span><span class="w">           </span><span class="c1">// Normal priority messages</span>
+<a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a><span class="w">    </span><span class="n">lwkt_msg_queue</span><span class="w"> </span><span class="n">mp_msgq_prio</span><span class="p">;</span><span class="w">      </span><span class="c1">// High priority messages</span>
+<a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a><span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="n">mp_flags</span><span class="p">;</span><span class="w">                     </span><span class="c1">// Port flags</span>
+<a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a><span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="n">mp_cpuid</span><span class="p">;</span><span class="w">                     </span><span class="c1">// CPU affinity</span>
+<a id="__codelineno-6-6" name="__codelineno-6-6" href="#__codelineno-6-6"></a>
+<a id="__codelineno-6-7" name="__codelineno-6-7" href="#__codelineno-6-7"></a><span class="w">    </span><span class="k">union</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-6-8" name="__codelineno-6-8" href="#__codelineno-6-8"></a><span class="w">        </span><span class="k">struct</span><span class="w"> </span><span class="nc">spinlock</span><span class="w"> </span><span class="n">spin</span><span class="p">;</span><span class="w">         </span><span class="c1">// Spinlock-protected port</span>
+<a id="__codelineno-6-9" name="__codelineno-6-9" href="#__codelineno-6-9"></a><span class="w">        </span><span class="k">struct</span><span class="w"> </span><span class="nc">lwkt_serialize</span><span class="w"> </span><span class="o">*</span><span class="n">serialize</span><span class="p">;</span><span class="w">  </span><span class="c1">// Serializer-protected</span>
+<a id="__codelineno-6-10" name="__codelineno-6-10" href="#__codelineno-6-10"></a><span class="w">        </span><span class="kt">void</span><span class="w"> </span><span class="o">*</span><span class="n">data</span><span class="p">;</span><span class="w">                   </span><span class="c1">// Or custom data</span>
+<a id="__codelineno-6-11" name="__codelineno-6-11" href="#__codelineno-6-11"></a><span class="w">    </span><span class="p">}</span><span class="w"> </span><span class="n">mp_u</span><span class="p">;</span>
+<a id="__codelineno-6-12" name="__codelineno-6-12" href="#__codelineno-6-12"></a>
+<a id="__codelineno-6-13" name="__codelineno-6-13" href="#__codelineno-6-13"></a><span class="w">    </span><span class="k">struct</span><span class="w"> </span><span class="nc">thread</span><span class="w"> </span><span class="o">*</span><span class="n">mpu_td</span><span class="p">;</span><span class="w">            </span><span class="c1">// Owning thread (if thread port)</span>
+<a id="__codelineno-6-14" name="__codelineno-6-14" href="#__codelineno-6-14"></a>
+<a id="__codelineno-6-15" name="__codelineno-6-15" href="#__codelineno-6-15"></a><span class="w">    </span><span class="c1">// Port operations (function pointers):</span>
+<a id="__codelineno-6-16" name="__codelineno-6-16" href="#__codelineno-6-16"></a><span class="w">    </span><span class="kt">void</span><span class="w"> </span><span class="p">(</span><span class="o">*</span><span class="n">mp_putport</span><span class="p">)(</span><span class="n">lwkt_port_t</span><span class="p">,</span><span class="w"> </span><span class="n">lwkt_msg_t</span><span class="p">);</span>
+<a id="__codelineno-6-17" name="__codelineno-6-17" href="#__codelineno-6-17"></a><span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="p">(</span><span class="o">*</span><span class="n">mp_waitmsg</span><span class="p">)(</span><span class="n">lwkt_msg_t</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="p">);</span>
+<a id="__codelineno-6-18" name="__codelineno-6-18" href="#__codelineno-6-18"></a><span class="w">    </span><span class="kt">void</span><span class="w"> </span><span class="o">*</span><span class="p">(</span><span class="o">*</span><span class="n">mp_waitport</span><span class="p">)(</span><span class="n">lwkt_port_t</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="p">);</span>
+<a id="__codelineno-6-19" name="__codelineno-6-19" href="#__codelineno-6-19"></a><span class="w">    </span><span class="kt">void</span><span class="w"> </span><span class="p">(</span><span class="o">*</span><span class="n">mp_replyport</span><span class="p">)(</span><span class="n">lwkt_port_t</span><span class="p">,</span><span class="w"> </span><span class="n">lwkt_msg_t</span><span class="p">);</span>
+<a id="__codelineno-6-20" name="__codelineno-6-20" href="#__codelineno-6-20"></a><span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="p">(</span><span class="o">*</span><span class="n">mp_dropmsg</span><span class="p">)(</span><span class="n">lwkt_port_t</span><span class="p">,</span><span class="w"> </span><span class="n">lwkt_msg_t</span><span class="p">);</span>
+<a id="__codelineno-6-21" name="__codelineno-6-21" href="#__codelineno-6-21"></a><span class="p">};</span>
+</code></pre></div>
+<h3 id="struct-lwkt_token"><code>struct lwkt_token</code><a class="headerlink" href="#struct-lwkt_token" title="Permanent link">&para;</a></h3>
+<p>Serializing tokens:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="k">struct</span><span class="w"> </span><span class="nc">lwkt_token</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a><span class="w">    </span><span class="kt">long</span><span class="w"> </span><span class="n">t_count</span><span class="p">;</span><span class="w">                     </span><span class="c1">// Shared count | EXCLUSIVE | EXCLREQ</span>
+<a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a><span class="w">    </span><span class="k">struct</span><span class="w"> </span><span class="nc">lwkt_tokref</span><span class="w"> </span><span class="o">*</span><span class="n">t_ref</span><span class="p">;</span><span class="w">        </span><span class="c1">// Exclusive holder reference</span>
+<a id="__codelineno-7-4" name="__codelineno-7-4" href="#__codelineno-7-4"></a><span class="w">    </span><span class="kt">long</span><span class="w"> </span><span class="n">t_collisions</span><span class="p">;</span><span class="w">                </span><span class="c1">// Contention counter</span>
+<a id="__codelineno-7-5" name="__codelineno-7-5" href="#__codelineno-7-5"></a><span class="w">    </span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="n">t_desc</span><span class="p">;</span><span class="w">               </span><span class="c1">// Descriptive name</span>
+<a id="__codelineno-7-6" name="__codelineno-7-6" href="#__codelineno-7-6"></a><span class="p">};</span>
+</code></pre></div>
+<p><strong>Token states</strong> (encoded in <code>t_count</code>):</p>
+<ul>
+<li><code>TOK_EXCLUSIVE</code> (bit 0) — Exclusively held</li>
+<li><code>TOK_EXCLREQ</code> (bit 1) — Exclusive request pending</li>
+<li>Count (bits 2+) — Number of shared holders (shifted by <code>TOK_INCR</code>)</li>
+</ul>
+<h3 id="struct-lwkt_tokref"><code>struct lwkt_tokref</code><a class="headerlink" href="#struct-lwkt_tokref" title="Permanent link">&para;</a></h3>
+<p>Token reference (thread's token stack entry):</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a><span class="k">struct</span><span class="w"> </span><span class="nc">lwkt_tokref</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a><span class="w">    </span><span class="n">lwkt_token_t</span><span class="w"> </span><span class="n">tr_tok</span><span class="p">;</span><span class="w">              </span><span class="c1">// Token being held</span>
+<a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a><span class="w">    </span><span class="kt">long</span><span class="w"> </span><span class="n">tr_count</span><span class="p">;</span><span class="w">                    </span><span class="c1">// TOK_EXCLUSIVE or 0</span>
+<a id="__codelineno-8-4" name="__codelineno-8-4" href="#__codelineno-8-4"></a><span class="w">    </span><span class="k">struct</span><span class="w"> </span><span class="nc">thread</span><span class="w"> </span><span class="o">*</span><span class="n">tr_owner</span><span class="p">;</span><span class="w">          </span><span class="c1">// Thread holding this ref</span>
+<a id="__codelineno-8-5" name="__codelineno-8-5" href="#__codelineno-8-5"></a><span class="p">};</span>
+</code></pre></div>
+<p>Each thread has an array of <code>LWKT_MAXTOKENS</code> (32) token references, allowing nested token acquisition.</p>
+<h3 id="struct-lwkt_ipiq"><code>struct lwkt_ipiq</code><a class="headerlink" href="#struct-lwkt_ipiq" title="Permanent link">&para;</a></h3>
+<p>Inter-processor interrupt queue:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a><span class="k">struct</span><span class="w"> </span><span class="nc">lwkt_ipiq</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a><span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="n">ip_rindex</span><span class="p">;</span><span class="w">                    </span><span class="c1">// Read index (target CPU updates)</span>
+<a id="__codelineno-9-3" name="__codelineno-9-3" href="#__codelineno-9-3"></a><span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="n">ip_xindex</span><span class="p">;</span><span class="w">                    </span><span class="c1">// Completion index (target updates)</span>
+<a id="__codelineno-9-4" name="__codelineno-9-4" href="#__codelineno-9-4"></a><span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="n">ip_windex</span><span class="p">;</span><span class="w">                    </span><span class="c1">// Write index (source CPU updates)</span>
+<a id="__codelineno-9-5" name="__codelineno-9-5" href="#__codelineno-9-5"></a><span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="n">ip_drain</span><span class="p">;</span><span class="w">                     </span><span class="c1">// Drain source limit</span>
+<a id="__codelineno-9-6" name="__codelineno-9-6" href="#__codelineno-9-6"></a>
+<a id="__codelineno-9-7" name="__codelineno-9-7" href="#__codelineno-9-7"></a><span class="w">    </span><span class="k">struct</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-9-8" name="__codelineno-9-8" href="#__codelineno-9-8"></a><span class="w">        </span><span class="n">ipifunc3_t</span><span class="w"> </span><span class="n">func</span><span class="p">;</span><span class="w">              </span><span class="c1">// Function to execute</span>
+<a id="__codelineno-9-9" name="__codelineno-9-9" href="#__codelineno-9-9"></a><span class="w">        </span><span class="kt">void</span><span class="w"> </span><span class="o">*</span><span class="n">arg1</span><span class="p">;</span><span class="w">                   </span><span class="c1">// First argument</span>
+<a id="__codelineno-9-10" name="__codelineno-9-10" href="#__codelineno-9-10"></a><span class="w">        </span><span class="kt">int</span><span class="w"> </span><span class="n">arg2</span><span class="p">;</span><span class="w">                     </span><span class="c1">// Second argument</span>
+<a id="__codelineno-9-11" name="__codelineno-9-11" href="#__codelineno-9-11"></a><span class="w">        </span><span class="kt">char</span><span class="w"> </span><span class="n">filler</span><span class="p">[</span><span class="mi">32</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="p">...];</span><span class="w">        </span><span class="c1">// Cache-line alignment</span>
+<a id="__codelineno-9-12" name="__codelineno-9-12" href="#__codelineno-9-12"></a><span class="w">    </span><span class="p">}</span><span class="w"> </span><span class="n">ip_info</span><span class="p">[</span><span class="n">MAXCPUFIFO</span><span class="p">];</span><span class="w">            </span><span class="c1">// Circular buffer (256 entries)</span>
+<a id="__codelineno-9-13" name="__codelineno-9-13" href="#__codelineno-9-13"></a><span class="p">};</span>
+</code></pre></div>
+<p>Lock-free design:
+- Source CPU writes to <code>ip_windex</code> slot
+- Target CPU reads from <code>ip_rindex</code>
+- No locks needed due to single-writer, single-reader pattern</p>
+<h2 id="key-functions">Key Functions<a class="headerlink" href="#key-functions" title="Permanent link">&para;</a></h2>
+<h3 id="thread-management">Thread Management<a class="headerlink" href="#thread-management" title="Permanent link">&para;</a></h3>
+<h4 id="lwkt_init_thread"><code>lwkt_init_thread()</code><a class="headerlink" href="#lwkt_init_thread" title="Permanent link">&para;</a></h4>
+<p>Initialize a new LWKT thread structure.</p>
+<ul>
+<li><strong>Purpose:</strong> Set up thread structure, allocate kernel stack, initialize message port</li>
+<li><strong>Called by:</strong> <code>lwkt_alloc_thread()</code>, kernel thread creation routines</li>
+<li><strong>Parameters:</strong> <code>thread_t td, void *stack, int stksize, int flags, struct globaldata *gd</code></li>
+</ul>
+<h4 id="lwkt_alloc_thread"><code>lwkt_alloc_thread()</code><a class="headerlink" href="#lwkt_alloc_thread" title="Permanent link">&para;</a></h4>
+<p>Allocate and initialize a new LWKT thread.</p>
+<ul>
+<li><strong>Purpose:</strong> Allocate memory for thread structure and kernel stack</li>
+<li><strong>Returns:</strong> Initialized <code>thread_t</code></li>
+<li><strong>Called by:</strong> <code>lwkt_create()</code>, process/thread creation code</li>
+</ul>
+<h4 id="lwkt_switch"><code>lwkt_switch()</code><a class="headerlink" href="#lwkt_switch" title="Permanent link">&para;</a></h4>
+<p>Low-level context switch between threads.</p>
+<ul>
+<li><strong>Purpose:</strong> Save current thread context, restore next thread context</li>
+<li><strong>Called by:</strong> Scheduler when switching threads</li>
+<li><strong>Critical section:</strong> Must be called within a critical section</li>
+</ul>
+<h4 id="lwkt_schedule_self"><code>lwkt_schedule_self()</code><a class="headerlink" href="#lwkt_schedule_self" title="Permanent link">&para;</a></h4>
+<p>Deschedule current thread (voluntary sleep).</p>
+<ul>
+<li><strong>Purpose:</strong> Place current thread on specified queue, switch to next runnable thread</li>
+<li><strong>Called by:</strong> <code>tsleep()</code>, <code>lwkt_deschedule_self()</code>, any code voluntarily blocking</li>
+<li><strong>Note:</strong> Thread will resume when rescheduled by another CPU via <code>lwkt_schedule()</code></li>
+</ul>
+<h4 id="lwkt_schedule"><code>lwkt_schedule()</code><a class="headerlink" href="#lwkt_schedule" title="Permanent link">&para;</a></h4>
+<p>Schedule a thread for execution.</p>
+<ul>
+<li><strong>Purpose:</strong> Add thread to its CPU's run queue</li>
+<li><strong>Cross-CPU:</strong> If thread is on another CPU, uses IPIQ to send scheduling request</li>
+<li><strong>Called by:</strong> Wakeup routines, thread creation, message completion</li>
+</ul>
+<h3 id="message-passing_1">Message Passing<a class="headerlink" href="#message-passing_1" title="Permanent link">&para;</a></h3>
+<h4 id="lwkt_sendmsg"><code>lwkt_sendmsg()</code><a class="headerlink" href="#lwkt_sendmsg" title="Permanent link">&para;</a></h4>
+<p>Send a synchronous message (block until reply).</p>
+<ul>
+<li><strong>Purpose:</strong> Send message to target port, block waiting for reply</li>
+<li><strong>Returns:</strong> Error code from message (<code>ms_error</code>)</li>
+<li><strong>Typical use:</strong> Synchronous RPC-style operations</li>
+</ul>
+<h4 id="lwkt_sendmsg_async"><code>lwkt_sendmsg_async()</code><a class="headerlink" href="#lwkt_sendmsg_async" title="Permanent link">&para;</a></h4>
+<p>Send an asynchronous message (don't wait).</p>
+<ul>
+<li><strong>Purpose:</strong> Initiate message send, return immediately</li>
+<li><strong>Note:</strong> Caller must later call <code>lwkt_waitmsg()</code> or check <code>MSGF_DONE</code></li>
+</ul>
+<h4 id="lwkt_waitmsg"><code>lwkt_waitmsg()</code><a class="headerlink" href="#lwkt_waitmsg" title="Permanent link">&para;</a></h4>
+<p>Wait for message completion.</p>
+<ul>
+<li><strong>Purpose:</strong> Block until message reply is received</li>
+<li><strong>Parameters:</strong> <code>lwkt_msg_t msg, int flags</code></li>
+<li><strong>Returns:</strong> Error code</li>
+</ul>
+<h4 id="lwkt_replymsg"><code>lwkt_replymsg()</code><a class="headerlink" href="#lwkt_replymsg" title="Permanent link">&para;</a></h4>
+<p>Reply to a received message.</p>
+<ul>
+<li><strong>Purpose:</strong> Send reply back to originating port</li>
+<li><strong>Called by:</strong> Message handler after processing request</li>
+</ul>
+<h4 id="lwkt_initmsg"><code>lwkt_initmsg()</code><a class="headerlink" href="#lwkt_initmsg" title="Permanent link">&para;</a></h4>
+<p>Initialize a message structure.</p>
+<ul>
+<li><strong>Purpose:</strong> Set up message for sending</li>
+<li><strong>Parameters:</strong> <code>lwkt_msg_t msg, lwkt_port_t rport, int flags</code></li>
+</ul>
+<h3 id="token-operations">Token Operations<a class="headerlink" href="#token-operations" title="Permanent link">&para;</a></h3>
+<h4 id="lwkt_gettoken"><code>lwkt_gettoken()</code><a class="headerlink" href="#lwkt_gettoken" title="Permanent link">&para;</a></h4>
+<p>Acquire a token (exclusive by default).</p>
+<ul>
+<li><strong>Purpose:</strong> Serialize access to protected data</li>
+<li><strong>Blocking:</strong> Spins if token unavailable, may deschedule on contention</li>
+<li><strong>Can be called multiple times</strong> (token stack)</li>
+<li><strong>Held across sleep:</strong> Token automatically released/reacquired</li>
+</ul>
+<h4 id="lwkt_reltoken"><code>lwkt_reltoken()</code><a class="headerlink" href="#lwkt_reltoken" title="Permanent link">&para;</a></h4>
+<p>Release a token.</p>
+<ul>
+<li><strong>Purpose:</strong> Release the most recently acquired token</li>
+<li><strong>Must match acquisition</strong> (tokens released in reverse order of acquisition)</li>
+</ul>
+<h4 id="lwkt_gettoken_shared"><code>lwkt_gettoken_shared()</code><a class="headerlink" href="#lwkt_gettoken_shared" title="Permanent link">&para;</a></h4>
+<p>Acquire a shared (read) token.</p>
+<ul>
+<li><strong>Purpose:</strong> Allow multiple concurrent readers</li>
+<li><strong>Blocks if:</strong> Exclusive holder or exclusive request pending</li>
+</ul>
+<h4 id="lwkt_token_pool_lookup"><code>lwkt_token_pool_lookup()</code><a class="headerlink" href="#lwkt_token_pool_lookup" title="Permanent link">&para;</a></h4>
+<p>Look up a token from a token pool.</p>
+<ul>
+<li><strong>Purpose:</strong> Get a token for a specific object from a pool of tokens</li>
+<li><strong>Used by:</strong> Subsystems that need many tokens (e.g., vnodes)</li>
+</ul>
+<h3 id="ipiq-operations">IPIQ Operations<a class="headerlink" href="#ipiq-operations" title="Permanent link">&para;</a></h3>
+<h4 id="lwkt_send_ipiq"><code>lwkt_send_ipiq()</code><a class="headerlink" href="#lwkt_send_ipiq" title="Permanent link">&para;</a></h4>
+<p>Send a function to execute on another CPU.</p>
+<ul>
+<li><strong>Purpose:</strong> Cross-CPU operation request</li>
+<li><strong>Parameters:</strong> <code>globaldata *gd, ipifunc_t func, void *arg</code></li>
+<li><strong>Non-blocking:</strong> Queues function in target CPU's IPIQ</li>
+<li><strong>Returns:</strong> 0 on success, error if IPIQ full</li>
+</ul>
+<h4 id="lwkt_process_ipiq"><code>lwkt_process_ipiq()</code><a class="headerlink" href="#lwkt_process_ipiq" title="Permanent link">&para;</a></h4>
+<p>Process pending IPIQs.</p>
+<ul>
+<li><strong>Purpose:</strong> Execute functions queued in local CPU's IPIQ</li>
+<li><strong>Called by:</strong> IPI interrupt handler, scheduler</li>
+<li><strong>Runs in interrupt context</strong></li>
+</ul>
+<h4 id="lwkt_synchronous_ipiq"><code>lwkt_synchronous_ipiq()</code><a class="headerlink" href="#lwkt_synchronous_ipiq" title="Permanent link">&para;</a></h4>
+<p>Send IPIQ and wait for completion.</p>
+<ul>
+<li><strong>Purpose:</strong> Execute function on remote CPU, wait for it to finish</li>
+<li><strong>Blocking:</strong> Waits for target CPU to process the request</li>
+</ul>
+<h3 id="port-operations">Port Operations<a class="headerlink" href="#port-operations" title="Permanent link">&para;</a></h3>
+<h4 id="lwkt_initport_thread"><code>lwkt_initport_thread()</code><a class="headerlink" href="#lwkt_initport_thread" title="Permanent link">&para;</a></h4>
+<p>Initialize a thread's built-in port.</p>
+<ul>
+<li><strong>Purpose:</strong> Set up thread's message port for receiving messages</li>
+<li><strong>Called by:</strong> <code>lwkt_init_thread()</code></li>
+</ul>
+<h4 id="lwkt_waitport"><code>lwkt_waitport()</code><a class="headerlink" href="#lwkt_waitport" title="Permanent link">&para;</a></h4>
+<p>Wait for a message to arrive on a port.</p>
+<ul>
+<li><strong>Purpose:</strong> Block until message received</li>
+<li><strong>Returns:</strong> Pointer to received message</li>
+</ul>
+<h4 id="lwkt_getport"><code>lwkt_getport()</code><a class="headerlink" href="#lwkt_getport" title="Permanent link">&para;</a></h4>
+<p>Get next message from port (non-blocking).</p>
+<ul>
+<li><strong>Purpose:</strong> Dequeue message if available</li>
+<li><strong>Returns:</strong> Message or NULL if queue empty</li>
+</ul>
+<h2 id="subsystem-interactions">Subsystem Interactions<a class="headerlink" href="#subsystem-interactions" title="Permanent link">&para;</a></h2>
+<h3 id="with-the-scheduler">With the Scheduler<a class="headerlink" href="#with-the-scheduler" title="Permanent link">&para;</a></h3>
+<p>LWKT provides the low-level threading mechanism; the scheduler determines <strong>which</strong> thread to run:</p>
+<ul>
+<li>Scheduler calls <code>lwkt_switch()</code> to context-switch</li>
+<li>Threads have priorities (<code>td_pri</code>) used by scheduler</li>
+<li>Per-CPU run queues (<code>gd_tdrunq</code>) hold runnable threads</li>
+<li>Scheduler policies (<code>usched_dfly</code>, <code>usched_bsd4</code>) implement different algorithms on top of LWKT</li>
+</ul>
+<p>See <a href="../scheduling/">Scheduling</a> for details.</p>
+<h3 id="with-processes-and-lwps">With Processes and LWPs<a class="headerlink" href="#with-processes-and-lwps" title="Permanent link">&para;</a></h3>
+<p>User threads are LWKT threads with attached LWP and process structures:</p>
+<ul>
+<li>System calls execute in user thread's LWKT context</li>
+<li>Process creation (<code>fork()</code>) creates new LWKT threads</li>
+<li>Thread exit releases LWKT thread structure</li>
+</ul>
+<p>See <a href="../processes/">Processes &amp; Threads</a> for details.</p>
+<h3 id="with-the-virtual-filesystem-vfs">With the Virtual Filesystem (VFS)<a class="headerlink" href="#with-the-virtual-filesystem-vfs" title="Permanent link">&para;</a></h3>
+<p>VFS uses tokens extensively for serialization:</p>
+<ul>
+<li>Mount points have tokens (<code>mnt_token</code>)</li>
+<li>Vnodes use token pools</li>
+<li>Buffer cache operations hold tokens</li>
+<li>Token semantics allow sleeping during I/O</li>
+</ul>
+<p>See <a href="../vfs/">VFS</a> for details.</p>
+<h3 id="with-device-drivers">With Device Drivers<a class="headerlink" href="#with-device-drivers" title="Permanent link">&para;</a></h3>
+<p>Drivers often use:</p>
+<ul>
+<li><strong>Serializers</strong> (<code>lwkt_serialize</code>) for interrupt synchronization</li>
+<li><strong>Tokens</strong> for driver-internal serialization</li>
+<li><strong>Message ports</strong> for async operations</li>
+</ul>
+<p>Device interrupt threads run as LWKT threads, allowing uniform scheduling.</p>
+<h3 id="with-the-vm-system">With the VM System<a class="headerlink" href="#with-the-vm-system" title="Permanent link">&para;</a></h3>
+<p>VM operations:</p>
+<ul>
+<li>Use tokens to protect VM objects and maps</li>
+<li>May block during page-ins (tokens held across sleep)</li>
+<li>Page daemon runs as an LWKT kernel thread</li>
+</ul>
+<h2 id="code-flow-examples">Code Flow Examples<a class="headerlink" href="#code-flow-examples" title="Permanent link">&para;</a></h2>
+<h3 id="example-1-thread-creation-and-scheduling">Example 1: Thread Creation and Scheduling<a class="headerlink" href="#example-1-thread-creation-and-scheduling" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a><span class="c1">// Create a new kernel thread</span>
+<a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a><span class="n">thread_t</span><span class="w"> </span><span class="n">td</span><span class="p">;</span>
+<a id="__codelineno-10-3" name="__codelineno-10-3" href="#__codelineno-10-3"></a>
+<a id="__codelineno-10-4" name="__codelineno-10-4" href="#__codelineno-10-4"></a><span class="n">td</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">lwkt_alloc_thread</span><span class="p">(</span><span class="nb">NULL</span><span class="p">,</span><span class="w"> </span><span class="n">LWKT_THREAD_STACK</span><span class="p">,</span><span class="w"> </span><span class="mi">-1</span><span class="p">,</span><span class="w"> </span><span class="n">TDF_MPSAFE</span><span class="p">);</span>
+<a id="__codelineno-10-5" name="__codelineno-10-5" href="#__codelineno-10-5"></a><span class="n">lwkt_init_thread</span><span class="p">(</span><span class="n">td</span><span class="p">,</span><span class="w"> </span><span class="n">stack</span><span class="p">,</span><span class="w"> </span><span class="n">stksize</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="n">my_gd</span><span class="p">);</span>
+<a id="__codelineno-10-6" name="__codelineno-10-6" href="#__codelineno-10-6"></a><span class="n">td</span><span class="o">-&gt;</span><span class="n">td_flags</span><span class="w"> </span><span class="o">|=</span><span class="w"> </span><span class="n">TDF_MPSAFE</span><span class="p">;</span>
+<a id="__codelineno-10-7" name="__codelineno-10-7" href="#__codelineno-10-7"></a><span class="n">bcopy</span><span class="p">(</span><span class="s">&quot;mythrd&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">td</span><span class="o">-&gt;</span><span class="n">td_comm</span><span class="p">,</span><span class="w"> </span><span class="k">sizeof</span><span class="p">(</span><span class="s">&quot;mythrd&quot;</span><span class="p">));</span>
+<a id="__codelineno-10-8" name="__codelineno-10-8" href="#__codelineno-10-8"></a>
+<a id="__codelineno-10-9" name="__codelineno-10-9" href="#__codelineno-10-9"></a><span class="c1">// Set up to run a function</span>
+<a id="__codelineno-10-10" name="__codelineno-10-10" href="#__codelineno-10-10"></a><span class="n">cpu_set_thread_handler</span><span class="p">(</span><span class="n">td</span><span class="p">,</span><span class="w"> </span><span class="n">my_thread_fn</span><span class="p">,</span><span class="w"> </span><span class="n">arg</span><span class="p">);</span>
+<a id="__codelineno-10-11" name="__codelineno-10-11" href="#__codelineno-10-11"></a>
+<a id="__codelineno-10-12" name="__codelineno-10-12" href="#__codelineno-10-12"></a><span class="c1">// Schedule it for execution</span>
+<a id="__codelineno-10-13" name="__codelineno-10-13" href="#__codelineno-10-13"></a><span class="n">lwkt_schedule</span><span class="p">(</span><span class="n">td</span><span class="p">);</span><span class="w">  </span><span class="c1">// Will run on td-&gt;td_gd CPU</span>
+</code></pre></div>
+<p><strong>Flow:</strong>
+1. Allocate thread structure
+2. Initialize (stack, message port, globaldata)
+3. Set up machine state to call <code>my_thread_fn</code>
+4. Add to run queue via <code>lwkt_schedule()</code>
+5. Scheduler eventually switches to new thread</p>
+<h3 id="example-2-synchronous-message-send">Example 2: Synchronous Message Send<a class="headerlink" href="#example-2-synchronous-message-send" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a><span class="k">struct</span><span class="w"> </span><span class="nc">lwkt_msg</span><span class="w"> </span><span class="n">msg</span><span class="p">;</span>
+<a id="__codelineno-11-2" name="__codelineno-11-2" href="#__codelineno-11-2"></a>
+<a id="__codelineno-11-3" name="__codelineno-11-3" href="#__codelineno-11-3"></a><span class="c1">// Initialize message</span>
+<a id="__codelineno-11-4" name="__codelineno-11-4" href="#__codelineno-11-4"></a><span class="n">lwkt_initmsg</span><span class="p">(</span><span class="o">&amp;</span><span class="n">msg</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">my_reply_port</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">);</span>
+<a id="__codelineno-11-5" name="__codelineno-11-5" href="#__codelineno-11-5"></a>
+<a id="__codelineno-11-6" name="__codelineno-11-6" href="#__codelineno-11-6"></a><span class="c1">// Send to target, block until reply</span>
+<a id="__codelineno-11-7" name="__codelineno-11-7" href="#__codelineno-11-7"></a><span class="kt">int</span><span class="w"> </span><span class="n">error</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">lwkt_sendmsg</span><span class="p">(</span><span class="n">target_port</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">msg</span><span class="p">);</span>
+<a id="__codelineno-11-8" name="__codelineno-11-8" href="#__codelineno-11-8"></a>
+<a id="__codelineno-11-9" name="__codelineno-11-9" href="#__codelineno-11-9"></a><span class="c1">// Message has been processed, result in msg.ms_error or msg.u.*</span>
+<a id="__codelineno-11-10" name="__codelineno-11-10" href="#__codelineno-11-10"></a><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">error</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-11-11" name="__codelineno-11-11" href="#__codelineno-11-11"></a><span class="w">    </span><span class="n">result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">msg</span><span class="p">.</span><span class="n">u</span><span class="p">.</span><span class="n">ms_result</span><span class="p">;</span>
+<a id="__codelineno-11-12" name="__codelineno-11-12" href="#__codelineno-11-12"></a><span class="p">}</span>
+</code></pre></div>
+<p><strong>Flow:</strong>
+1. Caller initializes message with reply port
+2. <code>lwkt_sendmsg()</code> calls target port's <code>mp_putport()</code> function
+3. Target port queues message (or processes immediately)
+4. Caller blocks waiting for reply (<code>MSGF_SYNC</code> set)
+5. Target processes message, calls <code>lwkt_replymsg()</code>
+6. Reply wakes up caller, caller returns with result</p>
+<h3 id="example-3-token-acquisition-across-sleep">Example 3: Token Acquisition Across Sleep<a class="headerlink" href="#example-3-token-acquisition-across-sleep" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a><span class="c1">// Acquire token</span>
+<a id="__codelineno-12-2" name="__codelineno-12-2" href="#__codelineno-12-2"></a><span class="n">lwkt_gettoken</span><span class="p">(</span><span class="o">&amp;</span><span class="n">vp</span><span class="o">-&gt;</span><span class="n">v_token</span><span class="p">);</span>
+<a id="__codelineno-12-3" name="__codelineno-12-3" href="#__codelineno-12-3"></a>
+<a id="__codelineno-12-4" name="__codelineno-12-4" href="#__codelineno-12-4"></a><span class="c1">// Safe to access vnode fields here</span>
+<a id="__codelineno-12-5" name="__codelineno-12-5" href="#__codelineno-12-5"></a>
+<a id="__codelineno-12-6" name="__codelineno-12-6" href="#__codelineno-12-6"></a><span class="c1">// Need to sleep waiting for I/O</span>
+<a id="__codelineno-12-7" name="__codelineno-12-7" href="#__codelineno-12-7"></a><span class="n">tsleep</span><span class="p">(</span><span class="o">&amp;</span><span class="n">bp</span><span class="o">-&gt;</span><span class="n">b_flags</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;biowait&quot;</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">);</span>
+<a id="__codelineno-12-8" name="__codelineno-12-8" href="#__codelineno-12-8"></a><span class="c1">// Token is temporarily released during sleep</span>
+<a id="__codelineno-12-9" name="__codelineno-12-9" href="#__codelineno-12-9"></a><span class="c1">// Token is reacquired before tsleep() returns</span>
+<a id="__codelineno-12-10" name="__codelineno-12-10" href="#__codelineno-12-10"></a>
+<a id="__codelineno-12-11" name="__codelineno-12-11" href="#__codelineno-12-11"></a><span class="c1">// Still holding token, safe to access vnode</span>
+<a id="__codelineno-12-12" name="__codelineno-12-12" href="#__codelineno-12-12"></a><span class="n">lwkt_reltoken</span><span class="p">(</span><span class="o">&amp;</span><span class="n">vp</span><span class="o">-&gt;</span><span class="n">v_token</span><span class="p">);</span>
+</code></pre></div>
+<p><strong>Flow:</strong>
+1. <code>lwkt_gettoken()</code> acquires token
+2. Code accesses protected data
+3. <code>tsleep()</code> deschedules thread, saves token stack
+4. While asleep, another thread may acquire the same token
+5. On wakeup, <code>tsleep()</code> reacquires all tokens before returning
+6. Code continues with token held
+7. <code>lwkt_reltoken()</code> releases token</p>
+<h3 id="example-4-cross-cpu-scheduling-via-ipiq">Example 4: Cross-CPU Scheduling via IPIQ<a class="headerlink" href="#example-4-cross-cpu-scheduling-via-ipiq" title="Permanent link">&para;</a></h3>
+<p>CPU 0 wants to schedule a thread owned by CPU 1:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a><span class="c1">// On CPU 0, scheduling thread td (owned by CPU 1)</span>
+<a id="__codelineno-13-2" name="__codelineno-13-2" href="#__codelineno-13-2"></a><span class="n">lwkt_schedule</span><span class="p">(</span><span class="n">td</span><span class="p">);</span>
+</code></pre></div>
+<p><strong>Internal flow:</strong>
+1. <code>lwkt_schedule()</code> checks <code>td-&gt;td_gd</code> (= CPU 1's globaldata)
+2. Sees thread is on another CPU
+3. Calls <code>lwkt_send_ipiq(cpu1_gd, lwkt_schedule_remote, td)</code>
+4. Writes <code>{lwkt_schedule_remote, td}</code> to CPU 1's IPIQ
+5. Sends inter-processor interrupt to CPU 1
+6. CPU 1 handles IPI, calls <code>lwkt_process_ipiq()</code>
+7. <code>lwkt_process_ipiq()</code> executes <code>lwkt_schedule_remote(td)</code>
+8. <code>lwkt_schedule_remote()</code> adds <code>td</code> to CPU 1's run queue</p>
+<h2 id="traditional-bsd-vs-dragonfly-lwkt">Traditional BSD vs DragonFly LWKT<a class="headerlink" href="#traditional-bsd-vs-dragonfly-lwkt" title="Permanent link">&para;</a></h2>
+<h3 id="traditional-bsd-approach">Traditional BSD Approach<a class="headerlink" href="#traditional-bsd-approach" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-14-1" name="__codelineno-14-1" href="#__codelineno-14-1"></a><span class="c1">// Traditional: Acquire lock, access data, release lock</span>
+<a id="__codelineno-14-2" name="__codelineno-14-2" href="#__codelineno-14-2"></a><span class="n">mtx_lock</span><span class="p">(</span><span class="o">&amp;</span><span class="n">vp</span><span class="o">-&gt;</span><span class="n">v_lock</span><span class="p">);</span>
+<a id="__codelineno-14-3" name="__codelineno-14-3" href="#__codelineno-14-3"></a><span class="c1">// Cannot sleep here!</span>
+<a id="__codelineno-14-4" name="__codelineno-14-4" href="#__codelineno-14-4"></a><span class="c1">// Access v_data</span>
+<a id="__codelineno-14-5" name="__codelineno-14-5" href="#__codelineno-14-5"></a><span class="n">mtx_unlock</span><span class="p">(</span><span class="o">&amp;</span><span class="n">vp</span><span class="o">-&gt;</span><span class="n">v_lock</span><span class="p">);</span>
+</code></pre></div>
+<p><strong>Problems:</strong>
+- Locks must be released before sleeping
+- Complex code to handle sleep/wakeup with locks
+- Lock ordering requirements to avoid deadlock
+- Cache-line bouncing on multiprocessor systems</p>
+<h3 id="dragonfly-lwkt-approach">DragonFly LWKT Approach<a class="headerlink" href="#dragonfly-lwkt-approach" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-15-1" name="__codelineno-15-1" href="#__codelineno-15-1"></a><span class="c1">// DragonFly: Acquire token, access data, can sleep, release token</span>
+<a id="__codelineno-15-2" name="__codelineno-15-2" href="#__codelineno-15-2"></a><span class="n">lwkt_gettoken</span><span class="p">(</span><span class="o">&amp;</span><span class="n">vp</span><span class="o">-&gt;</span><span class="n">v_token</span><span class="p">);</span>
+<a id="__codelineno-15-3" name="__codelineno-15-3" href="#__codelineno-15-3"></a><span class="c1">// Can sleep here!</span>
+<a id="__codelineno-15-4" name="__codelineno-15-4" href="#__codelineno-15-4"></a><span class="n">tsleep</span><span class="p">(</span><span class="n">wchan</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;vnode&quot;</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">);</span>
+<a id="__codelineno-15-5" name="__codelineno-15-5" href="#__codelineno-15-5"></a><span class="c1">// Still serialized after wakeup</span>
+<a id="__codelineno-15-6" name="__codelineno-15-6" href="#__codelineno-15-6"></a><span class="c1">// Access v_data</span>
+<a id="__codelineno-15-7" name="__codelineno-15-7" href="#__codelineno-15-7"></a><span class="n">lwkt_reltoken</span><span class="p">(</span><span class="o">&amp;</span><span class="n">vp</span><span class="o">-&gt;</span><span class="n">v_token</span><span class="p">);</span>
+</code></pre></div>
+<p><strong>Advantages:</strong>
+- Tokens held across sleep (simpler code)
+- No deadlock possibility (tokens can be acquired in any order)
+- Per-CPU scheduling (no global scheduler lock)
+- Message passing reduces shared state</p>
+<h3 id="multiprocessor-scalability">Multiprocessor Scalability<a class="headerlink" href="#multiprocessor-scalability" title="Permanent link">&para;</a></h3>
+<p><strong>Traditional approach:</strong>
+- Global scheduler lock contended by all CPUs
+- Locks on shared data structures (e.g., vnodes, sockets)
+- Cache coherency overhead</p>
+<p><strong>LWKT approach:</strong>
+- Per-CPU scheduling (no global lock)
+- Message passing instead of shared state
+- Tokens reduce contention (logical serialization)
+- Thread ownership eliminates many locks</p>
+<h2 id="important-notes">Important Notes<a class="headerlink" href="#important-notes" title="Permanent link">&para;</a></h2>
+<h3 id="token-deadlock-freedom">Token Deadlock Freedom<a class="headerlink" href="#token-deadlock-freedom" title="Permanent link">&para;</a></h3>
+<p>Tokens <strong>cannot deadlock</strong> because:</p>
+<ol>
+<li><strong>Held across sleep:</strong> If you block waiting for a resource, your token is released</li>
+<li><strong>Any ordering:</strong> Tokens can be acquired in any order</li>
+<li><strong>Priority boosting:</strong> Token contention can boost thread priority</li>
+</ol>
+<p>Traditional locks <strong>can deadlock</strong> because they must be held continuously and have strict ordering requirements.</p>
+<h3 id="when-to-use-what">When to Use What<a class="headerlink" href="#when-to-use-what" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Tokens:</strong> Subsystem-level serialization (e.g., entire mount point, vnode)</li>
+<li><strong>Spinlocks:</strong> Very short critical sections, interrupt context</li>
+<li><strong>Serializers:</strong> Device driver interrupt/thread synchronization</li>
+<li><strong>Messages:</strong> Cross-CPU operations, async work queuing</li>
+</ul>
+<h3 id="performance-considerations">Performance Considerations<a class="headerlink" href="#performance-considerations" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Critical sections must be short</strong> — Prevent preemption, don't abuse</li>
+<li><strong>IPIQs are bounded</strong> — Can fill up if target CPU is busy</li>
+<li><strong>Token contention</strong> — Tracked in <code>t_collisions</code>, can indicate bottleneck</li>
+</ul>
+<h2 id="files">Files<a class="headerlink" href="#files" title="Permanent link">&para;</a></h2>
+<p>Key source files implementing LWKT:</p>
+<ul>
+<li><code>sys/kern/lwkt_thread.c</code> — Thread management, scheduling, context switching</li>
+<li><code>sys/kern/lwkt_msgport.c</code> — Message ports and message passing</li>
+<li><code>sys/kern/lwkt_token.c</code> — Serializing tokens</li>
+<li><code>sys/kern/lwkt_ipiq.c</code> — Inter-processor interrupt queues</li>
+<li><code>sys/kern/lwkt_serialize.c</code> — Serializer helpers (for drivers)</li>
+</ul>
+<p>Key header files:</p>
+<ul>
+<li><code>sys/sys/thread.h</code> — <code>struct thread</code>, token structures</li>
+<li><code>sys/sys/msgport.h</code> — <code>struct lwkt_msg</code>, <code>struct lwkt_port</code></li>
+<li><code>sys/sys/thread2.h</code> — Inline functions, macros</li>
+</ul>
+<h2 id="references">References<a class="headerlink" href="#references" title="Permanent link">&para;</a></h2>
+<ul>
+<li><a href="../synchronization/">Synchronization</a> — Other synchronization primitives (spinlocks, mutexes, etc.)</li>
+<li><a href="../scheduling/">Scheduling</a> — CPU scheduling policies built on LWKT</li>
+<li><a href="../processes/">Processes &amp; Threads</a> — Process and LWP management using LWKT</li>
+<li><a href="../vfs/">VFS</a> — Extensive use of tokens for filesystem serialization</li>
+<li><a href="../ipc/">IPC &amp; Sockets</a> — Message passing used in socket layer</li>
+</ul>
+<h2 id="further-reading">Further Reading<a class="headerlink" href="#further-reading" title="Permanent link">&para;</a></h2>
+<p>DragonFly's LWKT is unique among BSD systems. Understanding it is essential for kernel development. Key concepts to remember:</p>
+<ol>
+<li><strong>Message passing over shared memory</strong></li>
+<li><strong>Tokens held across sleep</strong></li>
+<li><strong>Per-CPU scheduling</strong></li>
+<li><strong>Thread ownership by CPU</strong></li>
+<li><strong>Deadlock-free by design</strong></li>
+</ol>
+<p>These principles enable DragonFly's superior multiprocessor scalability compared to traditional BSD kernels.</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": ["navigation.tabs", "navigation.sections", "navigation.expand", "navigation.top", "search.suggest", "search.highlight", "content.code.copy"], "search": "../../../assets/javascripts/workers/search.7a47a382.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../../assets/javascripts/bundle.e71a0d61.min.js"></script>
+      
+    
+  </body>
+</html>

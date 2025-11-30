@@ -1,0 +1,3738 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Comprehensive documentation for the DragonFly BSD kernel source code">
+      
+      
+        <meta name="author" content="DragonFly BSD Community">
+      
+      
+      
+        <link rel="prev" href="../initialization/">
+      
+      
+        <link rel="next" href="../resources/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.0">
+    
+    
+      
+        <title>Processes & Threads - DragonFly BSD Kernel Documentation</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.618322db.min.css">
+      
+        
+        <link rel="stylesheet" href="../../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#process-and-thread-management" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../../.." title="DragonFly BSD Kernel Documentation" class="md-header__button md-logo" aria-label="DragonFly BSD Kernel Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            DragonFly BSD Kernel Documentation
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Processes & Threads
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/tuxillo/dragonflybsd-source-docs" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    tuxillo/dragonflybsd-source-docs
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../.." class="md-tabs__link">
+        
+  
+  
+    
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../getting-started/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Getting Started
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+    
+  
+  
+    
+    
+      <li class="md-tabs__item md-tabs__item--active">
+        <a href="../../" class="md-tabs__link">
+          
+  
+  
+  Kernel Subsystems
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../.." title="DragonFly BSD Kernel Documentation" class="md-nav__button md-logo" aria-label="DragonFly BSD Kernel Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    DragonFly BSD Kernel Documentation
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/tuxillo/dragonflybsd-source-docs" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    tuxillo/dragonflybsd-source-docs
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../getting-started/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Getting Started
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Kernel Subsystems
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Kernel Subsystems
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+          
+          
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_2" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_3_2" id="__nav_3_2_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    kern/
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_2_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_3_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    kern/
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../lwkt/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    LWKT Threading
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../synchronization/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Synchronization
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../time/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Time & Timers
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../memory/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Memory Management
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../initialization/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Initialization & Bootstrap
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Processes & Threads
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Processes & Threads
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#overview" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Overview
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#process-table-and-pid-management" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Process Table and PID Management
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Process Table and PID Management">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#data-structures" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Data Structures
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pid-allocation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        PID Allocation
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#process-reference-counting" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Process Reference Counting
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#process-lookup-functions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Process Lookup Functions
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#process-iteration" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Process Iteration
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#process-creation-fork" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Process Creation: fork()
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Process Creation: fork()">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#system-call-entry-points" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        System Call Entry Points
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#fork1-overview" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        fork1() Overview
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#two-phase-lwp-creation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Two-Phase LWP Creation
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#starting-the-forked-process" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Starting the Forked Process
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#vfork-coordination" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        vfork() Coordination
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#thread-creation-lwp_create" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Thread Creation: lwp_create()
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#process-execution-execve" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Process Execution: execve()
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Process Execution: execve()">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#system-call-entry" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        System Call Entry
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#execution-overview" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Execution Overview
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#preventing-concurrent-execution" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Preventing Concurrent Execution
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#image-activators" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Image Activators
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#script-execution" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Script Execution (#!)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#point-of-no-return" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Point of No Return
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#building-the-new-stack" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Building the New Stack
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#credential-handling-setuidsetgid" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Credential Handling (setuid/setgid)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#file-descriptor-cleanup" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        File Descriptor Cleanup
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#signal-handler-reset" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Signal Handler Reset
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#entry-to-new-program" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Entry to New Program
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#process-termination-exit" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Process Termination: exit()
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Process Termination: exit()">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#system-call-entry_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        System Call Entry
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#exit1-overview" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        exit1() Overview
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#preventing-concurrent-exit" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Preventing Concurrent Exit
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#killing-all-lwps" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Killing All LWPs
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#process-cleanup-sequence" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Process Cleanup Sequence
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#zombie-transition" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Zombie Transition
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#parent-notification" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Parent Notification
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#orphan-handling" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Orphan Handling
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#thread-exit" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Thread Exit
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#parent-wait-and-reaping" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Parent Wait and Reaping
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#wait-options" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Wait Options
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kernel-threads" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Kernel Threads
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Kernel Threads">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#overview_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Overview
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#creating-kernel-threads" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Creating Kernel Threads
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#thread-creation-process" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Thread Creation Process
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#kernel-thread-lifecycle" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Kernel Thread Lifecycle
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#kernel-process-creation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Kernel Process Creation
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#kernel-thread-suspension" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Kernel Thread Suspension
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#process-states-and-transitions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Process States and Transitions
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Process States and Transitions">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#process-states-p_stat" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Process States (p_stat)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#lwp-states-lwp_stat" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        LWP States (lwp_stat)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#thread-states-td_flags" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Thread States (td_flags)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#process-relationships" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Process Relationships
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Process Relationships">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#parent-child-relationships" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Parent-Child Relationships
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#process-groups-and-sessions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Process Groups and Sessions
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#reaper-hierarchy" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Reaper Hierarchy
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#process-trees-and-debugging" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Process Trees and Debugging
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Process Trees and Debugging">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#proc-filesystem" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        /proc Filesystem
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#ptrace-system-call" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        ptrace() System Call
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#resource-limits" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Resource Limits
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#process-accounting" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Process Accounting
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Process Accounting">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#resource-usage" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Resource Usage
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#time-accounting" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Time Accounting
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#summary" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Summary
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../resources/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Process Resources & Credentials
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../signals/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Signals
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../scheduling/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Scheduling
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_3_2_11" >
+        
+          
+          <label class="md-nav__link" for="__nav_3_2_11" id="__nav_3_2_11_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Virtual Filesystem
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_3_2_11_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_2_11">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Virtual Filesystem
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../vfs/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../vfs/namecache/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Name Lookup & Caching
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ipc/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    IPC & Sockets
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../devices/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Devices & Drivers
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../syscalls/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    System Calls
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+          
+          
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_3_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3_3" id="__nav_3_3_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    vm/
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    vm/
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../vm/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+          
+          
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_3_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_3_4" id="__nav_3_4_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    cpu/x86_64/
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    cpu/x86_64/
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../cpu/x86_64/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#overview" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Overview
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#process-table-and-pid-management" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Process Table and PID Management
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Process Table and PID Management">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#data-structures" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Data Structures
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pid-allocation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        PID Allocation
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#process-reference-counting" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Process Reference Counting
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#process-lookup-functions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Process Lookup Functions
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#process-iteration" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Process Iteration
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#process-creation-fork" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Process Creation: fork()
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Process Creation: fork()">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#system-call-entry-points" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        System Call Entry Points
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#fork1-overview" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        fork1() Overview
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#two-phase-lwp-creation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Two-Phase LWP Creation
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#starting-the-forked-process" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Starting the Forked Process
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#vfork-coordination" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        vfork() Coordination
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#thread-creation-lwp_create" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Thread Creation: lwp_create()
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#process-execution-execve" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Process Execution: execve()
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Process Execution: execve()">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#system-call-entry" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        System Call Entry
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#execution-overview" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Execution Overview
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#preventing-concurrent-execution" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Preventing Concurrent Execution
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#image-activators" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Image Activators
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#script-execution" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Script Execution (#!)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#point-of-no-return" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Point of No Return
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#building-the-new-stack" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Building the New Stack
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#credential-handling-setuidsetgid" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Credential Handling (setuid/setgid)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#file-descriptor-cleanup" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        File Descriptor Cleanup
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#signal-handler-reset" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Signal Handler Reset
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#entry-to-new-program" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Entry to New Program
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#process-termination-exit" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Process Termination: exit()
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Process Termination: exit()">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#system-call-entry_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        System Call Entry
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#exit1-overview" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        exit1() Overview
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#preventing-concurrent-exit" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Preventing Concurrent Exit
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#killing-all-lwps" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Killing All LWPs
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#process-cleanup-sequence" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Process Cleanup Sequence
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#zombie-transition" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Zombie Transition
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#parent-notification" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Parent Notification
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#orphan-handling" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Orphan Handling
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#thread-exit" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Thread Exit
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#parent-wait-and-reaping" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Parent Wait and Reaping
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#wait-options" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Wait Options
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kernel-threads" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Kernel Threads
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Kernel Threads">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#overview_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Overview
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#creating-kernel-threads" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Creating Kernel Threads
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#thread-creation-process" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Thread Creation Process
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#kernel-thread-lifecycle" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Kernel Thread Lifecycle
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#kernel-process-creation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Kernel Process Creation
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#kernel-thread-suspension" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Kernel Thread Suspension
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#process-states-and-transitions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Process States and Transitions
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Process States and Transitions">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#process-states-p_stat" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Process States (p_stat)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#lwp-states-lwp_stat" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        LWP States (lwp_stat)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#thread-states-td_flags" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Thread States (td_flags)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#process-relationships" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Process Relationships
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Process Relationships">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#parent-child-relationships" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Parent-Child Relationships
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#process-groups-and-sessions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Process Groups and Sessions
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#reaper-hierarchy" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Reaper Hierarchy
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#process-trees-and-debugging" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Process Trees and Debugging
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Process Trees and Debugging">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#proc-filesystem" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        /proc Filesystem
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#ptrace-system-call" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        ptrace() System Call
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#resource-limits" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Resource Limits
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#process-accounting" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Process Accounting
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Process Accounting">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#resource-usage" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Resource Usage
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#time-accounting" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Time Accounting
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#summary" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Summary
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="process-and-thread-management">Process and Thread Management<a class="headerlink" href="#process-and-thread-management" title="Permanent link">&para;</a></h1>
+<p>This document describes the complete lifecycle of processes and threads in DragonFly BSD, from creation through execution to termination and cleanup.</p>
+<h2 id="overview">Overview<a class="headerlink" href="#overview" title="Permanent link">&para;</a></h2>
+<p>DragonFly BSD has a three-level threading model:</p>
+<ol>
+<li><strong>Processes</strong> (<code>struct proc</code>) - Traditional BSD process containers</li>
+<li><strong>LWPs</strong> (Light Weight Processes, <code>struct lwp</code>) - Kernel-visible threads</li>
+<li><strong>LWKT threads</strong> (<code>struct thread</code>) - Lightweight kernel threads</li>
+</ol>
+<p>User processes contain one or more LWPs, each with an associated LWKT thread. Pure kernel threads exist as LWKT threads without an associated process or LWP.</p>
+<p><strong>Key source files:</strong>
+- <code>kern_proc.c</code> - Process table management, PID allocation, lookups
+- <code>kern_fork.c</code> - Process/thread creation (fork, rfork, lwp_create)
+- <code>kern_exec.c</code> - Program execution (execve)
+- <code>kern_exit.c</code> - Process termination and cleanup
+- <code>kern_kthread.c</code> - Kernel thread creation</p>
+<h2 id="process-table-and-pid-management">Process Table and PID Management<a class="headerlink" href="#process-table-and-pid-management" title="Permanent link">&para;</a></h2>
+<h3 id="data-structures">Data Structures<a class="headerlink" href="#data-structures" title="Permanent link">&para;</a></h3>
+<p>The kernel maintains several global lists for process tracking:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="c1">// Active processes - hash table with 256 buckets</span>
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="cp">#define ALLPROC_HSIZE 256</span>
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="k">static</span><span class="w"> </span><span class="k">struct</span><span class="w"> </span><span class="nc">procglob</span><span class="w"> </span><span class="n">allproc_hash</span><span class="p">[</span><span class="n">ALLPROC_HSIZE</span><span class="p">];</span>
+<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>
+<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a><span class="c1">// Zombie processes - single list</span>
+<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a><span class="k">static</span><span class="w"> </span><span class="k">struct</span><span class="w"> </span><span class="nc">procglob</span><span class="w"> </span><span class="n">zombproc_list</span><span class="p">;</span>
+<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>
+<a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a><span class="c1">// PID domain tracking (prevents rapid reuse)</span>
+<a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a><span class="cp">#define PIDDOM_DELAY 10</span>
+<a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a><span class="k">static</span><span class="w"> </span><span class="kt">pid_t</span><span class="w"> </span><span class="n">pid_doms</span><span class="p">[</span><span class="n">PIDDOM_DELAY</span><span class="p">];</span>
+</code></pre></div>
+<p>Each <code>procglob</code> entry contains:
+- <code>allproc</code> - List head for active or zombie processes
+- <code>lock</code> - Spinlock protecting the list</p>
+<h3 id="pid-allocation">PID Allocation<a class="headerlink" href="#pid-allocation" title="Permanent link">&para;</a></h3>
+<p>PID allocation (<code>kern_proc.c:proc_getnewpid()</code>) includes security features to prevent predictability:</p>
+<ol>
+<li><strong>Random offset</strong> - Start PID counter at random value modulo PID_MAX</li>
+<li><strong>Anti-reuse</strong> - Track last 10 PIDs in <code>pid_doms[]</code>, prevent reuse for ~10 seconds</li>
+<li><strong>Hash bucket optimization</strong> - Increment by ALLPROC_HSIZE (256) to keep process in same hash bucket for better cache locality</li>
+</ol>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="n">newpid</span><span class="w"> </span><span class="o">+=</span><span class="w"> </span><span class="n">ALLPROC_HSIZE</span><span class="p">;</span><span class="w">  </span><span class="c1">// Stay in same hash bucket</span>
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">newpid</span><span class="w"> </span><span class="o">&gt;=</span><span class="w"> </span><span class="n">PID_MAX</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="w">    </span><span class="n">newpid</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">newpid</span><span class="w"> </span><span class="o">%</span><span class="w"> </span><span class="n">ALLPROC_HSIZE</span><span class="p">;</span>
+<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a><span class="w">    </span><span class="n">newpid</span><span class="w"> </span><span class="o">+=</span><span class="w"> </span><span class="n">ALLPROC_HSIZE</span><span class="p">;</span>
+<a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a><span class="p">}</span>
+</code></pre></div>
+<p>The algorithm checks:
+- PID not already in use (<code>pfind()</code>)
+- PID not recently freed (within PIDDOM_DELAY seconds)
+- PID not in session/process group use</p>
+<h3 id="process-reference-counting">Process Reference Counting<a class="headerlink" href="#process-reference-counting" title="Permanent link">&para;</a></h3>
+<p>Processes use atomic reference counting via <code>p_lock</code> with multiple flag bits:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="cp">#define PLOCK_MASK     0x1fffffff  </span><span class="c1">// Reference count</span>
+<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="cp">#define PLOCK_WAITING  0x20000000  </span><span class="c1">// Someone waiting for lock</span>
+<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="cp">#define PLOCK_ZOMB     0x40000000  </span><span class="c1">// Zombie being reaped</span>
+<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a><span class="cp">#define PLOCK_WAITRES  0x80000000  </span><span class="c1">// Waiting for resources</span>
+</code></pre></div>
+<p><strong>Reference count macros:</strong>
+- <code>PHOLD(p)</code> / <code>PRELE(p)</code> - General purpose reference counting
+- <code>PHOLDZOMB(p)</code> / <code>PRELEZOMB(p)</code> - Exclusive zombie reaping (sets PLOCK_ZOMB)
+- <code>PWAITRES(p)</code> / <code>PWAKEUP(p)</code> - Resource wait coordination</p>
+<p>The reference count prevents a process structure from being freed while in use. Zombie processes remain in the table with p_stat=SZOMB until the parent reaps them via wait().</p>
+<h3 id="process-lookup-functions">Process Lookup Functions<a class="headerlink" href="#process-lookup-functions" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="k">struct</span><span class="w"> </span><span class="nc">proc</span><span class="w"> </span><span class="o">*</span><span class="n">pfind</span><span class="p">(</span><span class="kt">pid_t</span><span class="w"> </span><span class="n">pid</span><span class="p">);</span><span class="w">           </span><span class="c1">// Find active process</span>
+<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="k">struct</span><span class="w"> </span><span class="nc">proc</span><span class="w"> </span><span class="o">*</span><span class="n">zpfind</span><span class="p">(</span><span class="kt">pid_t</span><span class="w"> </span><span class="n">pid</span><span class="p">);</span><span class="w">          </span><span class="c1">// Find zombie process</span>
+<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a><span class="k">struct</span><span class="w"> </span><span class="nc">proc</span><span class="w"> </span><span class="o">*</span><span class="n">pgfind</span><span class="p">(</span><span class="kt">pid_t</span><span class="w"> </span><span class="n">pgid</span><span class="p">);</span><span class="w">         </span><span class="c1">// Find process group leader</span>
+<a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a><span class="k">struct</span><span class="w"> </span><span class="nc">lwp</span><span class="w"> </span><span class="o">*</span><span class="n">lwpfind</span><span class="p">(</span><span class="k">struct</span><span class="w"> </span><span class="nc">proc</span><span class="w"> </span><span class="o">*</span><span class="n">p</span><span class="p">,</span><span class="w"> </span><span class="n">lwpid_t</span><span class="w"> </span><span class="n">lwpid</span><span class="p">);</span><span class="w">  </span><span class="c1">// Find LWP by ID</span>
+</code></pre></div>
+<p>All lookup functions:
+- Acquire the appropriate hash bucket spinlock
+- Return process/LWP with reference count held (PHOLD)
+- Caller must release with PRELE when done</p>
+<h3 id="process-iteration">Process Iteration<a class="headerlink" href="#process-iteration" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="kt">int</span><span class="w"> </span><span class="nf">allproc_scan</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="p">(</span><span class="o">*</span><span class="n">callback</span><span class="p">)(</span><span class="k">struct</span><span class="w"> </span><span class="nc">proc</span><span class="w"> </span><span class="o">*</span><span class="p">,</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="o">*</span><span class="p">),</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="o">*</span><span class="n">data</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">flags</span><span class="p">);</span>
+<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a><span class="kt">int</span><span class="w"> </span><span class="nf">zombproc_scan</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="p">(</span><span class="o">*</span><span class="n">callback</span><span class="p">)(</span><span class="k">struct</span><span class="w"> </span><span class="nc">proc</span><span class="w"> </span><span class="o">*</span><span class="p">,</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="o">*</span><span class="p">),</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="o">*</span><span class="n">data</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">flags</span><span class="p">);</span>
+</code></pre></div>
+<p>Flags control behavior:
+- <code>PFSCAN_NOBRK</code> - Don't break on non-zero callback return
+- <code>PFSCAN_LOCKED</code> - Keep process locked during callback (PHOLD)</p>
+<p>These functions are used by system utilities (ps, top) and kernel subsystems that need to enumerate all processes.</p>
+<h2 id="process-creation-fork">Process Creation: fork()<a class="headerlink" href="#process-creation-fork" title="Permanent link">&para;</a></h2>
+<h3 id="system-call-entry-points">System Call Entry Points<a class="headerlink" href="#system-call-entry-points" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="kt">int</span><span class="w"> </span><span class="nf">sys_fork</span><span class="p">(</span><span class="k">struct</span><span class="w"> </span><span class="nc">sysmsg</span><span class="w"> </span><span class="o">*</span><span class="p">);</span><span class="w">          </span><span class="c1">// Traditional fork</span>
+<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a><span class="kt">int</span><span class="w"> </span><span class="nf">sys_vfork</span><span class="p">(</span><span class="k">struct</span><span class="w"> </span><span class="nc">sysmsg</span><span class="w"> </span><span class="o">*</span><span class="p">);</span><span class="w">         </span><span class="c1">// vfork (shared memory)</span>
+<a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a><span class="kt">int</span><span class="w"> </span><span class="nf">sys_rfork</span><span class="p">(</span><span class="k">struct</span><span class="w"> </span><span class="nc">sysmsg</span><span class="w"> </span><span class="o">*</span><span class="p">,</span><span class="w"> </span><span class="k">struct</span><span class="w"> </span><span class="nc">rfork_args</span><span class="w"> </span><span class="o">*</span><span class="p">);</span><span class="w">  </span><span class="c1">// Extended fork</span>
+</code></pre></div>
+<p>All fork variants funnel through <code>fork1()</code> with different flag combinations:</p>
+<p><strong>RFORK flags:</strong>
+- <code>RFPROC</code> - Create new process (required)
+- <code>RFMEM</code> - Share address space (for vfork or threads)
+- <code>RFFDG</code> - Share file descriptor table
+- <code>RFCFDG</code> - Close file descriptors (exclusive with RFFDG)
+- <code>RFSIGSHARE</code> - Share signal handlers
+- <code>RFTHREAD</code> - Create thread (LWP) in current process
+- <code>RFPPWAIT</code> - Parent sleeps until child releases vmspace (vfork)
+- <code>RFENVG</code> - Create new environment group
+- <code>RFCENVG</code> - Close environment variables</p>
+<h3 id="fork1-overview">fork1() Overview<a class="headerlink" href="#fork1-overview" title="Permanent link">&para;</a></h3>
+<p>The main fork implementation (<code>kern_fork.c:fork1()</code>) performs these steps:</p>
+<ol>
+<li><strong>Preparation</strong></li>
+<li>Validate flags (RFPROC required, mutual exclusions)</li>
+<li>Check resource limits (RLIMIT_NPROC)</li>
+<li>
+<p>Account for new process in uid structure</p>
+</li>
+<li>
+<p><strong>Process structure allocation</strong></p>
+</li>
+<li>Allocate <code>struct proc</code> via <code>kmalloc()</code></li>
+<li>Initialize reference count, locks, lists</li>
+<li>Insert into <code>allproc</code> hash table</li>
+<li>
+<p>Allocate PID via <code>proc_getnewpid()</code></p>
+</li>
+<li>
+<p><strong>Process setup</strong></p>
+</li>
+<li>Copy or share credentials based on flags</li>
+<li>Copy or share file descriptor table</li>
+<li>Copy or share signal handler table</li>
+<li>
+<p>Set process state to SIDL (intermediate)</p>
+</li>
+<li>
+<p><strong>LWP creation</strong> (two-phase)</p>
+</li>
+<li><code>lwp_fork1()</code> - Allocate LWP structure, prepare for vm_fork</li>
+<li><code>vm_fork()</code> - Handle address space (copy-on-write or share)</li>
+<li>
+<p><code>lwp_fork2()</code> - Finalize LWP, insert into process</p>
+</li>
+<li>
+<p><strong>Finalization</strong></p>
+</li>
+<li>Call <code>at_fork()</code> registered callbacks</li>
+<li>Set up parent/child relationship</li>
+<li>
+<p>For RFPPWAIT (vfork): parent sleeps until child execs or exits</p>
+</li>
+<li>
+<p><strong>Activation</strong></p>
+</li>
+<li><code>start_forked_proc()</code> transitions child from SIDL to SACTIVE</li>
+<li>Child LWP becomes schedulable</li>
+</ol>
+<h3 id="two-phase-lwp-creation">Two-Phase LWP Creation<a class="headerlink" href="#two-phase-lwp-creation" title="Permanent link">&para;</a></h3>
+<p>The fork process splits LWP creation around <code>vm_fork()</code>:</p>
+<p><strong>Phase 1: lwp_fork1()</strong> (<code>kern_fork.c:lwp_fork1()</code>)
+- Allocates <code>struct lwp</code>
+- Allocates kernel stack via <code>lwkt_alloc_thread()</code>
+- Initializes basic fields (proc pointer, flags)
+- <strong>Does not insert into p_lwp_tree yet</strong></p>
+<p><strong>VM Fork: vm_fork()</strong> (in vm subsystem)
+- Sets up address space for child process
+- Creates COW (copy-on-write) mappings for non-shared pages
+- For RFMEM: shares vmspace directly (vfork, threads)
+- Handles special mappings (shared memory, mmap)</p>
+<p><strong>Phase 2: lwp_fork2()</strong> (<code>kern_fork.c:lwp_fork2()</code>)
+- Completes machine-dependent setup via <code>cpu_lwp_fork()</code>
+- Sets initial register state (return value, stack pointer)
+- <strong>Inserts LWP into <code>p_lwp_tree</code></strong> (RB tree indexed by lwpid)
+- Sets LWP state to LSSTOP (not running yet)</p>
+<p>This two-phase design ensures the LWP is not visible to the rest of the system (via p_lwp_tree) until the address space is properly set up.</p>
+<h3 id="starting-the-forked-process">Starting the Forked Process<a class="headerlink" href="#starting-the-forked-process" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="kt">void</span><span class="w"> </span><span class="n">start_forked_proc</span><span class="p">(</span><span class="k">struct</span><span class="w"> </span><span class="nc">lwp</span><span class="w"> </span><span class="o">*</span><span class="n">parent</span><span class="p">,</span><span class="w"> </span><span class="k">struct</span><span class="w"> </span><span class="nc">proc</span><span class="w"> </span><span class="o">*</span><span class="n">child</span><span class="p">)</span>
+</code></pre></div>
+<p>This function transitions the child process to runnable state:</p>
+<ol>
+<li>Acquire process token</li>
+<li>Transition from SIDL to SACTIVE state</li>
+<li>Transition LWP from LSSTOP to LSRUN</li>
+<li>Schedule the child's thread via <code>lwkt_schedule()</code></li>
+<li>Child will return from fork with retval=0 (vs parent getting child PID)</li>
+</ol>
+<h3 id="vfork-coordination">vfork() Coordination<a class="headerlink" href="#vfork-coordination" title="Permanent link">&para;</a></h3>
+<p>When <code>RFPPWAIT</code> is set (vfork):</p>
+<ol>
+<li>Parent process blocks in <code>fork1()</code> after starting child</li>
+<li>Parent waits on <code>p_ppwait_cv</code> condition variable</li>
+<li>Child signals parent when:</li>
+<li>Child calls exec (in <code>kern_exec.c:exec_new_vmspace()</code>)</li>
+<li>Child exits (in <code>kern_exit.c:exit1()</code>)</li>
+<li>Parent wakes up and continues</li>
+</ol>
+<p>This ensures the parent doesn't modify shared memory while the child is using it.</p>
+<h3 id="thread-creation-lwp_create">Thread Creation: lwp_create()<a class="headerlink" href="#thread-creation-lwp_create" title="Permanent link">&para;</a></h3>
+<p>User threads (pthreads) are created via:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="kt">int</span><span class="w"> </span><span class="nf">sys_lwp_create</span><span class="p">(</span><span class="k">struct</span><span class="w"> </span><span class="nc">lwp_params</span><span class="w"> </span><span class="o">*</span><span class="n">params</span><span class="p">);</span>
+</code></pre></div>
+<p>This creates a new LWP within the current process:</p>
+<ol>
+<li>Calls <code>lwp_create1()</code> to allocate LWP structure</li>
+<li>Does <strong>not</strong> call <code>vm_fork()</code> - address space is shared</li>
+<li>Sets up new stack region within shared address space</li>
+<li>Sets entry point to user-specified function</li>
+<li>New thread runs in parallel with existing LWPs</li>
+</ol>
+<p>LWP creation is much lighter than process creation since:
+- No new process structure
+- No PID allocation
+- No credential/fd/signal copying
+- No COW setup (memory is shared)</p>
+<h2 id="process-execution-execve">Process Execution: execve()<a class="headerlink" href="#process-execution-execve" title="Permanent link">&para;</a></h2>
+<h3 id="system-call-entry">System Call Entry<a class="headerlink" href="#system-call-entry" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a><span class="kt">int</span><span class="w"> </span><span class="nf">sys_execve</span><span class="p">(</span><span class="k">struct</span><span class="w"> </span><span class="nc">sysmsg</span><span class="w"> </span><span class="o">*</span><span class="p">,</span><span class="w"> </span><span class="k">struct</span><span class="w"> </span><span class="nc">execve_args</span><span class="w"> </span><span class="o">*</span><span class="p">);</span>
+</code></pre></div>
+<p>Arguments:
+- <code>fname</code> - Path to executable
+- <code>argv</code> - Argument vector (NULL-terminated)
+- <code>envv</code> - Environment vector (NULL-terminated)</p>
+<h3 id="execution-overview">Execution Overview<a class="headerlink" href="#execution-overview" title="Permanent link">&para;</a></h3>
+<p>The <code>kern_execve()</code> function (<code>kern_exec.c</code>) replaces the current process's address space and execution context with a new program:</p>
+<ol>
+<li><strong>Path resolution</strong> - Lookup executable via <code>nlookup()</code></li>
+<li><strong>Permission checks</strong> - Verify execute permission, handle setuid/setgid</li>
+<li><strong>Image identification</strong> - Try each image activator to identify format</li>
+<li><strong>Point of no return</strong> - Destroy old address space</li>
+<li><strong>New address space setup</strong> - Load program, build stack</li>
+<li><strong>State reset</strong> - Close files, reset signals, update credentials</li>
+<li><strong>Entry</strong> - Set PC to program entry point and return to usermode</li>
+</ol>
+<h3 id="preventing-concurrent-execution">Preventing Concurrent Execution<a class="headerlink" href="#preventing-concurrent-execution" title="Permanent link">&para;</a></h3>
+<p>Multi-threaded processes must not exec concurrently:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">p</span><span class="o">-&gt;</span><span class="n">p_flags</span><span class="w"> </span><span class="o">&amp;</span><span class="w"> </span><span class="n">P_INEXEC</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">EBUSY</span><span class="p">;</span><span class="w">  </span><span class="c1">// Another thread is already in exec</span>
+<a id="__codelineno-9-3" name="__codelineno-9-3" href="#__codelineno-9-3"></a><span class="p">}</span>
+<a id="__codelineno-9-4" name="__codelineno-9-4" href="#__codelineno-9-4"></a><span class="n">p</span><span class="o">-&gt;</span><span class="n">p_flags</span><span class="w"> </span><span class="o">|=</span><span class="w"> </span><span class="n">P_INEXEC</span><span class="p">;</span>
+</code></pre></div>
+<p>The <code>P_INEXEC</code> flag remains set until exec completes or fails.</p>
+<h3 id="image-activators">Image Activators<a class="headerlink" href="#image-activators" title="Permanent link">&para;</a></h3>
+<p>The kernel tries each registered image activator in turn:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a><span class="k">const</span><span class="w"> </span><span class="k">struct</span><span class="w"> </span><span class="nc">execsw</span><span class="w"> </span><span class="n">execsw</span><span class="p">[]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a><span class="w">    </span><span class="p">{</span><span class="w"> </span><span class="n">exec_elf_imgact</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;ELF&quot;</span><span class="w"> </span><span class="p">},</span>
+<a id="__codelineno-10-3" name="__codelineno-10-3" href="#__codelineno-10-3"></a><span class="w">    </span><span class="p">{</span><span class="w"> </span><span class="n">exec_resident_imgact</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;resident&quot;</span><span class="w"> </span><span class="p">},</span>
+<a id="__codelineno-10-4" name="__codelineno-10-4" href="#__codelineno-10-4"></a><span class="w">    </span><span class="p">{</span><span class="w"> </span><span class="n">exec_script_imgact</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;#!&quot;</span><span class="w"> </span><span class="p">},</span>
+<a id="__codelineno-10-5" name="__codelineno-10-5" href="#__codelineno-10-5"></a><span class="w">    </span><span class="p">{</span><span class="w"> </span><span class="nb">NULL</span><span class="p">,</span><span class="w"> </span><span class="nb">NULL</span><span class="w"> </span><span class="p">}</span>
+<a id="__codelineno-10-6" name="__codelineno-10-6" href="#__codelineno-10-6"></a><span class="p">};</span>
+</code></pre></div>
+<p>Each activator's function signature:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a><span class="kt">int</span><span class="w"> </span><span class="p">(</span><span class="o">*</span><span class="n">ex_imgact</span><span class="p">)(</span><span class="k">struct</span><span class="w"> </span><span class="nc">image_params</span><span class="w"> </span><span class="o">*</span><span class="n">imgp</span><span class="p">);</span>
+</code></pre></div>
+<p><strong>Image activator process:</strong>
+1. Read first page of executable (4KB)
+2. Call each activator's <code>ex_imgact()</code> function
+3. Activator inspects headers (ELF magic, #! shebang, etc.)
+4. Return <code>-1</code> if not recognized, <code>0</code> if accepted, error code if failed
+5. First activator to accept the image handles execution</p>
+<h3 id="script-execution">Script Execution (#!)<a class="headerlink" href="#script-execution" title="Permanent link">&para;</a></h3>
+<p>The script activator (<code>exec_script_imgact()</code>) handles interpreter files:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a><span class="cp">#!/usr/bin/interpreter [args]</span>
+<a id="__codelineno-12-2" name="__codelineno-12-2" href="#__codelineno-12-2"></a><span class="n">program</span><span class="w"> </span><span class="n">content</span><span class="p">...</span>
+</code></pre></div>
+<p>When detected:
+1. Extract interpreter path and optional arguments from first line
+2. Construct new argv: <code>[interpreter, args..., scriptname, original_argv...]</code>
+3. Recursively call <code>kern_execve()</code> with interpreter as executable
+4. Recursion depth limited to prevent infinite loops</p>
+<h3 id="point-of-no-return">Point of No Return<a class="headerlink" href="#point-of-no-return" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a><span class="n">error</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">exec_new_vmspace</span><span class="p">(</span><span class="n">imgp</span><span class="p">,</span><span class="w"> </span><span class="n">stack</span><span class="p">);</span>
+</code></pre></div>
+<p>This function (<code>kern_exec.c:exec_new_vmspace()</code>) destroys the old address space:</p>
+<ol>
+<li>Create new vmspace structure</li>
+<li>If process was vfork'd (P_PPWAIT set):</li>
+<li>Signal parent to wake up via <code>wakeup(p-&gt;p_pptr)</code></li>
+<li>Drop shared vmspace reference</li>
+<li>Destroy old vmspace</li>
+<li>Attach new vmspace to process</li>
+<li><strong>Cannot fail after this point</strong> - process has no valid address space to return to</li>
+</ol>
+<h3 id="building-the-new-stack">Building the New Stack<a class="headerlink" href="#building-the-new-stack" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-14-1" name="__codelineno-14-1" href="#__codelineno-14-1"></a><span class="n">error</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">exec_copyout_strings</span><span class="p">(</span><span class="n">imgp</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">stack_base</span><span class="p">);</span>
+</code></pre></div>
+<p>This function constructs the user stack in this order (growing downward):</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-15-1" name="__codelineno-15-1" href="#__codelineno-15-1"></a>High addresses
+<a id="__codelineno-15-2" name="__codelineno-15-2" href="#__codelineno-15-2"></a>+------------------+
+<a id="__codelineno-15-3" name="__codelineno-15-3" href="#__codelineno-15-3"></a>| envp strings     |
+<a id="__codelineno-15-4" name="__codelineno-15-4" href="#__codelineno-15-4"></a>+------------------+
+<a id="__codelineno-15-5" name="__codelineno-15-5" href="#__codelineno-15-5"></a>| argv strings     |
+<a id="__codelineno-15-6" name="__codelineno-15-6" href="#__codelineno-15-6"></a>+------------------+
+<a id="__codelineno-15-7" name="__codelineno-15-7" href="#__codelineno-15-7"></a>| exec path        |
+<a id="__codelineno-15-8" name="__codelineno-15-8" href="#__codelineno-15-8"></a>+------------------+
+<a id="__codelineno-15-9" name="__codelineno-15-9" href="#__codelineno-15-9"></a>| padding          |  (for alignment)
+<a id="__codelineno-15-10" name="__codelineno-15-10" href="#__codelineno-15-10"></a>+------------------+
+<a id="__codelineno-15-11" name="__codelineno-15-11" href="#__codelineno-15-11"></a>| auxv vector      |  (auxiliary vector, ELF only)
+<a id="__codelineno-15-12" name="__codelineno-15-12" href="#__codelineno-15-12"></a>+------------------+
+<a id="__codelineno-15-13" name="__codelineno-15-13" href="#__codelineno-15-13"></a>| NULL             |
+<a id="__codelineno-15-14" name="__codelineno-15-14" href="#__codelineno-15-14"></a>| envp[n-1]        |  (pointers to env strings)
+<a id="__codelineno-15-15" name="__codelineno-15-15" href="#__codelineno-15-15"></a>| ...              |
+<a id="__codelineno-15-16" name="__codelineno-15-16" href="#__codelineno-15-16"></a>| envp[0]          |
+<a id="__codelineno-15-17" name="__codelineno-15-17" href="#__codelineno-15-17"></a>+------------------+
+<a id="__codelineno-15-18" name="__codelineno-15-18" href="#__codelineno-15-18"></a>| NULL             |
+<a id="__codelineno-15-19" name="__codelineno-15-19" href="#__codelineno-15-19"></a>| argv[n-1]        |  (pointers to arg strings)
+<a id="__codelineno-15-20" name="__codelineno-15-20" href="#__codelineno-15-20"></a>| ...              |
+<a id="__codelineno-15-21" name="__codelineno-15-21" href="#__codelineno-15-21"></a>| argv[0]          |
+<a id="__codelineno-15-22" name="__codelineno-15-22" href="#__codelineno-15-22"></a>+------------------+
+<a id="__codelineno-15-23" name="__codelineno-15-23" href="#__codelineno-15-23"></a>| argc             |  (argument count)
+<a id="__codelineno-15-24" name="__codelineno-15-24" href="#__codelineno-15-24"></a>+------------------+  &lt;- stack pointer at program entry
+<a id="__codelineno-15-25" name="__codelineno-15-25" href="#__codelineno-15-25"></a>Low addresses
+</code></pre></div>
+<p><strong>Stack gap randomization:</strong>
+- Controlled by <code>exec.stackgap_random</code> sysctl
+- Randomly subtracts 0 to stackgap_random bytes from stack pointer
+- Helps prevent return-to-libc attacks</p>
+<p><strong>Auxiliary vector (auxv):</strong>
+ELF programs receive metadata through auxv entries:
+- <code>AT_PHDR</code> - Address of program header table
+- <code>AT_PHENT</code> - Size of program header entry
+- <code>AT_PHNUM</code> - Number of program headers
+- <code>AT_PAGESZ</code> - System page size
+- <code>AT_BASE</code> - Interpreter base address (for dynamic executables)
+- <code>AT_ENTRY</code> - Program entry point
+- <code>AT_EXECPATH</code> - Full path to executable</p>
+<h3 id="credential-handling-setuidsetgid">Credential Handling (setuid/setgid)<a class="headerlink" href="#credential-handling-setuidsetgid" title="Permanent link">&para;</a></h3>
+<p>If the executable has setuid or setgid bits:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-16-1" name="__codelineno-16-1" href="#__codelineno-16-1"></a><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">attr</span><span class="p">.</span><span class="n">va_mode</span><span class="w"> </span><span class="o">&amp;</span><span class="w"> </span><span class="p">(</span><span class="n">S_ISUID</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">S_ISGID</span><span class="p">))</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-16-2" name="__codelineno-16-2" href="#__codelineno-16-2"></a><span class="w">    </span><span class="n">p</span><span class="o">-&gt;</span><span class="n">p_flags</span><span class="w"> </span><span class="o">|=</span><span class="w"> </span><span class="n">P_SUGID</span><span class="p">;</span><span class="w">  </span><span class="c1">// Mark process as tainted</span>
+<a id="__codelineno-16-3" name="__codelineno-16-3" href="#__codelineno-16-3"></a><span class="w">    </span><span class="c1">// Update credentials</span>
+<a id="__codelineno-16-4" name="__codelineno-16-4" href="#__codelineno-16-4"></a><span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">attr</span><span class="p">.</span><span class="n">va_mode</span><span class="w"> </span><span class="o">&amp;</span><span class="w"> </span><span class="n">S_ISUID</span><span class="p">)</span>
+<a id="__codelineno-16-5" name="__codelineno-16-5" href="#__codelineno-16-5"></a><span class="w">        </span><span class="n">change_euid</span><span class="p">(</span><span class="n">attr</span><span class="p">.</span><span class="n">va_uid</span><span class="p">);</span>
+<a id="__codelineno-16-6" name="__codelineno-16-6" href="#__codelineno-16-6"></a><span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">attr</span><span class="p">.</span><span class="n">va_mode</span><span class="w"> </span><span class="o">&amp;</span><span class="w"> </span><span class="n">S_ISGID</span><span class="p">)</span>
+<a id="__codelineno-16-7" name="__codelineno-16-7" href="#__codelineno-16-7"></a><span class="w">        </span><span class="n">change_egid</span><span class="p">(</span><span class="n">attr</span><span class="p">.</span><span class="n">va_gid</span><span class="p">);</span>
+<a id="__codelineno-16-8" name="__codelineno-16-8" href="#__codelineno-16-8"></a><span class="p">}</span>
+</code></pre></div>
+<p><strong>P_SUGID security restrictions:</strong>
+- Prevents ptrace() attachment
+- Prevents core dumps to user directories
+- Restricts /proc access
+- Cleared on subsequent exec of non-setuid binary</p>
+<h3 id="file-descriptor-cleanup">File Descriptor Cleanup<a class="headerlink" href="#file-descriptor-cleanup" title="Permanent link">&para;</a></h3>
+<p>During exec, the kernel closes file descriptors marked close-on-exec:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-17-1" name="__codelineno-17-1" href="#__codelineno-17-1"></a><span class="n">fdcloseexec</span><span class="p">(</span><span class="n">p</span><span class="p">);</span><span class="w">  </span><span class="c1">// Close all FDs with FD_CLOEXEC set</span>
+</code></pre></div>
+<p>This is commonly used for:
+- Pipe file descriptors in shell pipelines
+- Internal file descriptors that shouldn't be inherited
+- Library handles that need to be reopened</p>
+<h3 id="signal-handler-reset">Signal Handler Reset<a class="headerlink" href="#signal-handler-reset" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-18-1" name="__codelineno-18-1" href="#__codelineno-18-1"></a><span class="n">execsigs</span><span class="p">(</span><span class="n">p</span><span class="p">);</span>
+</code></pre></div>
+<p>This function resets all signal dispositions:
+- Signals set to SIG_IGN remain ignored
+- Signals set to SIG_DFL remain default
+- <strong>Caught signals (custom handlers) reset to SIG_DFL</strong></p>
+<p>Since the old address space is gone, signal handler function pointers are no longer valid.</p>
+<h3 id="entry-to-new-program">Entry to New Program<a class="headerlink" href="#entry-to-new-program" title="Permanent link">&para;</a></h3>
+<p>After all setup completes:</p>
+<ol>
+<li><code>exec_setregs()</code> sets up initial CPU state:</li>
+<li>Program counter (PC) → entry point address</li>
+<li>Stack pointer (SP) → top of prepared stack</li>
+<li>Argument registers → argc, argv (architecture-dependent)</li>
+<li>Exec system call returns to user mode</li>
+<li>CPU state causes execution to begin at program entry point</li>
+</ol>
+<p>For dynamically linked ELF programs, entry point is actually the dynamic linker (ld-elf.so), which:
+- Loads shared libraries
+- Performs relocations
+- Eventually transfers control to program's actual <code>_start()</code></p>
+<h2 id="process-termination-exit">Process Termination: exit()<a class="headerlink" href="#process-termination-exit" title="Permanent link">&para;</a></h2>
+<h3 id="system-call-entry_1">System Call Entry<a class="headerlink" href="#system-call-entry_1" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-19-1" name="__codelineno-19-1" href="#__codelineno-19-1"></a><span class="kt">int</span><span class="w"> </span><span class="nf">sys_exit</span><span class="p">(</span><span class="k">struct</span><span class="w"> </span><span class="nc">sysmsg</span><span class="w"> </span><span class="o">*</span><span class="p">,</span><span class="w"> </span><span class="k">struct</span><span class="w"> </span><span class="nc">exit_args</span><span class="w"> </span><span class="o">*</span><span class="p">);</span>
+<a id="__codelineno-19-2" name="__codelineno-19-2" href="#__codelineno-19-2"></a><span class="kt">int</span><span class="w"> </span><span class="nf">sys_exit_group</span><span class="p">(</span><span class="k">struct</span><span class="w"> </span><span class="nc">sysmsg</span><span class="w"> </span><span class="o">*</span><span class="p">,</span><span class="w"> </span><span class="k">struct</span><span class="w"> </span><span class="nc">exit_group_args</span><span class="w"> </span><span class="o">*</span><span class="p">);</span><span class="w">  </span><span class="c1">// Linux compat</span>
+</code></pre></div>
+<p>Both funnel through <code>exit1()</code> with a status code.</p>
+<h3 id="exit1-overview">exit1() Overview<a class="headerlink" href="#exit1-overview" title="Permanent link">&para;</a></h3>
+<p>The main exit implementation (<code>kern_exit.c:exit1()</code>) performs these steps:</p>
+<ol>
+<li><strong>Exit coordination</strong> - Set P_WEXIT flag to prevent concurrent exits</li>
+<li><strong>Stop other threads</strong> - Call <code>killalllwps()</code> to terminate all other LWPs</li>
+<li><strong>Accounting</strong> - Record CPU time and resource usage</li>
+<li><strong>Cleanup</strong> - Close files, release resources, detach from process groups</li>
+<li><strong>Zombie transition</strong> - Move from allproc to zombproc list</li>
+<li><strong>Parent notification</strong> - Send SIGCHLD to parent</li>
+<li><strong>Thread termination</strong> - Current LWP calls <code>lwp_exit()</code> and never returns</li>
+</ol>
+<h3 id="preventing-concurrent-exit">Preventing Concurrent Exit<a class="headerlink" href="#preventing-concurrent-exit" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-20-1" name="__codelineno-20-1" href="#__codelineno-20-1"></a><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">p</span><span class="o">-&gt;</span><span class="n">p_flags</span><span class="w"> </span><span class="o">&amp;</span><span class="w"> </span><span class="n">P_WEXIT</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-20-2" name="__codelineno-20-2" href="#__codelineno-20-2"></a><span class="w">    </span><span class="n">lwkt_reltoken</span><span class="p">(</span><span class="o">&amp;</span><span class="n">p</span><span class="o">-&gt;</span><span class="n">p_token</span><span class="p">);</span>
+<a id="__codelineno-20-3" name="__codelineno-20-3" href="#__codelineno-20-3"></a><span class="w">    </span><span class="k">return</span><span class="p">;</span><span class="w">  </span><span class="c1">// Already exiting</span>
+<a id="__codelineno-20-4" name="__codelineno-20-4" href="#__codelineno-20-4"></a><span class="p">}</span>
+<a id="__codelineno-20-5" name="__codelineno-20-5" href="#__codelineno-20-5"></a><span class="n">p</span><span class="o">-&gt;</span><span class="n">p_flags</span><span class="w"> </span><span class="o">|=</span><span class="w"> </span><span class="n">P_WEXIT</span><span class="p">;</span>
+</code></pre></div>
+<p>Only the first thread to set <code>P_WEXIT</code> performs the full exit sequence. Other threads in <code>exit1()</code> simply return and get cleaned up by <code>killalllwps()</code>.</p>
+<h3 id="killing-all-lwps">Killing All LWPs<a class="headerlink" href="#killing-all-lwps" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-21-1" name="__codelineno-21-1" href="#__codelineno-21-1"></a><span class="n">killalllwps</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">signo</span><span class="p">);</span>
+</code></pre></div>
+<p>This function (<code>kern_exit.c</code>) terminates all other LWPs in the process:</p>
+<ol>
+<li>Acquire proc token</li>
+<li>Iterate through <code>p_lwp_tree</code> (all LWPs in process)</li>
+<li>For each other LWP:</li>
+<li>Set LWP state to LSZOMB</li>
+<li>Post signal if specified</li>
+<li>Issue <code>lwkt_deschedule()</code> to remove from scheduler</li>
+<li>Wait for all LWPs to finish deschedule</li>
+<li>Reap zombie LWPs</li>
+</ol>
+<p><strong>LWP reaper mechanism:</strong>
+- Dead LWPs are added to <code>deadlwp_list</code>
+- <code>deadlwp_task</code> taskqueue entry processes the list
+- Each dead LWP's kernel stack is freed
+- LWP structure itself is freed</p>
+<p>This asynchronous reaping avoids freeing the kernel stack that might still be in use.</p>
+<h3 id="process-cleanup-sequence">Process Cleanup Sequence<a class="headerlink" href="#process-cleanup-sequence" title="Permanent link">&para;</a></h3>
+<p>After killing all LWPs, <code>exit1()</code> performs:</p>
+<ol>
+<li><strong>Session/Process Group Cleanup</strong></li>
+<li>If session leader: terminate controlling terminal</li>
+<li>If process group leader: send SIGHUP to foreground processes</li>
+<li>
+<p>Remove from process group</p>
+</li>
+<li>
+<p><strong>File Descriptor Cleanup</strong>
+   <div class="highlight"><pre><span></span><code><a id="__codelineno-22-1" name="__codelineno-22-1" href="#__codelineno-22-1"></a><span class="n">fdfree</span><span class="p">(</span><span class="n">p</span><span class="p">,</span><span class="w"> </span><span class="n">td</span><span class="p">);</span><span class="w">  </span><span class="c1">// Close all open files</span>
+</code></pre></div></p>
+</li>
+<li>Closes all file descriptors</li>
+<li>Releases file descriptor table</li>
+<li>
+<p>Decrements reference counts on file structures</p>
+</li>
+<li>
+<p><strong>Virtual Memory Cleanup</strong>
+   <div class="highlight"><pre><span></span><code><a id="__codelineno-23-1" name="__codelineno-23-1" href="#__codelineno-23-1"></a><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!--</span><span class="n">vmspace</span><span class="o">-&gt;</span><span class="n">vm_refcnt</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-23-2" name="__codelineno-23-2" href="#__codelineno-23-2"></a><span class="w">    </span><span class="n">vmspace_dtor</span><span class="p">(</span><span class="n">vmspace</span><span class="p">);</span><span class="w">  </span><span class="c1">// Last reference, free vmspace</span>
+<a id="__codelineno-23-3" name="__codelineno-23-3" href="#__codelineno-23-3"></a><span class="p">}</span>
+</code></pre></div></p>
+</li>
+<li>Decrements vmspace reference count</li>
+<li>
+<p>If last reference: unmaps all regions, frees page tables</p>
+</li>
+<li>
+<p><strong>IPC Cleanup</strong></p>
+</li>
+<li>Remove from System V semaphore undo list</li>
+<li>
+<p>Detach from shared memory segments</p>
+</li>
+<li>
+<p><strong>Credential Cleanup</strong>
+   <div class="highlight"><pre><span></span><code><a id="__codelineno-24-1" name="__codelineno-24-1" href="#__codelineno-24-1"></a><span class="n">crfree</span><span class="p">(</span><span class="n">p</span><span class="o">-&gt;</span><span class="n">p_ucred</span><span class="p">);</span><span class="w">  </span><span class="c1">// Release credential structure</span>
+</code></pre></div></p>
+</li>
+<li>
+<p><strong>Timer Cleanup</strong></p>
+</li>
+<li>Stop ITIMER_REAL, ITIMER_VIRTUAL, ITIMER_PROF timers</li>
+<li>Remove from timer queues</li>
+</ol>
+<h3 id="zombie-transition">Zombie Transition<a class="headerlink" href="#zombie-transition" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-25-1" name="__codelineno-25-1" href="#__codelineno-25-1"></a><span class="n">proc_move_allproc_zombie</span><span class="p">(</span><span class="k">struct</span><span class="w"> </span><span class="nc">proc</span><span class="w"> </span><span class="o">*</span><span class="n">p</span><span class="p">);</span>
+</code></pre></div>
+<p>This function (<code>kern_proc.c</code>) atomically moves the process from active to zombie state:</p>
+<ol>
+<li>Remove from <code>allproc_hash[bucket]</code></li>
+<li>Add to <code>zombproc_list</code></li>
+<li>Set <code>p-&gt;p_stat = SZOMB</code></li>
+<li>Leave <code>p_nthreads</code> at 1 (decrement happens after parent reaps)</li>
+</ol>
+<p><strong>Zombie state characteristics:</strong>
+- Process structure remains allocated
+- PID remains allocated (in <code>pid_doms[]</code> anti-reuse list)
+- Exit status preserved in <code>p-&gt;p_xstat</code>
+- All other resources freed</p>
+<h3 id="parent-notification">Parent Notification<a class="headerlink" href="#parent-notification" title="Permanent link">&para;</a></h3>
+<p>After transition to zombie:</p>
+<ol>
+<li>Increment parent's <code>p_waitgen</code> counter (wake optimization)</li>
+<li>Send SIGCHLD to parent via <code>ksignal(p-&gt;p_pptr, SIGCHLD)</code></li>
+<li>Wakeup any threads in <code>wait()</code> via <code>wakeup(p-&gt;p_pptr)</code></li>
+</ol>
+<p>The <code>p_waitgen</code> counter allows wait() to quickly detect if any child has changed state without scanning the entire child list.</p>
+<h3 id="orphan-handling">Orphan Handling<a class="headerlink" href="#orphan-handling" title="Permanent link">&para;</a></h3>
+<p>If parent has already exited, child is reparented:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-26-1" name="__codelineno-26-1" href="#__codelineno-26-1"></a><span class="n">proc_reparent</span><span class="p">(</span><span class="k">struct</span><span class="w"> </span><span class="nc">proc</span><span class="w"> </span><span class="o">*</span><span class="n">child</span><span class="p">,</span><span class="w"> </span><span class="k">struct</span><span class="w"> </span><span class="nc">proc</span><span class="w"> </span><span class="o">*</span><span class="n">parent</span><span class="p">);</span>
+</code></pre></div>
+<p><strong>Reparenting rules:</strong>
+1. If parent is init (PID 1): child becomes init's child
+2. If process has a registered reaper: child moves to reaper
+3. Otherwise: child becomes init's child</p>
+<p>The reaper mechanism allows creating "sub-init" processes for containers or process supervision.</p>
+<h3 id="thread-exit">Thread Exit<a class="headerlink" href="#thread-exit" title="Permanent link">&para;</a></h3>
+<p>Finally, the exiting thread calls:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-27-1" name="__codelineno-27-1" href="#__codelineno-27-1"></a><span class="n">lwp_exit</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">masterexit</span><span class="p">,</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="p">(</span><span class="o">*</span><span class="n">exitfunc</span><span class="p">)(</span><span class="kt">void</span><span class="w"> </span><span class="o">*</span><span class="p">),</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="o">*</span><span class="n">exitarg</span><span class="p">);</span>
+</code></pre></div>
+<p>This function:
+1. Sets <code>lp-&gt;lwp_stat = LSZOMB</code>
+2. Calls exit function if provided (for cleanup)
+3. Calls <code>cpu_lwp_exit()</code> to release machine-dependent resources
+4. Calls <code>lwkt_exit()</code> which:
+   - Deschedules thread
+   - Marks stack for deferred free
+   - Switches to new thread
+   - <strong>Never returns</strong></p>
+<h3 id="parent-wait-and-reaping">Parent Wait and Reaping<a class="headerlink" href="#parent-wait-and-reaping" title="Permanent link">&para;</a></h3>
+<p>Parent processes retrieve exit status via wait():</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-28-1" name="__codelineno-28-1" href="#__codelineno-28-1"></a><span class="kt">int</span><span class="w"> </span><span class="nf">sys_wait4</span><span class="p">(</span><span class="k">struct</span><span class="w"> </span><span class="nc">sysmsg</span><span class="w"> </span><span class="o">*</span><span class="p">,</span><span class="w"> </span><span class="k">struct</span><span class="w"> </span><span class="nc">wait4_args</span><span class="w"> </span><span class="o">*</span><span class="p">);</span>
+</code></pre></div>
+<p>The <code>kern_wait()</code> function (<code>kern_exit.c</code>) performs:</p>
+<ol>
+<li>
+<p><strong>Wait loop optimization</strong>
+   <div class="highlight"><pre><span></span><code><a id="__codelineno-29-1" name="__codelineno-29-1" href="#__codelineno-29-1"></a><span class="kt">int</span><span class="w"> </span><span class="n">waitgen</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">p</span><span class="o">-&gt;</span><span class="n">p_waitgen</span><span class="p">;</span>
+<a id="__codelineno-29-2" name="__codelineno-29-2" href="#__codelineno-29-2"></a><span class="k">while</span><span class="w"> </span><span class="p">(</span><span class="cm">/* no matching child */</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-29-3" name="__codelineno-29-3" href="#__codelineno-29-3"></a><span class="w">    </span><span class="n">tsleep_interlock</span><span class="p">(</span><span class="o">&amp;</span><span class="n">waitgen</span><span class="p">,</span><span class="w"> </span><span class="n">PCATCH</span><span class="p">);</span>
+<a id="__codelineno-29-4" name="__codelineno-29-4" href="#__codelineno-29-4"></a><span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">waitgen</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">p</span><span class="o">-&gt;</span><span class="n">p_waitgen</span><span class="p">)</span>
+<a id="__codelineno-29-5" name="__codelineno-29-5" href="#__codelineno-29-5"></a><span class="w">        </span><span class="n">tsleep</span><span class="p">(</span><span class="n">p</span><span class="p">,</span><span class="w"> </span><span class="n">PCATCH</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">PINTERLOCKED</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;wait&quot;</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">);</span>
+<a id="__codelineno-29-6" name="__codelineno-29-6" href="#__codelineno-29-6"></a><span class="w">    </span><span class="n">waitgen</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">p</span><span class="o">-&gt;</span><span class="n">p_waitgen</span><span class="p">;</span>
+<a id="__codelineno-29-7" name="__codelineno-29-7" href="#__codelineno-29-7"></a><span class="p">}</span>
+</code></pre></div>
+   The waitgen counter avoids spurious wakeups - only sleep if counter hasn't changed.</p>
+</li>
+<li>
+<p><strong>Child scan</strong></p>
+</li>
+<li>Iterate through <code>p-&gt;p_children</code> list</li>
+<li>Match on PID (if specified) or any child (PID -1)</li>
+<li>
+<p>Match on process group (if negative PID)</p>
+</li>
+<li>
+<p><strong>Zombie reaping</strong>
+   <div class="highlight"><pre><span></span><code><a id="__codelineno-30-1" name="__codelineno-30-1" href="#__codelineno-30-1"></a><span class="n">PHOLDZOMB</span><span class="p">(</span><span class="n">child</span><span class="p">);</span><span class="w">  </span><span class="c1">// Exclusive access, sets PLOCK_ZOMB</span>
+</code></pre></div></p>
+</li>
+<li>Acquire exclusive zombie lock (prevents concurrent wait by other threads)</li>
+<li>Copy exit status from <code>p-&gt;p_xstat</code></li>
+<li>Copy resource usage from <code>p-&gt;p_ru</code></li>
+<li>Remove from parent's <code>p_children</code> list</li>
+<li>
+<p>Call <code>proc_finish(child)</code> to free process structure</p>
+</li>
+<li>
+<p><strong>Process finish</strong>
+   <div class="highlight"><pre><span></span><code><a id="__codelineno-31-1" name="__codelineno-31-1" href="#__codelineno-31-1"></a><span class="n">proc_finish</span><span class="p">(</span><span class="k">struct</span><span class="w"> </span><span class="nc">proc</span><span class="w"> </span><span class="o">*</span><span class="n">p</span><span class="p">);</span>
+</code></pre></div></p>
+</li>
+<li>Remove from zombie list</li>
+<li>Decrement PID domain reference in <code>pid_doms[]</code></li>
+<li>Free process structure</li>
+<li>PID becomes available for reuse after PIDDOM_DELAY</li>
+</ol>
+<h3 id="wait-options">Wait Options<a class="headerlink" href="#wait-options" title="Permanent link">&para;</a></h3>
+<p>The wait4() system call supports various options:</p>
+<ul>
+<li><code>WNOHANG</code> - Return immediately if no child has exited</li>
+<li><code>WUNTRACED</code> - Also return for stopped children (job control)</li>
+<li><code>WCONTINUED</code> - Also return for continued children (SIGCONT)</li>
+<li><code>WLINUXCLONE</code> - Linux compatibility for thread waiting</li>
+</ul>
+<p>Without WNOHANG, wait() sleeps until a child changes state or a signal arrives.</p>
+<h2 id="kernel-threads">Kernel Threads<a class="headerlink" href="#kernel-threads" title="Permanent link">&para;</a></h2>
+<h3 id="overview_1">Overview<a class="headerlink" href="#overview_1" title="Permanent link">&para;</a></h3>
+<p>Kernel threads are lightweight threads that run entirely in kernel mode without an associated user process or LWP. They are used for:</p>
+<ul>
+<li>Asynchronous I/O completion</li>
+<li>Device driver background tasks</li>
+<li>Network stack processing</li>
+<li>Virtual memory pageout daemon</li>
+<li>System maintenance tasks</li>
+</ul>
+<h3 id="creating-kernel-threads">Creating Kernel Threads<a class="headerlink" href="#creating-kernel-threads" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-32-1" name="__codelineno-32-1" href="#__codelineno-32-1"></a><span class="kt">int</span><span class="w"> </span><span class="nf">kthread_create</span><span class="p">(</span><span class="kt">void</span><span class="w"> </span><span class="p">(</span><span class="o">*</span><span class="n">func</span><span class="p">)(</span><span class="kt">void</span><span class="w"> </span><span class="o">*</span><span class="p">),</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="o">*</span><span class="n">arg</span><span class="p">,</span>
+<a id="__codelineno-32-2" name="__codelineno-32-2" href="#__codelineno-32-2"></a><span class="w">                   </span><span class="k">struct</span><span class="w"> </span><span class="nc">thread</span><span class="w"> </span><span class="o">**</span><span class="n">tdp</span><span class="p">,</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="n">fmt</span><span class="p">,</span><span class="w"> </span><span class="p">...);</span>
+</code></pre></div>
+<p><strong>Parameters:</strong>
+- <code>func</code> - Thread entry point function
+- <code>arg</code> - Argument passed to function
+- <code>tdp</code> - Returns pointer to created thread (can be NULL)
+- <code>fmt</code> - Printf-style format for thread name (appears in ps)</p>
+<p><strong>Variants:</strong></p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-33-1" name="__codelineno-33-1" href="#__codelineno-33-1"></a><span class="c1">// Create but don&#39;t schedule immediately</span>
+<a id="__codelineno-33-2" name="__codelineno-33-2" href="#__codelineno-33-2"></a><span class="kt">int</span><span class="w"> </span><span class="nf">kthread_alloc</span><span class="p">(</span><span class="kt">void</span><span class="w"> </span><span class="p">(</span><span class="o">*</span><span class="n">func</span><span class="p">)(</span><span class="kt">void</span><span class="w"> </span><span class="o">*</span><span class="p">),</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="o">*</span><span class="n">arg</span><span class="p">,</span>
+<a id="__codelineno-33-3" name="__codelineno-33-3" href="#__codelineno-33-3"></a><span class="w">                  </span><span class="k">struct</span><span class="w"> </span><span class="nc">thread</span><span class="w"> </span><span class="o">**</span><span class="n">tdp</span><span class="p">,</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="n">fmt</span><span class="p">,</span><span class="w"> </span><span class="p">...);</span>
+<a id="__codelineno-33-4" name="__codelineno-33-4" href="#__codelineno-33-4"></a>
+<a id="__codelineno-33-5" name="__codelineno-33-5" href="#__codelineno-33-5"></a><span class="c1">// Pin to specific CPU</span>
+<a id="__codelineno-33-6" name="__codelineno-33-6" href="#__codelineno-33-6"></a><span class="kt">int</span><span class="w"> </span><span class="nf">kthread_create_cpu</span><span class="p">(</span><span class="kt">void</span><span class="w"> </span><span class="p">(</span><span class="o">*</span><span class="n">func</span><span class="p">)(</span><span class="kt">void</span><span class="w"> </span><span class="o">*</span><span class="p">),</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="o">*</span><span class="n">arg</span><span class="p">,</span>
+<a id="__codelineno-33-7" name="__codelineno-33-7" href="#__codelineno-33-7"></a><span class="w">                       </span><span class="k">struct</span><span class="w"> </span><span class="nc">thread</span><span class="w"> </span><span class="o">**</span><span class="n">tdp</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">cpu</span><span class="p">,</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="n">fmt</span><span class="p">,</span><span class="w"> </span><span class="p">...);</span>
+</code></pre></div>
+<h3 id="thread-creation-process">Thread Creation Process<a class="headerlink" href="#thread-creation-process" title="Permanent link">&para;</a></h3>
+<p>Internal function <code>_kthread_create()</code> (<code>kern_kthread.c</code>):</p>
+<ol>
+<li><strong>Allocate thread structure</strong>
+   <div class="highlight"><pre><span></span><code><a id="__codelineno-34-1" name="__codelineno-34-1" href="#__codelineno-34-1"></a><span class="n">td</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">lwkt_alloc_thread</span><span class="p">(</span><span class="nb">NULL</span><span class="p">,</span><span class="w"> </span><span class="n">LWKT_THREAD_STACK</span><span class="p">,</span><span class="w"> </span><span class="n">cpu</span><span class="p">,</span><span class="w"> </span><span class="n">flags</span><span class="p">);</span>
+</code></pre></div></li>
+<li>Allocates <code>struct thread</code></li>
+<li>Allocates kernel stack (typically 16KB)</li>
+<li>
+<p>CPU parameter pins thread to specific CPU, or -1 for any CPU</p>
+</li>
+<li>
+<p><strong>Set up execution context</strong>
+   <div class="highlight"><pre><span></span><code><a id="__codelineno-35-1" name="__codelineno-35-1" href="#__codelineno-35-1"></a><span class="n">cpu_set_thread_handler</span><span class="p">(</span><span class="n">td</span><span class="p">,</span><span class="w"> </span><span class="n">kthread_exit</span><span class="p">,</span><span class="w"> </span><span class="n">func</span><span class="p">,</span><span class="w"> </span><span class="n">arg</span><span class="p">);</span>
+</code></pre></div></p>
+</li>
+<li>Sets stack pointer to top of kernel stack</li>
+<li>Sets up return chain: <code>func</code> returns to <code>kthread_exit</code></li>
+<li>
+<p>Saves argument for function</p>
+</li>
+<li>
+<p><strong>Initialize thread metadata</strong></p>
+</li>
+<li>Copy name to <code>td-&gt;td_comm</code> (visible in ps, top)</li>
+<li>Share credentials with proc0 (kernel process)</li>
+<li>
+<p>Set <code>td-&gt;td_proc = NULL</code> to mark as pure kernel thread</p>
+</li>
+<li>
+<p><strong>Schedule thread</strong>
+   <div class="highlight"><pre><span></span><code><a id="__codelineno-36-1" name="__codelineno-36-1" href="#__codelineno-36-1"></a><span class="n">lwkt_schedule</span><span class="p">(</span><span class="n">td</span><span class="p">);</span>
+</code></pre></div></p>
+</li>
+<li>Only if <code>schedule_now</code> parameter is true</li>
+<li>Thread becomes runnable on target CPU</li>
+<li>Scheduler will run thread when appropriate</li>
+</ol>
+<h3 id="kernel-thread-lifecycle">Kernel Thread Lifecycle<a class="headerlink" href="#kernel-thread-lifecycle" title="Permanent link">&para;</a></h3>
+<p><strong>Entry:</strong>
+- Thread starts executing at <code>func</code>
+- Runs at elevated privilege (kernel mode)
+- Has full access to kernel memory and data structures</p>
+<p><strong>Execution:</strong>
+- Thread can sleep, waiting for events
+- Thread can acquire locks and access shared data
+- Thread should check for termination requests</p>
+<p><strong>Exit:</strong>
+- Thread returns from <code>func</code>, which chains to <code>kthread_exit()</code>
+- <code>kthread_exit()</code> calls <code>lwkt_exit()</code>:
+  - Marks thread as exiting
+  - Deschedules from runqueue
+  - Marks stack for deferred free
+  - Switches to another thread
+  - Never returns</p>
+<h3 id="kernel-process-creation">Kernel Process Creation<a class="headerlink" href="#kernel-process-creation" title="Permanent link">&para;</a></h3>
+<p>The <code>kproc_start()</code> function creates kernel threads via SYSINIT:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-37-1" name="__codelineno-37-1" href="#__codelineno-37-1"></a><span class="k">struct</span><span class="w"> </span><span class="nc">kproc_desc</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-37-2" name="__codelineno-37-2" href="#__codelineno-37-2"></a><span class="w">    </span><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="n">arg0</span><span class="p">;</span><span class="w">                        </span><span class="c1">// Thread name</span>
+<a id="__codelineno-37-3" name="__codelineno-37-3" href="#__codelineno-37-3"></a><span class="w">    </span><span class="kt">void</span><span class="w"> </span><span class="p">(</span><span class="o">*</span><span class="n">func</span><span class="p">)(</span><span class="kt">void</span><span class="p">);</span><span class="w">                </span><span class="c1">// Entry point</span>
+<a id="__codelineno-37-4" name="__codelineno-37-4" href="#__codelineno-37-4"></a><span class="w">    </span><span class="k">struct</span><span class="w"> </span><span class="nc">thread</span><span class="w"> </span><span class="o">**</span><span class="n">global_threadpp</span><span class="p">;</span><span class="w">   </span><span class="c1">// Where to store thread pointer</span>
+<a id="__codelineno-37-5" name="__codelineno-37-5" href="#__codelineno-37-5"></a><span class="p">};</span>
+<a id="__codelineno-37-6" name="__codelineno-37-6" href="#__codelineno-37-6"></a>
+<a id="__codelineno-37-7" name="__codelineno-37-7" href="#__codelineno-37-7"></a><span class="kt">void</span><span class="w"> </span><span class="nf">kproc_start</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="o">*</span><span class="n">udata</span><span class="p">);</span>
+</code></pre></div>
+<p><strong>Usage:</strong></p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-38-1" name="__codelineno-38-1" href="#__codelineno-38-1"></a><span class="k">static</span><span class="w"> </span><span class="k">struct</span><span class="w"> </span><span class="nc">thread</span><span class="w"> </span><span class="o">*</span><span class="n">mythread</span><span class="p">;</span>
+<a id="__codelineno-38-2" name="__codelineno-38-2" href="#__codelineno-38-2"></a>
+<a id="__codelineno-38-3" name="__codelineno-38-3" href="#__codelineno-38-3"></a><span class="k">static</span><span class="w"> </span><span class="k">struct</span><span class="w"> </span><span class="nc">kproc_desc</span><span class="w"> </span><span class="n">my_kproc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-38-4" name="__codelineno-38-4" href="#__codelineno-38-4"></a><span class="w">    </span><span class="s">&quot;mythread&quot;</span><span class="p">,</span>
+<a id="__codelineno-38-5" name="__codelineno-38-5" href="#__codelineno-38-5"></a><span class="w">    </span><span class="n">my_thread_func</span><span class="p">,</span>
+<a id="__codelineno-38-6" name="__codelineno-38-6" href="#__codelineno-38-6"></a><span class="w">    </span><span class="o">&amp;</span><span class="n">mythread</span>
+<a id="__codelineno-38-7" name="__codelineno-38-7" href="#__codelineno-38-7"></a><span class="p">};</span>
+<a id="__codelineno-38-8" name="__codelineno-38-8" href="#__codelineno-38-8"></a><span class="n">SYSINIT</span><span class="p">(</span><span class="n">my_init</span><span class="p">,</span><span class="w"> </span><span class="n">SI_SUB_KTHREAD_IDLE</span><span class="p">,</span><span class="w"> </span><span class="n">SI_ORDER_ANY</span><span class="p">,</span><span class="w"> </span><span class="n">kproc_start</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">my_kproc</span><span class="p">);</span>
+</code></pre></div>
+<p>This creates the kernel thread during system initialization, after core kernel threads are running.</p>
+<h3 id="kernel-thread-suspension">Kernel Thread Suspension<a class="headerlink" href="#kernel-thread-suspension" title="Permanent link">&para;</a></h3>
+<p>Kernel threads can voluntarily suspend:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-39-1" name="__codelineno-39-1" href="#__codelineno-39-1"></a><span class="kt">int</span><span class="w"> </span><span class="nf">suspend_kproc</span><span class="p">(</span><span class="k">struct</span><span class="w"> </span><span class="nc">thread</span><span class="w"> </span><span class="o">*</span><span class="n">td</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">timo</span><span class="p">);</span>
+<a id="__codelineno-39-2" name="__codelineno-39-2" href="#__codelineno-39-2"></a><span class="kt">void</span><span class="w"> </span><span class="nf">kproc_suspend_loop</span><span class="p">(</span><span class="kt">void</span><span class="p">);</span>
+</code></pre></div>
+<p><strong>Suspend mechanism:</strong></p>
+<ol>
+<li>External code calls <code>suspend_kproc(td, timeout)</code></li>
+<li>Sets <code>TDF_MP_STOPREQ</code> flag on target thread</li>
+<li>Wakes target thread (if sleeping)</li>
+<li>Waits for thread to acknowledge suspension</li>
+</ol>
+<p><strong>Thread cooperation:</strong></p>
+<p>The kernel thread periodically calls:
+<div class="highlight"><pre><span></span><code><a id="__codelineno-40-1" name="__codelineno-40-1" href="#__codelineno-40-1"></a><span class="n">kproc_suspend_loop</span><span class="p">();</span><span class="w">  </span><span class="c1">// Check if someone wants us to suspend</span>
+</code></pre></div></p>
+<p>If <code>TDF_MP_STOPREQ</code> is set:
+- Clear request flag
+- Sleep until <code>TDF_MP_WAKEREQ</code> is set
+- Clear wake flag and continue</p>
+<p>This allows kernel threads to be paused for maintenance operations or shutdown.</p>
+<h2 id="process-states-and-transitions">Process States and Transitions<a class="headerlink" href="#process-states-and-transitions" title="Permanent link">&para;</a></h2>
+<h3 id="process-states-p_stat">Process States (p_stat)<a class="headerlink" href="#process-states-p_stat" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-41-1" name="__codelineno-41-1" href="#__codelineno-41-1"></a><span class="cp">#define SIDL    1   </span><span class="c1">// Process being created</span>
+<a id="__codelineno-41-2" name="__codelineno-41-2" href="#__codelineno-41-2"></a><span class="cp">#define SACTIVE 2   </span><span class="c1">// Process is active</span>
+<a id="__codelineno-41-3" name="__codelineno-41-3" href="#__codelineno-41-3"></a><span class="cp">#define SSTOP   3   </span><span class="c1">// Process stopped (job control)</span>
+<a id="__codelineno-41-4" name="__codelineno-41-4" href="#__codelineno-41-4"></a><span class="cp">#define SZOMB   4   </span><span class="c1">// Process is zombie (awaiting reaping)</span>
+</code></pre></div>
+<p><strong>State transitions:</strong></p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-42-1" name="__codelineno-42-1" href="#__codelineno-42-1"></a>     fork1()          start_forked_proc()
+<a id="__codelineno-42-2" name="__codelineno-42-2" href="#__codelineno-42-2"></a>NULL --------&gt; SIDL ----------------------&gt; SACTIVE
+<a id="__codelineno-42-3" name="__codelineno-42-3" href="#__codelineno-42-3"></a>                                               |
+<a id="__codelineno-42-4" name="__codelineno-42-4" href="#__codelineno-42-4"></a>                                               | exit1()
+<a id="__codelineno-42-5" name="__codelineno-42-5" href="#__codelineno-42-5"></a>                                               v
+<a id="__codelineno-42-6" name="__codelineno-42-6" href="#__codelineno-42-6"></a>                                            SZOMB -----&gt; freed
+<a id="__codelineno-42-7" name="__codelineno-42-7" href="#__codelineno-42-7"></a>                                               ^      wait4()
+<a id="__codelineno-42-8" name="__codelineno-42-8" href="#__codelineno-42-8"></a>                                               |
+<a id="__codelineno-42-9" name="__codelineno-42-9" href="#__codelineno-42-9"></a>                                           SSTOP
+<a id="__codelineno-42-10" name="__codelineno-42-10" href="#__codelineno-42-10"></a>                                        (via signal)
+</code></pre></div>
+<h3 id="lwp-states-lwp_stat">LWP States (lwp_stat)<a class="headerlink" href="#lwp-states-lwp_stat" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-43-1" name="__codelineno-43-1" href="#__codelineno-43-1"></a><span class="cp">#define LSRUN    1  </span><span class="c1">// Runnable (on or waiting for CPU)</span>
+<a id="__codelineno-43-2" name="__codelineno-43-2" href="#__codelineno-43-2"></a><span class="cp">#define LSSTOP   2  </span><span class="c1">// Stopped (job control, debugging)</span>
+<a id="__codelineno-43-3" name="__codelineno-43-3" href="#__codelineno-43-3"></a><span class="cp">#define LSSLEEP  3  </span><span class="c1">// Sleeping (waiting for event)</span>
+<a id="__codelineno-43-4" name="__codelineno-43-4" href="#__codelineno-43-4"></a><span class="cp">#define LSZOMB   4  </span><span class="c1">// Zombie (terminated but not reaped)</span>
+<a id="__codelineno-43-5" name="__codelineno-43-5" href="#__codelineno-43-5"></a><span class="cp">#define LSSUSPENDED 5  </span><span class="c1">// Suspended (special conditions)</span>
+</code></pre></div>
+<p><strong>Typical LWP lifecycle:</strong></p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-44-1" name="__codelineno-44-1" href="#__codelineno-44-1"></a>     lwp_fork2()      scheduler        sleep event
+<a id="__codelineno-44-2" name="__codelineno-44-2" href="#__codelineno-44-2"></a>NULL -----------&gt; LSSTOP --------&gt; LSRUN -----------&gt; LSSLEEP
+<a id="__codelineno-44-3" name="__codelineno-44-3" href="#__codelineno-44-3"></a>                           ^                             |
+<a id="__codelineno-44-4" name="__codelineno-44-4" href="#__codelineno-44-4"></a>                           |        wakeup               |
+<a id="__codelineno-44-5" name="__codelineno-44-5" href="#__codelineno-44-5"></a>                           +-----------------------------+
+<a id="__codelineno-44-6" name="__codelineno-44-6" href="#__codelineno-44-6"></a>
+<a id="__codelineno-44-7" name="__codelineno-44-7" href="#__codelineno-44-7"></a>                  lwp_exit()
+<a id="__codelineno-44-8" name="__codelineno-44-8" href="#__codelineno-44-8"></a>              ---------------&gt; LSZOMB -----&gt; freed
+<a id="__codelineno-44-9" name="__codelineno-44-9" href="#__codelineno-44-9"></a>                                        (deferred)
+</code></pre></div>
+<h3 id="thread-states-td_flags">Thread States (td_flags)<a class="headerlink" href="#thread-states-td_flags" title="Permanent link">&para;</a></h3>
+<p>LWKT threads have numerous flags in <code>td_flags</code>:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-45-1" name="__codelineno-45-1" href="#__codelineno-45-1"></a><span class="cp">#define TDF_RUNNING      0x0001  </span><span class="c1">// Thread on CPU</span>
+<a id="__codelineno-45-2" name="__codelineno-45-2" href="#__codelineno-45-2"></a><span class="cp">#define TDF_RUNQ         0x0002  </span><span class="c1">// Thread on runqueue</span>
+<a id="__codelineno-45-3" name="__codelineno-45-3" href="#__codelineno-45-3"></a><span class="cp">#define TDF_TSLEEP       0x0004  </span><span class="c1">// Thread in tsleep</span>
+<a id="__codelineno-45-4" name="__codelineno-45-4" href="#__codelineno-45-4"></a><span class="cp">#define TDF_EXITING      0x0010  </span><span class="c1">// Thread exiting</span>
+<a id="__codelineno-45-5" name="__codelineno-45-5" href="#__codelineno-45-5"></a><span class="cp">#define TDF_SINTR        0x0020  </span><span class="c1">// Sleep is interruptible</span>
+<a id="__codelineno-45-6" name="__codelineno-45-6" href="#__codelineno-45-6"></a><span class="cp">#define TDF_TIMEOUT      0x0040  </span><span class="c1">// Timeout in progress</span>
+<a id="__codelineno-45-7" name="__codelineno-45-7" href="#__codelineno-45-7"></a><span class="c1">// ... many more</span>
+</code></pre></div>
+<p>Threads transition between runqueue, running, sleeping states based on scheduler and synchronization events.</p>
+<h2 id="process-relationships">Process Relationships<a class="headerlink" href="#process-relationships" title="Permanent link">&para;</a></h2>
+<h3 id="parent-child-relationships">Parent-Child Relationships<a class="headerlink" href="#parent-child-relationships" title="Permanent link">&para;</a></h3>
+<p>Each process maintains:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-46-1" name="__codelineno-46-1" href="#__codelineno-46-1"></a><span class="k">struct</span><span class="w"> </span><span class="nc">proc</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-46-2" name="__codelineno-46-2" href="#__codelineno-46-2"></a><span class="w">    </span><span class="k">struct</span><span class="w"> </span><span class="nc">proc</span><span class="w"> </span><span class="o">*</span><span class="n">p_pptr</span><span class="p">;</span><span class="w">           </span><span class="c1">// Parent process</span>
+<a id="__codelineno-46-3" name="__codelineno-46-3" href="#__codelineno-46-3"></a><span class="w">    </span><span class="k">struct</span><span class="w"> </span><span class="nc">proclist</span><span class="w"> </span><span class="n">p_children</span><span class="p">;</span><span class="w">    </span><span class="c1">// List of child processes</span>
+<a id="__codelineno-46-4" name="__codelineno-46-4" href="#__codelineno-46-4"></a><span class="w">    </span><span class="k">struct</span><span class="w"> </span><span class="nc">sibling_entry</span><span class="w"> </span><span class="n">p_sibling</span><span class="p">;</span><span class="w"> </span><span class="c1">// Sibling list entry</span>
+<a id="__codelineno-46-5" name="__codelineno-46-5" href="#__codelineno-46-5"></a><span class="w">    </span><span class="c1">// ...</span>
+<a id="__codelineno-46-6" name="__codelineno-46-6" href="#__codelineno-46-6"></a><span class="p">};</span>
+</code></pre></div>
+<p><strong>Invariants:</strong>
+- Every process except proc0 has a parent
+- A process's children are on its <code>p_children</code> list
+- Siblings are linked through <code>p_sibling</code></p>
+<h3 id="process-groups-and-sessions">Process Groups and Sessions<a class="headerlink" href="#process-groups-and-sessions" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-47-1" name="__codelineno-47-1" href="#__codelineno-47-1"></a><span class="k">struct</span><span class="w"> </span><span class="nc">proc</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-47-2" name="__codelineno-47-2" href="#__codelineno-47-2"></a><span class="w">    </span><span class="k">struct</span><span class="w"> </span><span class="nc">pgrp</span><span class="w"> </span><span class="o">*</span><span class="n">p_pgrp</span><span class="p">;</span><span class="w">          </span><span class="c1">// Process group</span>
+<a id="__codelineno-47-3" name="__codelineno-47-3" href="#__codelineno-47-3"></a><span class="w">    </span><span class="kt">pid_t</span><span class="w"> </span><span class="n">p_pgid</span><span class="p">;</span><span class="w">                 </span><span class="c1">// Process group ID</span>
+<a id="__codelineno-47-4" name="__codelineno-47-4" href="#__codelineno-47-4"></a><span class="w">    </span><span class="c1">// ...</span>
+<a id="__codelineno-47-5" name="__codelineno-47-5" href="#__codelineno-47-5"></a><span class="p">};</span>
+<a id="__codelineno-47-6" name="__codelineno-47-6" href="#__codelineno-47-6"></a>
+<a id="__codelineno-47-7" name="__codelineno-47-7" href="#__codelineno-47-7"></a><span class="k">struct</span><span class="w"> </span><span class="nc">pgrp</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-47-8" name="__codelineno-47-8" href="#__codelineno-47-8"></a><span class="w">    </span><span class="k">struct</span><span class="w"> </span><span class="nc">proclist</span><span class="w"> </span><span class="n">pg_members</span><span class="p">;</span><span class="w">    </span><span class="c1">// Members of this group</span>
+<a id="__codelineno-47-9" name="__codelineno-47-9" href="#__codelineno-47-9"></a><span class="w">    </span><span class="k">struct</span><span class="w"> </span><span class="nc">session</span><span class="w"> </span><span class="o">*</span><span class="n">pg_session</span><span class="p">;</span><span class="w">    </span><span class="c1">// Session containing this group</span>
+<a id="__codelineno-47-10" name="__codelineno-47-10" href="#__codelineno-47-10"></a><span class="w">    </span><span class="kt">pid_t</span><span class="w"> </span><span class="n">pg_id</span><span class="p">;</span><span class="w">                   </span><span class="c1">// Process group ID</span>
+<a id="__codelineno-47-11" name="__codelineno-47-11" href="#__codelineno-47-11"></a><span class="p">};</span>
+<a id="__codelineno-47-12" name="__codelineno-47-12" href="#__codelineno-47-12"></a>
+<a id="__codelineno-47-13" name="__codelineno-47-13" href="#__codelineno-47-13"></a><span class="k">struct</span><span class="w"> </span><span class="nc">session</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-47-14" name="__codelineno-47-14" href="#__codelineno-47-14"></a><span class="w">    </span><span class="k">struct</span><span class="w"> </span><span class="nc">pgrp_list</span><span class="w"> </span><span class="n">s_groups</span><span class="p">;</span><span class="w">     </span><span class="c1">// Groups in this session</span>
+<a id="__codelineno-47-15" name="__codelineno-47-15" href="#__codelineno-47-15"></a><span class="w">    </span><span class="k">struct</span><span class="w"> </span><span class="nc">vnode</span><span class="w"> </span><span class="o">*</span><span class="n">s_ttyvp</span><span class="p">;</span><span class="w">         </span><span class="c1">// Controlling terminal</span>
+<a id="__codelineno-47-16" name="__codelineno-47-16" href="#__codelineno-47-16"></a><span class="w">    </span><span class="kt">pid_t</span><span class="w"> </span><span class="n">s_sid</span><span class="p">;</span><span class="w">                   </span><span class="c1">// Session ID</span>
+<a id="__codelineno-47-17" name="__codelineno-47-17" href="#__codelineno-47-17"></a><span class="p">};</span>
+</code></pre></div>
+<p><strong>Hierarchy:</strong></p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-48-1" name="__codelineno-48-1" href="#__codelineno-48-1"></a>Session
+<a id="__codelineno-48-2" name="__codelineno-48-2" href="#__codelineno-48-2"></a>  |
+<a id="__codelineno-48-3" name="__codelineno-48-3" href="#__codelineno-48-3"></a>  +-- Process Group 1
+<a id="__codelineno-48-4" name="__codelineno-48-4" href="#__codelineno-48-4"></a>  |     |
+<a id="__codelineno-48-5" name="__codelineno-48-5" href="#__codelineno-48-5"></a>  |     +-- Process A (leader)
+<a id="__codelineno-48-6" name="__codelineno-48-6" href="#__codelineno-48-6"></a>  |     +-- Process B
+<a id="__codelineno-48-7" name="__codelineno-48-7" href="#__codelineno-48-7"></a>  |     +-- Process C
+<a id="__codelineno-48-8" name="__codelineno-48-8" href="#__codelineno-48-8"></a>  |
+<a id="__codelineno-48-9" name="__codelineno-48-9" href="#__codelineno-48-9"></a>  +-- Process Group 2
+<a id="__codelineno-48-10" name="__codelineno-48-10" href="#__codelineno-48-10"></a>        |
+<a id="__codelineno-48-11" name="__codelineno-48-11" href="#__codelineno-48-11"></a>        +-- Process D (leader)
+<a id="__codelineno-48-12" name="__codelineno-48-12" href="#__codelineno-48-12"></a>        +-- Process E
+</code></pre></div>
+<p><strong>Purpose:</strong>
+- <strong>Sessions</strong> - Isolate groups of related processes (typically one per login)
+- <strong>Process Groups</strong> - Job control (foreground/background jobs in shell)
+- <strong>Controlling Terminal</strong> - Associated with session, receives signals (SIGINT, SIGQUIT)</p>
+<p>Process group leaders (PID == PGID) and session leaders (PID == SID) have special responsibilities:
+- Session leader death causes SIGHUP to all processes in session
+- Process group leader death can cause controlling terminal loss</p>
+<h3 id="reaper-hierarchy">Reaper Hierarchy<a class="headerlink" href="#reaper-hierarchy" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-49-1" name="__codelineno-49-1" href="#__codelineno-49-1"></a><span class="k">struct</span><span class="w"> </span><span class="nc">proc</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-49-2" name="__codelineno-49-2" href="#__codelineno-49-2"></a><span class="w">    </span><span class="k">struct</span><span class="w"> </span><span class="nc">sysreaper</span><span class="w"> </span><span class="o">*</span><span class="n">p_reaper</span><span class="p">;</span><span class="w">    </span><span class="c1">// Our reaper (or NULL)</span>
+<a id="__codelineno-49-3" name="__codelineno-49-3" href="#__codelineno-49-3"></a><span class="w">    </span><span class="c1">// ...</span>
+<a id="__codelineno-49-4" name="__codelineno-49-4" href="#__codelineno-49-4"></a><span class="p">};</span>
+<a id="__codelineno-49-5" name="__codelineno-49-5" href="#__codelineno-49-5"></a>
+<a id="__codelineno-49-6" name="__codelineno-49-6" href="#__codelineno-49-6"></a><span class="k">struct</span><span class="w"> </span><span class="nc">sysreaper</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-49-7" name="__codelineno-49-7" href="#__codelineno-49-7"></a><span class="w">    </span><span class="k">struct</span><span class="w"> </span><span class="nc">proc</span><span class="w"> </span><span class="o">*</span><span class="n">p</span><span class="p">;</span><span class="w">                </span><span class="c1">// Reaper process</span>
+<a id="__codelineno-49-8" name="__codelineno-49-8" href="#__codelineno-49-8"></a><span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="n">refs</span><span class="p">;</span><span class="w">                      </span><span class="c1">// Reference count</span>
+<a id="__codelineno-49-9" name="__codelineno-49-9" href="#__codelineno-49-9"></a><span class="w">    </span><span class="k">struct</span><span class="w"> </span><span class="nc">sysreaper</span><span class="w"> </span><span class="o">*</span><span class="n">parent</span><span class="p">;</span><span class="w">      </span><span class="c1">// Parent reaper</span>
+<a id="__codelineno-49-10" name="__codelineno-49-10" href="#__codelineno-49-10"></a><span class="p">};</span>
+</code></pre></div>
+<p>Reapers provide a mechanism for process supervision:</p>
+<ul>
+<li>When a process exits, orphaned children are reparented to the reaper</li>
+<li>If no reaper, children go to init (PID 1)</li>
+<li>Allows containers or supervision trees without requiring PID 1</li>
+</ul>
+<p>Example hierarchy:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-50-1" name="__codelineno-50-1" href="#__codelineno-50-1"></a>init (PID 1)
+<a id="__codelineno-50-2" name="__codelineno-50-2" href="#__codelineno-50-2"></a>  |
+<a id="__codelineno-50-3" name="__codelineno-50-3" href="#__codelineno-50-3"></a>  +-- reaper_daemon (reaper for container)
+<a id="__codelineno-50-4" name="__codelineno-50-4" href="#__codelineno-50-4"></a>        |
+<a id="__codelineno-50-5" name="__codelineno-50-5" href="#__codelineno-50-5"></a>        +-- container_process_1
+<a id="__codelineno-50-6" name="__codelineno-50-6" href="#__codelineno-50-6"></a>        +-- container_process_2
+<a id="__codelineno-50-7" name="__codelineno-50-7" href="#__codelineno-50-7"></a>              |
+<a id="__codelineno-50-8" name="__codelineno-50-8" href="#__codelineno-50-8"></a>              +-- child_process
+</code></pre></div>
+<p>If <code>container_process_2</code> exits, <code>child_process</code> is reparented to <code>reaper_daemon</code>, not init.</p>
+<h2 id="process-trees-and-debugging">Process Trees and Debugging<a class="headerlink" href="#process-trees-and-debugging" title="Permanent link">&para;</a></h2>
+<h3 id="proc-filesystem">/proc Filesystem<a class="headerlink" href="#proc-filesystem" title="Permanent link">&para;</a></h3>
+<p>The process filesystem exposes process information:</p>
+<ul>
+<li><code>/proc/&lt;pid&gt;/status</code> - Process status</li>
+<li><code>/proc/&lt;pid&gt;/mem</code> - Process memory (for debugging)</li>
+<li><code>/proc/&lt;pid&gt;/map</code> - Memory mappings</li>
+<li><code>/proc/&lt;pid&gt;/cmdline</code> - Command line arguments</li>
+</ul>
+<h3 id="ptrace-system-call">ptrace() System Call<a class="headerlink" href="#ptrace-system-call" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-51-1" name="__codelineno-51-1" href="#__codelineno-51-1"></a><span class="kt">int</span><span class="w"> </span><span class="nf">sys_ptrace</span><span class="p">(</span><span class="k">struct</span><span class="w"> </span><span class="nc">sysmsg</span><span class="w"> </span><span class="o">*</span><span class="p">,</span><span class="w"> </span><span class="k">struct</span><span class="w"> </span><span class="nc">ptrace_args</span><span class="w"> </span><span class="o">*</span><span class="p">);</span>
+</code></pre></div>
+<p>The ptrace system call allows one process to control another:</p>
+<p><strong>Operations:</strong>
+- <code>PT_TRACE_ME</code> - Mark process as traceable
+- <code>PT_ATTACH</code> - Attach to process as debugger
+- <code>PT_DETACH</code> - Detach from traced process
+- <code>PT_CONTINUE</code> - Resume execution
+- <code>PT_STEP</code> - Single-step execution
+- <code>PT_READ_I/PT_WRITE_I</code> - Read/write instruction space
+- <code>PT_READ_D/PT_WRITE_D</code> - Read/write data space
+- <code>PT_GETREGS/PT_SETREGS</code> - Read/write registers</p>
+<p><strong>Security restrictions:</strong>
+- Cannot trace processes with P_SUGID flag (setuid/setgid)
+- Cannot trace processes owned by other users (unless root)
+- Traced process stops on signals for debugger examination</p>
+<p>Debuggers (gdb, lldb) use ptrace to:
+- Set breakpoints (write INT3 instruction)
+- Read/modify memory and registers
+- Single-step through code
+- Examine process state after crashes</p>
+<h2 id="resource-limits">Resource Limits<a class="headerlink" href="#resource-limits" title="Permanent link">&para;</a></h2>
+<p>Each process has resource limits inherited from parent:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-52-1" name="__codelineno-52-1" href="#__codelineno-52-1"></a><span class="k">struct</span><span class="w"> </span><span class="nc">proc</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-52-2" name="__codelineno-52-2" href="#__codelineno-52-2"></a><span class="w">    </span><span class="k">struct</span><span class="w"> </span><span class="nc">plimit</span><span class="w"> </span><span class="o">*</span><span class="n">p_limit</span><span class="p">;</span><span class="w">  </span><span class="c1">// Resource limits</span>
+<a id="__codelineno-52-3" name="__codelineno-52-3" href="#__codelineno-52-3"></a><span class="w">    </span><span class="k">struct</span><span class="w"> </span><span class="nc">pstats</span><span class="w"> </span><span class="o">*</span><span class="n">p_stats</span><span class="p">;</span><span class="w">  </span><span class="c1">// Statistics and timers</span>
+<a id="__codelineno-52-4" name="__codelineno-52-4" href="#__codelineno-52-4"></a><span class="w">    </span><span class="c1">// ...</span>
+<a id="__codelineno-52-5" name="__codelineno-52-5" href="#__codelineno-52-5"></a><span class="p">};</span>
+<a id="__codelineno-52-6" name="__codelineno-52-6" href="#__codelineno-52-6"></a>
+<a id="__codelineno-52-7" name="__codelineno-52-7" href="#__codelineno-52-7"></a><span class="k">struct</span><span class="w"> </span><span class="nc">plimit</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-52-8" name="__codelineno-52-8" href="#__codelineno-52-8"></a><span class="w">    </span><span class="k">struct</span><span class="w"> </span><span class="nc">rlimit</span><span class="w"> </span><span class="n">pl_rlimit</span><span class="p">[</span><span class="n">RLIM_NLIMITS</span><span class="p">];</span>
+<a id="__codelineno-52-9" name="__codelineno-52-9" href="#__codelineno-52-9"></a><span class="p">};</span>
+<a id="__codelineno-52-10" name="__codelineno-52-10" href="#__codelineno-52-10"></a>
+<a id="__codelineno-52-11" name="__codelineno-52-11" href="#__codelineno-52-11"></a><span class="k">struct</span><span class="w"> </span><span class="nc">rlimit</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-52-12" name="__codelineno-52-12" href="#__codelineno-52-12"></a><span class="w">    </span><span class="kt">rlim_t</span><span class="w"> </span><span class="n">rlim_cur</span><span class="p">;</span><span class="w">  </span><span class="c1">// Current (soft) limit</span>
+<a id="__codelineno-52-13" name="__codelineno-52-13" href="#__codelineno-52-13"></a><span class="w">    </span><span class="kt">rlim_t</span><span class="w"> </span><span class="n">rlim_max</span><span class="p">;</span><span class="w">  </span><span class="c1">// Maximum (hard) limit</span>
+<a id="__codelineno-52-14" name="__codelineno-52-14" href="#__codelineno-52-14"></a><span class="p">};</span>
+</code></pre></div>
+<p><strong>Standard limits:</strong>
+- <code>RLIMIT_CPU</code> - CPU time (seconds)
+- <code>RLIMIT_FSIZE</code> - Maximum file size
+- <code>RLIMIT_DATA</code> - Data segment size
+- <code>RLIMIT_STACK</code> - Stack size
+- <code>RLIMIT_CORE</code> - Core file size
+- <code>RLIMIT_RSS</code> - Resident set size
+- <code>RLIMIT_MEMLOCK</code> - Locked memory
+- <code>RLIMIT_NPROC</code> - Number of processes per uid
+- <code>RLIMIT_NOFILE</code> - Number of open files
+- <code>RLIMIT_SBSIZE</code> - Socket buffer size</p>
+<p>Exceeded soft limits typically cause signals (SIGXCPU, SIGXFSZ). Hard limits cannot be exceeded.</p>
+<h2 id="process-accounting">Process Accounting<a class="headerlink" href="#process-accounting" title="Permanent link">&para;</a></h2>
+<h3 id="resource-usage">Resource Usage<a class="headerlink" href="#resource-usage" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-53-1" name="__codelineno-53-1" href="#__codelineno-53-1"></a><span class="k">struct</span><span class="w"> </span><span class="nc">rusage</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-53-2" name="__codelineno-53-2" href="#__codelineno-53-2"></a><span class="w">    </span><span class="k">struct</span><span class="w"> </span><span class="nc">timeval</span><span class="w"> </span><span class="n">ru_utime</span><span class="p">;</span><span class="w">   </span><span class="c1">// User CPU time</span>
+<a id="__codelineno-53-3" name="__codelineno-53-3" href="#__codelineno-53-3"></a><span class="w">    </span><span class="k">struct</span><span class="w"> </span><span class="nc">timeval</span><span class="w"> </span><span class="n">ru_stime</span><span class="p">;</span><span class="w">   </span><span class="c1">// System CPU time</span>
+<a id="__codelineno-53-4" name="__codelineno-53-4" href="#__codelineno-53-4"></a><span class="w">    </span><span class="kt">long</span><span class="w"> </span><span class="n">ru_maxrss</span><span class="p">;</span><span class="w">            </span><span class="c1">// Max resident set size</span>
+<a id="__codelineno-53-5" name="__codelineno-53-5" href="#__codelineno-53-5"></a><span class="w">    </span><span class="kt">long</span><span class="w"> </span><span class="n">ru_ixrss</span><span class="p">;</span><span class="w">             </span><span class="c1">// Shared memory size</span>
+<a id="__codelineno-53-6" name="__codelineno-53-6" href="#__codelineno-53-6"></a><span class="w">    </span><span class="kt">long</span><span class="w"> </span><span class="n">ru_idrss</span><span class="p">;</span><span class="w">             </span><span class="c1">// Unshared data size</span>
+<a id="__codelineno-53-7" name="__codelineno-53-7" href="#__codelineno-53-7"></a><span class="w">    </span><span class="kt">long</span><span class="w"> </span><span class="n">ru_isrss</span><span class="p">;</span><span class="w">             </span><span class="c1">// Unshared stack size</span>
+<a id="__codelineno-53-8" name="__codelineno-53-8" href="#__codelineno-53-8"></a><span class="w">    </span><span class="kt">long</span><span class="w"> </span><span class="n">ru_minflt</span><span class="p">;</span><span class="w">            </span><span class="c1">// Page faults (no I/O)</span>
+<a id="__codelineno-53-9" name="__codelineno-53-9" href="#__codelineno-53-9"></a><span class="w">    </span><span class="kt">long</span><span class="w"> </span><span class="n">ru_majflt</span><span class="p">;</span><span class="w">            </span><span class="c1">// Page faults (I/O)</span>
+<a id="__codelineno-53-10" name="__codelineno-53-10" href="#__codelineno-53-10"></a><span class="w">    </span><span class="kt">long</span><span class="w"> </span><span class="n">ru_nswap</span><span class="p">;</span><span class="w">             </span><span class="c1">// Swaps</span>
+<a id="__codelineno-53-11" name="__codelineno-53-11" href="#__codelineno-53-11"></a><span class="w">    </span><span class="kt">long</span><span class="w"> </span><span class="n">ru_inblock</span><span class="p">;</span><span class="w">           </span><span class="c1">// Block input operations</span>
+<a id="__codelineno-53-12" name="__codelineno-53-12" href="#__codelineno-53-12"></a><span class="w">    </span><span class="kt">long</span><span class="w"> </span><span class="n">ru_oublock</span><span class="p">;</span><span class="w">           </span><span class="c1">// Block output operations</span>
+<a id="__codelineno-53-13" name="__codelineno-53-13" href="#__codelineno-53-13"></a><span class="w">    </span><span class="kt">long</span><span class="w"> </span><span class="n">ru_msgsnd</span><span class="p">;</span><span class="w">            </span><span class="c1">// Messages sent</span>
+<a id="__codelineno-53-14" name="__codelineno-53-14" href="#__codelineno-53-14"></a><span class="w">    </span><span class="kt">long</span><span class="w"> </span><span class="n">ru_msgrcv</span><span class="p">;</span><span class="w">            </span><span class="c1">// Messages received</span>
+<a id="__codelineno-53-15" name="__codelineno-53-15" href="#__codelineno-53-15"></a><span class="w">    </span><span class="kt">long</span><span class="w"> </span><span class="n">ru_nsignals</span><span class="p">;</span><span class="w">          </span><span class="c1">// Signals received</span>
+<a id="__codelineno-53-16" name="__codelineno-53-16" href="#__codelineno-53-16"></a><span class="w">    </span><span class="kt">long</span><span class="w"> </span><span class="n">ru_nvcsw</span><span class="p">;</span><span class="w">             </span><span class="c1">// Voluntary context switches</span>
+<a id="__codelineno-53-17" name="__codelineno-53-17" href="#__codelineno-53-17"></a><span class="w">    </span><span class="kt">long</span><span class="w"> </span><span class="n">ru_nivcsw</span><span class="p">;</span><span class="w">            </span><span class="c1">// Involuntary context switches</span>
+<a id="__codelineno-53-18" name="__codelineno-53-18" href="#__codelineno-53-18"></a><span class="p">};</span>
+</code></pre></div>
+<p>Accumulated statistics are returned to parent via wait4() and can be queried via getrusage().</p>
+<h3 id="time-accounting">Time Accounting<a class="headerlink" href="#time-accounting" title="Permanent link">&para;</a></h3>
+<p>Processes track time in multiple ways:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-54-1" name="__codelineno-54-1" href="#__codelineno-54-1"></a><span class="k">struct</span><span class="w"> </span><span class="nc">pstats</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-54-2" name="__codelineno-54-2" href="#__codelineno-54-2"></a><span class="w">    </span><span class="k">struct</span><span class="w"> </span><span class="nc">timeval</span><span class="w"> </span><span class="n">p_start</span><span class="p">;</span><span class="w">    </span><span class="c1">// Process start time</span>
+<a id="__codelineno-54-3" name="__codelineno-54-3" href="#__codelineno-54-3"></a><span class="w">    </span><span class="k">struct</span><span class="w"> </span><span class="nc">rusage</span><span class="w"> </span><span class="n">p_ru</span><span class="p">;</span><span class="w">        </span><span class="c1">// Self resource usage</span>
+<a id="__codelineno-54-4" name="__codelineno-54-4" href="#__codelineno-54-4"></a><span class="w">    </span><span class="k">struct</span><span class="w"> </span><span class="nc">rusage</span><span class="w"> </span><span class="n">p_cru</span><span class="p">;</span><span class="w">       </span><span class="c1">// Cumulative child usage</span>
+<a id="__codelineno-54-5" name="__codelineno-54-5" href="#__codelineno-54-5"></a><span class="p">};</span>
+</code></pre></div>
+<p><strong>Time types:</strong>
+- <strong>Real time</strong> - Wall clock time since start
+- <strong>User time</strong> - CPU time in user mode
+- <strong>System time</strong> - CPU time in kernel mode</p>
+<p>Tracked per-process and accumulated across all children.</p>
+<h2 id="summary">Summary<a class="headerlink" href="#summary" title="Permanent link">&para;</a></h2>
+<p>Process and thread management in DragonFly BSD implements a three-level model:</p>
+<ol>
+<li><strong>Processes</strong> provide resource containers with credentials, address spaces, and file descriptors</li>
+<li><strong>LWPs</strong> provide user-visible threads within processes</li>
+<li><strong>LWKT threads</strong> provide the low-level scheduling primitive</li>
+</ol>
+<p>The lifecycle follows:
+- <strong>Creation</strong> via fork1() with two-phase LWP initialization around vm_fork()
+- <strong>Execution</strong> via kern_execve() with image activators and point-of-no-return design
+- <strong>Termination</strong> via exit1() with comprehensive cleanup and zombie transition
+- <strong>Reaping</strong> via kern_wait() with waitgen optimization and zombie cleanup</p>
+<p>Key design features:
+- PID anti-reuse protection via pid_doms[] array
+- Reference counting with PHOLD/PRELE and zombie-specific PHOLDZOMB/PRELEZOMB
+- P_WEXIT coordination to prevent concurrent exit
+- Two-phase LWP creation to hide partially-initialized state
+- P_INEXEC flag to serialize exec in multi-threaded processes
+- Waitgen optimization to avoid spurious wakeups in wait()
+- Reaper hierarchy for flexible orphan handling</p>
+<p>All code locations follow the <code>~/s/dragonfly/sys/kern/</code> directory structure as documented.</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": ["navigation.tabs", "navigation.sections", "navigation.expand", "navigation.top", "search.suggest", "search.highlight", "content.code.copy"], "search": "../../../assets/javascripts/workers/search.7a47a382.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../../assets/javascripts/bundle.e71a0d61.min.js"></script>
+      
+    
+  </body>
+</html>

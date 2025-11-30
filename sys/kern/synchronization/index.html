@@ -1,0 +1,2991 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Comprehensive documentation for the DragonFly BSD kernel source code">
+      
+      
+        <meta name="author" content="DragonFly BSD Community">
+      
+      
+      
+        <link rel="prev" href="../lwkt/">
+      
+      
+        <link rel="next" href="../time/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.0">
+    
+    
+      
+        <title>Synchronization - DragonFly BSD Kernel Documentation</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.618322db.min.css">
+      
+        
+        <link rel="stylesheet" href="../../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#synchronization-primitives" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../../.." title="DragonFly BSD Kernel Documentation" class="md-header__button md-logo" aria-label="DragonFly BSD Kernel Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            DragonFly BSD Kernel Documentation
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Synchronization
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/tuxillo/dragonflybsd-source-docs" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    tuxillo/dragonflybsd-source-docs
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../.." class="md-tabs__link">
+        
+  
+  
+    
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../getting-started/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Getting Started
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+    
+  
+  
+    
+    
+      <li class="md-tabs__item md-tabs__item--active">
+        <a href="../../" class="md-tabs__link">
+          
+  
+  
+  Kernel Subsystems
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../.." title="DragonFly BSD Kernel Documentation" class="md-nav__button md-logo" aria-label="DragonFly BSD Kernel Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    DragonFly BSD Kernel Documentation
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/tuxillo/dragonflybsd-source-docs" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    tuxillo/dragonflybsd-source-docs
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../getting-started/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Getting Started
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Kernel Subsystems
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Kernel Subsystems
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+          
+          
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_2" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_3_2" id="__nav_3_2_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    kern/
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_2_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_3_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    kern/
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../lwkt/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    LWKT Threading
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Synchronization
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Synchronization
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#overview" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Overview
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#key-concepts" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Key Concepts
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Key Concepts">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#dragonflys-unique-approach" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        DragonFly's Unique Approach
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#token-vs-lock-decision-tree" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Token vs. Lock Decision Tree
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#synchronization-primitives_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Synchronization Primitives
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Synchronization Primitives">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#spinlocks" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Spinlocks
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#mutexes-mtx" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Mutexes (mtx)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#lockmgr-locks" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Lockmgr Locks
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#condition-variables" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Condition Variables
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#reference-counting" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Reference Counting
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#system-reference-counting-sysref" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        System Reference Counting (sysref)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#userland-mutex-support-umtx" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Userland Mutex Support (umtx)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#sleep-queues" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Sleep Queues
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#synchronization-primitive-comparison" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Synchronization Primitive Comparison
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Synchronization Primitive Comparison">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#performance-characteristics" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Performance Characteristics
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#code-examples" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Code Examples
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Code Examples">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#example-1-spinlock-protecting-per-packet-metadata" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Example 1: Spinlock Protecting Per-Packet Metadata
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#example-2-mutex-with-blocking-operation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Example 2: Mutex with Blocking Operation
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#example-3-condition-variable-waitsignal" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Example 3: Condition Variable Wait/Signal
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#example-4-reference-counting-for-object-lifecycle" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Example 4: Reference Counting for Object Lifecycle
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#example-5-lockmgr-upgrade-operation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Example 5: Lockmgr Upgrade Operation
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#subsystem-interactions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Subsystem Interactions
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Subsystem Interactions">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#relationship-to-lwkt" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Relationship to LWKT
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#relationship-to-sleepwakeup" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Relationship to Sleep/Wakeup
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#relationship-to-vm" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Relationship to VM
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#best-practices" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Best Practices
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Best Practices">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#general-guidelines" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        General Guidelines
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#common-pitfalls" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Common Pitfalls
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#debugging-tips" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Debugging Tips
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#see-also" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        See Also
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#references" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        References
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../time/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Time & Timers
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../memory/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Memory Management
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../initialization/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Initialization & Bootstrap
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../processes/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Processes & Threads
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../resources/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Process Resources & Credentials
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../signals/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Signals
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../scheduling/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Scheduling
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_3_2_11" >
+        
+          
+          <label class="md-nav__link" for="__nav_3_2_11" id="__nav_3_2_11_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Virtual Filesystem
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_3_2_11_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_2_11">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Virtual Filesystem
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../vfs/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../vfs/namecache/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Name Lookup & Caching
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ipc/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    IPC & Sockets
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../devices/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Devices & Drivers
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../syscalls/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    System Calls
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+          
+          
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_3_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3_3" id="__nav_3_3_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    vm/
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    vm/
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../vm/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+          
+          
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_3_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_3_4" id="__nav_3_4_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    cpu/x86_64/
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    cpu/x86_64/
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../cpu/x86_64/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#overview" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Overview
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#key-concepts" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Key Concepts
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Key Concepts">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#dragonflys-unique-approach" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        DragonFly's Unique Approach
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#token-vs-lock-decision-tree" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Token vs. Lock Decision Tree
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#synchronization-primitives_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Synchronization Primitives
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Synchronization Primitives">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#spinlocks" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Spinlocks
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#mutexes-mtx" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Mutexes (mtx)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#lockmgr-locks" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Lockmgr Locks
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#condition-variables" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Condition Variables
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#reference-counting" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Reference Counting
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#system-reference-counting-sysref" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        System Reference Counting (sysref)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#userland-mutex-support-umtx" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Userland Mutex Support (umtx)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#sleep-queues" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Sleep Queues
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#synchronization-primitive-comparison" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Synchronization Primitive Comparison
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Synchronization Primitive Comparison">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#performance-characteristics" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Performance Characteristics
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#code-examples" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Code Examples
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Code Examples">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#example-1-spinlock-protecting-per-packet-metadata" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Example 1: Spinlock Protecting Per-Packet Metadata
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#example-2-mutex-with-blocking-operation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Example 2: Mutex with Blocking Operation
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#example-3-condition-variable-waitsignal" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Example 3: Condition Variable Wait/Signal
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#example-4-reference-counting-for-object-lifecycle" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Example 4: Reference Counting for Object Lifecycle
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#example-5-lockmgr-upgrade-operation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Example 5: Lockmgr Upgrade Operation
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#subsystem-interactions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Subsystem Interactions
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Subsystem Interactions">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#relationship-to-lwkt" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Relationship to LWKT
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#relationship-to-sleepwakeup" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Relationship to Sleep/Wakeup
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#relationship-to-vm" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Relationship to VM
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#best-practices" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Best Practices
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Best Practices">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#general-guidelines" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        General Guidelines
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#common-pitfalls" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Common Pitfalls
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#debugging-tips" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Debugging Tips
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#see-also" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        See Also
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#references" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        References
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="synchronization-primitives">Synchronization Primitives<a class="headerlink" href="#synchronization-primitives" title="Permanent link">&para;</a></h1>
+<p>This document describes the synchronization primitives used throughout the DragonFly BSD kernel to coordinate access to shared resources and ensure data consistency across multiple CPUs and threads.</p>
+<h2 id="overview">Overview<a class="headerlink" href="#overview" title="Permanent link">&para;</a></h2>
+<p>DragonFly BSD provides a comprehensive hierarchy of synchronization primitives, each optimized for specific use cases. Understanding when to use each primitive is critical for writing correct and performant kernel code.</p>
+<p>The synchronization primitives, ordered from lowest to highest level:</p>
+<ol>
+<li><strong>Tokens</strong> - DragonFly's unique per-CPU serialization mechanism (see <a href="../lwkt/">LWKT Threading</a>)</li>
+<li><strong>Spinlocks</strong> - Low-level busy-wait locks with shared/exclusive support</li>
+<li><strong>Mutexes (mtx)</strong> - Fast persistent locks with sleep capability and async support</li>
+<li><strong>Lockmgr Locks</strong> - Traditional BSD shared/exclusive locks with complex features</li>
+<li><strong>Condition Variables</strong> - Thread coordination using wait/signal patterns</li>
+<li><strong>Reference Counts</strong> - Atomic reference counting for object lifecycle management</li>
+<li><strong>System References (sysref)</strong> - Advanced reference counting with objcache integration</li>
+</ol>
+<h2 id="key-concepts">Key Concepts<a class="headerlink" href="#key-concepts" title="Permanent link">&para;</a></h2>
+<h3 id="dragonflys-unique-approach">DragonFly's Unique Approach<a class="headerlink" href="#dragonflys-unique-approach" title="Permanent link">&para;</a></h3>
+<p>DragonFly BSD differs from traditional BSD and Linux kernels in its synchronization philosophy:</p>
+<ul>
+<li><strong>Token-based design</strong>: Most high-level kernel operations use LWKT tokens for serialization rather than traditional locks</li>
+<li><strong>Per-CPU scheduling</strong>: Threads are scheduled independently on each CPU, reducing global synchronization overhead</li>
+<li><strong>Reduced lock contention</strong>: By favoring tokens and per-CPU data structures, DragonFly minimizes cache line bouncing</li>
+</ul>
+<h3 id="token-vs-lock-decision-tree">Token vs. Lock Decision Tree<a class="headerlink" href="#token-vs-lock-decision-tree" title="Permanent link">&para;</a></h3>
+<p><strong>Use Tokens when:</strong>
+- Protecting high-level subsystem state (VFS, VM, etc.)
+- The critical section may block or call complex functions
+- Lock ordering is difficult to maintain
+- The code is not performance-critical</p>
+<p><strong>Use Spinlocks when:</strong>
+- Critical section is very short (a few instructions)
+- Cannot sleep or call blocking functions
+- Need shared (reader) locks for concurrent access
+- Performance is critical (e.g., per-packet network processing)</p>
+<p><strong>Use Mutexes when:</strong>
+- Need to block across long-running operations
+- Need asynchronous lock acquisition with callbacks
+- Want recursive locking capability
+- Need to hold lock across function calls that may block</p>
+<p><strong>Use Lockmgr when:</strong>
+- Need complex lock operations (upgrade, downgrade, cancellation)
+- Interfacing with traditional BSD code
+- Need precise control over lock priority and behavior</p>
+<h2 id="synchronization-primitives_1">Synchronization Primitives<a class="headerlink" href="#synchronization-primitives_1" title="Permanent link">&para;</a></h2>
+<h3 id="spinlocks">Spinlocks<a class="headerlink" href="#spinlocks" title="Permanent link">&para;</a></h3>
+<p>Spinlocks are the lowest-level synchronization primitive, providing both exclusive and shared locking with busy-waiting.</p>
+<p><strong>Source Files:</strong>
+- <code>sys/kern/kern_spinlock.c</code> - Implementation
+- <code>sys/sys/spinlock.h</code> - Data structures
+- <code>sys/sys/spinlock2.h</code> - Inline functions</p>
+<p><strong>Data Structure:</strong></p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="k">struct</span><span class="w"> </span><span class="nc">spinlock</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="n">lock</span><span class="p">;</span><span class="w">        </span><span class="cm">/* main spinlock */</span>
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="n">update</span><span class="p">;</span><span class="w">      </span><span class="cm">/* update counter */</span>
+<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="p">};</span>
+</code></pre></div>
+<p><strong>Lock Field Encoding:</strong>
+- Bits 0-19: Reference count
+- Bit 31: <code>SPINLOCK_SHARED</code> flag
+- Bits 20-30: <code>SPINLOCK_EXCLWAIT</code> counter for exclusive waiters</p>
+<p><strong>Key Functions:</strong></p>
+<ul>
+<li><code>spin_init(struct spinlock *spin, const char *desc)</code> - Initialize spinlock</li>
+<li><code>spin_lock(struct spinlock *spin)</code> - Acquire exclusive lock (sys/kern/kern_spinlock.c:166)</li>
+<li><code>spin_unlock(struct spinlock *spin)</code> - Release exclusive lock</li>
+<li><code>spin_lock_shared(struct spinlock *spin)</code> - Acquire shared lock (sys/kern/kern_spinlock.c:276)</li>
+<li><code>spin_unlock_shared(struct spinlock *spin)</code> - Release shared lock</li>
+</ul>
+<p><strong>Critical Implementation Details:</strong></p>
+<p><strong>Exclusive Lock Acquisition</strong> (sys/kern/kern_spinlock.c:166-256):
+- Increments lock with <code>atomic_fetchadd_int()</code>
+- On contention, sets <code>SPINLOCK_EXCLWAIT</code> to gain priority
+- Transfers high bits (EXCLWAIT counter) to low bits when acquiring
+- Uses exponential backoff to reduce cache bus traffic
+- Employs TSC-windowing to distribute CPU load</p>
+<p><strong>Shared Lock Acquisition</strong> (sys/kern/kern_spinlock.c:276-372):
+- Sets <code>SPINLOCK_SHARED</code> flag when granted
+- Gives priority to exclusive waiters (EXCLWAIT)
+- Uses TSC-windowing to occasionally bypass EXCLWAIT priority to prevent starvation
+- No exponential backoff (would hurt shared lock performance)</p>
+<p><strong>Performance Optimizations:</strong>
+- TSC (timestamp counter) windowing distributes shared lock attempts across CPUs
+- Exponential backoff prevents cache bus armageddon on multi-socket systems
+- Automatic downgrade to RDTSC polling in VM guests</p>
+<p><strong>When to Use:</strong>
+- Protecting per-CPU data structures accessed from multiple contexts
+- Very short critical sections (microseconds)
+- Cannot use tokens (e.g., in interrupt context)
+- Need reader/writer concurrency</p>
+<p><strong>Restrictions:</strong>
+- Cannot sleep or block
+- Cannot call functions that might block
+- Must not hold across function calls unless guaranteed not to block
+- Keep critical sections extremely short</p>
+<h3 id="mutexes-mtx">Mutexes (mtx)<a class="headerlink" href="#mutexes-mtx" title="Permanent link">&para;</a></h3>
+<p>Mutexes provide persistent locks that can be held across blocking operations, with support for asynchronous acquisition and callbacks.</p>
+<p><strong>Source Files:</strong>
+- <code>sys/kern/kern_mutex.c</code> - Implementation (sys/kern/kern_mutex.c:1-1159)
+- <code>sys/sys/mutex.h</code> - Data structures
+- <code>sys/sys/mutex2.h</code> - Inline functions</p>
+<p><strong>Data Structures:</strong></p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="k">struct</span><span class="w"> </span><span class="nc">mtx</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="w">    </span><span class="k">volatile</span><span class="w"> </span><span class="n">u_int</span><span class="w">  </span><span class="n">mtx_lock</span><span class="p">;</span><span class="w">     </span><span class="cm">/* lock state */</span>
+<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="w">    </span><span class="kt">uint32_t</span><span class="w">        </span><span class="n">mtx_flags</span><span class="p">;</span><span class="w">    </span><span class="cm">/* flags */</span>
+<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a><span class="w">    </span><span class="k">struct</span><span class="w"> </span><span class="nc">thread</span><span class="w">   </span><span class="o">*</span><span class="n">mtx_owner</span><span class="p">;</span><span class="w">   </span><span class="cm">/* exclusive owner */</span>
+<a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a><span class="w">    </span><span class="n">mtx_link_t</span><span class="w">      </span><span class="o">*</span><span class="n">mtx_exlink</span><span class="p">;</span><span class="w">  </span><span class="cm">/* exclusive wait list */</span>
+<a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a><span class="w">    </span><span class="n">mtx_link_t</span><span class="w">      </span><span class="o">*</span><span class="n">mtx_shlink</span><span class="p">;</span><span class="w">  </span><span class="cm">/* shared wait list */</span>
+<a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a><span class="w">    </span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="w">      </span><span class="o">*</span><span class="n">mtx_ident</span><span class="p">;</span><span class="w">   </span><span class="cm">/* identifier */</span>
+<a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a><span class="p">}</span><span class="w"> </span><span class="n">__cachealign</span><span class="p">;</span>
+<a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a>
+<a id="__codelineno-1-10" name="__codelineno-1-10" href="#__codelineno-1-10"></a><span class="k">struct</span><span class="w"> </span><span class="nc">mtx_link</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-1-11" name="__codelineno-1-11" href="#__codelineno-1-11"></a><span class="w">    </span><span class="k">struct</span><span class="w"> </span><span class="nc">mtx_link</span><span class="w"> </span><span class="o">*</span><span class="n">next</span><span class="p">;</span>
+<a id="__codelineno-1-12" name="__codelineno-1-12" href="#__codelineno-1-12"></a><span class="w">    </span><span class="k">struct</span><span class="w"> </span><span class="nc">mtx_link</span><span class="w"> </span><span class="o">*</span><span class="n">prev</span><span class="p">;</span>
+<a id="__codelineno-1-13" name="__codelineno-1-13" href="#__codelineno-1-13"></a><span class="w">    </span><span class="k">struct</span><span class="w"> </span><span class="nc">thread</span><span class="w">   </span><span class="o">*</span><span class="n">owner</span><span class="p">;</span>
+<a id="__codelineno-1-14" name="__codelineno-1-14" href="#__codelineno-1-14"></a><span class="w">    </span><span class="kt">int</span><span class="w">             </span><span class="n">state</span><span class="p">;</span>
+<a id="__codelineno-1-15" name="__codelineno-1-15" href="#__codelineno-1-15"></a><span class="w">    </span><span class="kt">void</span><span class="w">            </span><span class="p">(</span><span class="o">*</span><span class="n">callback</span><span class="p">)(</span><span class="k">struct</span><span class="w"> </span><span class="nc">mtx_link</span><span class="w"> </span><span class="o">*</span><span class="p">,</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="o">*</span><span class="n">arg</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">error</span><span class="p">);</span>
+<a id="__codelineno-1-16" name="__codelineno-1-16" href="#__codelineno-1-16"></a><span class="w">    </span><span class="kt">void</span><span class="w">            </span><span class="o">*</span><span class="n">arg</span><span class="p">;</span>
+<a id="__codelineno-1-17" name="__codelineno-1-17" href="#__codelineno-1-17"></a><span class="p">};</span>
+</code></pre></div>
+<p><strong>Lock State Encoding:</strong>
+- Bit 31 (<code>MTX_EXCLUSIVE</code>): Exclusive lock flag
+- Bit 30 (<code>MTX_SHWANTED</code>): Shared waiters present
+- Bit 29 (<code>MTX_EXWANTED</code>): Exclusive waiters present
+- Bit 28 (<code>MTX_LINKSPIN</code>): Link list manipulation in progress
+- Bits 0-27: Reference count</p>
+<p><strong>Key Functions:</strong></p>
+<ul>
+<li><code>mtx_init(mtx_t *mtx, const char *ident)</code> - Initialize mutex</li>
+<li><code>mtx_lock(mtx_t *mtx)</code> - Acquire exclusive lock (sys/kern/kern_mutex.c:202-224)</li>
+<li><code>mtx_lock_sh(mtx_t *mtx)</code> - Acquire shared lock (sys/kern/kern_mutex.c:360-376)</li>
+<li><code>mtx_unlock(mtx_t *mtx)</code> - Release lock (sys/kern/kern_mutex.c:630-735)</li>
+<li><code>mtx_lock_ex_try(mtx_t *mtx)</code> - Try exclusive lock without blocking (sys/kern/kern_mutex.c:486-517)</li>
+<li><code>mtx_downgrade(mtx_t *mtx)</code> - Convert exclusive to shared (sys/kern/kern_mutex.c:549-583)</li>
+<li><code>mtx_upgrade_try(mtx_t *mtx)</code> - Try shared to exclusive upgrade (sys/kern/kern_mutex.c:596-623)</li>
+<li><code>mtx_spinlock(mtx_t *mtx)</code> - Acquire as spinlock (sys/kern/kern_mutex.c:381-413)</li>
+<li><code>mtx_lock_ex_link(mtx_t *mtx, mtx_link_t *link, int flags, int to)</code> - Async lock with callback</li>
+</ul>
+<p><strong>Key Features:</strong></p>
+<p><strong>Exclusive Priority</strong> (sys/kern/kern_mutex.c:120-180):
+- Exclusive requests set <code>MTX_EXWANTED</code> to prevent new shared locks
+- Once EXWANTED is set, new shared requests must wait
+- Prevents shared lock starvation of exclusive requests</p>
+<p><strong>Asynchronous Locking</strong> (sys/kern/kern_mutex.c:169-200):
+- Caller provides <code>mtx_link_t</code> structure with callback
+- If lock cannot be acquired immediately, link is queued
+- Callback invoked when lock is granted
+- Allows lock acquisition without blocking current thread</p>
+<p><strong>Link Management</strong> (sys/kern/kern_mutex.c:749-876):
+- Exclusive and shared waiters maintained in separate circular lists
+- <code>MTX_LINKSPIN</code> prevents concurrent link list manipulation
+- Link lists allow precise wakeup control and priority ordering</p>
+<p><strong>When to Use:</strong>
+- Protecting data structures that require blocking operations
+- Need to hold lock across I/O or memory allocation
+- Want asynchronous lock acquisition
+- Need recursive locking capability
+- Interfacing with code that may block</p>
+<p><strong>Restrictions:</strong>
+- Heavier weight than spinlocks
+- Not suitable for very short critical sections
+- Exclusive lock holder must eventually release</p>
+<h3 id="lockmgr-locks">Lockmgr Locks<a class="headerlink" href="#lockmgr-locks" title="Permanent link">&para;</a></h3>
+<p>Lockmgr locks are traditional BSD shared/exclusive locks with extensive features including upgrades, downgrades, timeouts, and cancellation.</p>
+<p><strong>Source Files:</strong>
+- <code>sys/kern/kern_lock.c</code> - Implementation (sys/kern/kern_lock.c:1-1483)
+- <code>sys/sys/lock.h</code> - Data structures and API</p>
+<p><strong>Data Structure:</strong></p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="k">struct</span><span class="w"> </span><span class="nc">lock</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="w">    </span><span class="n">u_int</span><span class="w">           </span><span class="n">lk_flags</span><span class="p">;</span><span class="w">      </span><span class="cm">/* flags */</span>
+<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="w">    </span><span class="kt">int</span><span class="w">             </span><span class="n">lk_timo</span><span class="p">;</span><span class="w">       </span><span class="cm">/* timeout */</span>
+<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a><span class="w">    </span><span class="kt">uint64_t</span><span class="w">        </span><span class="n">lk_count</span><span class="p">;</span><span class="w">      </span><span class="cm">/* state and counts */</span>
+<a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a><span class="w">    </span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="w">      </span><span class="o">*</span><span class="n">lk_wmesg</span><span class="p">;</span><span class="w">     </span><span class="cm">/* wait message */</span>
+<a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a><span class="w">    </span><span class="k">struct</span><span class="w"> </span><span class="nc">thread</span><span class="w">   </span><span class="o">*</span><span class="n">lk_lockholder</span><span class="p">;</span><span class="w"> </span><span class="cm">/* exclusive holder */</span>
+<a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a><span class="p">};</span>
+</code></pre></div>
+<p><strong>Count Field Encoding (64-bit):</strong>
+- Bit 30 (<code>LKC_EXREQ</code>): Exclusive request pending
+- Bit 29 (<code>LKC_SHARED</code>): Shared lock(s) granted
+- Bit 28 (<code>LKC_UPREQ</code>): Upgrade request pending
+- Bit 27 (<code>LKC_EXREQ2</code>): Multiple exclusive waiters
+- Bit 26 (<code>LKC_CANCEL</code>): Cancellation active
+- Bits 0-25 (<code>LKC_XMASK</code>): Exclusive count
+- Bits 32-63 (<code>LKC_SMASK</code>): Shared count (shifted by 32)</p>
+<p><strong>Key Functions:</strong></p>
+<ul>
+<li><code>lockinit(struct lock *lkp, const char *wmesg, int timo, int flags)</code> - Initialize lock</li>
+<li><code>lockmgr(struct lock *lkp, u_int flags)</code> - Main lock operation dispatcher</li>
+<li><code>lockmgr_shared(struct lock *lkp, u_int flags)</code> - Acquire shared lock (sys/kern/kern_lock.c:106-278)</li>
+<li><code>lockmgr_exclusive(struct lock *lkp, u_int flags)</code> - Acquire exclusive lock (sys/kern/kern_lock.c:283-489)</li>
+<li><code>lockmgr_upgrade(struct lock *lkp, u_int flags)</code> - Upgrade shared to exclusive (sys/kern/kern_lock.c:575-733)</li>
+<li><code>lockmgr_downgrade(struct lock *lkp, u_int flags)</code> - Downgrade exclusive to shared (sys/kern/kern_lock.c:497-554)</li>
+<li><code>lockmgr_release(struct lock *lkp, u_int flags)</code> - Release lock (sys/kern/kern_lock.c:741-966)</li>
+</ul>
+<p><strong>Lock Operation Flags:</strong></p>
+<ul>
+<li><code>LK_SHARED</code> - Acquire shared lock</li>
+<li><code>LK_EXCLUSIVE</code> - Acquire exclusive lock</li>
+<li><code>LK_UPGRADE</code> - Upgrade shared to exclusive (may lose lock temporarily)</li>
+<li><code>LK_EXCLUPGRADE</code> - Upgrade without releasing (fails if contended)</li>
+<li><code>LK_DOWNGRADE</code> - Downgrade exclusive to shared</li>
+<li><code>LK_RELEASE</code> - Release lock</li>
+<li><code>LK_NOWAIT</code> - Don't sleep, return EBUSY</li>
+<li><code>LK_CANCELABLE</code> - Lock request can be canceled</li>
+<li><code>LK_TIMELOCK</code> - Use lock's timeout value</li>
+<li><code>LK_PCATCH</code> - Catch signals during sleep</li>
+</ul>
+<p><strong>Critical Implementation Details:</strong></p>
+<p><strong>Shared Lock Acquisition</strong> (sys/kern/kern_lock.c:106-278):
+- Blocks if <code>LKC_EXREQ</code> or <code>LKC_UPREQ</code> is set (unless <code>TDF_DEADLKTREAT</code>)
+- Increments shared count (<code>LKC_SCOUNT</code>)
+- Waits for <code>LKC_SHARED</code> flag to be set
+- If <code>undo_shreq()</code> races to zero, may grant UPREQ or EXREQ</p>
+<p><strong>Exclusive Lock Acquisition</strong> (sys/kern/kern_lock.c:283-489):
+- Sets <code>LKC_EXREQ</code> to block new shared/upgrade requests
+- If can't set EXREQ (lock held exclusively), sets <code>LKC_EXREQ2</code> aggregation bit
+- Waits for EXREQ to be cleared (granted)
+- Granting thread sets <code>lk_lockholder</code> and count</p>
+<p><strong>Upgrade Operations</strong> (sys/kern/kern_lock.c:575-733):
+- Sets <code>LKC_UPREQ</code> to request upgrade
+- If only holder (<code>LKC_SMASK == LKC_SCOUNT</code>), immediately converts to exclusive
+- Otherwise, waits for last shared release to grant upgrade
+- <code>LK_EXCLUPGRADE</code> fails immediately if another UPREQ or EXREQ exists
+- Regular <code>LK_UPGRADE</code> falls back to release+acquire if contended</p>
+<p><strong>Lock Cancellation</strong> (sys/kern/kern_lock.c:977-1022):
+- Exclusive holder can call <code>lockmgr_cancel_beg()</code> to set <code>LKC_CANCEL</code>
+- All pending/future <code>LK_CANCELABLE</code> requests return <code>ENOLCK</code>
+- Used to abort operations on locked structures (e.g., vnode reclaim)
+- Cleared automatically on final release or via <code>lockmgr_cancel_end()</code></p>
+<p><strong>Priority Handling:</strong>
+- Exclusive requests (EXREQ) have priority over new shared requests
+- Upgrade requests (UPREQ) have priority over exclusive requests
+- UPREQ &gt; EXREQ &gt; new shared locks (see <code>undo_shreq()</code> at sys/kern/kern_lock.c:1039-1091)</p>
+<p><strong>When to Use:</strong>
+- VFS layer and vnode operations (traditional usage)
+- Need upgrade/downgrade without releasing
+- Need lock cancellation capability
+- Interfacing with legacy BSD code
+- Complex locking scenarios requiring fine control</p>
+<p><strong>Restrictions:</strong>
+- More complex and heavier than tokens or mutexes
+- Upgrade operations can fail or temporarily release lock
+- Cannot use from interrupt context</p>
+<h3 id="condition-variables">Condition Variables<a class="headerlink" href="#condition-variables" title="Permanent link">&para;</a></h3>
+<p>Condition variables provide wait/signal coordination between threads, allowing threads to sleep until a condition becomes true.</p>
+<p><strong>Source Files:</strong>
+- <code>sys/kern/kern_condvar.c</code> - Implementation (sys/kern/kern_condvar.c:1-97)
+- <code>sys/sys/condvar.h</code> - API</p>
+<p><strong>Data Structure:</strong></p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="k">struct</span><span class="w"> </span><span class="nc">cv</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="w">    </span><span class="k">struct</span><span class="w"> </span><span class="nc">spinlock</span><span class="w"> </span><span class="n">cv_lock</span><span class="p">;</span><span class="w">    </span><span class="cm">/* protects cv_waiters */</span>
+<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a><span class="w">    </span><span class="kt">int</span><span class="w">             </span><span class="n">cv_waiters</span><span class="p">;</span><span class="w"> </span><span class="cm">/* number of waiters */</span>
+<a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a><span class="w">    </span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="w">      </span><span class="o">*</span><span class="n">cv_desc</span><span class="p">;</span><span class="w">   </span><span class="cm">/* description */</span>
+<a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a><span class="p">};</span>
+</code></pre></div>
+<p><strong>Key Functions:</strong></p>
+<ul>
+<li><code>cv_init(struct cv *c, const char *desc)</code> - Initialize condition variable (sys/kern/kern_condvar.c:6-12)</li>
+<li><code>cv_destroy(struct cv *c)</code> - Destroy condition variable</li>
+<li><code>cv_wait(struct cv *c, struct lock *lk)</code> - Wait with lockmgr lock</li>
+<li><code>cv_wait_sig(struct cv *c, struct lock *lk)</code> - Wait with signal catching</li>
+<li><code>cv_timedwait(struct cv *c, struct lock *lk, int timo)</code> - Wait with timeout</li>
+<li><code>cv_mtx_wait(struct cv *c, struct mtx *mtx)</code> - Wait with mutex</li>
+<li><code>cv_signal(struct cv *c)</code> - Wake one waiter (sys/kern/kern_condvar.c:75-90)</li>
+<li><code>cv_broadcast(struct cv *c)</code> - Wake all waiters</li>
+<li><code>cv_has_waiters(const struct cv *c)</code> - Check if waiters present</li>
+</ul>
+<p><strong>Implementation Details:</strong></p>
+<p>The implementation is deliberately simple:</p>
+<ol>
+<li><code>cv_wait()</code> atomically:</li>
+<li>Increments <code>cv_waiters</code> under <code>cv_lock</code> (sys/kern/kern_condvar.c:34-36)</li>
+<li>Calls <code>tsleep_interlock()</code> to prepare to sleep</li>
+<li>Releases the associated lock (lockmgr or mutex)</li>
+<li>
+<p>Sleeps on the cv address</p>
+</li>
+<li>
+<p><code>cv_signal()</code> atomically:</p>
+</li>
+<li>Decrements <code>cv_waiters</code> under <code>cv_lock</code></li>
+<li>
+<p>Calls <code>wakeup_one()</code> if waiters existed (sys/kern/kern_condvar.c:86-88)</p>
+</li>
+<li>
+<p><code>cv_broadcast()</code> atomically:</p>
+</li>
+<li>Sets <code>cv_waiters</code> to zero</li>
+<li>Calls <code>wakeup()</code> to wake all (sys/kern/kern_condvar.c:81-84)</li>
+</ol>
+<p><strong>Mutex vs. Lock Versions:</strong>
+- <code>cv_wait(cv, lock)</code> uses <code>lksleep()</code> - releases lockmgr lock
+- <code>cv_mtx_wait(cv, mtx)</code> uses <code>mtxsleep()</code> - releases mutex (sys/kern/kern_condvar.c:50-72)
+- Both re-acquire their respective lock before returning</p>
+<p><strong>When to Use:</strong>
+- Producer/consumer patterns
+- Thread coordination (wait for condition to become true)
+- Implementing wait queues
+- Event notification between threads</p>
+<p><strong>Typical Pattern:</strong></p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="cm">/* Waiter thread */</span>
+<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a><span class="n">mtx_lock</span><span class="p">(</span><span class="o">&amp;</span><span class="n">resource_mtx</span><span class="p">);</span>
+<a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a><span class="k">while</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="n">condition_is_true</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a><span class="w">    </span><span class="n">cv_wait</span><span class="p">(</span><span class="o">&amp;</span><span class="n">resource_cv</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">resource_mtx</span><span class="p">);</span>
+<a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a><span class="p">}</span>
+<a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a><span class="cm">/* condition is now true and lock is held */</span>
+<a id="__codelineno-4-7" name="__codelineno-4-7" href="#__codelineno-4-7"></a><span class="n">do_work</span><span class="p">();</span>
+<a id="__codelineno-4-8" name="__codelineno-4-8" href="#__codelineno-4-8"></a><span class="n">mtx_unlock</span><span class="p">(</span><span class="o">&amp;</span><span class="n">resource_mtx</span><span class="p">);</span>
+<a id="__codelineno-4-9" name="__codelineno-4-9" href="#__codelineno-4-9"></a>
+<a id="__codelineno-4-10" name="__codelineno-4-10" href="#__codelineno-4-10"></a><span class="cm">/* Signaler thread */</span>
+<a id="__codelineno-4-11" name="__codelineno-4-11" href="#__codelineno-4-11"></a><span class="n">mtx_lock</span><span class="p">(</span><span class="o">&amp;</span><span class="n">resource_mtx</span><span class="p">);</span>
+<a id="__codelineno-4-12" name="__codelineno-4-12" href="#__codelineno-4-12"></a><span class="n">make_condition_true</span><span class="p">();</span>
+<a id="__codelineno-4-13" name="__codelineno-4-13" href="#__codelineno-4-13"></a><span class="n">cv_signal</span><span class="p">(</span><span class="o">&amp;</span><span class="n">resource_cv</span><span class="p">);</span><span class="w">  </span><span class="cm">/* or cv_broadcast() */</span>
+<a id="__codelineno-4-14" name="__codelineno-4-14" href="#__codelineno-4-14"></a><span class="n">mtx_unlock</span><span class="p">(</span><span class="o">&amp;</span><span class="n">resource_mtx</span><span class="p">);</span>
+</code></pre></div>
+<p><strong>Restrictions:</strong>
+- Must hold associated lock when calling cv_wait()
+- Lock is automatically released during sleep
+- Lock is automatically re-acquired before return
+- Must hold lock when calling cv_signal/cv_broadcast (not strictly required but recommended)</p>
+<h3 id="reference-counting">Reference Counting<a class="headerlink" href="#reference-counting" title="Permanent link">&para;</a></h3>
+<p>Reference counting provides atomic lifecycle management for kernel objects.</p>
+<p><strong>Source Files:</strong>
+- <code>sys/kern/kern_refcount.c</code> - Implementation (sys/kern/kern_refcount.c:1-78)
+- <code>sys/sys/refcount.h</code> - Inline functions and API</p>
+<p><strong>Key Functions:</strong></p>
+<ul>
+<li><code>refcount_init(volatile u_int *countp, u_int value)</code> - Initialize counter</li>
+<li><code>refcount_acquire(volatile u_int *countp)</code> - Add reference (sys/sys/refcount.h:48-52)</li>
+<li><code>refcount_acquire_n(volatile u_int *countp, u_int n)</code> - Add n references</li>
+<li><code>refcount_release(volatile u_int *countp)</code> - Drop reference, returns TRUE on last (sys/sys/refcount.h:60-64)</li>
+<li><code>refcount_release_n(volatile u_int *countp, u_int n)</code> - Drop n references</li>
+<li><code>refcount_release_wakeup(volatile u_int *countp)</code> - Drop with wakeup support (sys/sys/refcount.h:86-98)</li>
+<li><code>refcount_wait(volatile u_int *countp, const char *wstr)</code> - Wait for count to reach zero</li>
+</ul>
+<p><strong>Implementation Details:</strong></p>
+<p>All operations use atomic instructions:</p>
+<ul>
+<li><strong>Acquire</strong>: <code>atomic_add_acq_int(countp, 1)</code></li>
+<li><strong>Release</strong>: <code>atomic_fetchadd_int(countp, -1)</code>, returns old value</li>
+<li><strong>Release returns TRUE</strong> if old value was 1 (last reference)</li>
+</ul>
+<p><strong>Waiting Support</strong> (<code>REFCNTF_WAITING</code>):</p>
+<ul>
+<li>Bit 30 of counter is <code>REFCNTF_WAITING</code> flag</li>
+<li><code>refcount_wait()</code> sets this flag atomically (sys/kern/kern_refcount.c:58-77)</li>
+<li><code>refcount_release_wakeup()</code> checks for flag and calls <code>wakeup()</code> on 1-&gt;0 transition (sys/sys/refcount.h:86-98)</li>
+<li>Allows threads to sleep waiting for count to drop to zero</li>
+</ul>
+<p><strong>When to Use:</strong>
+- Managing object lifetimes (vnodes, vm_objects, buffers, etc.)
+- Shared ownership of kernel structures
+- Preventing premature deallocation
+- Lockless lifecycle management</p>
+<p><strong>Typical Pattern:</strong></p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="cm">/* Object creation */</span>
+<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a><span class="k">struct</span><span class="w"> </span><span class="nc">myobj</span><span class="w"> </span><span class="o">*</span><span class="n">obj</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">kmalloc</span><span class="p">(...);</span>
+<a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a><span class="n">refcount_init</span><span class="p">(</span><span class="o">&amp;</span><span class="n">obj</span><span class="o">-&gt;</span><span class="n">refcnt</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">);</span><span class="w">  </span><span class="cm">/* creator holds reference */</span>
+<a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a>
+<a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a><span class="cm">/* Share object */</span>
+<a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a><span class="n">refcount_acquire</span><span class="p">(</span><span class="o">&amp;</span><span class="n">obj</span><span class="o">-&gt;</span><span class="n">refcnt</span><span class="p">);</span>
+<a id="__codelineno-5-7" name="__codelineno-5-7" href="#__codelineno-5-7"></a><span class="n">pass_to_another_subsystem</span><span class="p">(</span><span class="n">obj</span><span class="p">);</span>
+<a id="__codelineno-5-8" name="__codelineno-5-8" href="#__codelineno-5-8"></a>
+<a id="__codelineno-5-9" name="__codelineno-5-9" href="#__codelineno-5-9"></a><span class="cm">/* Release object */</span>
+<a id="__codelineno-5-10" name="__codelineno-5-10" href="#__codelineno-5-10"></a><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">refcount_release</span><span class="p">(</span><span class="o">&amp;</span><span class="n">obj</span><span class="o">-&gt;</span><span class="n">refcnt</span><span class="p">))</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-5-11" name="__codelineno-5-11" href="#__codelineno-5-11"></a><span class="w">    </span><span class="cm">/* Last reference, free object */</span>
+<a id="__codelineno-5-12" name="__codelineno-5-12" href="#__codelineno-5-12"></a><span class="w">    </span><span class="n">cleanup_obj</span><span class="p">(</span><span class="n">obj</span><span class="p">);</span>
+<a id="__codelineno-5-13" name="__codelineno-5-13" href="#__codelineno-5-13"></a><span class="w">    </span><span class="n">kfree</span><span class="p">(</span><span class="n">obj</span><span class="p">);</span>
+<a id="__codelineno-5-14" name="__codelineno-5-14" href="#__codelineno-5-14"></a><span class="p">}</span>
+<a id="__codelineno-5-15" name="__codelineno-5-15" href="#__codelineno-5-15"></a>
+<a id="__codelineno-5-16" name="__codelineno-5-16" href="#__codelineno-5-16"></a><span class="cm">/* Wait for all refs to drop (e.g., during unmount) */</span>
+<a id="__codelineno-5-17" name="__codelineno-5-17" href="#__codelineno-5-17"></a><span class="n">refcount_wait</span><span class="p">(</span><span class="o">&amp;</span><span class="n">obj</span><span class="o">-&gt;</span><span class="n">refcnt</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;objwait&quot;</span><span class="p">);</span>
+<a id="__codelineno-5-18" name="__codelineno-5-18" href="#__codelineno-5-18"></a><span class="cm">/* Now safe to free even without lock */</span>
+</code></pre></div>
+<p><strong>Restrictions:</strong>
+- Reference count must not overflow (wraps at 2^31-1)
+- Caller must ensure object validity when acquiring reference
+- Cannot use to count references if count might be zero (race)
+- <code>refcount_wait()</code> should be used with <code>refcount_release_wakeup()</code></p>
+<h3 id="system-reference-counting-sysref">System Reference Counting (sysref)<a class="headerlink" href="#system-reference-counting-sysref" title="Permanent link">&para;</a></h3>
+<p>System reference counting provides advanced lifecycle management integrated with the objcache allocator and cluster-wide addressing via sysids.</p>
+<p><strong>Source Files:</strong>
+- <code>sys/kern/kern_sysref.c</code> - Implementation (sys/kern/kern_sysref.c:1-375)
+- <code>sys/sys/sysref2.h</code> - API and inline functions</p>
+<p><strong>Data Structures:</strong></p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="k">struct</span><span class="w"> </span><span class="nc">sysref</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a><span class="w">    </span><span class="n">sysid_t</span><span class="w">             </span><span class="n">sysid</span><span class="p">;</span><span class="w">      </span><span class="cm">/* cluster-wide unique ID */</span>
+<a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a><span class="w">    </span><span class="kt">int</span><span class="w">                 </span><span class="n">refcnt</span><span class="p">;</span><span class="w">     </span><span class="cm">/* reference count */</span>
+<a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a><span class="w">    </span><span class="n">u_int</span><span class="w">               </span><span class="n">flags</span><span class="p">;</span><span class="w">      </span><span class="cm">/* SRF_* flags */</span>
+<a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a><span class="w">    </span><span class="k">struct</span><span class="w"> </span><span class="nc">sysref_class</span><span class="w"> </span><span class="o">*</span><span class="n">srclass</span><span class="p">;</span><span class="w">   </span><span class="cm">/* class descriptor */</span>
+<a id="__codelineno-6-6" name="__codelineno-6-6" href="#__codelineno-6-6"></a><span class="w">    </span><span class="n">RB_ENTRY</span><span class="p">(</span><span class="n">sysref</span><span class="p">)</span><span class="w">    </span><span class="n">rbnode</span><span class="p">;</span><span class="w">     </span><span class="cm">/* red-black tree node */</span>
+<a id="__codelineno-6-7" name="__codelineno-6-7" href="#__codelineno-6-7"></a><span class="p">};</span>
+<a id="__codelineno-6-8" name="__codelineno-6-8" href="#__codelineno-6-8"></a>
+<a id="__codelineno-6-9" name="__codelineno-6-9" href="#__codelineno-6-9"></a><span class="k">struct</span><span class="w"> </span><span class="nc">sysref_class</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-6-10" name="__codelineno-6-10" href="#__codelineno-6-10"></a><span class="w">    </span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="w">          </span><span class="o">*</span><span class="n">name</span><span class="p">;</span>
+<a id="__codelineno-6-11" name="__codelineno-6-11" href="#__codelineno-6-11"></a><span class="w">    </span><span class="n">malloc_type_t</span><span class="w">       </span><span class="n">mtype</span><span class="p">;</span><span class="w">      </span><span class="cm">/* malloc type */</span>
+<a id="__codelineno-6-12" name="__codelineno-6-12" href="#__codelineno-6-12"></a><span class="w">    </span><span class="kt">size_t</span><span class="w">              </span><span class="n">objsize</span><span class="p">;</span><span class="w">    </span><span class="cm">/* object size */</span>
+<a id="__codelineno-6-13" name="__codelineno-6-13" href="#__codelineno-6-13"></a><span class="w">    </span><span class="kt">size_t</span><span class="w">              </span><span class="n">offset</span><span class="p">;</span><span class="w">     </span><span class="cm">/* sysref offset in object */</span>
+<a id="__codelineno-6-14" name="__codelineno-6-14" href="#__codelineno-6-14"></a><span class="w">    </span><span class="kt">size_t</span><span class="w">              </span><span class="n">nom_cache</span><span class="p">;</span><span class="w">  </span><span class="cm">/* nominal cache size */</span>
+<a id="__codelineno-6-15" name="__codelineno-6-15" href="#__codelineno-6-15"></a><span class="w">    </span><span class="n">u_int</span><span class="w">               </span><span class="n">flags</span><span class="p">;</span>
+<a id="__codelineno-6-16" name="__codelineno-6-16" href="#__codelineno-6-16"></a><span class="w">    </span><span class="n">objcache_t</span><span class="w">          </span><span class="o">*</span><span class="n">oc</span><span class="p">;</span><span class="w">        </span><span class="cm">/* objcache */</span>
+<a id="__codelineno-6-17" name="__codelineno-6-17" href="#__codelineno-6-17"></a><span class="w">    </span><span class="k">struct</span><span class="w"> </span><span class="nc">sysref_ops</span><span class="w">   </span><span class="n">ops</span><span class="p">;</span><span class="w">        </span><span class="cm">/* callbacks */</span>
+<a id="__codelineno-6-18" name="__codelineno-6-18" href="#__codelineno-6-18"></a><span class="w">    </span><span class="n">boolean_t</span><span class="w">           </span><span class="p">(</span><span class="o">*</span><span class="n">ctor</span><span class="p">)(</span><span class="kt">void</span><span class="w"> </span><span class="o">*</span><span class="p">,</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="o">*</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="p">);</span>
+<a id="__codelineno-6-19" name="__codelineno-6-19" href="#__codelineno-6-19"></a><span class="w">    </span><span class="kt">void</span><span class="w">                </span><span class="p">(</span><span class="o">*</span><span class="n">dtor</span><span class="p">)(</span><span class="kt">void</span><span class="w"> </span><span class="o">*</span><span class="p">,</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="o">*</span><span class="p">);</span>
+<a id="__codelineno-6-20" name="__codelineno-6-20" href="#__codelineno-6-20"></a><span class="p">};</span>
+</code></pre></div>
+<p><strong>Lifecycle States (refcnt):</strong></p>
+<ul>
+<li><strong>-0x40000000</strong>: Initialization in progress (not yet active)</li>
+<li><strong>Positive</strong>: Active, each reference is +1</li>
+<li><strong>-0x40000000</strong>: Termination in progress</li>
+<li><strong>0</strong>: Freed (not accessible)</li>
+</ul>
+<p><strong>Key Functions:</strong></p>
+<ul>
+<li><code>sysref_alloc(struct sysref_class *srclass)</code> - Allocate object (sys/kern/kern_sysref.c:132-179)</li>
+<li><code>sysref_init(struct sysref *sr, struct sysref_class *srclass)</code> - Manual init for static objects</li>
+<li><code>sysref_activate(struct sysref *sr)</code> - Activate object (sys/kern/kern_sysref.c:273-286)</li>
+<li><code>sysref_get(struct sysref *sr)</code> - Acquire reference (inline in sys/sysref2.h)</li>
+<li><code>sysref_put(struct sysref *sr)</code> - Release reference (inline, calls <code>_sysref_put()</code> on special cases)</li>
+<li><code>sysref_lookup(sysid_t sysid)</code> - Lookup by sysid</li>
+</ul>
+<p><strong>Implementation Details:</strong></p>
+<p><strong>Objcache Integration</strong> (sys/kern/kern_sysref.c:193-263):</p>
+<ul>
+<li>Constructor allocates sysid and inserts into per-CPU red-black tree</li>
+<li>Sysid embeds CPU number in low bits for locality</li>
+<li>If sysid not accessed, destructor just removes from tree (fast path)</li>
+<li>If sysid accessed (<code>SRF_SYSIDUSED</code>), destructor fully destroys via <code>objcache_dtor()</code></li>
+</ul>
+<p><strong>Reference Count Lifecycle</strong> (sys/kern/kern_sysref.c:297-360):</p>
+<ol>
+<li><strong>Allocation</strong>: refcnt = -0x40000000 (init in progress)</li>
+<li><strong>Activation</strong>: refcnt += 0x40000001 (becomes 1, active)</li>
+<li><strong>Use</strong>: refcnt incremented/decremented normally</li>
+<li><strong>1-&gt;0 Transition</strong>: refcnt set to -0x40000000, <code>terminate()</code> callback invoked</li>
+<li><strong>Termination</strong>: refcnt can still be modified during termination</li>
+<li><strong>Final</strong>: -0x40000000 -&gt; 0, object returned to objcache</li>
+</ol>
+<p><strong>Cluster Addressing:</strong></p>
+<ul>
+<li>Sysid uniquely identifies object across cluster</li>
+<li>Per-CPU red-black tree allows O(log n) lookup</li>
+<li>Enables cluster-wide IPC and resource sharing (future)</li>
+</ul>
+<p><strong>When to Use:</strong>
+- Managing heavyweight kernel objects (processes, vnodes, etc.)
+- Need cluster-wide addressing capability
+- Want objcache integration for performance
+- Object lifecycle requires termination callback</p>
+<p><strong>Restrictions:</strong>
+- More complex than simple reference counting
+- Requires class descriptor setup
+- Termination callback must release locks
+- Not suitable for lightweight objects</p>
+<h3 id="userland-mutex-support-umtx">Userland Mutex Support (umtx)<a class="headerlink" href="#userland-mutex-support-umtx" title="Permanent link">&para;</a></h3>
+<p>Userland mutex support provides system calls for efficient user-space synchronization with kernel sleep/wakeup.</p>
+<p><strong>Source Files:</strong>
+- <code>sys/kern/kern_umtx.c</code> - Implementation (sys/kern/kern_umtx.c:1-307)</p>
+<p><strong>Key Functions:</strong></p>
+<ul>
+<li><code>sys_umtx_sleep(const int *ptr, int value, int timeout)</code> - Sleep if *ptr == value (sys/kern/kern_umtx.c:109-241)</li>
+<li><code>sys_umtx_wakeup(const int *ptr, int count)</code> - Wake waiters on ptr (sys/kern/kern_umtx.c:250-306)</li>
+</ul>
+<p><strong>Implementation Details:</strong></p>
+<p><strong>umtx_sleep()</strong> (sys/kern/kern_umtx.c:109-241):</p>
+<ol>
+<li>Translates user address to physical address via <code>uservtophys()</code></li>
+<li>Optionally polls for short duration (4000ns) before sleeping</li>
+<li>Re-checks value hasn't changed</li>
+<li>Sleeps on physical address with <code>PDOMAIN_UMTX</code></li>
+<li>Handles discontinuities (COW, paging) with retries</li>
+<li>Timeout capped at 2 seconds (caller must retry if needed)</li>
+</ol>
+<p><strong>umtx_wakeup()</strong> (sys/kern/kern_umtx.c:250-306):</p>
+<ol>
+<li>Translates user address to physical address</li>
+<li>Calls <code>wakeup_domain()</code> to wake waiters</li>
+<li><code>count == 1</code> wakes one, otherwise wakes all</li>
+</ol>
+<p><strong>Performance Optimization:</strong></p>
+<ul>
+<li>Polls briefly with RDTSC before sleeping (avoids syscall/context switch for short locks)</li>
+<li>Uses physical addresses as wait channels (handles memory mapping)</li>
+<li>Caps timeout to avoid tracking page mapping changes</li>
+</ul>
+<p><strong>When to Use:</strong>
+- Implementing pthread mutexes and condition variables in userspace
+- Futex-like operations (Linux compatibility)
+- Efficient user-space synchronization</p>
+<p><strong>Restrictions:</strong>
+- User must handle spurious wakeups
+- Timeout limited to 2 seconds per call
+- Address must remain valid during sleep</p>
+<h3 id="sleep-queues">Sleep Queues<a class="headerlink" href="#sleep-queues" title="Permanent link">&para;</a></h3>
+<p>Sleep queues provide a FreeBSD-compatible API for thread blocking and wakeup.</p>
+<p><strong>Source Files:</strong>
+- <code>sys/kern/subr_sleepqueue.c</code> - Implementation (sys/kern/subr_sleepqueue.c:1-400+)</p>
+<p><strong>Data Structures:</strong></p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="k">struct</span><span class="w"> </span><span class="nc">sleepqueue_chain</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a><span class="w">    </span><span class="k">struct</span><span class="w"> </span><span class="nc">spinlock</span><span class="w"> </span><span class="n">sc_spin</span><span class="p">;</span>
+<a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a><span class="w">    </span><span class="n">TAILQ_HEAD</span><span class="p">(,</span><span class="w"> </span><span class="n">sleepqueue_wchan</span><span class="p">)</span><span class="w"> </span><span class="n">sc_wchead</span><span class="p">;</span>
+<a id="__codelineno-7-4" name="__codelineno-7-4" href="#__codelineno-7-4"></a><span class="w">    </span><span class="n">u_int</span><span class="w"> </span><span class="n">sc_free_count</span><span class="p">;</span>
+<a id="__codelineno-7-5" name="__codelineno-7-5" href="#__codelineno-7-5"></a><span class="p">};</span>
+<a id="__codelineno-7-6" name="__codelineno-7-6" href="#__codelineno-7-6"></a>
+<a id="__codelineno-7-7" name="__codelineno-7-7" href="#__codelineno-7-7"></a><span class="k">struct</span><span class="w"> </span><span class="nc">sleepqueue_wchan</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-7-8" name="__codelineno-7-8" href="#__codelineno-7-8"></a><span class="w">    </span><span class="n">TAILQ_ENTRY</span><span class="p">(</span><span class="n">sleepqueue_wchan</span><span class="p">)</span><span class="w"> </span><span class="n">wc_entry</span><span class="p">;</span>
+<a id="__codelineno-7-9" name="__codelineno-7-9" href="#__codelineno-7-9"></a><span class="w">    </span><span class="k">const</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="o">*</span><span class="n">wc_wchan</span><span class="p">;</span>
+<a id="__codelineno-7-10" name="__codelineno-7-10" href="#__codelineno-7-10"></a><span class="w">    </span><span class="k">struct</span><span class="w"> </span><span class="nc">sleepqueue_chain</span><span class="w"> </span><span class="o">*</span><span class="n">wc_sc</span><span class="p">;</span>
+<a id="__codelineno-7-11" name="__codelineno-7-11" href="#__codelineno-7-11"></a><span class="w">    </span><span class="n">u_int</span><span class="w"> </span><span class="n">wc_refs</span><span class="p">;</span>
+<a id="__codelineno-7-12" name="__codelineno-7-12" href="#__codelineno-7-12"></a><span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="n">wc_type</span><span class="p">;</span>
+<a id="__codelineno-7-13" name="__codelineno-7-13" href="#__codelineno-7-13"></a><span class="w">    </span><span class="n">u_int</span><span class="w"> </span><span class="n">wc_blocked</span><span class="p">[</span><span class="n">SLEEPQ_NRQUEUES</span><span class="p">];</span><span class="w">  </span><span class="cm">/* 2 queues per wchan */</span>
+<a id="__codelineno-7-14" name="__codelineno-7-14" href="#__codelineno-7-14"></a><span class="p">};</span>
+</code></pre></div>
+<p><strong>Key Functions:</strong></p>
+<ul>
+<li><code>sleepq_lock(const void *wchan)</code> - Lock wait channel (sys/kern/subr_sleepqueue.c:176-216)</li>
+<li><code>sleepq_release(const void *wchan)</code> - Unlock wait channel (sys/kern/subr_sleepqueue.c:221-239)</li>
+<li><code>sleepq_add(const void *wchan, struct lock_object *lock, const char *wmesg, int flags, int queue)</code> - Add thread to queue (sys/kern/subr_sleepqueue.c:251-285)</li>
+<li><code>sleepq_wait(const void *wchan, int pri)</code> - Sleep until woken (sys/kern/subr_sleepqueue.c:386-400)</li>
+<li><code>sleepq_timedwait(const void *wchan, int pri)</code> - Sleep with timeout</li>
+<li><code>sleepq_signal(const void *wchan, int flags, int pri, int queue)</code> - Wake one thread</li>
+<li><code>sleepq_broadcast(const void *wchan, int flags, int pri, int queue)</code> - Wake all threads</li>
+</ul>
+<p><strong>Implementation Details:</strong></p>
+<ul>
+<li>Global hash table of wait channels (1024 buckets)</li>
+<li>Each wait channel has 2 sub-queues (typically for different priorities)</li>
+<li>Uses DragonFly's <code>tsleep()</code>/<code>wakeup()</code> under the hood</li>
+<li>Maintains blocked counts for each queue</li>
+<li>Reference counted wait channel structures</li>
+</ul>
+<p><strong>When to Use:</strong>
+- FreeBSD compatibility (e.g., Linux KPI emulation)
+- Prefer native <code>tsleep()</code>/<code>wakeup()</code> for new DragonFly code
+- Multiple priority levels needed per wait channel</p>
+<h2 id="synchronization-primitive-comparison">Synchronization Primitive Comparison<a class="headerlink" href="#synchronization-primitive-comparison" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Primitive</th>
+<th>Can Sleep</th>
+<th>Shared Locks</th>
+<th>Recursive</th>
+<th>Async</th>
+<th>Priority</th>
+<th>Use Case</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Token</strong></td>
+<td>Yes</td>
+<td>No</td>
+<td>Yes</td>
+<td>No</td>
+<td>N/A</td>
+<td>High-level subsystems (VFS, VM)</td>
+</tr>
+<tr>
+<td><strong>Spinlock</strong></td>
+<td>No</td>
+<td>Yes</td>
+<td>No</td>
+<td>No</td>
+<td>Excl &gt; Shared</td>
+<td>Short critical sections, per-CPU data</td>
+</tr>
+<tr>
+<td><strong>Mutex</strong></td>
+<td>Yes</td>
+<td>Yes</td>
+<td>Yes</td>
+<td>Yes</td>
+<td>Excl &gt; Shared</td>
+<td>Moderate critical sections, async I/O</td>
+</tr>
+<tr>
+<td><strong>Lockmgr</strong></td>
+<td>Yes</td>
+<td>Yes</td>
+<td>Yes</td>
+<td>No</td>
+<td>Upgrade &gt; Excl &gt; Shared</td>
+<td>VFS vnodes, complex lock operations</td>
+</tr>
+<tr>
+<td><strong>Condvar</strong></td>
+<td>Yes</td>
+<td>N/A</td>
+<td>N/A</td>
+<td>No</td>
+<td>N/A</td>
+<td>Thread coordination, wait/signal</td>
+</tr>
+<tr>
+<td><strong>Refcount</strong></td>
+<td>N/A</td>
+<td>N/A</td>
+<td>N/A</td>
+<td>No</td>
+<td>N/A</td>
+<td>Object lifecycle management</td>
+</tr>
+<tr>
+<td><strong>Sysref</strong></td>
+<td>N/A</td>
+<td>N/A</td>
+<td>N/A</td>
+<td>No</td>
+<td>N/A</td>
+<td>Complex object lifecycle, objcache</td>
+</tr>
+<tr>
+<td><strong>Umtx</strong></td>
+<td>Yes</td>
+<td>N/A</td>
+<td>N/A</td>
+<td>No</td>
+<td>N/A</td>
+<td>Userland synchronization</td>
+</tr>
+</tbody>
+</table>
+<h3 id="performance-characteristics">Performance Characteristics<a class="headerlink" href="#performance-characteristics" title="Permanent link">&para;</a></h3>
+<p><strong>Tokens:</strong>
+- Overhead: Low for uncontended, moderate for contested
+- Cache impact: Low (per-CPU, no atomic ops when acquired)
+- Best for: High-level, infrequent operations</p>
+<p><strong>Spinlocks:</strong>
+- Overhead: Very low
+- Cache impact: High under contention (busy-waiting)
+- Best for: Very short critical sections, interrupt context</p>
+<p><strong>Mutexes:</strong>
+- Overhead: Low-to-moderate
+- Cache impact: Moderate (atomic ops, link management)
+- Best for: Medium critical sections with potential blocking</p>
+<p><strong>Lockmgr:</strong>
+- Overhead: Moderate-to-high
+- Cache impact: Moderate
+- Best for: Complex locking scenarios, VFS operations</p>
+<h2 id="code-examples">Code Examples<a class="headerlink" href="#code-examples" title="Permanent link">&para;</a></h2>
+<h3 id="example-1-spinlock-protecting-per-packet-metadata">Example 1: Spinlock Protecting Per-Packet Metadata<a class="headerlink" href="#example-1-spinlock-protecting-per-packet-metadata" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a><span class="k">struct</span><span class="w"> </span><span class="nc">packet_queue</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a><span class="w">    </span><span class="k">struct</span><span class="w"> </span><span class="nc">spinlock</span><span class="w">     </span><span class="n">pq_spin</span><span class="p">;</span>
+<a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a><span class="w">    </span><span class="n">TAILQ_HEAD</span><span class="p">(,</span><span class="w"> </span><span class="n">packet</span><span class="p">)</span><span class="w"> </span><span class="n">pq_list</span><span class="p">;</span>
+<a id="__codelineno-8-4" name="__codelineno-8-4" href="#__codelineno-8-4"></a><span class="w">    </span><span class="kt">int</span><span class="w">                 </span><span class="n">pq_count</span><span class="p">;</span>
+<a id="__codelineno-8-5" name="__codelineno-8-5" href="#__codelineno-8-5"></a><span class="p">};</span>
+<a id="__codelineno-8-6" name="__codelineno-8-6" href="#__codelineno-8-6"></a>
+<a id="__codelineno-8-7" name="__codelineno-8-7" href="#__codelineno-8-7"></a><span class="kt">void</span>
+<a id="__codelineno-8-8" name="__codelineno-8-8" href="#__codelineno-8-8"></a><span class="nf">enqueue_packet</span><span class="p">(</span><span class="k">struct</span><span class="w"> </span><span class="nc">packet_queue</span><span class="w"> </span><span class="o">*</span><span class="n">pq</span><span class="p">,</span><span class="w"> </span><span class="k">struct</span><span class="w"> </span><span class="nc">packet</span><span class="w"> </span><span class="o">*</span><span class="n">pkt</span><span class="p">)</span>
+<a id="__codelineno-8-9" name="__codelineno-8-9" href="#__codelineno-8-9"></a><span class="p">{</span>
+<a id="__codelineno-8-10" name="__codelineno-8-10" href="#__codelineno-8-10"></a><span class="w">    </span><span class="n">spin_lock</span><span class="p">(</span><span class="o">&amp;</span><span class="n">pq</span><span class="o">-&gt;</span><span class="n">pq_spin</span><span class="p">);</span>
+<a id="__codelineno-8-11" name="__codelineno-8-11" href="#__codelineno-8-11"></a><span class="w">    </span><span class="n">TAILQ_INSERT_TAIL</span><span class="p">(</span><span class="o">&amp;</span><span class="n">pq</span><span class="o">-&gt;</span><span class="n">pq_list</span><span class="p">,</span><span class="w"> </span><span class="n">pkt</span><span class="p">,</span><span class="w"> </span><span class="n">pkt_entry</span><span class="p">);</span>
+<a id="__codelineno-8-12" name="__codelineno-8-12" href="#__codelineno-8-12"></a><span class="w">    </span><span class="n">pq</span><span class="o">-&gt;</span><span class="n">pq_count</span><span class="o">++</span><span class="p">;</span>
+<a id="__codelineno-8-13" name="__codelineno-8-13" href="#__codelineno-8-13"></a><span class="w">    </span><span class="n">spin_unlock</span><span class="p">(</span><span class="o">&amp;</span><span class="n">pq</span><span class="o">-&gt;</span><span class="n">pq_spin</span><span class="p">);</span>
+<a id="__codelineno-8-14" name="__codelineno-8-14" href="#__codelineno-8-14"></a><span class="p">}</span>
+<a id="__codelineno-8-15" name="__codelineno-8-15" href="#__codelineno-8-15"></a>
+<a id="__codelineno-8-16" name="__codelineno-8-16" href="#__codelineno-8-16"></a><span class="k">struct</span><span class="w"> </span><span class="nc">packet</span><span class="w"> </span><span class="o">*</span>
+<a id="__codelineno-8-17" name="__codelineno-8-17" href="#__codelineno-8-17"></a><span class="n">dequeue_packet</span><span class="p">(</span><span class="k">struct</span><span class="w"> </span><span class="nc">packet_queue</span><span class="w"> </span><span class="o">*</span><span class="n">pq</span><span class="p">)</span>
+<a id="__codelineno-8-18" name="__codelineno-8-18" href="#__codelineno-8-18"></a><span class="p">{</span>
+<a id="__codelineno-8-19" name="__codelineno-8-19" href="#__codelineno-8-19"></a><span class="w">    </span><span class="k">struct</span><span class="w"> </span><span class="nc">packet</span><span class="w"> </span><span class="o">*</span><span class="n">pkt</span><span class="p">;</span>
+<a id="__codelineno-8-20" name="__codelineno-8-20" href="#__codelineno-8-20"></a>
+<a id="__codelineno-8-21" name="__codelineno-8-21" href="#__codelineno-8-21"></a><span class="w">    </span><span class="n">spin_lock</span><span class="p">(</span><span class="o">&amp;</span><span class="n">pq</span><span class="o">-&gt;</span><span class="n">pq_spin</span><span class="p">);</span>
+<a id="__codelineno-8-22" name="__codelineno-8-22" href="#__codelineno-8-22"></a><span class="w">    </span><span class="n">pkt</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">TAILQ_FIRST</span><span class="p">(</span><span class="o">&amp;</span><span class="n">pq</span><span class="o">-&gt;</span><span class="n">pq_list</span><span class="p">);</span>
+<a id="__codelineno-8-23" name="__codelineno-8-23" href="#__codelineno-8-23"></a><span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">pkt</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="nb">NULL</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-8-24" name="__codelineno-8-24" href="#__codelineno-8-24"></a><span class="w">        </span><span class="n">TAILQ_REMOVE</span><span class="p">(</span><span class="o">&amp;</span><span class="n">pq</span><span class="o">-&gt;</span><span class="n">pq_list</span><span class="p">,</span><span class="w"> </span><span class="n">pkt</span><span class="p">,</span><span class="w"> </span><span class="n">pkt_entry</span><span class="p">);</span>
+<a id="__codelineno-8-25" name="__codelineno-8-25" href="#__codelineno-8-25"></a><span class="w">        </span><span class="n">pq</span><span class="o">-&gt;</span><span class="n">pq_count</span><span class="o">--</span><span class="p">;</span>
+<a id="__codelineno-8-26" name="__codelineno-8-26" href="#__codelineno-8-26"></a><span class="w">    </span><span class="p">}</span>
+<a id="__codelineno-8-27" name="__codelineno-8-27" href="#__codelineno-8-27"></a><span class="w">    </span><span class="n">spin_unlock</span><span class="p">(</span><span class="o">&amp;</span><span class="n">pq</span><span class="o">-&gt;</span><span class="n">pq_spin</span><span class="p">);</span>
+<a id="__codelineno-8-28" name="__codelineno-8-28" href="#__codelineno-8-28"></a>
+<a id="__codelineno-8-29" name="__codelineno-8-29" href="#__codelineno-8-29"></a><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">pkt</span><span class="p">;</span>
+<a id="__codelineno-8-30" name="__codelineno-8-30" href="#__codelineno-8-30"></a><span class="p">}</span>
+</code></pre></div>
+<h3 id="example-2-mutex-with-blocking-operation">Example 2: Mutex with Blocking Operation<a class="headerlink" href="#example-2-mutex-with-blocking-operation" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a><span class="k">struct</span><span class="w"> </span><span class="nc">device_state</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a><span class="w">    </span><span class="k">struct</span><span class="w"> </span><span class="nc">mtx</span><span class="w">          </span><span class="n">ds_mtx</span><span class="p">;</span>
+<a id="__codelineno-9-3" name="__codelineno-9-3" href="#__codelineno-9-3"></a><span class="w">    </span><span class="kt">int</span><span class="w">                 </span><span class="n">ds_flags</span><span class="p">;</span>
+<a id="__codelineno-9-4" name="__codelineno-9-4" href="#__codelineno-9-4"></a><span class="w">    </span><span class="k">struct</span><span class="w"> </span><span class="nc">bio_queue</span><span class="w">    </span><span class="n">ds_bioq</span><span class="p">;</span>
+<a id="__codelineno-9-5" name="__codelineno-9-5" href="#__codelineno-9-5"></a><span class="p">};</span>
+<a id="__codelineno-9-6" name="__codelineno-9-6" href="#__codelineno-9-6"></a>
+<a id="__codelineno-9-7" name="__codelineno-9-7" href="#__codelineno-9-7"></a><span class="kt">void</span>
+<a id="__codelineno-9-8" name="__codelineno-9-8" href="#__codelineno-9-8"></a><span class="nf">device_submit_bio</span><span class="p">(</span><span class="k">struct</span><span class="w"> </span><span class="nc">device_state</span><span class="w"> </span><span class="o">*</span><span class="n">ds</span><span class="p">,</span><span class="w"> </span><span class="k">struct</span><span class="w"> </span><span class="nc">bio</span><span class="w"> </span><span class="o">*</span><span class="n">bio</span><span class="p">)</span>
+<a id="__codelineno-9-9" name="__codelineno-9-9" href="#__codelineno-9-9"></a><span class="p">{</span>
+<a id="__codelineno-9-10" name="__codelineno-9-10" href="#__codelineno-9-10"></a><span class="w">    </span><span class="n">mtx_lock</span><span class="p">(</span><span class="o">&amp;</span><span class="n">ds</span><span class="o">-&gt;</span><span class="n">ds_mtx</span><span class="p">);</span>
+<a id="__codelineno-9-11" name="__codelineno-9-11" href="#__codelineno-9-11"></a>
+<a id="__codelineno-9-12" name="__codelineno-9-12" href="#__codelineno-9-12"></a><span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">ds</span><span class="o">-&gt;</span><span class="n">ds_flags</span><span class="w"> </span><span class="o">&amp;</span><span class="w"> </span><span class="n">DSF_SUSPENDED</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-9-13" name="__codelineno-9-13" href="#__codelineno-9-13"></a><span class="w">        </span><span class="cm">/* May need to block waiting for resume */</span>
+<a id="__codelineno-9-14" name="__codelineno-9-14" href="#__codelineno-9-14"></a><span class="w">        </span><span class="k">while</span><span class="w"> </span><span class="p">(</span><span class="n">ds</span><span class="o">-&gt;</span><span class="n">ds_flags</span><span class="w"> </span><span class="o">&amp;</span><span class="w"> </span><span class="n">DSF_SUSPENDED</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-9-15" name="__codelineno-9-15" href="#__codelineno-9-15"></a><span class="w">            </span><span class="n">cv_mtx_wait</span><span class="p">(</span><span class="o">&amp;</span><span class="n">ds</span><span class="o">-&gt;</span><span class="n">ds_resume_cv</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">ds</span><span class="o">-&gt;</span><span class="n">ds_mtx</span><span class="p">);</span>
+<a id="__codelineno-9-16" name="__codelineno-9-16" href="#__codelineno-9-16"></a><span class="w">        </span><span class="p">}</span>
+<a id="__codelineno-9-17" name="__codelineno-9-17" href="#__codelineno-9-17"></a><span class="w">    </span><span class="p">}</span>
+<a id="__codelineno-9-18" name="__codelineno-9-18" href="#__codelineno-9-18"></a>
+<a id="__codelineno-9-19" name="__codelineno-9-19" href="#__codelineno-9-19"></a><span class="w">    </span><span class="cm">/* Enqueue bio */</span>
+<a id="__codelineno-9-20" name="__codelineno-9-20" href="#__codelineno-9-20"></a><span class="w">    </span><span class="n">TAILQ_INSERT_TAIL</span><span class="p">(</span><span class="o">&amp;</span><span class="n">ds</span><span class="o">-&gt;</span><span class="n">ds_bioq</span><span class="p">,</span><span class="w"> </span><span class="n">bio</span><span class="p">,</span><span class="w"> </span><span class="n">bio_link</span><span class="p">);</span>
+<a id="__codelineno-9-21" name="__codelineno-9-21" href="#__codelineno-9-21"></a>
+<a id="__codelineno-9-22" name="__codelineno-9-22" href="#__codelineno-9-22"></a><span class="w">    </span><span class="cm">/* Kick device (may issue I/O, which blocks) */</span>
+<a id="__codelineno-9-23" name="__codelineno-9-23" href="#__codelineno-9-23"></a><span class="w">    </span><span class="n">device_start_io</span><span class="p">(</span><span class="n">ds</span><span class="p">);</span>
+<a id="__codelineno-9-24" name="__codelineno-9-24" href="#__codelineno-9-24"></a>
+<a id="__codelineno-9-25" name="__codelineno-9-25" href="#__codelineno-9-25"></a><span class="w">    </span><span class="n">mtx_unlock</span><span class="p">(</span><span class="o">&amp;</span><span class="n">ds</span><span class="o">-&gt;</span><span class="n">ds_mtx</span><span class="p">);</span>
+<a id="__codelineno-9-26" name="__codelineno-9-26" href="#__codelineno-9-26"></a><span class="p">}</span>
+</code></pre></div>
+<h3 id="example-3-condition-variable-waitsignal">Example 3: Condition Variable Wait/Signal<a class="headerlink" href="#example-3-condition-variable-waitsignal" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a><span class="k">struct</span><span class="w"> </span><span class="nc">work_queue</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a><span class="w">    </span><span class="k">struct</span><span class="w"> </span><span class="nc">mtx</span><span class="w">              </span><span class="n">wq_mtx</span><span class="p">;</span>
+<a id="__codelineno-10-3" name="__codelineno-10-3" href="#__codelineno-10-3"></a><span class="w">    </span><span class="k">struct</span><span class="w"> </span><span class="nc">cv</span><span class="w">               </span><span class="n">wq_cv</span><span class="p">;</span>
+<a id="__codelineno-10-4" name="__codelineno-10-4" href="#__codelineno-10-4"></a><span class="w">    </span><span class="n">TAILQ_HEAD</span><span class="p">(,</span><span class="w"> </span><span class="n">work_item</span><span class="p">)</span><span class="w"> </span><span class="n">wq_items</span><span class="p">;</span>
+<a id="__codelineno-10-5" name="__codelineno-10-5" href="#__codelineno-10-5"></a><span class="w">    </span><span class="kt">int</span><span class="w">                     </span><span class="n">wq_shutdown</span><span class="p">;</span>
+<a id="__codelineno-10-6" name="__codelineno-10-6" href="#__codelineno-10-6"></a><span class="p">};</span>
+<a id="__codelineno-10-7" name="__codelineno-10-7" href="#__codelineno-10-7"></a>
+<a id="__codelineno-10-8" name="__codelineno-10-8" href="#__codelineno-10-8"></a><span class="cm">/* Worker thread */</span>
+<a id="__codelineno-10-9" name="__codelineno-10-9" href="#__codelineno-10-9"></a><span class="kt">void</span>
+<a id="__codelineno-10-10" name="__codelineno-10-10" href="#__codelineno-10-10"></a><span class="nf">worker_thread</span><span class="p">(</span><span class="k">struct</span><span class="w"> </span><span class="nc">work_queue</span><span class="w"> </span><span class="o">*</span><span class="n">wq</span><span class="p">)</span>
+<a id="__codelineno-10-11" name="__codelineno-10-11" href="#__codelineno-10-11"></a><span class="p">{</span>
+<a id="__codelineno-10-12" name="__codelineno-10-12" href="#__codelineno-10-12"></a><span class="w">    </span><span class="k">struct</span><span class="w"> </span><span class="nc">work_item</span><span class="w"> </span><span class="o">*</span><span class="n">item</span><span class="p">;</span>
+<a id="__codelineno-10-13" name="__codelineno-10-13" href="#__codelineno-10-13"></a>
+<a id="__codelineno-10-14" name="__codelineno-10-14" href="#__codelineno-10-14"></a><span class="w">    </span><span class="n">mtx_lock</span><span class="p">(</span><span class="o">&amp;</span><span class="n">wq</span><span class="o">-&gt;</span><span class="n">wq_mtx</span><span class="p">);</span>
+<a id="__codelineno-10-15" name="__codelineno-10-15" href="#__codelineno-10-15"></a>
+<a id="__codelineno-10-16" name="__codelineno-10-16" href="#__codelineno-10-16"></a><span class="w">    </span><span class="k">while</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="n">wq</span><span class="o">-&gt;</span><span class="n">wq_shutdown</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-10-17" name="__codelineno-10-17" href="#__codelineno-10-17"></a><span class="w">        </span><span class="n">item</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">TAILQ_FIRST</span><span class="p">(</span><span class="o">&amp;</span><span class="n">wq</span><span class="o">-&gt;</span><span class="n">wq_items</span><span class="p">);</span>
+<a id="__codelineno-10-18" name="__codelineno-10-18" href="#__codelineno-10-18"></a><span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">item</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="nb">NULL</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-10-19" name="__codelineno-10-19" href="#__codelineno-10-19"></a><span class="w">            </span><span class="cm">/* No work, sleep until signaled */</span>
+<a id="__codelineno-10-20" name="__codelineno-10-20" href="#__codelineno-10-20"></a><span class="w">            </span><span class="n">cv_mtx_wait</span><span class="p">(</span><span class="o">&amp;</span><span class="n">wq</span><span class="o">-&gt;</span><span class="n">wq_cv</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">wq</span><span class="o">-&gt;</span><span class="n">wq_mtx</span><span class="p">);</span>
+<a id="__codelineno-10-21" name="__codelineno-10-21" href="#__codelineno-10-21"></a><span class="w">            </span><span class="k">continue</span><span class="p">;</span>
+<a id="__codelineno-10-22" name="__codelineno-10-22" href="#__codelineno-10-22"></a><span class="w">        </span><span class="p">}</span>
+<a id="__codelineno-10-23" name="__codelineno-10-23" href="#__codelineno-10-23"></a>
+<a id="__codelineno-10-24" name="__codelineno-10-24" href="#__codelineno-10-24"></a><span class="w">        </span><span class="n">TAILQ_REMOVE</span><span class="p">(</span><span class="o">&amp;</span><span class="n">wq</span><span class="o">-&gt;</span><span class="n">wq_items</span><span class="p">,</span><span class="w"> </span><span class="n">item</span><span class="p">,</span><span class="w"> </span><span class="n">wi_entry</span><span class="p">);</span>
+<a id="__codelineno-10-25" name="__codelineno-10-25" href="#__codelineno-10-25"></a><span class="w">        </span><span class="n">mtx_unlock</span><span class="p">(</span><span class="o">&amp;</span><span class="n">wq</span><span class="o">-&gt;</span><span class="n">wq_mtx</span><span class="p">);</span>
+<a id="__codelineno-10-26" name="__codelineno-10-26" href="#__codelineno-10-26"></a>
+<a id="__codelineno-10-27" name="__codelineno-10-27" href="#__codelineno-10-27"></a><span class="w">        </span><span class="cm">/* Process item without holding lock */</span>
+<a id="__codelineno-10-28" name="__codelineno-10-28" href="#__codelineno-10-28"></a><span class="w">        </span><span class="n">process_work_item</span><span class="p">(</span><span class="n">item</span><span class="p">);</span>
+<a id="__codelineno-10-29" name="__codelineno-10-29" href="#__codelineno-10-29"></a>
+<a id="__codelineno-10-30" name="__codelineno-10-30" href="#__codelineno-10-30"></a><span class="w">        </span><span class="n">mtx_lock</span><span class="p">(</span><span class="o">&amp;</span><span class="n">wq</span><span class="o">-&gt;</span><span class="n">wq_mtx</span><span class="p">);</span>
+<a id="__codelineno-10-31" name="__codelineno-10-31" href="#__codelineno-10-31"></a><span class="w">    </span><span class="p">}</span>
+<a id="__codelineno-10-32" name="__codelineno-10-32" href="#__codelineno-10-32"></a>
+<a id="__codelineno-10-33" name="__codelineno-10-33" href="#__codelineno-10-33"></a><span class="w">    </span><span class="n">mtx_unlock</span><span class="p">(</span><span class="o">&amp;</span><span class="n">wq</span><span class="o">-&gt;</span><span class="n">wq_mtx</span><span class="p">);</span>
+<a id="__codelineno-10-34" name="__codelineno-10-34" href="#__codelineno-10-34"></a><span class="p">}</span>
+<a id="__codelineno-10-35" name="__codelineno-10-35" href="#__codelineno-10-35"></a>
+<a id="__codelineno-10-36" name="__codelineno-10-36" href="#__codelineno-10-36"></a><span class="cm">/* Submitter */</span>
+<a id="__codelineno-10-37" name="__codelineno-10-37" href="#__codelineno-10-37"></a><span class="kt">void</span>
+<a id="__codelineno-10-38" name="__codelineno-10-38" href="#__codelineno-10-38"></a><span class="nf">submit_work</span><span class="p">(</span><span class="k">struct</span><span class="w"> </span><span class="nc">work_queue</span><span class="w"> </span><span class="o">*</span><span class="n">wq</span><span class="p">,</span><span class="w"> </span><span class="k">struct</span><span class="w"> </span><span class="nc">work_item</span><span class="w"> </span><span class="o">*</span><span class="n">item</span><span class="p">)</span>
+<a id="__codelineno-10-39" name="__codelineno-10-39" href="#__codelineno-10-39"></a><span class="p">{</span>
+<a id="__codelineno-10-40" name="__codelineno-10-40" href="#__codelineno-10-40"></a><span class="w">    </span><span class="n">mtx_lock</span><span class="p">(</span><span class="o">&amp;</span><span class="n">wq</span><span class="o">-&gt;</span><span class="n">wq_mtx</span><span class="p">);</span>
+<a id="__codelineno-10-41" name="__codelineno-10-41" href="#__codelineno-10-41"></a><span class="w">    </span><span class="n">TAILQ_INSERT_TAIL</span><span class="p">(</span><span class="o">&amp;</span><span class="n">wq</span><span class="o">-&gt;</span><span class="n">wq_items</span><span class="p">,</span><span class="w"> </span><span class="n">item</span><span class="p">,</span><span class="w"> </span><span class="n">wi_entry</span><span class="p">);</span>
+<a id="__codelineno-10-42" name="__codelineno-10-42" href="#__codelineno-10-42"></a><span class="w">    </span><span class="n">cv_signal</span><span class="p">(</span><span class="o">&amp;</span><span class="n">wq</span><span class="o">-&gt;</span><span class="n">wq_cv</span><span class="p">);</span><span class="w">  </span><span class="cm">/* Wake one worker */</span>
+<a id="__codelineno-10-43" name="__codelineno-10-43" href="#__codelineno-10-43"></a><span class="w">    </span><span class="n">mtx_unlock</span><span class="p">(</span><span class="o">&amp;</span><span class="n">wq</span><span class="o">-&gt;</span><span class="n">wq_mtx</span><span class="p">);</span>
+<a id="__codelineno-10-44" name="__codelineno-10-44" href="#__codelineno-10-44"></a><span class="p">}</span>
+</code></pre></div>
+<h3 id="example-4-reference-counting-for-object-lifecycle">Example 4: Reference Counting for Object Lifecycle<a class="headerlink" href="#example-4-reference-counting-for-object-lifecycle" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a><span class="k">struct</span><span class="w"> </span><span class="nc">cached_object</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-11-2" name="__codelineno-11-2" href="#__codelineno-11-2"></a><span class="w">    </span><span class="n">refcount_t</span><span class="w">          </span><span class="n">co_refs</span><span class="p">;</span>
+<a id="__codelineno-11-3" name="__codelineno-11-3" href="#__codelineno-11-3"></a><span class="w">    </span><span class="k">struct</span><span class="w"> </span><span class="nc">spinlock</span><span class="w">     </span><span class="n">co_spin</span><span class="p">;</span>
+<a id="__codelineno-11-4" name="__codelineno-11-4" href="#__codelineno-11-4"></a><span class="w">    </span><span class="kt">void</span><span class="w">                </span><span class="o">*</span><span class="n">co_data</span><span class="p">;</span>
+<a id="__codelineno-11-5" name="__codelineno-11-5" href="#__codelineno-11-5"></a><span class="w">    </span><span class="cm">/* ... */</span>
+<a id="__codelineno-11-6" name="__codelineno-11-6" href="#__codelineno-11-6"></a><span class="p">};</span>
+<a id="__codelineno-11-7" name="__codelineno-11-7" href="#__codelineno-11-7"></a>
+<a id="__codelineno-11-8" name="__codelineno-11-8" href="#__codelineno-11-8"></a><span class="k">struct</span><span class="w"> </span><span class="nc">cached_object</span><span class="w"> </span><span class="o">*</span>
+<a id="__codelineno-11-9" name="__codelineno-11-9" href="#__codelineno-11-9"></a><span class="n">cache_lookup</span><span class="p">(</span><span class="k">struct</span><span class="w"> </span><span class="nc">cache</span><span class="w"> </span><span class="o">*</span><span class="n">cache</span><span class="p">,</span><span class="w"> </span><span class="kt">uint64_t</span><span class="w"> </span><span class="n">key</span><span class="p">)</span>
+<a id="__codelineno-11-10" name="__codelineno-11-10" href="#__codelineno-11-10"></a><span class="p">{</span>
+<a id="__codelineno-11-11" name="__codelineno-11-11" href="#__codelineno-11-11"></a><span class="w">    </span><span class="k">struct</span><span class="w"> </span><span class="nc">cached_object</span><span class="w"> </span><span class="o">*</span><span class="n">co</span><span class="p">;</span>
+<a id="__codelineno-11-12" name="__codelineno-11-12" href="#__codelineno-11-12"></a>
+<a id="__codelineno-11-13" name="__codelineno-11-13" href="#__codelineno-11-13"></a><span class="w">    </span><span class="n">spin_lock</span><span class="p">(</span><span class="o">&amp;</span><span class="n">cache</span><span class="o">-&gt;</span><span class="n">cache_spin</span><span class="p">);</span>
+<a id="__codelineno-11-14" name="__codelineno-11-14" href="#__codelineno-11-14"></a><span class="w">    </span><span class="n">co</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">cache_find</span><span class="p">(</span><span class="n">cache</span><span class="p">,</span><span class="w"> </span><span class="n">key</span><span class="p">);</span>
+<a id="__codelineno-11-15" name="__codelineno-11-15" href="#__codelineno-11-15"></a><span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">co</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="nb">NULL</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-11-16" name="__codelineno-11-16" href="#__codelineno-11-16"></a><span class="w">        </span><span class="n">refcount_acquire</span><span class="p">(</span><span class="o">&amp;</span><span class="n">co</span><span class="o">-&gt;</span><span class="n">co_refs</span><span class="p">);</span>
+<a id="__codelineno-11-17" name="__codelineno-11-17" href="#__codelineno-11-17"></a><span class="w">    </span><span class="p">}</span>
+<a id="__codelineno-11-18" name="__codelineno-11-18" href="#__codelineno-11-18"></a><span class="w">    </span><span class="n">spin_unlock</span><span class="p">(</span><span class="o">&amp;</span><span class="n">cache</span><span class="o">-&gt;</span><span class="n">cache_spin</span><span class="p">);</span>
+<a id="__codelineno-11-19" name="__codelineno-11-19" href="#__codelineno-11-19"></a>
+<a id="__codelineno-11-20" name="__codelineno-11-20" href="#__codelineno-11-20"></a><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">co</span><span class="p">;</span><span class="w">  </span><span class="cm">/* caller now owns reference */</span>
+<a id="__codelineno-11-21" name="__codelineno-11-21" href="#__codelineno-11-21"></a><span class="p">}</span>
+<a id="__codelineno-11-22" name="__codelineno-11-22" href="#__codelineno-11-22"></a>
+<a id="__codelineno-11-23" name="__codelineno-11-23" href="#__codelineno-11-23"></a><span class="kt">void</span>
+<a id="__codelineno-11-24" name="__codelineno-11-24" href="#__codelineno-11-24"></a><span class="n">cache_release</span><span class="p">(</span><span class="k">struct</span><span class="w"> </span><span class="nc">cached_object</span><span class="w"> </span><span class="o">*</span><span class="n">co</span><span class="p">)</span>
+<a id="__codelineno-11-25" name="__codelineno-11-25" href="#__codelineno-11-25"></a><span class="p">{</span>
+<a id="__codelineno-11-26" name="__codelineno-11-26" href="#__codelineno-11-26"></a><span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">refcount_release</span><span class="p">(</span><span class="o">&amp;</span><span class="n">co</span><span class="o">-&gt;</span><span class="n">co_refs</span><span class="p">))</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-11-27" name="__codelineno-11-27" href="#__codelineno-11-27"></a><span class="w">        </span><span class="cm">/* Last reference, free object */</span>
+<a id="__codelineno-11-28" name="__codelineno-11-28" href="#__codelineno-11-28"></a><span class="w">        </span><span class="n">kfree</span><span class="p">(</span><span class="n">co</span><span class="o">-&gt;</span><span class="n">co_data</span><span class="p">,</span><span class="w"> </span><span class="n">M_CACHE</span><span class="p">);</span>
+<a id="__codelineno-11-29" name="__codelineno-11-29" href="#__codelineno-11-29"></a><span class="w">        </span><span class="n">kfree</span><span class="p">(</span><span class="n">co</span><span class="p">,</span><span class="w"> </span><span class="n">M_CACHE</span><span class="p">);</span>
+<a id="__codelineno-11-30" name="__codelineno-11-30" href="#__codelineno-11-30"></a><span class="w">    </span><span class="p">}</span>
+<a id="__codelineno-11-31" name="__codelineno-11-31" href="#__codelineno-11-31"></a><span class="p">}</span>
+</code></pre></div>
+<h3 id="example-5-lockmgr-upgrade-operation">Example 5: Lockmgr Upgrade Operation<a class="headerlink" href="#example-5-lockmgr-upgrade-operation" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a><span class="kt">int</span>
+<a id="__codelineno-12-2" name="__codelineno-12-2" href="#__codelineno-12-2"></a><span class="nf">vnode_truncate</span><span class="p">(</span><span class="k">struct</span><span class="w"> </span><span class="nc">vnode</span><span class="w"> </span><span class="o">*</span><span class="n">vp</span><span class="p">,</span><span class="w"> </span><span class="kt">off_t</span><span class="w"> </span><span class="n">new_size</span><span class="p">)</span>
+<a id="__codelineno-12-3" name="__codelineno-12-3" href="#__codelineno-12-3"></a><span class="p">{</span>
+<a id="__codelineno-12-4" name="__codelineno-12-4" href="#__codelineno-12-4"></a><span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="n">error</span><span class="p">;</span>
+<a id="__codelineno-12-5" name="__codelineno-12-5" href="#__codelineno-12-5"></a>
+<a id="__codelineno-12-6" name="__codelineno-12-6" href="#__codelineno-12-6"></a><span class="w">    </span><span class="cm">/* Start with shared lock for size check */</span>
+<a id="__codelineno-12-7" name="__codelineno-12-7" href="#__codelineno-12-7"></a><span class="w">    </span><span class="n">lockmgr</span><span class="p">(</span><span class="o">&amp;</span><span class="n">vp</span><span class="o">-&gt;</span><span class="n">v_lock</span><span class="p">,</span><span class="w"> </span><span class="n">LK_SHARED</span><span class="p">);</span>
+<a id="__codelineno-12-8" name="__codelineno-12-8" href="#__codelineno-12-8"></a>
+<a id="__codelineno-12-9" name="__codelineno-12-9" href="#__codelineno-12-9"></a><span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">vp</span><span class="o">-&gt;</span><span class="n">v_size</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="n">new_size</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-12-10" name="__codelineno-12-10" href="#__codelineno-12-10"></a><span class="w">        </span><span class="cm">/* Nothing to do */</span>
+<a id="__codelineno-12-11" name="__codelineno-12-11" href="#__codelineno-12-11"></a><span class="w">        </span><span class="n">lockmgr</span><span class="p">(</span><span class="o">&amp;</span><span class="n">vp</span><span class="o">-&gt;</span><span class="n">v_lock</span><span class="p">,</span><span class="w"> </span><span class="n">LK_RELEASE</span><span class="p">);</span>
+<a id="__codelineno-12-12" name="__codelineno-12-12" href="#__codelineno-12-12"></a><span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+<a id="__codelineno-12-13" name="__codelineno-12-13" href="#__codelineno-12-13"></a><span class="w">    </span><span class="p">}</span>
+<a id="__codelineno-12-14" name="__codelineno-12-14" href="#__codelineno-12-14"></a>
+<a id="__codelineno-12-15" name="__codelineno-12-15" href="#__codelineno-12-15"></a><span class="w">    </span><span class="cm">/* Need exclusive lock to modify */</span>
+<a id="__codelineno-12-16" name="__codelineno-12-16" href="#__codelineno-12-16"></a><span class="w">    </span><span class="n">error</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">lockmgr</span><span class="p">(</span><span class="o">&amp;</span><span class="n">vp</span><span class="o">-&gt;</span><span class="n">v_lock</span><span class="p">,</span><span class="w"> </span><span class="n">LK_UPGRADE</span><span class="p">);</span>
+<a id="__codelineno-12-17" name="__codelineno-12-17" href="#__codelineno-12-17"></a><span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">error</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-12-18" name="__codelineno-12-18" href="#__codelineno-12-18"></a><span class="w">        </span><span class="cm">/* Lock was released, re-acquire exclusive */</span>
+<a id="__codelineno-12-19" name="__codelineno-12-19" href="#__codelineno-12-19"></a><span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">error</span><span class="p">;</span>
+<a id="__codelineno-12-20" name="__codelineno-12-20" href="#__codelineno-12-20"></a><span class="w">    </span><span class="p">}</span>
+<a id="__codelineno-12-21" name="__codelineno-12-21" href="#__codelineno-12-21"></a>
+<a id="__codelineno-12-22" name="__codelineno-12-22" href="#__codelineno-12-22"></a><span class="w">    </span><span class="cm">/* Now have exclusive lock */</span>
+<a id="__codelineno-12-23" name="__codelineno-12-23" href="#__codelineno-12-23"></a><span class="w">    </span><span class="n">vnode_truncate_locked</span><span class="p">(</span><span class="n">vp</span><span class="p">,</span><span class="w"> </span><span class="n">new_size</span><span class="p">);</span>
+<a id="__codelineno-12-24" name="__codelineno-12-24" href="#__codelineno-12-24"></a>
+<a id="__codelineno-12-25" name="__codelineno-12-25" href="#__codelineno-12-25"></a><span class="w">    </span><span class="n">lockmgr</span><span class="p">(</span><span class="o">&amp;</span><span class="n">vp</span><span class="o">-&gt;</span><span class="n">v_lock</span><span class="p">,</span><span class="w"> </span><span class="n">LK_RELEASE</span><span class="p">);</span>
+<a id="__codelineno-12-26" name="__codelineno-12-26" href="#__codelineno-12-26"></a><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+<a id="__codelineno-12-27" name="__codelineno-12-27" href="#__codelineno-12-27"></a><span class="p">}</span>
+</code></pre></div>
+<h2 id="subsystem-interactions">Subsystem Interactions<a class="headerlink" href="#subsystem-interactions" title="Permanent link">&para;</a></h2>
+<h3 id="relationship-to-lwkt">Relationship to LWKT<a class="headerlink" href="#relationship-to-lwkt" title="Permanent link">&para;</a></h3>
+<p>All synchronization primitives integrate with LWKT threading:</p>
+<ul>
+<li><strong>Critical sections</strong>: Spinlocks and tokens use <code>crit_enter()</code>/<code>crit_exit()</code> to prevent preemption</li>
+<li><strong>Thread scheduling</strong>: Blocking locks deschedule via <code>lwkt_deschedule()</code></li>
+<li><strong>Per-CPU data</strong>: Spinlocks often protect per-CPU structures accessed via <code>mycpu</code></li>
+<li><strong>Token precedence</strong>: Tokens are typically acquired before lower-level locks</li>
+</ul>
+<h3 id="relationship-to-sleepwakeup">Relationship to Sleep/Wakeup<a class="headerlink" href="#relationship-to-sleepwakeup" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>tsleep()</strong>: Used by mutexes, lockmgr, and condition variables</li>
+<li><strong>tsleep_interlock()</strong>: Prepares atomic sleep without races</li>
+<li><strong>wakeup()</strong>: Used by cv_signal(), cv_broadcast(), and lock releases</li>
+<li><strong>Sleep domains</strong>: PDOMAIN_UMTX, PDOMAIN_FBSD0, etc. for isolation</li>
+</ul>
+<h3 id="relationship-to-vm">Relationship to VM<a class="headerlink" href="#relationship-to-vm" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Page faults</strong>: Can occur while holding tokens or sleeping locks, but not spinlocks</li>
+<li><strong>Memory allocation</strong>: <code>kmalloc()</code> may block, cannot call while holding spinlock</li>
+<li><strong>Objcache</strong>: Sysref integrates with objcache for efficient allocation</li>
+<li><strong>COW handling</strong>: Umtx uses physical addresses to handle COW transparently</li>
+</ul>
+<h2 id="best-practices">Best Practices<a class="headerlink" href="#best-practices" title="Permanent link">&para;</a></h2>
+<h3 id="general-guidelines">General Guidelines<a class="headerlink" href="#general-guidelines" title="Permanent link">&para;</a></h3>
+<ol>
+<li><strong>Prefer tokens for high-level code</strong>: Unless performance is critical or in interrupt context</li>
+<li><strong>Keep spinlock critical sections tiny</strong>: Measure in instructions, not lines of code</li>
+<li><strong>Don't hold spinlocks across function calls</strong>: Unless function is guaranteed not to block</li>
+<li><strong>Use shared locks when possible</strong>: Reduces contention for read-heavy workloads</li>
+<li><strong>Avoid lock nesting</strong>: If unavoidable, maintain consistent lock order</li>
+<li><strong>Use condition variables for coordination</strong>: Better than polling in a loop</li>
+</ol>
+<h3 id="common-pitfalls">Common Pitfalls<a class="headerlink" href="#common-pitfalls" title="Permanent link">&para;</a></h3>
+<ol>
+<li><strong>Holding spinlock across blocking function</strong>: Causes panic or deadlock</li>
+<li><strong>Sleeping with token but not expecting it</strong>: Other code may assume token held continuously</li>
+<li><strong>Reference count overflow</strong>: Not checking for wraparound</li>
+<li><strong>Lock order violation</strong>: Acquiring locks in inconsistent order causes deadlock</li>
+<li><strong>Missing wakeup</strong>: Forgetting cv_signal() causes permanent sleep</li>
+<li><strong>Umtx address changes</strong>: COW or munmap while threads sleeping</li>
+</ol>
+<h3 id="debugging-tips">Debugging Tips<a class="headerlink" href="#debugging-tips" title="Permanent link">&para;</a></h3>
+<ol>
+<li><strong>INVARIANTS kernel</strong>: Enables lock assertion checking</li>
+<li><strong>witness</strong>: Tracks lock ordering violations (when enabled)</li>
+<li><strong>KTR tracing</strong>: Can trace spinlock contention</li>
+<li><strong>indefinite_info</strong>: Automatic warnings for locks held too long</li>
+<li><strong>lock_test_mode</strong>: Special debugging mode for lockmgr</li>
+</ol>
+<h2 id="see-also">See Also<a class="headerlink" href="#see-also" title="Permanent link">&para;</a></h2>
+<ul>
+<li><a href="../lwkt/">LWKT Threading</a> - Thread management and tokens</li>
+<li><a href="../processes/">Processes</a> - Process management</li>
+<li><a href="../scheduling/">Scheduling</a> - Thread scheduling</li>
+<li><a href="../memory/">Memory Management</a> - VM interactions</li>
+</ul>
+<h2 id="references">References<a class="headerlink" href="#references" title="Permanent link">&para;</a></h2>
+<ul>
+<li><code>sys/kern/kern_spinlock.c</code> - Spinlock implementation</li>
+<li><code>sys/kern/kern_lock.c</code> - Lockmgr implementation  </li>
+<li><code>sys/kern/kern_mutex.c</code> - Mutex implementation</li>
+<li><code>sys/kern/kern_condvar.c</code> - Condition variable implementation</li>
+<li><code>sys/kern/kern_refcount.c</code> - Reference counting</li>
+<li><code>sys/kern/kern_sysref.c</code> - System reference counting</li>
+<li><code>sys/kern/kern_umtx.c</code> - Userland mutex support</li>
+<li><code>sys/kern/subr_sleepqueue.c</code> - Sleep queue implementation</li>
+</ul>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": ["navigation.tabs", "navigation.sections", "navigation.expand", "navigation.top", "search.suggest", "search.highlight", "content.code.copy"], "search": "../../../assets/javascripts/workers/search.7a47a382.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../../assets/javascripts/bundle.e71a0d61.min.js"></script>
+      
+    
+  </body>
+</html>

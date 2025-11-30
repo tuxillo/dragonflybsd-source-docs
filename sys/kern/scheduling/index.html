@@ -1,0 +1,3540 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Comprehensive documentation for the DragonFly BSD kernel source code">
+      
+      
+        <meta name="author" content="DragonFly BSD Community">
+      
+      
+      
+        <link rel="prev" href="../signals/">
+      
+      
+        <link rel="next" href="../vfs/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.0">
+    
+    
+      
+        <title>Scheduling - DragonFly BSD Kernel Documentation</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.618322db.min.css">
+      
+        
+        <link rel="stylesheet" href="../../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#cpu-scheduling" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../../.." title="DragonFly BSD Kernel Documentation" class="md-header__button md-logo" aria-label="DragonFly BSD Kernel Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            DragonFly BSD Kernel Documentation
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Scheduling
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/tuxillo/dragonflybsd-source-docs" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    tuxillo/dragonflybsd-source-docs
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../.." class="md-tabs__link">
+        
+  
+  
+    
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../getting-started/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Getting Started
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+    
+  
+  
+    
+    
+      <li class="md-tabs__item md-tabs__item--active">
+        <a href="../../" class="md-tabs__link">
+          
+  
+  
+  Kernel Subsystems
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../.." title="DragonFly BSD Kernel Documentation" class="md-nav__button md-logo" aria-label="DragonFly BSD Kernel Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    DragonFly BSD Kernel Documentation
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/tuxillo/dragonflybsd-source-docs" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    tuxillo/dragonflybsd-source-docs
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../getting-started/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Getting Started
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Kernel Subsystems
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Kernel Subsystems
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+          
+          
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_2" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_3_2" id="__nav_3_2_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    kern/
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_2_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_3_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    kern/
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../lwkt/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    LWKT Threading
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../synchronization/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Synchronization
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../time/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Time & Timers
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../memory/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Memory Management
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../initialization/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Initialization & Bootstrap
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../processes/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Processes & Threads
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../resources/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Process Resources & Credentials
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../signals/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Signals
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Scheduling
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Scheduling
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#overview" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Overview
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#architecture" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Architecture
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Architecture">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#two-layer-design" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Two-Layer Design
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pluggable-user-schedulers" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Pluggable User Schedulers
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#sleepwakeup-infrastructure" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Sleep/Wakeup Infrastructure
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Sleep/Wakeup Infrastructure">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#overview-kern_synchc" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Overview (kern_synch.c)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#sleep-queue-hash-table" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Sleep Queue Hash Table
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tsleep-flow" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        tsleep() Flow
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tsleep_interlock-pattern" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        tsleep_interlock() Pattern
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#wakeup-mechanism" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Wakeup Mechanism
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#delayed-wakeup-optimization" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Delayed Wakeup Optimization
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#sleep-queue-domains-pdomain_" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Sleep Queue Domains (PDOMAIN_*)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#posix-real-time-scheduling-kern_schedc" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        POSIX Real-Time Scheduling (kern_sched.c)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="POSIX Real-Time Scheduling (kern_sched.c)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#overview_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Overview
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#priority-mapping" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Priority Mapping
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#real-time-priority-types" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Real-Time Priority Types
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#user-scheduler-management-kern_uschedc" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        User Scheduler Management (kern_usched.c)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="User Scheduler Management (kern_usched.c)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#scheduler-registration" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Scheduler Registration
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#scheduler-selection" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Scheduler Selection
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#cpu-affinity-management" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        CPU Affinity Management
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#usched_set-syscall" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        usched_set() Syscall
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#scheduler-clock" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Scheduler Clock
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#bsd4-scheduler-usched_bsd4c" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        BSD4 Scheduler (usched_bsd4.c)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="BSD4 Scheduler (usched_bsd4.c)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#overview_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Overview
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#data-structures" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Data Structures
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#priority-calculation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Priority Calculation
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#run-queue-management" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Run Queue Management
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#cpu-selection-heuristics" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        CPU Selection Heuristics
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#acquirerelease-curproc" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Acquire/Release Curproc
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#scheduler-clock_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Scheduler Clock
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#dfly-scheduler-usched_dflyc" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        DFLY Scheduler (usched_dfly.c)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="DFLY Scheduler (usched_dfly.c)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#overview_3" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Overview
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#data-structures_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Data Structures
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#priority-calculation_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Priority Calculation
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#cpu-selection-algorithm" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        CPU Selection Algorithm
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#ipc-affinity-detection" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        IPC Affinity Detection
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#load-rebalancing" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Load Rebalancing
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#acquirerelease-curproc_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Acquire/Release Curproc
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#per-cpu-run-queues" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Per-CPU Run Queues
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#fork-behavior" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Fork Behavior
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#dummy-scheduler-usched_dummyc" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Dummy Scheduler (usched_dummy.c)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Dummy Scheduler (usched_dummy.c)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#purpose" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Purpose
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#design" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Design
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#scheduler-clock-and-statistics" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Scheduler Clock and Statistics
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Scheduler Clock and Statistics">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#schedcpu-callout" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        schedcpu() Callout
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#load-average-calculation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Load Average Calculation
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#cpu-usage-tracking-estcpu-pctcpu" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        CPU Usage Tracking (estcpu, pctcpu)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#priority-and-scheduling-classes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Priority and Scheduling Classes
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Priority and Scheduling Classes">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#priority-ranges" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Priority Ranges
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#priority-inversion" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Priority Inversion
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#real-time-scheduling" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Real-time Scheduling
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#nice-value" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Nice Value
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#best-practices" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Best Practices
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Best Practices">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#choosing-a-scheduler" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Choosing a Scheduler
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#setting-priorities" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Setting Priorities
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#cpu-affinity" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        CPU Affinity
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#tunables-and-sysctls" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Tunables and Sysctls
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Tunables and Sysctls">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#bsd4-scheduler" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        BSD4 Scheduler
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#dfly-scheduler" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        DFLY Scheduler
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#general-scheduling" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        General Scheduling
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#summary" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Summary
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_3_2_11" >
+        
+          
+          <label class="md-nav__link" for="__nav_3_2_11" id="__nav_3_2_11_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Virtual Filesystem
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_3_2_11_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_2_11">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Virtual Filesystem
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../vfs/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../vfs/namecache/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Name Lookup & Caching
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ipc/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    IPC & Sockets
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../devices/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Devices & Drivers
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../syscalls/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    System Calls
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+          
+          
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_3_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3_3" id="__nav_3_3_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    vm/
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    vm/
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../vm/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+          
+          
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_3_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_3_4" id="__nav_3_4_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    cpu/x86_64/
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    cpu/x86_64/
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../cpu/x86_64/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#overview" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Overview
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#architecture" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Architecture
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Architecture">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#two-layer-design" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Two-Layer Design
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pluggable-user-schedulers" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Pluggable User Schedulers
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#sleepwakeup-infrastructure" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Sleep/Wakeup Infrastructure
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Sleep/Wakeup Infrastructure">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#overview-kern_synchc" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Overview (kern_synch.c)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#sleep-queue-hash-table" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Sleep Queue Hash Table
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tsleep-flow" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        tsleep() Flow
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tsleep_interlock-pattern" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        tsleep_interlock() Pattern
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#wakeup-mechanism" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Wakeup Mechanism
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#delayed-wakeup-optimization" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Delayed Wakeup Optimization
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#sleep-queue-domains-pdomain_" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Sleep Queue Domains (PDOMAIN_*)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#posix-real-time-scheduling-kern_schedc" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        POSIX Real-Time Scheduling (kern_sched.c)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="POSIX Real-Time Scheduling (kern_sched.c)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#overview_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Overview
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#priority-mapping" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Priority Mapping
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#real-time-priority-types" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Real-Time Priority Types
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#user-scheduler-management-kern_uschedc" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        User Scheduler Management (kern_usched.c)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="User Scheduler Management (kern_usched.c)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#scheduler-registration" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Scheduler Registration
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#scheduler-selection" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Scheduler Selection
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#cpu-affinity-management" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        CPU Affinity Management
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#usched_set-syscall" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        usched_set() Syscall
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#scheduler-clock" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Scheduler Clock
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#bsd4-scheduler-usched_bsd4c" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        BSD4 Scheduler (usched_bsd4.c)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="BSD4 Scheduler (usched_bsd4.c)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#overview_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Overview
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#data-structures" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Data Structures
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#priority-calculation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Priority Calculation
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#run-queue-management" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Run Queue Management
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#cpu-selection-heuristics" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        CPU Selection Heuristics
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#acquirerelease-curproc" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Acquire/Release Curproc
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#scheduler-clock_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Scheduler Clock
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#dfly-scheduler-usched_dflyc" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        DFLY Scheduler (usched_dfly.c)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="DFLY Scheduler (usched_dfly.c)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#overview_3" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Overview
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#data-structures_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Data Structures
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#priority-calculation_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Priority Calculation
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#cpu-selection-algorithm" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        CPU Selection Algorithm
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#ipc-affinity-detection" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        IPC Affinity Detection
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#load-rebalancing" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Load Rebalancing
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#acquirerelease-curproc_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Acquire/Release Curproc
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#per-cpu-run-queues" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Per-CPU Run Queues
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#fork-behavior" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Fork Behavior
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#dummy-scheduler-usched_dummyc" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Dummy Scheduler (usched_dummy.c)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Dummy Scheduler (usched_dummy.c)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#purpose" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Purpose
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#design" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Design
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#scheduler-clock-and-statistics" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Scheduler Clock and Statistics
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Scheduler Clock and Statistics">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#schedcpu-callout" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        schedcpu() Callout
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#load-average-calculation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Load Average Calculation
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#cpu-usage-tracking-estcpu-pctcpu" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        CPU Usage Tracking (estcpu, pctcpu)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#priority-and-scheduling-classes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Priority and Scheduling Classes
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Priority and Scheduling Classes">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#priority-ranges" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Priority Ranges
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#priority-inversion" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Priority Inversion
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#real-time-scheduling" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Real-time Scheduling
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#nice-value" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Nice Value
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#best-practices" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Best Practices
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Best Practices">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#choosing-a-scheduler" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Choosing a Scheduler
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#setting-priorities" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Setting Priorities
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#cpu-affinity" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        CPU Affinity
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#tunables-and-sysctls" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Tunables and Sysctls
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Tunables and Sysctls">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#bsd4-scheduler" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        BSD4 Scheduler
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#dfly-scheduler" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        DFLY Scheduler
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#general-scheduling" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        General Scheduling
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#summary" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Summary
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="cpu-scheduling">CPU Scheduling<a class="headerlink" href="#cpu-scheduling" title="Permanent link">&para;</a></h1>
+<h2 id="overview">Overview<a class="headerlink" href="#overview" title="Permanent link">&para;</a></h2>
+<p>DragonFly's CPU scheduling system consists of two distinct layers:</p>
+<ol>
+<li><strong>LWKT (Light Weight Kernel Threads) Layer</strong> - Low-level thread scheduling that handles all kernel threads and provides the foundation for userland scheduling</li>
+<li><strong>User Scheduler Layer</strong> - Pluggable schedulers that implement policies for userland process scheduling</li>
+</ol>
+<p>This document focuses on the user scheduler layer and the sleep/wakeup synchronization primitives that coordinate thread blocking and resumption.</p>
+<p><strong>Key source files:</strong>
+- <code>kern_sched.c</code> - POSIX real-time scheduling support (ksched)
+- <code>kern_synch.c</code> - Sleep/wakeup, tsleep/wakeup infrastructure
+- <code>kern_usched.c</code> - User scheduler registration and management
+- <code>usched_bsd4.c</code> - BSD4 scheduler (original DragonFly)
+- <code>usched_dfly.c</code> - DFLY scheduler (message-based, default)
+- <code>usched_dummy.c</code> - Dummy scheduler (for testing/reference)</p>
+<hr />
+<h2 id="architecture">Architecture<a class="headerlink" href="#architecture" title="Permanent link">&para;</a></h2>
+<h3 id="two-layer-design">Two-Layer Design<a class="headerlink" href="#two-layer-design" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>┌─────────────────────────────────────────┐
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>│     Userland Processes (LWPs)           │
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>└─────────────────┬───────────────────────┘
+<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>                  │
+<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>┌─────────────────▼───────────────────────┐
+<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>│   User Scheduler Layer (pluggable)      │
+<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>│   - usched_bsd4 / usched_dfly            │
+<a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a>│   - Run queues per scheduler             │
+<a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a>│   - CPU affinity management              │
+<a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a>│   - Priority calculations                │
+<a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a>└─────────────────┬───────────────────────┘
+<a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a>                  │
+<a id="__codelineno-0-13" name="__codelineno-0-13" href="#__codelineno-0-13"></a>┌─────────────────▼───────────────────────┐
+<a id="__codelineno-0-14" name="__codelineno-0-14" href="#__codelineno-0-14"></a>│   LWKT Scheduler (per-CPU)               │
+<a id="__codelineno-0-15" name="__codelineno-0-15" href="#__codelineno-0-15"></a>│   - All kernel threads                   │
+<a id="__codelineno-0-16" name="__codelineno-0-16" href="#__codelineno-0-16"></a>│   - Thread preemption                    │
+<a id="__codelineno-0-17" name="__codelineno-0-17" href="#__codelineno-0-17"></a>│   - Context switching                    │
+<a id="__codelineno-0-18" name="__codelineno-0-18" href="#__codelineno-0-18"></a>└──────────────────────────────────────────┘
+</code></pre></div>
+<h3 id="pluggable-user-schedulers">Pluggable User Schedulers<a class="headerlink" href="#pluggable-user-schedulers" title="Permanent link">&para;</a></h3>
+<p>DragonFly allows multiple user schedulers to coexist. Each process is assigned a scheduler (<code>p-&gt;p_usched</code>), and the system provides a common interface (<code>struct usched</code>) that all schedulers must implement.</p>
+<hr />
+<h2 id="sleepwakeup-infrastructure">Sleep/Wakeup Infrastructure<a class="headerlink" href="#sleepwakeup-infrastructure" title="Permanent link">&para;</a></h2>
+<h3 id="overview-kern_synchc">Overview (kern_synch.c)<a class="headerlink" href="#overview-kern_synchc" title="Permanent link">&para;</a></h3>
+<p>The sleep/wakeup mechanism is DragonFly's primary thread synchronization primitive, allowing threads to block waiting for events and be awakened when those events occur.</p>
+<p><strong>Core functions:</strong>
+- <code>tsleep()</code> - Sleep on an identifier (ident) with timeout and signal handling
+- <code>wakeup()</code> - Wake all threads sleeping on an identifier
+- <code>wakeup_one()</code> - Wake one thread sleeping on an identifier
+- <code>tsleep_interlock()</code> - Prepare to sleep without blocking yet
+- <code>ssleep()</code>, <code>lksleep()</code>, <code>mtxsleep()</code>, <code>zsleep()</code> - Variants that atomically release locks</p>
+<h3 id="sleep-queue-hash-table">Sleep Queue Hash Table<a class="headerlink" href="#sleep-queue-hash-table" title="Permanent link">&para;</a></h3>
+<p><strong>Data structure: <code>struct tslpque</code></strong> (kern_synch.c:68)</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="k">struct</span><span class="w"> </span><span class="nc">tslpque</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="w">    </span><span class="n">TAILQ_HEAD</span><span class="p">(,</span><span class="w"> </span><span class="kr">thread</span><span class="p">)</span><span class="w">  </span><span class="n">queue</span><span class="p">;</span>
+<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="w">    </span><span class="k">const</span><span class="w"> </span><span class="k">volatile</span><span class="w"> </span><span class="kt">void</span><span class="w">   </span><span class="o">*</span><span class="n">ident0</span><span class="p">;</span>
+<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a><span class="w">    </span><span class="k">const</span><span class="w"> </span><span class="k">volatile</span><span class="w"> </span><span class="kt">void</span><span class="w">   </span><span class="o">*</span><span class="n">ident1</span><span class="p">;</span>
+<a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a><span class="w">    </span><span class="k">const</span><span class="w"> </span><span class="k">volatile</span><span class="w"> </span><span class="kt">void</span><span class="w">   </span><span class="o">*</span><span class="n">ident2</span><span class="p">;</span>
+<a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a><span class="w">    </span><span class="k">const</span><span class="w"> </span><span class="k">volatile</span><span class="w"> </span><span class="kt">void</span><span class="w">   </span><span class="o">*</span><span class="n">ident3</span><span class="p">;</span>
+<a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a><span class="p">};</span>
+</code></pre></div>
+<p>Each CPU maintains its own hash table of sleep queues (<code>gd-&gt;gd_tsleep_hash</code>). The hash is computed from the sleep identifier (typically an address):</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="cp">#define LOOKUP(x)  ((((uintptr_t)(x) + ((uintptr_t)(x) &gt;&gt; 18)) ^ \</span>
+<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="cp">                     LOOKUP_PRIME) % slpque_tablesize)</span>
+<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="cp">#define TCHASHSHIFT(x)  ((x) &gt;&gt; 4)</span>
+</code></pre></div>
+<p>The global <code>slpque_cpumasks[]</code> array tracks which CPUs have threads sleeping on each hash bucket, enabling efficient cross-CPU wakeups.</p>
+<h3 id="tsleep-flow">tsleep() Flow<a class="headerlink" href="#tsleep-flow" title="Permanent link">&para;</a></h3>
+<p><strong>Function: <code>tsleep()</code></strong> (kern_synch.c:512)</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>1. Check for delayed wakeups (TDF_DELAYED_WAKEUP)
+<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>2. Handle early boot / panic case (just yield briefly)
+<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a>3. Enter critical section
+<a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a>4. Interlock with sleep queue (if not already done via PINTERLOCKED)
+<a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a>5. Handle process state (SCORE for coredump)
+<a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a>6. Check for pending signals (if PCATCH set)
+<a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a>   - Early return with EINTR/ERESTART if signal pending
+<a id="__codelineno-3-8" name="__codelineno-3-8" href="#__codelineno-3-8"></a>7. Set LWP_SINTR flag (if PCATCH) to allow signal wakeup
+<a id="__codelineno-3-9" name="__codelineno-3-9" href="#__codelineno-3-9"></a>8. Release from user scheduler (p_usched-&gt;release_curproc)
+<a id="__codelineno-3-10" name="__codelineno-3-10" href="#__codelineno-3-10"></a>9. Verify still on sleep queue (race detection)
+<a id="__codelineno-3-11" name="__codelineno-3-11" href="#__codelineno-3-11"></a>10. Deschedule from LWKT (lwkt_deschedule_self)
+<a id="__codelineno-3-12" name="__codelineno-3-12" href="#__codelineno-3-12"></a>11. Set TDF_TSLEEP_DESCHEDULED flag
+<a id="__codelineno-3-13" name="__codelineno-3-13" href="#__codelineno-3-13"></a>12. Setup timeout callout (if timo != 0)
+<a id="__codelineno-3-14" name="__codelineno-3-14" href="#__codelineno-3-14"></a>13. Set lp-&gt;lwp_stat = LSSLEEP
+<a id="__codelineno-3-15" name="__codelineno-3-15" href="#__codelineno-3-15"></a>14. lwkt_switch() - actually sleep
+<a id="__codelineno-3-16" name="__codelineno-3-16" href="#__codelineno-3-16"></a>15. [WOKEN UP]
+<a id="__codelineno-3-17" name="__codelineno-3-17" href="#__codelineno-3-17"></a>16. Cancel timeout (if set)
+<a id="__codelineno-3-18" name="__codelineno-3-18" href="#__codelineno-3-18"></a>17. Remove from sleep queue
+<a id="__codelineno-3-19" name="__codelineno-3-19" href="#__codelineno-3-19"></a>18. Check for signals again (if PCATCH)
+<a id="__codelineno-3-20" name="__codelineno-3-20" href="#__codelineno-3-20"></a>19. Clear LWP_SINTR flag
+<a id="__codelineno-3-21" name="__codelineno-3-21" href="#__codelineno-3-21"></a>20. Set lp-&gt;lwp_stat = LSRUN
+<a id="__codelineno-3-22" name="__codelineno-3-22" href="#__codelineno-3-22"></a>21. Exit critical section
+<a id="__codelineno-3-23" name="__codelineno-3-23" href="#__codelineno-3-23"></a>22. Return error code (0, EWOULDBLOCK, EINTR, ERESTART)
+</code></pre></div>
+<p><strong>Key points:</strong>
+- The entire sleep setup runs in a critical section to prevent migration
+- <code>tsleep_interlock()</code> can be called beforehand to set up the sleep queue while still holding locks
+- Timeouts are handled by <code>endtsleep()</code> callback
+- Signal delivery can interrupt sleep (if PCATCH set)</p>
+<h3 id="tsleep_interlock-pattern">tsleep_interlock() Pattern<a class="headerlink" href="#tsleep_interlock-pattern" title="Permanent link">&para;</a></h3>
+<p><strong>Function: <code>tsleep_interlock()</code></strong> (kern_synch.c:451)</p>
+<p>This function enables a common synchronization pattern:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="c1">// Critical pattern:</span>
+<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a><span class="n">mutex_lock</span><span class="p">(</span><span class="o">&amp;</span><span class="n">lock</span><span class="p">);</span>
+<a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a><span class="c1">// Check condition</span>
+<a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="n">condition_met</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a><span class="w">    </span><span class="n">tsleep_interlock</span><span class="p">(</span><span class="o">&amp;</span><span class="n">condition_ident</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">);</span><span class="w">  </span><span class="c1">// Setup sleep</span>
+<a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a><span class="w">    </span><span class="n">mutex_unlock</span><span class="p">(</span><span class="o">&amp;</span><span class="n">lock</span><span class="p">);</span><span class="w">                     </span><span class="c1">// Release lock</span>
+<a id="__codelineno-4-7" name="__codelineno-4-7" href="#__codelineno-4-7"></a><span class="w">    </span><span class="n">tsleep</span><span class="p">(</span><span class="o">&amp;</span><span class="n">condition_ident</span><span class="p">,</span><span class="w"> </span><span class="n">PINTERLOCKED</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;wait&quot;</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">);</span>
+<a id="__codelineno-4-8" name="__codelineno-4-8" href="#__codelineno-4-8"></a><span class="w">    </span><span class="n">mutex_lock</span><span class="p">(</span><span class="o">&amp;</span><span class="n">lock</span><span class="p">);</span>
+<a id="__codelineno-4-9" name="__codelineno-4-9" href="#__codelineno-4-9"></a><span class="p">}</span>
+<a id="__codelineno-4-10" name="__codelineno-4-10" href="#__codelineno-4-10"></a><span class="n">mutex_unlock</span><span class="p">(</span><span class="o">&amp;</span><span class="n">lock</span><span class="p">);</span>
+</code></pre></div>
+<p>The <code>PINTERLOCKED</code> flag tells <code>tsleep()</code> that the sleep queue interlocking has already been done, preventing races between the lock release and the sleep.</p>
+<h3 id="wakeup-mechanism">Wakeup Mechanism<a class="headerlink" href="#wakeup-mechanism" title="Permanent link">&para;</a></h3>
+<p><strong>Function: <code>_wakeup()</code></strong> (kern_synch.c:999)</p>
+<p>Wakeup searches the sleep queue hash bucket for matching threads:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>1. Enter critical section
+<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>2. Compute hash bucket from ident
+<a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a>3. Scan local CPU&#39;s sleep queue for matching threads
+<a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a>   - Match on: td-&gt;td_wchan == ident &amp;&amp; td-&gt;td_wdomain == domain
+<a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a>4. For each match:
+<a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a>   - Remove from sleep queue (_tsleep_remove)
+<a id="__codelineno-5-7" name="__codelineno-5-7" href="#__codelineno-5-7"></a>   - Set td-&gt;td_wakefromcpu (for scheduler affinity)
+<a id="__codelineno-5-8" name="__codelineno-5-8" href="#__codelineno-5-8"></a>   - Schedule thread (lwkt_schedule) if TDF_TSLEEP_DESCHEDULED
+<a id="__codelineno-5-9" name="__codelineno-5-9" href="#__codelineno-5-9"></a>   - If PWAKEUP_ONE flag, stop after first wakeup
+<a id="__codelineno-5-10" name="__codelineno-5-10" href="#__codelineno-5-10"></a>5. Clean up queue tracking (ident0-3, cpumask bit)
+<a id="__codelineno-5-11" name="__codelineno-5-11" href="#__codelineno-5-11"></a>6. Send IPIs to other CPUs with matching threads
+<a id="__codelineno-5-12" name="__codelineno-5-12" href="#__codelineno-5-12"></a>   - Check slpque_cpumasks[cid] for remote CPUs
+<a id="__codelineno-5-13" name="__codelineno-5-13" href="#__codelineno-5-13"></a>   - Send _wakeup IPI with ident and domain
+<a id="__codelineno-5-14" name="__codelineno-5-14" href="#__codelineno-5-14"></a>7. Exit critical section
+</code></pre></div>
+<p><strong>Wakeup variants:</strong>
+- <code>wakeup(ident)</code> - Wake all threads on all CPUs
+- <code>wakeup_one(ident)</code> - Wake one thread on any CPU
+- <code>wakeup_mycpu(ident)</code> - Wake threads on current CPU only
+- <code>wakeup_domain(ident, domain)</code> - Wake threads in specific domain</p>
+<h3 id="delayed-wakeup-optimization">Delayed Wakeup Optimization<a class="headerlink" href="#delayed-wakeup-optimization" title="Permanent link">&para;</a></h3>
+<p><strong>Functions: <code>wakeup_start_delayed()</code>, <code>wakeup_end_delayed()</code></strong> (kern_synch.c:1266, 1276)</p>
+<p>For code that performs many wakeups in quick succession, delayed wakeups batch them:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="n">wakeup_start_delayed</span><span class="p">();</span>
+<a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a><span class="c1">// Multiple wakeups are queued in gd-&gt;gd_delayed_wakeup[0..1]</span>
+<a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a><span class="n">wakeup</span><span class="p">(</span><span class="n">ident1</span><span class="p">);</span>
+<a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a><span class="n">wakeup</span><span class="p">(</span><span class="n">ident2</span><span class="p">);</span>
+<a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a><span class="c1">// ...</span>
+<a id="__codelineno-6-6" name="__codelineno-6-6" href="#__codelineno-6-6"></a><span class="n">wakeup_end_delayed</span><span class="p">();</span><span class="w">  </span><span class="c1">// Actually issue the wakeups</span>
+</code></pre></div>
+<p>This reduces IPI traffic when many wakeups occur close together.</p>
+<h3 id="sleep-queue-domains-pdomain_">Sleep Queue Domains (PDOMAIN_*)<a class="headerlink" href="#sleep-queue-domains-pdomain_" title="Permanent link">&para;</a></h3>
+<p>Sleep identifiers can be partitioned into domains to prevent false wakeups:</p>
+<ul>
+<li><code>PDOMAIN_UMTX</code> - User mutex domain</li>
+<li>Default domain (0) - General purpose</li>
+</ul>
+<p>Threads sleep and wake within their domain, preventing cross-contamination.</p>
+<hr />
+<h2 id="posix-real-time-scheduling-kern_schedc">POSIX Real-Time Scheduling (kern_sched.c)<a class="headerlink" href="#posix-real-time-scheduling-kern_schedc" title="Permanent link">&para;</a></h2>
+<h3 id="overview_1">Overview<a class="headerlink" href="#overview_1" title="Permanent link">&para;</a></h3>
+<p>The <code>ksched</code> module provides POSIX.1b real-time scheduling extensions:
+- <code>SCHED_FIFO</code> - First-in-first-out realtime
+- <code>SCHED_RR</code> - Round-robin realtime<br />
+- <code>SCHED_OTHER</code> - Standard timesharing</p>
+<p><strong>Key functions:</strong>
+- <code>ksched_setscheduler()</code> - Set scheduling policy and priority
+- <code>ksched_getscheduler()</code> - Get current scheduling policy
+- <code>ksched_setparam()</code> / <code>ksched_getparam()</code> - Get/set sched parameters
+- <code>ksched_yield()</code> - Voluntarily yield CPU
+- <code>ksched_get_priority_max()</code> / <code>_min()</code> - Query priority ranges
+- <code>ksched_rr_get_interval()</code> - Get round-robin interval</p>
+<h3 id="priority-mapping">Priority Mapping<a class="headerlink" href="#priority-mapping" title="Permanent link">&para;</a></h3>
+<p>POSIX requires higher numbers = higher priority, but DragonFly's internal rtprio uses lower numbers = higher priority. The ksched module performs the inversion:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="cp">#define p4prio_to_rtpprio(P)  (RTP_PRIO_MAX - (P))</span>
+<a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a><span class="cp">#define rtpprio_to_p4prio(P)  (RTP_PRIO_MAX - (P))</span>
+<a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a>
+<a id="__codelineno-7-4" name="__codelineno-7-4" href="#__codelineno-7-4"></a><span class="cp">#define P1B_PRIO_MIN  rtpprio_to_p4prio(RTP_PRIO_MAX)</span>
+<a id="__codelineno-7-5" name="__codelineno-7-5" href="#__codelineno-7-5"></a><span class="cp">#define P1B_PRIO_MAX  rtpprio_to_p4prio(RTP_PRIO_MIN)</span>
+</code></pre></div>
+<h3 id="real-time-priority-types">Real-Time Priority Types<a class="headerlink" href="#real-time-priority-types" title="Permanent link">&para;</a></h3>
+<p>Stored in <code>lp-&gt;lwp_rtprio</code>:</p>
+<ul>
+<li><code>RTP_PRIO_FIFO</code> - SCHED_FIFO: runs until blocked or preempted by higher priority</li>
+<li><code>RTP_PRIO_REALTIME</code> - SCHED_RR: round-robin with other same-priority RT threads</li>
+<li><code>RTP_PRIO_NORMAL</code> - SCHED_OTHER: standard timesharing</li>
+<li><code>RTP_PRIO_IDLE</code> - Idle priority</li>
+</ul>
+<p>Real-time threads (<code>RTP_PRIO_FIFO</code> and <code>RTP_PRIO_REALTIME</code>) always run before normal priority threads.</p>
+<hr />
+<h2 id="user-scheduler-management-kern_uschedc">User Scheduler Management (kern_usched.c)<a class="headerlink" href="#user-scheduler-management-kern_uschedc" title="Permanent link">&para;</a></h2>
+<h3 id="scheduler-registration">Scheduler Registration<a class="headerlink" href="#scheduler-registration" title="Permanent link">&para;</a></h3>
+<p><strong>Function: <code>usched_ctl()</code></strong> (kern_usched.c:96)</p>
+<p>Schedulers register/unregister with the system:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a><span class="k">struct</span><span class="w"> </span><span class="nc">usched</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a><span class="w">    </span><span class="n">TAILQ_ENTRY</span><span class="p">(</span><span class="n">usched</span><span class="p">)</span><span class="w"> </span><span class="n">entry</span><span class="p">;</span>
+<a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a><span class="w">    </span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="n">name</span><span class="p">;</span>
+<a id="__codelineno-8-4" name="__codelineno-8-4" href="#__codelineno-8-4"></a><span class="w">    </span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="n">desc</span><span class="p">;</span>
+<a id="__codelineno-8-5" name="__codelineno-8-5" href="#__codelineno-8-5"></a><span class="w">    </span><span class="kt">void</span><span class="w"> </span><span class="p">(</span><span class="o">*</span><span class="n">usched_register</span><span class="p">)(</span><span class="kt">void</span><span class="p">);</span>
+<a id="__codelineno-8-6" name="__codelineno-8-6" href="#__codelineno-8-6"></a><span class="w">    </span><span class="kt">void</span><span class="w"> </span><span class="p">(</span><span class="o">*</span><span class="n">usched_unregister</span><span class="p">)(</span><span class="kt">void</span><span class="p">);</span>
+<a id="__codelineno-8-7" name="__codelineno-8-7" href="#__codelineno-8-7"></a><span class="w">    </span><span class="kt">void</span><span class="w"> </span><span class="p">(</span><span class="o">*</span><span class="n">acquire_curproc</span><span class="p">)(</span><span class="k">struct</span><span class="w"> </span><span class="nc">lwp</span><span class="w"> </span><span class="o">*</span><span class="p">);</span>
+<a id="__codelineno-8-8" name="__codelineno-8-8" href="#__codelineno-8-8"></a><span class="w">    </span><span class="kt">void</span><span class="w"> </span><span class="p">(</span><span class="o">*</span><span class="n">release_curproc</span><span class="p">)(</span><span class="k">struct</span><span class="w"> </span><span class="nc">lwp</span><span class="w"> </span><span class="o">*</span><span class="p">);</span>
+<a id="__codelineno-8-9" name="__codelineno-8-9" href="#__codelineno-8-9"></a><span class="w">    </span><span class="kt">void</span><span class="w"> </span><span class="p">(</span><span class="o">*</span><span class="n">setrunqueue</span><span class="p">)(</span><span class="k">struct</span><span class="w"> </span><span class="nc">lwp</span><span class="w"> </span><span class="o">*</span><span class="p">);</span>
+<a id="__codelineno-8-10" name="__codelineno-8-10" href="#__codelineno-8-10"></a><span class="w">    </span><span class="kt">void</span><span class="w"> </span><span class="p">(</span><span class="o">*</span><span class="n">schedulerclock</span><span class="p">)(</span><span class="k">struct</span><span class="w"> </span><span class="nc">lwp</span><span class="w"> </span><span class="o">*</span><span class="p">,</span><span class="w"> </span><span class="n">sysclock_t</span><span class="p">,</span><span class="w"> </span><span class="n">sysclock_t</span><span class="p">);</span>
+<a id="__codelineno-8-11" name="__codelineno-8-11" href="#__codelineno-8-11"></a><span class="w">    </span><span class="kt">void</span><span class="w"> </span><span class="p">(</span><span class="o">*</span><span class="n">recalculate</span><span class="p">)(</span><span class="k">struct</span><span class="w"> </span><span class="nc">lwp</span><span class="w"> </span><span class="o">*</span><span class="p">);</span>
+<a id="__codelineno-8-12" name="__codelineno-8-12" href="#__codelineno-8-12"></a><span class="w">    </span><span class="kt">void</span><span class="w"> </span><span class="p">(</span><span class="o">*</span><span class="n">resetpriority</span><span class="p">)(</span><span class="k">struct</span><span class="w"> </span><span class="nc">lwp</span><span class="w"> </span><span class="o">*</span><span class="p">);</span>
+<a id="__codelineno-8-13" name="__codelineno-8-13" href="#__codelineno-8-13"></a><span class="w">    </span><span class="kt">void</span><span class="w"> </span><span class="p">(</span><span class="o">*</span><span class="n">forking</span><span class="p">)(</span><span class="k">struct</span><span class="w"> </span><span class="nc">lwp</span><span class="w"> </span><span class="o">*</span><span class="n">parent</span><span class="p">,</span><span class="w"> </span><span class="k">struct</span><span class="w"> </span><span class="nc">lwp</span><span class="w"> </span><span class="o">*</span><span class="n">child</span><span class="p">);</span>
+<a id="__codelineno-8-14" name="__codelineno-8-14" href="#__codelineno-8-14"></a><span class="w">    </span><span class="kt">void</span><span class="w"> </span><span class="p">(</span><span class="o">*</span><span class="n">exiting</span><span class="p">)(</span><span class="k">struct</span><span class="w"> </span><span class="nc">lwp</span><span class="w"> </span><span class="o">*</span><span class="p">,</span><span class="w"> </span><span class="k">struct</span><span class="w"> </span><span class="nc">proc</span><span class="w"> </span><span class="o">*</span><span class="p">);</span>
+<a id="__codelineno-8-15" name="__codelineno-8-15" href="#__codelineno-8-15"></a><span class="w">    </span><span class="kt">void</span><span class="w"> </span><span class="p">(</span><span class="o">*</span><span class="n">uload_update</span><span class="p">)(</span><span class="k">struct</span><span class="w"> </span><span class="nc">lwp</span><span class="w"> </span><span class="o">*</span><span class="p">);</span>
+<a id="__codelineno-8-16" name="__codelineno-8-16" href="#__codelineno-8-16"></a><span class="w">    </span><span class="kt">void</span><span class="w"> </span><span class="p">(</span><span class="o">*</span><span class="n">setcpumask</span><span class="p">)(</span><span class="k">struct</span><span class="w"> </span><span class="nc">lwp</span><span class="w"> </span><span class="o">*</span><span class="p">,</span><span class="w"> </span><span class="kt">cpumask_t</span><span class="p">);</span>
+<a id="__codelineno-8-17" name="__codelineno-8-17" href="#__codelineno-8-17"></a><span class="w">    </span><span class="kt">void</span><span class="w"> </span><span class="p">(</span><span class="o">*</span><span class="n">yield</span><span class="p">)(</span><span class="k">struct</span><span class="w"> </span><span class="nc">lwp</span><span class="w"> </span><span class="o">*</span><span class="p">);</span>
+<a id="__codelineno-8-18" name="__codelineno-8-18" href="#__codelineno-8-18"></a><span class="w">    </span><span class="kt">void</span><span class="w"> </span><span class="p">(</span><span class="o">*</span><span class="n">changedcpu</span><span class="p">)(</span><span class="k">struct</span><span class="w"> </span><span class="nc">lwp</span><span class="w"> </span><span class="o">*</span><span class="p">);</span>
+<a id="__codelineno-8-19" name="__codelineno-8-19" href="#__codelineno-8-19"></a><span class="p">};</span>
+</code></pre></div>
+<p>Built-in schedulers:
+- <code>usched_bsd4</code> - Original DragonFly scheduler
+- <code>usched_dfly</code> - New message-based scheduler (default)
+- <code>usched_dummy</code> - Minimal reference implementation</p>
+<h3 id="scheduler-selection">Scheduler Selection<a class="headerlink" href="#scheduler-selection" title="Permanent link">&para;</a></h3>
+<p><strong>Function: <code>usched_init()</code></strong> (kern_usched.c:59)</p>
+<p>At boot, the system selects the default scheduler based on <code>kern.user_scheduler</code> environment variable:
+- <code>"dfly"</code> → usched_dfly (default)
+- <code>"bsd4"</code> → usched_bsd4
+- <code>"dummy"</code> → usched_dummy</p>
+<p>Each process inherits its scheduler from its parent on fork. The scheduler can be changed via <code>usched_set(2)</code> syscall.</p>
+<h3 id="cpu-affinity-management">CPU Affinity Management<a class="headerlink" href="#cpu-affinity-management" title="Permanent link">&para;</a></h3>
+<p><strong>Functions: <code>sys_lwp_setaffinity()</code>, <code>sys_lwp_getaffinity()</code></strong> (kern_usched.c:411, 363)</p>
+<p>DragonFly allows per-LWP CPU affinity masks (<code>lp-&gt;lwp_cpumask</code>):</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a><span class="c1">// Set affinity</span>
+<a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a><span class="kt">cpumask_t</span><span class="w"> </span><span class="n">mask</span><span class="p">;</span>
+<a id="__codelineno-9-3" name="__codelineno-9-3" href="#__codelineno-9-3"></a><span class="n">CPUMASK_ASSBIT</span><span class="p">(</span><span class="n">mask</span><span class="p">,</span><span class="w"> </span><span class="n">target_cpu</span><span class="p">);</span>
+<a id="__codelineno-9-4" name="__codelineno-9-4" href="#__codelineno-9-4"></a><span class="n">lwp_setaffinity</span><span class="p">(</span><span class="n">pid</span><span class="p">,</span><span class="w"> </span><span class="n">tid</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">mask</span><span class="p">);</span>
+<a id="__codelineno-9-5" name="__codelineno-9-5" href="#__codelineno-9-5"></a>
+<a id="__codelineno-9-6" name="__codelineno-9-6" href="#__codelineno-9-6"></a><span class="c1">// Get affinity  </span>
+<a id="__codelineno-9-7" name="__codelineno-9-7" href="#__codelineno-9-7"></a><span class="n">lwp_getaffinity</span><span class="p">(</span><span class="n">pid</span><span class="p">,</span><span class="w"> </span><span class="n">tid</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">mask</span><span class="p">);</span>
+</code></pre></div>
+<p>When an LWP's affinity is changed:
+1. Update <code>lp-&gt;lwp_cpumask</code>
+2. If current CPU not in new mask, call <code>lwkt_migratecpu()</code> to move thread
+3. Call <code>p_usched-&gt;changedcpu(lp)</code> to notify scheduler</p>
+<h3 id="usched_set-syscall">usched_set() Syscall<a class="headerlink" href="#usched_set-syscall" title="Permanent link">&para;</a></h3>
+<p><strong>Function: <code>sys_usched_set()</code></strong> (kern_usched.c:184)</p>
+<p>Commands:
+- <code>USCHED_SET_SCHEDULER</code> - Change process's scheduler
+- <code>USCHED_SET_CPU</code> - Pin LWP to specific CPU
+- <code>USCHED_GET_CPU</code> - Get current CPU
+- <code>USCHED_ADD_CPU</code> - Add CPU to affinity mask
+- <code>USCHED_DEL_CPU</code> - Remove CPU from affinity mask
+- <code>USCHED_SET_CPUMASK</code> - Set full affinity mask
+- <code>USCHED_GET_CPUMASK</code> - Get affinity mask</p>
+<h3 id="scheduler-clock">Scheduler Clock<a class="headerlink" href="#scheduler-clock" title="Permanent link">&para;</a></h3>
+<p><strong>Function: <code>usched_schedulerclock()</code></strong> (kern_usched.c:152)</p>
+<p>Called from the system's scheduler clock (hardclock) on each CPU at <code>ESTCPUFREQ</code> (typically 10 Hz). Each registered scheduler's <code>schedulerclock()</code> method is invoked to:
+- Update per-thread statistics (estcpu, pctcpu)
+- Detect if round-robin interval expired
+- Request reschedules as needed</p>
+<hr />
+<h2 id="bsd4-scheduler-usched_bsd4c">BSD4 Scheduler (usched_bsd4.c)<a class="headerlink" href="#bsd4-scheduler-usched_bsd4c" title="Permanent link">&para;</a></h2>
+<h3 id="overview_2">Overview<a class="headerlink" href="#overview_2" title="Permanent link">&para;</a></h3>
+<p>The BSD4 scheduler is a traditional BSD-style scheduler with:
+- 32 run queues per priority class (realtime, normal, idle)
+- Priority calculated from nice value and CPU usage (estcpu)
+- Round-robin within each queue
+- Simple CPU load balancing</p>
+<p><strong>Priority classes:</strong>
+- Realtime: 0-127 (maps to 32 queues via priorities/4)
+- Normal: 128-255
+- Idle: 256-383
+- Thread: 384-511 (kernel threads)</p>
+<h3 id="data-structures">Data Structures<a class="headerlink" href="#data-structures" title="Permanent link">&para;</a></h3>
+<p><strong>Per-CPU state: <code>struct usched_bsd4_pcpu</code></strong> (usched_bsd4.c:131)</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a><span class="k">struct</span><span class="w"> </span><span class="nc">usched_bsd4_pcpu</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a><span class="w">    </span><span class="k">struct</span><span class="w"> </span><span class="nc">thread</span><span class="w">  </span><span class="o">*</span><span class="n">helper_thread</span><span class="p">;</span>
+<a id="__codelineno-10-3" name="__codelineno-10-3" href="#__codelineno-10-3"></a><span class="w">    </span><span class="kt">short</span><span class="w">          </span><span class="n">rrcount</span><span class="p">;</span><span class="w">        </span><span class="c1">// Round-robin counter</span>
+<a id="__codelineno-10-4" name="__codelineno-10-4" href="#__codelineno-10-4"></a><span class="w">    </span><span class="kt">short</span><span class="w">          </span><span class="n">upri</span><span class="p">;</span><span class="w">           </span><span class="c1">// User priority of current process</span>
+<a id="__codelineno-10-5" name="__codelineno-10-5" href="#__codelineno-10-5"></a><span class="w">    </span><span class="k">struct</span><span class="w"> </span><span class="nc">lwp</span><span class="w">     </span><span class="o">*</span><span class="n">uschedcp</span><span class="p">;</span><span class="w">      </span><span class="c1">// Current scheduled LWP</span>
+<a id="__codelineno-10-6" name="__codelineno-10-6" href="#__codelineno-10-6"></a><span class="w">    </span><span class="k">struct</span><span class="w"> </span><span class="nc">lwp</span><span class="w">     </span><span class="o">*</span><span class="n">old_uschedcp</span><span class="p">;</span><span class="w">  </span><span class="c1">// Previous LWP</span>
+<a id="__codelineno-10-7" name="__codelineno-10-7" href="#__codelineno-10-7"></a><span class="w">    </span><span class="n">cpu_node_t</span><span class="w">     </span><span class="o">*</span><span class="n">cpunode</span><span class="p">;</span><span class="w">       </span><span class="c1">// CPU topology node</span>
+<a id="__codelineno-10-8" name="__codelineno-10-8" href="#__codelineno-10-8"></a><span class="p">};</span>
+</code></pre></div>
+<p><strong>Global run queues:</strong>
+- <code>bsd4_queues[32]</code> - Normal priority queues
+- <code>bsd4_rtqueues[32]</code> - Realtime priority queues
+- <code>bsd4_idqueues[32]</code> - Idle priority queues
+- <code>bsd4_queuebits</code>, <code>bsd4_rtqueuebits</code>, <code>bsd4_idqueuebits</code> - Bitmasks indicating non-empty queues</p>
+<h3 id="priority-calculation">Priority Calculation<a class="headerlink" href="#priority-calculation" title="Permanent link">&para;</a></h3>
+<p><strong>Function: <code>bsd4_resetpriority()</code></strong></p>
+<p>The normal priority calculation considers:
+1. Base priority from nice value (<code>lp-&gt;lwp_rtprio.prio</code>)
+2. CPU usage (estcpu): <code>lp-&gt;lwp_estcpu</code>
+3. Penalty for batch processes</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a><span class="c1">// Simplified priority formula</span>
+<a id="__codelineno-11-2" name="__codelineno-11-2" href="#__codelineno-11-2"></a><span class="n">pri</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">PRIBASE_NORMAL</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="p">(</span><span class="n">nice</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">NICEPPQ</span><span class="p">)</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="p">(</span><span class="n">estcpu</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="n">ESTCPUPPQ</span><span class="p">)</span>
+<a id="__codelineno-11-3" name="__codelineno-11-3" href="#__codelineno-11-3"></a><span class="n">lwp_priority</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">min</span><span class="p">(</span><span class="n">pri</span><span class="p">,</span><span class="w"> </span><span class="n">MAXPRI</span><span class="mi">-1</span><span class="p">)</span>
+</code></pre></div>
+<p><strong>estcpu</strong> (estimated CPU usage) is a decay-average:
+- Incremented on each scheduler clock tick when running
+- Decayed by factor over time
+- Used to penalize CPU-bound processes relative to I/O-bound</p>
+<h3 id="run-queue-management">Run Queue Management<a class="headerlink" href="#run-queue-management" title="Permanent link">&para;</a></h3>
+<p><strong>Function: <code>bsd4_setrunqueue_locked()</code></strong></p>
+<p>When placing an LWP on the run queue:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a>1. Determine queue index from priority
+<a id="__codelineno-12-2" name="__codelineno-12-2" href="#__codelineno-12-2"></a>   - Realtime/Idle: direct mapping
+<a id="__codelineno-12-3" name="__codelineno-12-3" href="#__codelineno-12-3"></a>   - Normal: (priority - PRIBASE_NORMAL) / PPQ
+<a id="__codelineno-12-4" name="__codelineno-12-4" href="#__codelineno-12-4"></a>2. Add to tail of appropriate queue (FIFO within priority)
+<a id="__codelineno-12-5" name="__codelineno-12-5" href="#__codelineno-12-5"></a>3. Set corresponding bit in queuebits
+<a id="__codelineno-12-6" name="__codelineno-12-6" href="#__codelineno-12-6"></a>4. Increment bsd4_runqcount
+<a id="__codelineno-12-7" name="__codelineno-12-7" href="#__codelineno-12-7"></a>5. Set LWP_MP_ONRUNQ flag
+</code></pre></div>
+<p><strong>Function: <code>bsd4_chooseproc_locked()</code></strong></p>
+<p>Selecting next LWP to run:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a>1. Check realtime queues first (highest priority)
+<a id="__codelineno-13-2" name="__codelineno-13-2" href="#__codelineno-13-2"></a>   - Find first set bit in bsd4_rtqueuebits
+<a id="__codelineno-13-3" name="__codelineno-13-3" href="#__codelineno-13-3"></a>   - Take head of that queue
+<a id="__codelineno-13-4" name="__codelineno-13-4" href="#__codelineno-13-4"></a>2. If no realtime, check normal queues
+<a id="__codelineno-13-5" name="__codelineno-13-5" href="#__codelineno-13-5"></a>   - Find first set bit in bsd4_queuebits  
+<a id="__codelineno-13-6" name="__codelineno-13-6" href="#__codelineno-13-6"></a>   - Take head of that queue
+<a id="__codelineno-13-7" name="__codelineno-13-7" href="#__codelineno-13-7"></a>3. If no normal, check idle queues
+<a id="__codelineno-13-8" name="__codelineno-13-8" href="#__codelineno-13-8"></a>   - Find first set bit in bsd4_idqueuebits
+<a id="__codelineno-13-9" name="__codelineno-13-9" href="#__codelineno-13-9"></a>   - Take head of that queue
+<a id="__codelineno-13-10" name="__codelineno-13-10" href="#__codelineno-13-10"></a>4. Return selected LWP (or NULL if all empty)
+</code></pre></div>
+<h3 id="cpu-selection-heuristics">CPU Selection Heuristics<a class="headerlink" href="#cpu-selection-heuristics" title="Permanent link">&para;</a></h3>
+<p><strong>Function: <code>bsd4_setrunqueue()</code></strong></p>
+<p>When scheduling an LWP, BSD4 tries to place it intelligently:</p>
+<ol>
+<li><strong>Check for free CPUs</strong> (not running user processes)</li>
+<li>Prefer CPUs in same CPU package (cache coherency)</li>
+<li>
+<p>Use topology information (<code>cpunode</code>)</p>
+</li>
+<li>
+<p><strong>Check running CPUs</strong></p>
+</li>
+<li>Find CPU running lower-priority LWP</li>
+<li>
+<p>Use upri (user priority) comparison</p>
+</li>
+<li>
+<p><strong>Round-robin if all busy</strong></p>
+</li>
+<li>
+<p>Use <code>bsd4_scancpu</code> to distribute load</p>
+</li>
+<li>
+<p><strong>Send wakeup IPI</strong> to selected CPU if necessary</p>
+</li>
+</ol>
+<h3 id="acquirerelease-curproc">Acquire/Release Curproc<a class="headerlink" href="#acquirerelease-curproc" title="Permanent link">&para;</a></h3>
+<p><strong>Function: <code>bsd4_acquire_curproc()</code></strong> (usched_bsd4.c:330)</p>
+<p>When returning to userland:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-14-1" name="__codelineno-14-1" href="#__codelineno-14-1"></a>1. Remove from tsleep queue if necessary
+<a id="__codelineno-14-2" name="__codelineno-14-2" href="#__codelineno-14-2"></a>2. Recalculate estcpu
+<a id="__codelineno-14-3" name="__codelineno-14-3" href="#__codelineno-14-3"></a>3. Handle user_resched request (release and reselect)
+<a id="__codelineno-14-4" name="__codelineno-14-4" href="#__codelineno-14-4"></a>4. Loop until we become dd-&gt;uschedcp:
+<a id="__codelineno-14-5" name="__codelineno-14-5" href="#__codelineno-14-5"></a>   - Try to steal current designation
+<a id="__codelineno-14-6" name="__codelineno-14-6" href="#__codelineno-14-6"></a>   - Or place on runqueue and switch away
+<a id="__codelineno-14-7" name="__codelineno-14-7" href="#__codelineno-14-7"></a>5. Mark CPU as running user process
+</code></pre></div>
+<p><strong>Function: <code>bsd4_release_curproc()</code></strong></p>
+<p>When entering kernel:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-15-1" name="__codelineno-15-1" href="#__codelineno-15-1"></a>1. Clear dd-&gt;uschedcp
+<a id="__codelineno-15-2" name="__codelineno-15-2" href="#__codelineno-15-2"></a>2. Call bsd4_select_curproc() to pick new LWP
+<a id="__codelineno-15-3" name="__codelineno-15-3" href="#__codelineno-15-3"></a>3. Mark CPU as not running user process if no LWP selected
+</code></pre></div>
+<h3 id="scheduler-clock_1">Scheduler Clock<a class="headerlink" href="#scheduler-clock_1" title="Permanent link">&para;</a></h3>
+<p><strong>Function: <code>bsd4_schedulerclock()</code></strong></p>
+<p>Called at ESTCPUFREQ for running LWP:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-16-1" name="__codelineno-16-1" href="#__codelineno-16-1"></a>1. Increment estcpu (CPU usage accounting)
+<a id="__codelineno-16-2" name="__codelineno-16-2" href="#__codelineno-16-2"></a>2. Increment rrcount (round-robin counter)
+<a id="__codelineno-16-3" name="__codelineno-16-3" href="#__codelineno-16-3"></a>3. If rrcount &gt;= rrinterval:
+<a id="__codelineno-16-4" name="__codelineno-16-4" href="#__codelineno-16-4"></a>   - Reset rrcount
+<a id="__codelineno-16-5" name="__codelineno-16-5" href="#__codelineno-16-5"></a>   - Request user reschedule (need_user_resched)
+<a id="__codelineno-16-6" name="__codelineno-16-6" href="#__codelineno-16-6"></a>   - Triggers round-robin rotation
+</code></pre></div>
+<hr />
+<h2 id="dfly-scheduler-usched_dflyc">DFLY Scheduler (usched_dfly.c)<a class="headerlink" href="#dfly-scheduler-usched_dflyc" title="Permanent link">&para;</a></h2>
+<h3 id="overview_3">Overview<a class="headerlink" href="#overview_3" title="Permanent link">&para;</a></h3>
+<p>The DFLY scheduler is DragonFly's modern, message-based scheduler featuring:
+- Per-CPU run queues (no global lock on fast path)
+- Sophisticated load balancing with topology awareness
+- IPC (Inter-Process Communication) affinity detection
+- NUMA awareness
+- Proactive load rebalancing</p>
+<p><strong>Key advantages:</strong>
+- Better scalability on many-CPU systems
+- Reduced lock contention (per-CPU spinlocks)
+- Smarter CPU selection for IPC-heavy workloads
+- Topology-aware scheduling (cores, packages, NUMA nodes)</p>
+<h3 id="data-structures_1">Data Structures<a class="headerlink" href="#data-structures_1" title="Permanent link">&para;</a></h3>
+<p><strong>Per-CPU state: <code>struct usched_dfly_pcpu</code></strong> (sys/usched_dfly.h)</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-17-1" name="__codelineno-17-1" href="#__codelineno-17-1"></a><span class="k">struct</span><span class="w"> </span><span class="nc">usched_dfly_pcpu</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-17-2" name="__codelineno-17-2" href="#__codelineno-17-2"></a><span class="w">    </span><span class="k">struct</span><span class="w"> </span><span class="nc">spinlock</span><span class="w"> </span><span class="n">spin</span><span class="p">;</span><span class="w">             </span><span class="c1">// Per-CPU lock</span>
+<a id="__codelineno-17-3" name="__codelineno-17-3" href="#__codelineno-17-3"></a><span class="w">    </span><span class="k">struct</span><span class="w"> </span><span class="nc">thread</span><span class="w">   </span><span class="o">*</span><span class="n">helper_thread</span><span class="p">;</span><span class="w">   </span><span class="c1">// Rebalancing helper</span>
+<a id="__codelineno-17-4" name="__codelineno-17-4" href="#__codelineno-17-4"></a><span class="w">    </span><span class="n">u_short</span><span class="w">         </span><span class="n">scancpu</span><span class="p">;</span><span class="w">          </span><span class="c1">// Next CPU to scan</span>
+<a id="__codelineno-17-5" name="__codelineno-17-5" href="#__codelineno-17-5"></a><span class="w">    </span><span class="n">u_short</span><span class="w">         </span><span class="n">cpuid</span><span class="p">;</span>
+<a id="__codelineno-17-6" name="__codelineno-17-6" href="#__codelineno-17-6"></a><span class="w">    </span><span class="n">u_short</span><span class="w">         </span><span class="n">upri</span><span class="p">;</span><span class="w">             </span><span class="c1">// Highest user priority</span>
+<a id="__codelineno-17-7" name="__codelineno-17-7" href="#__codelineno-17-7"></a><span class="w">    </span><span class="n">u_short</span><span class="w">         </span><span class="n">ucount</span><span class="p">;</span><span class="w">           </span><span class="c1">// User thread count</span>
+<a id="__codelineno-17-8" name="__codelineno-17-8" href="#__codelineno-17-8"></a><span class="w">    </span><span class="n">u_short</span><span class="w">         </span><span class="n">uload</span><span class="p">;</span><span class="w">            </span><span class="c1">// Load metric</span>
+<a id="__codelineno-17-9" name="__codelineno-17-9" href="#__codelineno-17-9"></a><span class="w">    </span><span class="kt">int</span><span class="w">             </span><span class="n">rrcount</span><span class="p">;</span><span class="w">          </span><span class="c1">// Round-robin counter</span>
+<a id="__codelineno-17-10" name="__codelineno-17-10" href="#__codelineno-17-10"></a><span class="w">    </span><span class="k">struct</span><span class="w"> </span><span class="nc">lwp</span><span class="w">      </span><span class="o">*</span><span class="n">uschedcp</span><span class="p">;</span><span class="w">        </span><span class="c1">// Current user LWP</span>
+<a id="__codelineno-17-11" name="__codelineno-17-11" href="#__codelineno-17-11"></a><span class="w">    </span><span class="k">struct</span><span class="w"> </span><span class="nc">lwp</span><span class="w">      </span><span class="o">*</span><span class="n">old_uschedcp</span><span class="p">;</span><span class="w">    </span>
+<a id="__codelineno-17-12" name="__codelineno-17-12" href="#__codelineno-17-12"></a><span class="w">    </span><span class="n">cpu_node_t</span><span class="w">      </span><span class="o">*</span><span class="n">cpunode</span><span class="p">;</span><span class="w">         </span><span class="c1">// Topology node</span>
+<a id="__codelineno-17-13" name="__codelineno-17-13" href="#__codelineno-17-13"></a>
+<a id="__codelineno-17-14" name="__codelineno-17-14" href="#__codelineno-17-14"></a><span class="w">    </span><span class="c1">// Run queues (32 per priority class)</span>
+<a id="__codelineno-17-15" name="__codelineno-17-15" href="#__codelineno-17-15"></a><span class="w">    </span><span class="k">struct</span><span class="w"> </span><span class="nc">lwp_queue</span><span class="w"> </span><span class="n">queues</span><span class="p">[</span><span class="n">NQS</span><span class="p">];</span>
+<a id="__codelineno-17-16" name="__codelineno-17-16" href="#__codelineno-17-16"></a><span class="w">    </span><span class="k">struct</span><span class="w"> </span><span class="nc">lwp_queue</span><span class="w"> </span><span class="n">rtqueues</span><span class="p">[</span><span class="n">NQS</span><span class="p">];</span>
+<a id="__codelineno-17-17" name="__codelineno-17-17" href="#__codelineno-17-17"></a><span class="w">    </span><span class="k">struct</span><span class="w"> </span><span class="nc">lwp_queue</span><span class="w"> </span><span class="n">idqueues</span><span class="p">[</span><span class="n">NQS</span><span class="p">];</span>
+<a id="__codelineno-17-18" name="__codelineno-17-18" href="#__codelineno-17-18"></a><span class="w">    </span><span class="n">u_int32_t</span><span class="w">       </span><span class="n">queuebits</span><span class="p">;</span>
+<a id="__codelineno-17-19" name="__codelineno-17-19" href="#__codelineno-17-19"></a><span class="w">    </span><span class="n">u_int32_t</span><span class="w">       </span><span class="n">rtqueuebits</span><span class="p">;</span>
+<a id="__codelineno-17-20" name="__codelineno-17-20" href="#__codelineno-17-20"></a><span class="w">    </span><span class="n">u_int32_t</span><span class="w">       </span><span class="n">idqueuebits</span><span class="p">;</span>
+<a id="__codelineno-17-21" name="__codelineno-17-21" href="#__codelineno-17-21"></a><span class="w">    </span><span class="n">u_int32_t</span><span class="w">       </span><span class="n">runqcount</span><span class="p">;</span>
+<a id="__codelineno-17-22" name="__codelineno-17-22" href="#__codelineno-17-22"></a>
+<a id="__codelineno-17-23" name="__codelineno-17-23" href="#__codelineno-17-23"></a><span class="w">    </span><span class="c1">// IPC affinity tracking</span>
+<a id="__codelineno-17-24" name="__codelineno-17-24" href="#__codelineno-17-24"></a><span class="w">    </span><span class="kt">cpumask_t</span><span class="w">       </span><span class="n">ipimask</span><span class="p">;</span><span class="w">          </span><span class="c1">// CPUs to send IPI</span>
+<a id="__codelineno-17-25" name="__codelineno-17-25" href="#__codelineno-17-25"></a><span class="p">};</span>
+</code></pre></div>
+<h3 id="priority-calculation_1">Priority Calculation<a class="headerlink" href="#priority-calculation_1" title="Permanent link">&para;</a></h3>
+<p>Similar to BSD4, but with additional fairness tuning:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-18-1" name="__codelineno-18-1" href="#__codelineno-18-1"></a><span class="n">pri</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">PRIBASE_NORMAL</span><span class="w"> </span><span class="o">+</span><span class="w"> </span>
+<a id="__codelineno-18-2" name="__codelineno-18-2" href="#__codelineno-18-2"></a><span class="w">      </span><span class="p">(</span><span class="n">nice</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">NICEPPQ</span><span class="p">)</span><span class="w"> </span><span class="o">+</span><span class="w"> </span>
+<a id="__codelineno-18-3" name="__codelineno-18-3" href="#__codelineno-18-3"></a><span class="w">      </span><span class="p">(</span><span class="n">estcpu</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="n">ESTCPUPPQ</span><span class="p">)</span><span class="w"> </span><span class="o">+</span>
+<a id="__codelineno-18-4" name="__codelineno-18-4" href="#__codelineno-18-4"></a><span class="w">      </span><span class="n">batch_penalty</span>
+</code></pre></div>
+<p>The DFLY scheduler uses more sophisticated estcpu decay and better handles bursty workloads.</p>
+<h3 id="cpu-selection-algorithm">CPU Selection Algorithm<a class="headerlink" href="#cpu-selection-algorithm" title="Permanent link">&para;</a></h3>
+<p><strong>Function: <code>dfly_choose_best_queue()</code></strong></p>
+<p>The heart of DFLY scheduling. Uses a weighted scoring system:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-19-1" name="__codelineno-19-1" href="#__codelineno-19-1"></a>For each potential target CPU:
+<a id="__codelineno-19-2" name="__codelineno-19-2" href="#__codelineno-19-2"></a>    score = 0
+<a id="__codelineno-19-3" name="__codelineno-19-3" href="#__codelineno-19-3"></a>
+<a id="__codelineno-19-4" name="__codelineno-19-4" href="#__codelineno-19-4"></a>    // Weight1: Prefer keeping thread on current CPU
+<a id="__codelineno-19-5" name="__codelineno-19-5" href="#__codelineno-19-5"></a>    if (cpu == lp-&gt;lwp_thread-&gt;td_gd-&gt;gd_cpuid)
+<a id="__codelineno-19-6" name="__codelineno-19-6" href="#__codelineno-19-6"></a>        score -= weight1
+<a id="__codelineno-19-7" name="__codelineno-19-7" href="#__codelineno-19-7"></a>
+<a id="__codelineno-19-8" name="__codelineno-19-8" href="#__codelineno-19-8"></a>    // Weight2: IPC affinity (wakefromcpu)
+<a id="__codelineno-19-9" name="__codelineno-19-9" href="#__codelineno-19-9"></a>    // Prefer scheduling near the CPU that last woke us
+<a id="__codelineno-19-10" name="__codelineno-19-10" href="#__codelineno-19-10"></a>    if (topology_allows_ipc_optimization(cpu, wakefromcpu))
+<a id="__codelineno-19-11" name="__codelineno-19-11" href="#__codelineno-19-11"></a>        score -= weight2
+<a id="__codelineno-19-12" name="__codelineno-19-12" href="#__codelineno-19-12"></a>
+<a id="__codelineno-19-13" name="__codelineno-19-13" href="#__codelineno-19-13"></a>    // Weight3: Queue length penalty
+<a id="__codelineno-19-14" name="__codelineno-19-14" href="#__codelineno-19-14"></a>    score += dd-&gt;runqcount * weight3
+<a id="__codelineno-19-15" name="__codelineno-19-15" href="#__codelineno-19-15"></a>
+<a id="__codelineno-19-16" name="__codelineno-19-16" href="#__codelineno-19-16"></a>    // Weight4: Availability (other CPU has lower priority thread)
+<a id="__codelineno-19-17" name="__codelineno-19-17" href="#__codelineno-19-17"></a>    if (dd-&gt;upri &gt; our_priority)
+<a id="__codelineno-19-18" name="__codelineno-19-18" href="#__codelineno-19-18"></a>        score -= weight4
+<a id="__codelineno-19-19" name="__codelineno-19-19" href="#__codelineno-19-19"></a>
+<a id="__codelineno-19-20" name="__codelineno-19-20" href="#__codelineno-19-20"></a>    // Weight5: NUMA node memory weighting
+<a id="__codelineno-19-21" name="__codelineno-19-21" href="#__codelineno-19-21"></a>    score += numa_memory_weight(cpu) * weight5
+<a id="__codelineno-19-22" name="__codelineno-19-22" href="#__codelineno-19-22"></a>
+<a id="__codelineno-19-23" name="__codelineno-19-23" href="#__codelineno-19-23"></a>    // Weight6/7: Transfer hysteresis for stability
+<a id="__codelineno-19-24" name="__codelineno-19-24" href="#__codelineno-19-24"></a>
+<a id="__codelineno-19-25" name="__codelineno-19-25" href="#__codelineno-19-25"></a>Select CPU with lowest (best) score
+</code></pre></div>
+<p><strong>Default weights</strong> (usched_dfly.c:280-286):
+- <code>weight1 = 30</code> - Affinity to current CPU
+- <code>weight2 = 180</code> - IPC locality (strongest)
+- <code>weight3 = 10</code> - Queue length
+- <code>weight4 = 120</code> - CPU availability
+- <code>weight5 = 50</code> - NUMA preference
+- <code>weight6 = 0</code> - Rebalance hysteresis
+- <code>weight7 = -100</code> - Idle pull hysteresis</p>
+<h3 id="ipc-affinity-detection">IPC Affinity Detection<a class="headerlink" href="#ipc-affinity-detection" title="Permanent link">&para;</a></h3>
+<p><strong>Key insight:</strong> When thread A wakes thread B, they likely have a producer-consumer relationship. Scheduling B near A reduces cache misses and IPC latency.</p>
+<p>Tracked via:
+- <code>td-&gt;td_wakefromcpu</code> - CPU that last woke this thread (set in wakeup)
+- weight2 heuristic advantages scheduling on nearby CPUs</p>
+<p>The topology-aware logic considers:
+- Same logical CPU (hyperthreading sibling) - very strong affinity
+- Same physical package - strong affinity<br />
+- Same NUMA node - moderate affinity
+- Different NUMA nodes - no affinity</p>
+<h3 id="load-rebalancing">Load Rebalancing<a class="headerlink" href="#load-rebalancing" title="Permanent link">&para;</a></h3>
+<p><strong>Function: <code>dfly_choose_worst_queue()</code></strong></p>
+<p>The helper thread (<code>dfly_pcpu[cpu].helper_thread</code>) periodically rebalances:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-20-1" name="__codelineno-20-1" href="#__codelineno-20-1"></a>1. Identify overloaded CPU (worst_queue)
+<a id="__codelineno-20-2" name="__codelineno-20-2" href="#__codelineno-20-2"></a>   - High runqcount relative to others
+<a id="__codelineno-20-3" name="__codelineno-20-3" href="#__codelineno-20-3"></a>
+<a id="__codelineno-20-4" name="__codelineno-20-4" href="#__codelineno-20-4"></a>2. Identify underloaded CPU (best_queue)
+<a id="__codelineno-20-5" name="__codelineno-20-5" href="#__codelineno-20-5"></a>   - Low/zero runqcount
+<a id="__codelineno-20-6" name="__codelineno-20-6" href="#__codelineno-20-6"></a>
+<a id="__codelineno-20-7" name="__codelineno-20-7" href="#__codelineno-20-7"></a>3. Transfer LWP from worst to best
+<a id="__codelineno-20-8" name="__codelineno-20-8" href="#__codelineno-20-8"></a>   - Call dfly_changeqcpu_locked()
+<a id="__codelineno-20-9" name="__codelineno-20-9" href="#__codelineno-20-9"></a>   - Move LWP between per-CPU queues
+<a id="__codelineno-20-10" name="__codelineno-20-10" href="#__codelineno-20-10"></a>
+<a id="__codelineno-20-11" name="__codelineno-20-11" href="#__codelineno-20-11"></a>4. Send IPI to target CPU to schedule the LWP
+</code></pre></div>
+<p><strong>Rebalancing features</strong> (controlled by <code>usched_dfly_features</code>):
+- <code>0x01</code> - Idle CPU pulling (default on)
+- <code>0x02</code> - Proactive pushing (default on)
+- <code>0x04</code> - Rebalancing rover (default on)
+- <code>0x08</code> - More aggressive pushing (default on)</p>
+<h3 id="acquirerelease-curproc_1">Acquire/Release Curproc<a class="headerlink" href="#acquirerelease-curproc_1" title="Permanent link">&para;</a></h3>
+<p><strong>Function: <code>dfly_acquire_curproc()</code></strong> (usched_dfly.c:325)</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-21-1" name="__codelineno-21-1" href="#__codelineno-21-1"></a>1. Quick path: if already uschedcp and no resched needed, return
+<a id="__codelineno-21-2" name="__codelineno-21-2" href="#__codelineno-21-2"></a>2. Remove from tsleep queue if needed
+<a id="__codelineno-21-3" name="__codelineno-21-3" href="#__codelineno-21-3"></a>3. Recalculate estcpu
+<a id="__codelineno-21-4" name="__codelineno-21-4" href="#__codelineno-21-4"></a>4. Handle user_resched: release and reselect
+<a id="__codelineno-21-5" name="__codelineno-21-5" href="#__codelineno-21-5"></a>5. Loop until dd-&gt;uschedcp == lp:
+<a id="__codelineno-21-6" name="__codelineno-21-6" href="#__codelineno-21-6"></a>   - Check if outcast (CPU affinity violation)
+<a id="__codelineno-21-7" name="__codelineno-21-7" href="#__codelineno-21-7"></a>     - If so, migrate to best CPU via dfly_changeqcpu_locked()
+<a id="__codelineno-21-8" name="__codelineno-21-8" href="#__codelineno-21-8"></a>   - Try to become uschedcp
+<a id="__codelineno-21-9" name="__codelineno-21-9" href="#__codelineno-21-9"></a>   - Or place on runqueue and switch away
+</code></pre></div>
+<p><strong>Function: <code>dfly_release_curproc()</code></strong></p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-22-1" name="__codelineno-22-1" href="#__codelineno-22-1"></a>1. Acquire per-CPU spinlock
+<a id="__codelineno-22-2" name="__codelineno-22-2" href="#__codelineno-22-2"></a>2. If we are dd-&gt;uschedcp:
+<a id="__codelineno-22-3" name="__codelineno-22-3" href="#__codelineno-22-3"></a>   - Call dfly_select_curproc() to pick new LWP
+<a id="__codelineno-22-4" name="__codelineno-22-4" href="#__codelineno-22-4"></a>   - Consider local runqueue first
+<a id="__codelineno-22-5" name="__codelineno-22-5" href="#__codelineno-22-5"></a>   - May pull from other CPUs if idle
+<a id="__codelineno-22-6" name="__codelineno-22-6" href="#__codelineno-22-6"></a>3. Release spinlock
+</code></pre></div>
+<h3 id="per-cpu-run-queues">Per-CPU Run Queues<a class="headerlink" href="#per-cpu-run-queues" title="Permanent link">&para;</a></h3>
+<p>Unlike BSD4's global queues, DFLY maintains separate 32-queue arrays on each CPU. This eliminates global lock contention but requires inter-CPU coordination for load balancing.</p>
+<p><strong>Trade-off:</strong>
+- <strong>Pro:</strong> Much better scalability, less contention
+- <strong>Con:</strong> Requires active rebalancing to prevent imbalance</p>
+<p>The helper threads and IPC affinity heuristics work together to keep the system balanced without needing a global view.</p>
+<h3 id="fork-behavior">Fork Behavior<a class="headerlink" href="#fork-behavior" title="Permanent link">&para;</a></h3>
+<p><strong>Function: <code>dfly_forking()</code></strong></p>
+<p>When a process forks:
+- Feature <code>0x20</code> (default): Choose best CPU for child based on IPC affinity
+- Feature <code>0x40</code>: Keep child on current CPU
+- Feature <code>0x80</code>: Random CPU assignment</p>
+<p>The default (<code>0x20</code>) recognizes that fork is often followed by exec (in child) or wait (in parent), creating an IPC relationship. The scheduler tries to place the child near the parent for efficient cache sharing.</p>
+<hr />
+<h2 id="dummy-scheduler-usched_dummyc">Dummy Scheduler (usched_dummy.c)<a class="headerlink" href="#dummy-scheduler-usched_dummyc" title="Permanent link">&para;</a></h2>
+<h3 id="purpose">Purpose<a class="headerlink" href="#purpose" title="Permanent link">&para;</a></h3>
+<p>The dummy scheduler is a minimal reference implementation demonstrating the scheduler API. It's not suitable for production but useful for:
+- Understanding the scheduler interface
+- Testing scheduler infrastructure
+- Prototyping new scheduler ideas</p>
+<h3 id="design">Design<a class="headerlink" href="#design" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Single global run queue (<code>dummy_runq</code>)</li>
+<li>Global spinlock (<code>dummy_spin</code>)</li>
+<li>No sophisticated CPU selection</li>
+<li>No priority calculations</li>
+<li>Simple FIFO scheduling</li>
+</ul>
+<p><strong>Key characteristics:</strong>
+- Acquires first available CPU
+- Helper thread per CPU to accept work
+- Round-robin at fixed interval
+- No load balancing heuristics</p>
+<p>This simplicity makes it easy to understand the flow of <code>acquire_curproc</code>, <code>release_curproc</code>, <code>setrunqueue</code>, etc., without the complexity of real scheduling policies.</p>
+<hr />
+<h2 id="scheduler-clock-and-statistics">Scheduler Clock and Statistics<a class="headerlink" href="#scheduler-clock-and-statistics" title="Permanent link">&para;</a></h2>
+<h3 id="schedcpu-callout">schedcpu() Callout<a class="headerlink" href="#schedcpu-callout" title="Permanent link">&para;</a></h3>
+<p><strong>Function: <code>schedcpu()</code></strong> (kern_synch.c:203)</p>
+<p>Called once per second on each CPU to update statistics:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-23-1" name="__codelineno-23-1" href="#__codelineno-23-1"></a>1. Scan all processes (allproc_scan):
+<a id="__codelineno-23-2" name="__codelineno-23-2" href="#__codelineno-23-2"></a>   - Increment p_swtime (swap time)
+<a id="__codelineno-23-3" name="__codelineno-23-3" href="#__codelineno-23-3"></a>   - For each LWP:
+<a id="__codelineno-23-4" name="__codelineno-23-4" href="#__codelineno-23-4"></a>     - Increment lwp_slptime if sleeping
+<a id="__codelineno-23-5" name="__codelineno-23-5" href="#__codelineno-23-5"></a>     - Recalculate estcpu (if active or slptime &lt; 2)
+<a id="__codelineno-23-6" name="__codelineno-23-6" href="#__codelineno-23-6"></a>     - Decay pctcpu (percentage CPU)
+<a id="__codelineno-23-7" name="__codelineno-23-7" href="#__codelineno-23-7"></a>     - Call p_usched-&gt;recalculate(lp)
+<a id="__codelineno-23-8" name="__codelineno-23-8" href="#__codelineno-23-8"></a>
+<a id="__codelineno-23-9" name="__codelineno-23-9" href="#__codelineno-23-9"></a>2. Check CPU resource limits (schedcpu_resource):
+<a id="__codelineno-23-10" name="__codelineno-23-10" href="#__codelineno-23-10"></a>   - Sum td_sticks + td_uticks for all threads
+<a id="__codelineno-23-11" name="__codelineno-23-11" href="#__codelineno-23-11"></a>   - Call plimit_testcpulimit()
+<a id="__codelineno-23-12" name="__codelineno-23-12" href="#__codelineno-23-12"></a>   - Send SIGXCPU or kill if limit exceeded
+<a id="__codelineno-23-13" name="__codelineno-23-13" href="#__codelineno-23-13"></a>
+<a id="__codelineno-23-14" name="__codelineno-23-14" href="#__codelineno-23-14"></a>3. Wakeup &amp;lbolt and lbolt_syncer (on CPU 0)
+<a id="__codelineno-23-15" name="__codelineno-23-15" href="#__codelineno-23-15"></a>4. Reschedule callout for next second
+</code></pre></div>
+<h3 id="load-average-calculation">Load Average Calculation<a class="headerlink" href="#load-average-calculation" title="Permanent link">&para;</a></h3>
+<p><strong>Function: <code>loadav()</code></strong> (kern_synch.c:1405)</p>
+<p>Called every 5 seconds (with randomization) to compute load averages:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-24-1" name="__codelineno-24-1" href="#__codelineno-24-1"></a>1. Scan all LWPs (alllwp_scan)
+<a id="__codelineno-24-2" name="__codelineno-24-2" href="#__codelineno-24-2"></a>   - Count runnable LWPs (LSRUN state, not blocked)
+<a id="__codelineno-24-3" name="__codelineno-24-3" href="#__codelineno-24-3"></a>   - Store count in gd-&gt;gd_loadav_nrunnable
+<a id="__codelineno-24-4" name="__codelineno-24-4" href="#__codelineno-24-4"></a>
+<a id="__codelineno-24-5" name="__codelineno-24-5" href="#__codelineno-24-5"></a>2. On CPU 0:
+<a id="__codelineno-24-6" name="__codelineno-24-6" href="#__codelineno-24-6"></a>   - Sum counts from all CPUs
+<a id="__codelineno-24-7" name="__codelineno-24-7" href="#__codelineno-24-7"></a>   - Update averunnable.ldavg[0..2] (1, 5, 15 minute averages)
+<a id="__codelineno-24-8" name="__codelineno-24-8" href="#__codelineno-24-8"></a>   - Use exponential decay with FSCALE fixed-point math
+</code></pre></div>
+<p>The load average represents the average number of runnable threads over different time periods, a key system health metric.</p>
+<h3 id="cpu-usage-tracking-estcpu-pctcpu">CPU Usage Tracking (estcpu, pctcpu)<a class="headerlink" href="#cpu-usage-tracking-estcpu-pctcpu" title="Permanent link">&para;</a></h3>
+<p><strong>estcpu</strong> - Estimated CPU usage:
+- Incremented each scheduler clock tick when LWP is running
+- Decayed over time (typically 8/10 per second)
+- Used to calculate dynamic priority
+- Reset to parent's estcpu on fork (with optional bias)</p>
+<p><strong>pctcpu</strong> - Percentage CPU:
+- Short-term CPU usage metric (over last second)
+- Used by ps(1) to display %CPU
+- Decayed more rapidly than estcpu
+- Updated by <code>updatepcpu()</code> when sampled</p>
+<hr />
+<h2 id="priority-and-scheduling-classes">Priority and Scheduling Classes<a class="headerlink" href="#priority-and-scheduling-classes" title="Permanent link">&para;</a></h2>
+<h3 id="priority-ranges">Priority Ranges<a class="headerlink" href="#priority-ranges" title="Permanent link">&para;</a></h3>
+<p>DragonFly uses a unified priority space:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-25-1" name="__codelineno-25-1" href="#__codelineno-25-1"></a>0-127:     Realtime (highest)
+<a id="__codelineno-25-2" name="__codelineno-25-2" href="#__codelineno-25-2"></a>128-255:   Normal (timesharing)
+<a id="__codelineno-25-3" name="__codelineno-25-3" href="#__codelineno-25-3"></a>256-383:   Idle
+<a id="__codelineno-25-4" name="__codelineno-25-4" href="#__codelineno-25-4"></a>384-511:   Kernel threads
+<a id="__codelineno-25-5" name="__codelineno-25-5" href="#__codelineno-25-5"></a>512+:      Special/NULL
+</code></pre></div>
+<p><strong>Internal representation:</strong>
+- <code>lp-&gt;lwp_priority</code> - Calculated scheduling priority (0-511)
+- <code>lp-&gt;lwp_rtprio.type</code> - Scheduling class (REALTIME, NORMAL, IDLE, etc.)
+- <code>lp-&gt;lwp_rtprio.prio</code> - Priority within class
+- <code>td-&gt;td_upri</code> - LWKT priority (negated for proper ordering)</p>
+<h3 id="priority-inversion">Priority Inversion<a class="headerlink" href="#priority-inversion" title="Permanent link">&para;</a></h3>
+<p>LWKT priorities have inverted sense (lower number = higher priority) compared to user priorities (higher number = higher priority):</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-26-1" name="__codelineno-26-1" href="#__codelineno-26-1"></a><span class="n">td</span><span class="o">-&gt;</span><span class="n">td_upri</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="o">-</span><span class="n">lp</span><span class="o">-&gt;</span><span class="n">lwp_priority</span><span class="p">;</span>
+</code></pre></div>
+<p>This allows LWKT's queue ordering to work correctly.</p>
+<h3 id="real-time-scheduling">Real-time Scheduling<a class="headerlink" href="#real-time-scheduling" title="Permanent link">&para;</a></h3>
+<p>Real-time threads (FIFO and RR) have strict priority:
+- Always run before normal/idle threads
+- FIFO runs until it blocks or is preempted by higher-priority RT thread
+- RR is preempted after a quantum (round-robin interval) by same-priority RT threads</p>
+<p><strong>Caution:</strong> Real-time threads can starve normal threads. Use carefully.</p>
+<h3 id="nice-value">Nice Value<a class="headerlink" href="#nice-value" title="Permanent link">&para;</a></h3>
+<p>The traditional Unix nice value (-20 to +19):
+- Stored in <code>lp-&gt;lwp_rtprio.prio</code> for NORMAL class
+- Lower nice = higher priority
+- Maps to priority via: <code>pri += nice * NICEPPQ</code>
+- Set via <code>setpriority(2)</code> syscall</p>
+<hr />
+<h2 id="best-practices">Best Practices<a class="headerlink" href="#best-practices" title="Permanent link">&para;</a></h2>
+<h3 id="choosing-a-scheduler">Choosing a Scheduler<a class="headerlink" href="#choosing-a-scheduler" title="Permanent link">&para;</a></h3>
+<p><strong>Use DFLY (default) when:</strong>
+- Many CPUs (&gt;= 8)
+- IPC-heavy workloads (e.g., build systems)
+- NUMA systems
+- Need good scalability</p>
+<p><strong>Use BSD4 when:</strong>
+- Few CPUs (&lt;= 4)
+- Simple workloads
+- Debugging scheduler issues (simpler code)
+- Prefer traditional BSD behavior</p>
+<h3 id="setting-priorities">Setting Priorities<a class="headerlink" href="#setting-priorities" title="Permanent link">&para;</a></h3>
+<p><strong>Real-time priorities:</strong>
+- Use sparingly - can starve normal processes
+- Suitable for hard real-time control tasks
+- Ensure RT tasks yield or block regularly
+- Test thoroughly under load</p>
+<p><strong>Nice values:</strong>
+- Adjust nice for batch jobs (<code>nice +10</code>)
+- Use negative nice for interactive/important tasks (requires privilege)
+- Typical range: -5 to +10</p>
+<h3 id="cpu-affinity">CPU Affinity<a class="headerlink" href="#cpu-affinity" title="Permanent link">&para;</a></h3>
+<p><strong>When to use:</strong>
+- Threads with shared data (keep on nearby CPUs)
+- Real-time tasks (eliminate migration latency)
+- NUMA systems (pin to node with memory)</p>
+<p><strong>When NOT to use:</strong>
+- General workloads (scheduler does better job)
+- Short-lived processes
+- When load distribution is important</p>
+<hr />
+<h2 id="tunables-and-sysctls">Tunables and Sysctls<a class="headerlink" href="#tunables-and-sysctls" title="Permanent link">&para;</a></h2>
+<h3 id="bsd4-scheduler">BSD4 Scheduler<a class="headerlink" href="#bsd4-scheduler" title="Permanent link">&para;</a></h3>
+<ul>
+<li><code>kern.usched_bsd4_rrinterval</code> - Round-robin interval (default: 10)</li>
+<li><code>kern.usched_bsd4_decay</code> - estcpu decay rate (default: 8)</li>
+<li><code>kern.usched_bsd4_batch_time</code> - Batch process threshold</li>
+<li><code>kern.usched_bsd4_upri_affinity</code> - Affinity threshold</li>
+<li><code>debug.bsd4_scdebug</code> - Debug PID</li>
+</ul>
+<h3 id="dfly-scheduler">DFLY Scheduler<a class="headerlink" href="#dfly-scheduler" title="Permanent link">&para;</a></h3>
+<ul>
+<li><code>kern.usched_dfly_weight1</code> - Current CPU affinity (default: 30)</li>
+<li><code>kern.usched_dfly_weight2</code> - IPC locality (default: 180)</li>
+<li><code>kern.usched_dfly_weight3</code> - Queue length penalty (default: 10)</li>
+<li><code>kern.usched_dfly_weight4</code> - CPU availability (default: 120)</li>
+<li><code>kern.usched_dfly_weight5</code> - NUMA memory (default: 50)</li>
+<li><code>kern.usched_dfly_features</code> - Feature flags (default: 0x2f)</li>
+<li><code>kern.usched_dfly_rrinterval</code> - Round-robin interval (default: 10)</li>
+<li><code>kern.usched_dfly_decay</code> - estcpu decay (default: 8)</li>
+<li><code>kern.usched_dfly_forkbias</code> - Fork estcpu bias (default: 1)</li>
+</ul>
+<h3 id="general-scheduling">General Scheduling<a class="headerlink" href="#general-scheduling" title="Permanent link">&para;</a></h3>
+<ul>
+<li><code>kern.pctcpu_decay</code> - pctcpu decay rate (default: 10)</li>
+<li><code>kern.fscale</code> - Fixed-point scale factor (FSCALE = 2048)</li>
+<li><code>kern.slpque_tablesize</code> - Sleep queue hash table size</li>
+</ul>
+<hr />
+<h2 id="summary">Summary<a class="headerlink" href="#summary" title="Permanent link">&para;</a></h2>
+<p>DragonFly's scheduling system is a sophisticated two-layer design:</p>
+<ol>
+<li><strong>Sleep/wakeup</strong> provides efficient thread blocking and synchronization</li>
+<li><strong>Pluggable user schedulers</strong> implement diverse scheduling policies</li>
+<li><strong>BSD4</strong> offers traditional simplicity for smaller systems</li>
+<li><strong>DFLY</strong> provides advanced scalability and topology awareness for modern hardware</li>
+<li><strong>Extensive tunables</strong> allow customization for specific workloads</li>
+</ol>
+<p>The system balances:
+- Responsiveness vs. overhead
+- Cache affinity vs. load balance
+- Simplicity vs. scalability</p>
+<p>Understanding the scheduler is crucial for:
+- Performance tuning
+- Real-time system design
+- Debugging scheduling issues
+- Kernel development</p>
+<p>Key takeaways:
+- Start with DFLY defaults on multi-CPU systems
+- Use BSD4 for simplicity on small systems
+- Reserve realtime priorities for critical tasks
+- Let the scheduler manage CPU affinity for most workloads
+- Monitor context switches and load average
+- Tune weights cautiously based on specific problems</p>
+<p>The DragonFly schedulers represent years of evolution and optimization, providing excellent out-of-the-box performance while remaining tunable for specialized needs.</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": ["navigation.tabs", "navigation.sections", "navigation.expand", "navigation.top", "search.suggest", "search.highlight", "content.code.copy"], "search": "../../../assets/javascripts/workers/search.7a47a382.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../../assets/javascripts/bundle.e71a0d61.min.js"></script>
+      
+    
+  </body>
+</html>

@@ -1,0 +1,3828 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Comprehensive documentation for the DragonFly BSD kernel source code">
+      
+      
+        <meta name="author" content="DragonFly BSD Community">
+      
+      
+      
+        <link rel="prev" href="../resources/">
+      
+      
+        <link rel="next" href="../scheduling/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.0">
+    
+    
+      
+        <title>Signals - DragonFly BSD Kernel Documentation</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.618322db.min.css">
+      
+        
+        <link rel="stylesheet" href="../../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#signals" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../../.." title="DragonFly BSD Kernel Documentation" class="md-header__button md-logo" aria-label="DragonFly BSD Kernel Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            DragonFly BSD Kernel Documentation
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Signals
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/tuxillo/dragonflybsd-source-docs" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    tuxillo/dragonflybsd-source-docs
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../.." class="md-tabs__link">
+        
+  
+  
+    
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../getting-started/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Getting Started
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+    
+  
+  
+    
+    
+      <li class="md-tabs__item md-tabs__item--active">
+        <a href="../../" class="md-tabs__link">
+          
+  
+  
+  Kernel Subsystems
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../.." title="DragonFly BSD Kernel Documentation" class="md-nav__button md-logo" aria-label="DragonFly BSD Kernel Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    DragonFly BSD Kernel Documentation
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/tuxillo/dragonflybsd-source-docs" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    tuxillo/dragonflybsd-source-docs
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../getting-started/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Getting Started
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Kernel Subsystems
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Kernel Subsystems
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+          
+          
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_2" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_3_2" id="__nav_3_2_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    kern/
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_2_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_3_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    kern/
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../lwkt/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    LWKT Threading
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../synchronization/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Synchronization
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../time/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Time & Timers
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../memory/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Memory Management
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../initialization/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Initialization & Bootstrap
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../processes/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Processes & Threads
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../resources/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Process Resources & Credentials
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Signals
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Signals
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#overview" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Overview
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#signal-properties" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Signal Properties
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Signal Properties">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#signal-categories" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Signal Categories
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#unmaskable-signals" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Unmaskable Signals
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#data-structures" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Data Structures
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Data Structures">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#struct-sigacts-per-process-signal-actions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        struct sigacts — Per-Process Signal Actions
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#signal-masks-sigset_t" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Signal Masks (sigset_t)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#signal-actions-sigaction" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Signal Actions (sigaction)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Signal Actions (sigaction)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#setting-signal-handlers" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Setting Signal Handlers
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Setting Signal Handlers">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#kern_sigaction" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        kern_sigaction
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#signal-initialization" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Signal Initialization
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Signal Initialization">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#siginit-process-0-setup" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        siginit — Process 0 Setup
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#execsigs-reset-on-exec" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        execsigs — Reset on Exec
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#signal-masking" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Signal Masking
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Signal Masking">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#kern_sigprocmask" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        kern_sigprocmask
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#kern_sigpending" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        kern_sigpending
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#kern_sigsuspend" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        kern_sigsuspend
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#signal-generation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Signal Generation
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Signal Generation">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#kern_kill-send-signal-to-processthread" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        kern_kill — Send Signal to Process/Thread
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#ksignal-and-lwpsignal-core-signal-delivery" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        ksignal and lwpsignal — Core Signal Delivery
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#lwp_signotify-wake-thread-for-signal" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        lwp_signotify — Wake Thread for Signal
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#find_lwp_for_signal" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        find_lwp_for_signal
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#signal-delivery-path" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Signal Delivery Path
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Signal Delivery Path">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#process-control-signals" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Process Control Signals
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Process Control Signals">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#proc_stop-stop-all-threads" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        proc_stop — Stop All Threads
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#proc_unstop-resume-all-threads" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        proc_unstop — Resume All Threads
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#proc_stopwait-wait-for-all-threads-to-stop" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        proc_stopwait — Wait for All Threads to Stop
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#signal-dispatch" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Signal Dispatch
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Signal Dispatch">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#issignal-check-for-pending-signal" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        issignal — Check for Pending Signal
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#postsig-execute-signal-action" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        postsig — Execute Signal Action
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#special-signal-handling" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Special Signal Handling
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Special Signal Handling">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#trapsignal-synchronous-signal-from-trap" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        trapsignal — Synchronous Signal from Trap
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#sigexit-terminate-with-signal" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        sigexit — Terminate with Signal
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#coredump-generate-core-file" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        coredump — Generate Core File
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#process-group-signals" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Process Group Signals
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Process Group Signals">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#pgsignal-signal-process-group" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        pgsignal — Signal Process Group
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#wait-for-signal" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Wait for Signal
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Wait for Signal">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#kern_sigtimedwait-wait-for-specific-signals" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        kern_sigtimedwait — Wait for Specific Signals
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kqueue-integration" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Kqueue Integration
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Kqueue Integration">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#filt_sigattachfilt_signal" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        filt_sigattach/filt_signal
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#signal-interlock-mechanism" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Signal Interlock Mechanism
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Signal Interlock Mechanism">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#sigirefs-signal-delivery-interlock" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        sigirefs — Signal Delivery Interlock
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#syscall-signal-interruption" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Syscall Signal Interruption
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Syscall Signal Interruption">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#iscaught-check-for-interrupting-signal" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        iscaught — Check for Interrupting Signal
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#dragonfly-specific-extensions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        DragonFly-Specific Extensions
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="DragonFly-Specific Extensions">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#checkpoint-signals" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Checkpoint Signals
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#cross-cpu-signal-delivery" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Cross-CPU Signal Delivery
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#thread-specific-signals" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Thread-Specific Signals
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#interaction-with-other-subsystems" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Interaction with Other Subsystems
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Interaction with Other Subsystems">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#signal-and-fork" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Signal and Fork
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#signal-and-exec" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Signal and Exec
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#signal-and-exit" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Signal and Exit
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#signal-and-ptrace" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Signal and Ptrace
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#key-algorithms" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Key Algorithms
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Key Algorithms">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#signal-delivery-decision-tree" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Signal Delivery Decision Tree
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#signal-dispatch-loop" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Signal Dispatch Loop
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#performance-considerations" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Performance Considerations
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Performance Considerations">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#signal-mask-operations" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Signal Mask Operations
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#signal-delivery-fast-path" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Signal Delivery Fast Path
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#cross-cpu-delivery" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Cross-CPU Delivery
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#debugging-and-observability" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Debugging and Observability
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Debugging and Observability">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#signal-logging" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Signal Logging
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#kqueue-monitoring" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Kqueue Monitoring
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#summary" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Summary
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../scheduling/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Scheduling
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_3_2_11" >
+        
+          
+          <label class="md-nav__link" for="__nav_3_2_11" id="__nav_3_2_11_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Virtual Filesystem
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_3_2_11_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_2_11">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Virtual Filesystem
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../vfs/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../vfs/namecache/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Name Lookup & Caching
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ipc/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    IPC & Sockets
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../devices/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Devices & Drivers
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../syscalls/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    System Calls
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+          
+          
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_3_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3_3" id="__nav_3_3_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    vm/
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    vm/
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../vm/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+          
+          
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_3_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_3_4" id="__nav_3_4_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    cpu/x86_64/
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    cpu/x86_64/
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../cpu/x86_64/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#overview" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Overview
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#signal-properties" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Signal Properties
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Signal Properties">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#signal-categories" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Signal Categories
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#unmaskable-signals" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Unmaskable Signals
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#data-structures" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Data Structures
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Data Structures">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#struct-sigacts-per-process-signal-actions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        struct sigacts — Per-Process Signal Actions
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#signal-masks-sigset_t" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Signal Masks (sigset_t)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#signal-actions-sigaction" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Signal Actions (sigaction)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Signal Actions (sigaction)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#setting-signal-handlers" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Setting Signal Handlers
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Setting Signal Handlers">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#kern_sigaction" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        kern_sigaction
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#signal-initialization" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Signal Initialization
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Signal Initialization">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#siginit-process-0-setup" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        siginit — Process 0 Setup
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#execsigs-reset-on-exec" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        execsigs — Reset on Exec
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#signal-masking" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Signal Masking
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Signal Masking">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#kern_sigprocmask" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        kern_sigprocmask
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#kern_sigpending" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        kern_sigpending
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#kern_sigsuspend" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        kern_sigsuspend
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#signal-generation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Signal Generation
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Signal Generation">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#kern_kill-send-signal-to-processthread" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        kern_kill — Send Signal to Process/Thread
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#ksignal-and-lwpsignal-core-signal-delivery" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        ksignal and lwpsignal — Core Signal Delivery
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#lwp_signotify-wake-thread-for-signal" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        lwp_signotify — Wake Thread for Signal
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#find_lwp_for_signal" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        find_lwp_for_signal
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#signal-delivery-path" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Signal Delivery Path
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Signal Delivery Path">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#process-control-signals" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Process Control Signals
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Process Control Signals">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#proc_stop-stop-all-threads" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        proc_stop — Stop All Threads
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#proc_unstop-resume-all-threads" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        proc_unstop — Resume All Threads
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#proc_stopwait-wait-for-all-threads-to-stop" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        proc_stopwait — Wait for All Threads to Stop
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#signal-dispatch" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Signal Dispatch
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Signal Dispatch">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#issignal-check-for-pending-signal" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        issignal — Check for Pending Signal
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#postsig-execute-signal-action" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        postsig — Execute Signal Action
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#special-signal-handling" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Special Signal Handling
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Special Signal Handling">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#trapsignal-synchronous-signal-from-trap" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        trapsignal — Synchronous Signal from Trap
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#sigexit-terminate-with-signal" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        sigexit — Terminate with Signal
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#coredump-generate-core-file" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        coredump — Generate Core File
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#process-group-signals" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Process Group Signals
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Process Group Signals">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#pgsignal-signal-process-group" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        pgsignal — Signal Process Group
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#wait-for-signal" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Wait for Signal
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Wait for Signal">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#kern_sigtimedwait-wait-for-specific-signals" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        kern_sigtimedwait — Wait for Specific Signals
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kqueue-integration" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Kqueue Integration
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Kqueue Integration">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#filt_sigattachfilt_signal" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        filt_sigattach/filt_signal
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#signal-interlock-mechanism" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Signal Interlock Mechanism
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Signal Interlock Mechanism">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#sigirefs-signal-delivery-interlock" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        sigirefs — Signal Delivery Interlock
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#syscall-signal-interruption" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Syscall Signal Interruption
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Syscall Signal Interruption">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#iscaught-check-for-interrupting-signal" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        iscaught — Check for Interrupting Signal
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#dragonfly-specific-extensions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        DragonFly-Specific Extensions
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="DragonFly-Specific Extensions">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#checkpoint-signals" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Checkpoint Signals
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#cross-cpu-signal-delivery" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Cross-CPU Signal Delivery
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#thread-specific-signals" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Thread-Specific Signals
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#interaction-with-other-subsystems" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Interaction with Other Subsystems
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Interaction with Other Subsystems">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#signal-and-fork" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Signal and Fork
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#signal-and-exec" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Signal and Exec
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#signal-and-exit" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Signal and Exit
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#signal-and-ptrace" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Signal and Ptrace
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#key-algorithms" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Key Algorithms
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Key Algorithms">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#signal-delivery-decision-tree" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Signal Delivery Decision Tree
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#signal-dispatch-loop" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Signal Dispatch Loop
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#performance-considerations" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Performance Considerations
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Performance Considerations">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#signal-mask-operations" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Signal Mask Operations
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#signal-delivery-fast-path" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Signal Delivery Fast Path
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#cross-cpu-delivery" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Cross-CPU Delivery
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#debugging-and-observability" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Debugging and Observability
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Debugging and Observability">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#signal-logging" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Signal Logging
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#kqueue-monitoring" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Kqueue Monitoring
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#summary" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Summary
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="signals">Signals<a class="headerlink" href="#signals" title="Permanent link">&para;</a></h1>
+<p><strong>Source file:</strong> <code>kern_sig.c</code> (2,701 lines)</p>
+<p>This document covers signal management in DragonFly BSD, including signal generation, delivery, and handling. Signals are asynchronous notifications delivered to processes or threads to indicate events such as exceptions, terminal I/O, process control, or user-defined events.</p>
+<hr />
+<h2 id="overview">Overview<a class="headerlink" href="#overview" title="Permanent link">&para;</a></h2>
+<p>DragonFly BSD implements POSIX and BSD signal semantics with extensions for:</p>
+<ol>
+<li><strong>Per-thread and per-process signals</strong> — Signals can target specific LWPs or the process generally</li>
+<li><strong>Signal masking</strong> — Per-thread signal masks control delivery</li>
+<li><strong>Signal actions</strong> — Processes can catch, ignore, or use default handling</li>
+<li><strong>Process control signals</strong> — STOP/CONT signals for job control</li>
+<li><strong>Core dumps</strong> — SA_CORE signals generate core files</li>
+<li><strong>Real-time signals</strong> — Extended signal numbers beyond traditional POSIX</li>
+<li><strong>Cross-CPU delivery</strong> — IPI-based notification for signals to remote CPUs</li>
+</ol>
+<p><strong>Key data structures:</strong>
+- <code>struct sigacts</code> — Per-process signal actions and state
+- <code>sigset_t</code> — Bit set representing signals (32+ signals)
+- <code>p-&gt;p_siglist</code> — Process-wide pending signals
+- <code>lp-&gt;lwp_siglist</code> — Thread-specific pending signals
+- <code>lp-&gt;lwp_sigmask</code> — Per-thread signal mask</p>
+<hr />
+<h2 id="signal-properties">Signal Properties<a class="headerlink" href="#signal-properties" title="Permanent link">&para;</a></h2>
+<h3 id="signal-categories">Signal Categories<a class="headerlink" href="#signal-categories" title="Permanent link">&para;</a></h3>
+<p>Source: <code>kern_sig.c:119-194</code></p>
+<p>Each signal has properties encoded in <code>sigproptbl[]</code>:</p>
+<ul>
+<li><strong>SA_KILL</strong> (<code>0x01</code>) — Terminates process by default</li>
+<li><strong>SA_CORE</strong> (<code>0x02</code>) — Terminates and generates core dump</li>
+<li><strong>SA_STOP</strong> (<code>0x04</code>) — Stops process execution</li>
+<li><strong>SA_TTYSTOP</strong> (<code>0x08</code>) — Stop from terminal (SIGTSTP/SIGTTIN/SIGTTOU)</li>
+<li><strong>SA_IGNORE</strong> (<code>0x10</code>) — Ignored by default</li>
+<li><strong>SA_CONT</strong> (<code>0x20</code>) — Continues stopped process</li>
+<li><strong>SA_CANTMASK</strong> (<code>0x40</code>) — Cannot be blocked (SIGKILL/SIGSTOP)</li>
+<li><strong>SA_CKPT</strong> (<code>0x80</code>) — Checkpoint signal (DragonFly extension)</li>
+</ul>
+<p><strong>Examples:</strong>
+- <code>SIGKILL</code> — SA_KILL (cannot be caught or ignored)
+- <code>SIGSEGV</code> — SA_KILL | SA_CORE (core dump on segmentation fault)
+- <code>SIGSTOP</code> — SA_STOP | SA_CANTMASK (cannot be blocked)
+- <code>SIGCHLD</code> — SA_IGNORE (default is to ignore)
+- <code>SIGCONT</code> — SA_IGNORE | SA_CONT (resumes stopped processes)</p>
+<h3 id="unmaskable-signals">Unmaskable Signals<a class="headerlink" href="#unmaskable-signals" title="Permanent link">&para;</a></h3>
+<p>Source: <code>kern_sig.c:196, 417</code></p>
+<p><code>SIGKILL</code> and <code>SIGSTOP</code> cannot be masked, caught, or ignored:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="kt">sigset_t</span><span class="w"> </span><span class="n">sigcantmask_mask</span><span class="p">;</span><span class="w">  </span><span class="c1">// Contains SIGKILL and SIGSTOP</span>
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="n">SIG_CANTMASK</span><span class="p">(</span><span class="n">mask</span><span class="p">);</span><span class="w">         </span><span class="c1">// Macro removes unmaskable signals</span>
+</code></pre></div>
+<p>This ensures that processes can always be killed or stopped by administrators.</p>
+<hr />
+<h2 id="data-structures">Data Structures<a class="headerlink" href="#data-structures" title="Permanent link">&para;</a></h2>
+<h3 id="struct-sigacts-per-process-signal-actions"><code>struct sigacts</code> — Per-Process Signal Actions<a class="headerlink" href="#struct-sigacts-per-process-signal-actions" title="Permanent link">&para;</a></h3>
+<p>Source: <code>sys/signalvar.h:56-73</code></p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="k">struct</span><span class="w"> </span><span class="nc">sigacts</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="w">    </span><span class="kt">sig_t</span><span class="w"> </span><span class="n">ps_sigact</span><span class="p">[</span><span class="n">_SIG_MAXSIG</span><span class="p">];</span><span class="w">      </span><span class="cm">/* Signal handlers */</span>
+<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="w">    </span><span class="kt">sigset_t</span><span class="w"> </span><span class="n">ps_catchmask</span><span class="p">[</span><span class="n">_SIG_MAXSIG</span><span class="p">];</span><span class="w"> </span><span class="cm">/* Masks during handler */</span>
+<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a><span class="w">    </span><span class="k">struct</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a><span class="w">        </span><span class="kt">int</span><span class="w"> </span><span class="n">pid</span><span class="p">;</span><span class="w">  </span><span class="cm">/* Originating process PID */</span>
+<a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a><span class="w">        </span><span class="kt">int</span><span class="w"> </span><span class="n">uid</span><span class="p">;</span><span class="w">  </span><span class="cm">/* Originating process UID */</span>
+<a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a><span class="w">    </span><span class="p">}</span><span class="w"> </span><span class="n">ps_frominfo</span><span class="p">[</span><span class="n">_SIG_MAXSIG</span><span class="p">];</span>
+<a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a>
+<a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a><span class="w">    </span><span class="kt">sigset_t</span><span class="w"> </span><span class="n">ps_sigignore</span><span class="p">;</span><span class="w">    </span><span class="cm">/* Signals set to SIG_IGN */</span>
+<a id="__codelineno-1-10" name="__codelineno-1-10" href="#__codelineno-1-10"></a><span class="w">    </span><span class="kt">sigset_t</span><span class="w"> </span><span class="n">ps_sigcatch</span><span class="p">;</span><span class="w">     </span><span class="cm">/* Signals with custom handlers */</span>
+<a id="__codelineno-1-11" name="__codelineno-1-11" href="#__codelineno-1-11"></a><span class="w">    </span><span class="kt">sigset_t</span><span class="w"> </span><span class="n">ps_sigonstack</span><span class="p">;</span><span class="w">   </span><span class="cm">/* Use alternate signal stack */</span>
+<a id="__codelineno-1-12" name="__codelineno-1-12" href="#__codelineno-1-12"></a><span class="w">    </span><span class="kt">sigset_t</span><span class="w"> </span><span class="n">ps_sigintr</span><span class="p">;</span><span class="w">      </span><span class="cm">/* Interrupt syscalls (no SA_RESTART) */</span>
+<a id="__codelineno-1-13" name="__codelineno-1-13" href="#__codelineno-1-13"></a><span class="w">    </span><span class="kt">sigset_t</span><span class="w"> </span><span class="n">ps_sigreset</span><span class="p">;</span><span class="w">     </span><span class="cm">/* Reset to SIG_DFL after catching (SA_RESETHAND) */</span>
+<a id="__codelineno-1-14" name="__codelineno-1-14" href="#__codelineno-1-14"></a><span class="w">    </span><span class="kt">sigset_t</span><span class="w"> </span><span class="n">ps_signodefer</span><span class="p">;</span><span class="w">   </span><span class="cm">/* Don&#39;t mask signal during handler (SA_NODEFER) */</span>
+<a id="__codelineno-1-15" name="__codelineno-1-15" href="#__codelineno-1-15"></a><span class="w">    </span><span class="kt">sigset_t</span><span class="w"> </span><span class="n">ps_siginfo</span><span class="p">;</span><span class="w">      </span><span class="cm">/* Use siginfo_t (SA_SIGINFO) */</span>
+<a id="__codelineno-1-16" name="__codelineno-1-16" href="#__codelineno-1-16"></a>
+<a id="__codelineno-1-17" name="__codelineno-1-17" href="#__codelineno-1-17"></a><span class="w">    </span><span class="kt">unsigned</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">ps_refcnt</span><span class="p">;</span>
+<a id="__codelineno-1-18" name="__codelineno-1-18" href="#__codelineno-1-18"></a><span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="n">ps_flag</span><span class="p">;</span><span class="w">              </span><span class="cm">/* PS_NOCLDSTOP, PS_NOCLDWAIT, PS_CLDSIGIGN */</span>
+<a id="__codelineno-1-19" name="__codelineno-1-19" href="#__codelineno-1-19"></a><span class="p">};</span>
+</code></pre></div>
+<p><strong>Key fields:</strong>
+- <code>ps_sigact[]</code> — Array of signal handlers (SIG_DFL, SIG_IGN, or function pointer)
+- <code>ps_catchmask[]</code> — Signals to block while handler executes
+- <code>ps_frominfo[]</code> — Tracks sender's PID/UID for signal provenance</p>
+<p><strong>Flags:</strong>
+- <code>PS_NOCLDSTOP</code> — Don't notify parent of child stop/cont (SA_NOCLDSTOP)
+- <code>PS_NOCLDWAIT</code> — Don't create zombies, reap immediately (SA_NOCLDWAIT)
+- <code>PS_CLDSIGIGN</code> — SIGCHLD handler is SIG_IGN</p>
+<h3 id="signal-masks-sigset_t">Signal Masks (<code>sigset_t</code>)<a class="headerlink" href="#signal-masks-sigset_t" title="Permanent link">&para;</a></h3>
+<p>Source: <code>sys/signalvar.h:91-150</code></p>
+<p>Bit set representing 32+ signals:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="k">typedef</span><span class="w"> </span><span class="k">struct</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="w">    </span><span class="kt">unsigned</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">__bits</span><span class="p">[</span><span class="n">_SIG_WORDS</span><span class="p">];</span><span class="w">  </span><span class="cm">/* _SIG_WORDS = 4 for 128 signals */</span>
+<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="p">}</span><span class="w"> </span><span class="kt">sigset_t</span><span class="p">;</span>
+</code></pre></div>
+<p><strong>Operations (macros):</strong>
+- <code>SIGADDSET(set, sig)</code> — Add signal to set
+- <code>SIGDELSET(set, sig)</code> — Remove signal from set
+- <code>SIGISMEMBER(set, sig)</code> — Test membership
+- <code>SIGEMPTYSET(set)</code> — Clear all signals
+- <code>SIGFILLSET(set)</code> — Set all signals
+- <code>SIGSETOR(set1, set2)</code> — Union of sets
+- <code>SIGSETNAND(set1, set2)</code> — Remove set2 from set1</p>
+<p><strong>Atomic variants:</strong>
+- <code>SIGADDSET_ATOMIC(set, sig)</code> — Uses <code>atomic_set_int()</code> for SMP safety
+- <code>SIGDELSET_ATOMIC(set, sig)</code> — Uses <code>atomic_clear_int()</code></p>
+<p><strong>Process vs. Thread signals:</strong>
+- <code>p-&gt;p_siglist</code> — Process-wide pending signals (any thread can handle)
+- <code>lp-&gt;lwp_siglist</code> — Thread-specific pending signals (only this LWP handles)
+- <code>lp-&gt;lwp_sigmask</code> — Per-thread signal mask</p>
+<hr />
+<h2 id="signal-actions-sigaction">Signal Actions (<code>sigaction</code>)<a class="headerlink" href="#signal-actions-sigaction" title="Permanent link">&para;</a></h2>
+<h3 id="setting-signal-handlers">Setting Signal Handlers<a class="headerlink" href="#setting-signal-handlers" title="Permanent link">&para;</a></h3>
+<h4 id="kern_sigaction"><code>kern_sigaction</code><a class="headerlink" href="#kern_sigaction" title="Permanent link">&para;</a></h4>
+<p>Source: <code>kern_sig.c:248-377</code></p>
+<p>Set signal disposition (handler, mask, flags):</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="kt">int</span><span class="w"> </span><span class="nf">kern_sigaction</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">sig</span><span class="p">,</span><span class="w"> </span><span class="k">struct</span><span class="w"> </span><span class="nc">sigaction</span><span class="w"> </span><span class="o">*</span><span class="n">act</span><span class="p">,</span><span class="w"> </span><span class="k">struct</span><span class="w"> </span><span class="nc">sigaction</span><span class="w"> </span><span class="o">*</span><span class="n">oact</span><span class="p">);</span>
+</code></pre></div>
+<p><strong>Validation:</strong>
+1. Check signal number (<code>1 &lt;= sig &lt; _SIG_MAXSIG</code>)
+2. Reject attempts to catch <code>SIGKILL</code> or <code>SIGSTOP</code>
+3. Acquire <code>p-&gt;p_token</code> for atomicity</p>
+<p><strong>Installation:</strong>
+1. Update <code>ps-&gt;ps_sigact[sig]</code> with handler
+2. Update <code>ps-&gt;ps_catchmask[sig]</code> with additional mask
+3. Set flags in various <code>ps_sig*</code> masks:
+   - <code>SA_ONSTACK</code> → <code>ps_sigonstack</code>
+   - <code>SA_RESTART</code> → clear <code>ps_sigintr</code>
+   - <code>SA_RESETHAND</code> → <code>ps_sigreset</code>
+   - <code>SA_NODEFER</code> → <code>ps_signodefer</code>
+   - <code>SA_SIGINFO</code> → <code>ps_siginfo</code>
+4. Handle <code>SIGCHLD</code> special flags (SA_NOCLDSTOP, SA_NOCLDWAIT)</p>
+<p><strong>Signal state updates:</strong>
+- If action is <code>SIG_IGN</code> or default-ignore → remove from pending signals
+- Update <code>p_sigignore</code> and <code>p_sigcatch</code> sets accordingly
+- Iterate all LWPs to clear pending instances</p>
+<p><strong>PID 1 restriction:</strong> Process 1 (init) cannot set SA_NOCLDWAIT to prevent zombie accumulation.</p>
+<h3 id="signal-initialization">Signal Initialization<a class="headerlink" href="#signal-initialization" title="Permanent link">&para;</a></h3>
+<h4 id="siginit-process-0-setup"><code>siginit</code> — Process 0 Setup<a class="headerlink" href="#siginit-process-0-setup" title="Permanent link">&para;</a></h4>
+<p>Source: <code>kern_sig.c:404-418</code></p>
+<p>Called during kernel bootstrap:</p>
+<ol>
+<li>Initialize <code>p_sigignore</code> with default-ignored signals</li>
+<li>Set global <code>sigcantmask_mask</code> (SIGKILL + SIGSTOP)</li>
+</ol>
+<h4 id="execsigs-reset-on-exec"><code>execsigs</code> — Reset on Exec<a class="headerlink" href="#execsigs-reset-on-exec" title="Permanent link">&para;</a></h4>
+<p>Source: <code>kern_sig.c:423-464</code></p>
+<p>Called by <code>execve()</code> to reset signal state:</p>
+<ol>
+<li>Reset all caught signals to SIG_DFL</li>
+<li>Clear signal stack (reset to user stack)</li>
+<li>Clear SA_NOCLDWAIT and SA_NOCLDSTOP flags</li>
+<li>Reset SIGCHLD to SIG_DFL if ignored</li>
+</ol>
+<p><strong>Rationale:</strong> Exec'd program starts with clean signal state (caught signals don't persist across exec).</p>
+<hr />
+<h2 id="signal-masking">Signal Masking<a class="headerlink" href="#signal-masking" title="Permanent link">&para;</a></h2>
+<h3 id="kern_sigprocmask"><code>kern_sigprocmask</code><a class="headerlink" href="#kern_sigprocmask" title="Permanent link">&para;</a></h3>
+<p>Source: <code>kern_sig.c:472-509</code></p>
+<p>Modify thread's signal mask:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="kt">int</span><span class="w"> </span><span class="nf">kern_sigprocmask</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">how</span><span class="p">,</span><span class="w"> </span><span class="kt">sigset_t</span><span class="w"> </span><span class="o">*</span><span class="n">set</span><span class="p">,</span><span class="w"> </span><span class="kt">sigset_t</span><span class="w"> </span><span class="o">*</span><span class="n">oset</span><span class="p">);</span>
+</code></pre></div>
+<p><strong>Operations:</strong>
+- <code>SIG_BLOCK</code> — Add signals to mask: <code>lwp_sigmask |= *set</code>
+- <code>SIG_UNBLOCK</code> — Remove signals from mask: <code>lwp_sigmask &amp;= ~*set</code>
+- <code>SIG_SETMASK</code> — Replace mask: <code>lwp_sigmask = *set</code></p>
+<p><strong>Unmaskable enforcement:</strong> <code>SIG_CANTMASK()</code> macro always removes SIGKILL/SIGSTOP.</p>
+<p><strong>Interlock:</strong> After <code>SIG_SETMASK</code>, calls <code>sigirefs_wait()</code> to synchronize with concurrent signal delivery (prevents races with <code>sigsuspend()</code>/<code>ppoll()</code>/<code>pselect()</code>).</p>
+<h3 id="kern_sigpending"><code>kern_sigpending</code><a class="headerlink" href="#kern_sigpending" title="Permanent link">&para;</a></h3>
+<p>Source: <code>kern_sig.c:541-548</code></p>
+<p>Return set of pending signals:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="kt">int</span><span class="w"> </span><span class="nf">kern_sigpending</span><span class="p">(</span><span class="kt">sigset_t</span><span class="w"> </span><span class="o">*</span><span class="n">set</span><span class="p">);</span>
+</code></pre></div>
+<p>Returns union of process and thread pending signals:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="o">*</span><span class="n">set</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">lwp_sigpend</span><span class="p">(</span><span class="n">lp</span><span class="p">);</span><span class="w">  </span><span class="c1">// p-&gt;p_siglist | lp-&gt;lwp_siglist</span>
+</code></pre></div>
+<h3 id="kern_sigsuspend"><code>kern_sigsuspend</code><a class="headerlink" href="#kern_sigsuspend" title="Permanent link">&para;</a></h3>
+<p>Source: <code>kern_sig.c:573-604</code></p>
+<p>Atomically change mask and sleep until signal:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="kt">int</span><span class="w"> </span><span class="nf">kern_sigsuspend</span><span class="p">(</span><span class="kt">sigset_t</span><span class="w"> </span><span class="o">*</span><span class="n">set</span><span class="p">);</span>
+</code></pre></div>
+<p><strong>Algorithm:</strong>
+1. Save old mask in <code>lp-&gt;lwp_oldsigmask</code>
+2. Set <code>LWP_OLDMASK</code> flag (indicates sigsuspend in progress)
+3. Acquire <code>lp-&gt;lwp_token</code> (interlocks signal delivery)
+4. Set temporary mask: <code>lp-&gt;lwp_sigmask = *set</code>
+5. Release token and call <code>sigirefs_wait()</code> to synchronize
+6. Sleep in <code>tsleep(ps, PCATCH, "pause", 0)</code>
+7. Wake on signal delivery, mask restored in <code>postsig()</code></p>
+<p><strong>Interlock:</strong> Holding <code>lp-&gt;lwp_token</code> during mask change ensures signal delivery sees consistent state.</p>
+<hr />
+<h2 id="signal-generation">Signal Generation<a class="headerlink" href="#signal-generation" title="Permanent link">&para;</a></h2>
+<h3 id="kern_kill-send-signal-to-processthread"><code>kern_kill</code> — Send Signal to Process/Thread<a class="headerlink" href="#kern_kill-send-signal-to-processthread" title="Permanent link">&para;</a></h3>
+<p>Source: <code>kern_sig.c:748-857</code></p>
+<p>Entry point for <code>kill()</code> and <code>lwp_kill()</code> system calls:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a><span class="kt">int</span><span class="w"> </span><span class="nf">kern_kill</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">sig</span><span class="p">,</span><span class="w"> </span><span class="kt">pid_t</span><span class="w"> </span><span class="n">pid</span><span class="p">,</span><span class="w"> </span><span class="n">lwpt_t</span><span class="w"> </span><span class="n">tid</span><span class="p">);</span>
+</code></pre></div>
+<p><strong>Target selection:</strong>
+- <code>pid &gt; 0, tid == -1</code> — Signal process (any thread)
+- <code>pid &gt; 0, tid &gt;= 0</code> — Signal specific thread
+- <code>pid == 0</code> — Signal own process group
+- <code>pid == -1</code> — Broadcast to all processes (privileged)
+- <code>pid &lt; -1</code> — Signal process group <code>-pid</code></p>
+<p><strong>Permission check:</strong>
+- <code>CANSIGIO()</code> macro: root or matching UID
+- <code>p_trespass()</code> for cross-process signals</p>
+<p><strong>Delivery:</strong>
+- Calls <code>lwpsignal(p, lp, sig)</code> with target process/thread</p>
+<h3 id="ksignal-and-lwpsignal-core-signal-delivery"><code>ksignal</code> and <code>lwpsignal</code> — Core Signal Delivery<a class="headerlink" href="#ksignal-and-lwpsignal-core-signal-delivery" title="Permanent link">&para;</a></h3>
+<p>Source: <code>kern_sig.c:1115-1459</code></p>
+<p>The heart of signal delivery:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a><span class="kt">void</span><span class="w"> </span><span class="nf">ksignal</span><span class="p">(</span><span class="k">struct</span><span class="w"> </span><span class="nc">proc</span><span class="w"> </span><span class="o">*</span><span class="n">p</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">sig</span><span class="p">);</span><span class="w">              </span><span class="c1">// Generic process signal</span>
+<a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a><span class="kt">void</span><span class="w"> </span><span class="nf">lwpsignal</span><span class="p">(</span><span class="k">struct</span><span class="w"> </span><span class="nc">proc</span><span class="w"> </span><span class="o">*</span><span class="n">p</span><span class="p">,</span><span class="w"> </span><span class="k">struct</span><span class="w"> </span><span class="nc">lwp</span><span class="w"> </span><span class="o">*</span><span class="n">lp</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">sig</span><span class="p">);</span><span class="w"> </span><span class="c1">// Specific or auto-select LWP</span>
+</code></pre></div>
+<p><strong>Target selection</strong> (if <code>lp == NULL</code>):
+1. Check if current preempted thread belongs to <code>p</code> and doesn't mask signal
+2. Otherwise call <code>find_lwp_for_signal()</code>:
+   - Prefer LSRUN (running) threads
+   - Then LSSLEEP (sleeping with LWP_SINTR)
+   - Finally LSSTOP (stopped) threads
+3. Returns LWP with token held, or NULL if all threads mask signal</p>
+<p><strong>Signal processing:</strong></p>
+<ol>
+<li><strong>Ignored signals:</strong></li>
+<li>If <code>SIGISMEMBER(p_sigignore, sig)</code> → discard (unless P_TRACED)</li>
+<li>
+<p>Still notify kqueue: <code>KNOTE(&amp;p-&gt;p_klist, NOTE_SIGNAL | sig)</code></p>
+</li>
+<li>
+<p><strong>Continue signals (SA_CONT):</strong></p>
+</li>
+<li>Clear all pending STOP signals: <code>SIG_STOPSIGMASK_ATOMIC(p-&gt;p_siglist)</code></li>
+<li>
+<p>If process stopped → call <code>proc_unstop()</code> → wake all threads</p>
+</li>
+<li>
+<p><strong>Stop signals (SA_STOP):</strong></p>
+</li>
+<li>Clear all pending CONT signals: <code>SIG_CONTSIGMASK_ATOMIC(p-&gt;p_siglist)</code></li>
+<li>TTY stop signals ignored if orphaned process group</li>
+<li>
+<p>If default action → call <code>proc_stop()</code> to stop process</p>
+</li>
+<li>
+<p><strong>Process stopped (p-&gt;p_stat == SSTOP):</strong></p>
+</li>
+<li>Add signal to pending list but don't wake (unless SIGKILL or SIGCONT)</li>
+<li>SIGKILL → call <code>proc_unstop()</code> to make runnable</li>
+<li>
+<p>SIGCONT → continue process and optionally notify parent</p>
+</li>
+<li>
+<p><strong>Active process:</strong></p>
+</li>
+<li>Find suitable LWP (if not already specified)</li>
+<li>Add signal to <code>lp-&gt;lwp_siglist</code> (thread-specific)</li>
+<li>Call <code>lwp_signotify(lp)</code> to wake/interrupt thread</li>
+</ol>
+<h3 id="lwp_signotify-wake-thread-for-signal"><code>lwp_signotify</code> — Wake Thread for Signal<a class="headerlink" href="#lwp_signotify-wake-thread-for-signal" title="Permanent link">&para;</a></h3>
+<p>Source: <code>kern_sig.c:1482-1548</code></p>
+<p>Notify LWP that signal has arrived:</p>
+<p><strong>Cases:</strong>
+1. <strong>Preempted on current CPU:</strong>
+   - Call <code>signotify()</code> (sets TDF_SIGPENDING, will check on return to userland)</p>
+<ol>
+<li><strong>Sleeping with LWP_SINTR:</strong></li>
+<li>Thread in <code>tsleep()</code> with <code>PCATCH</code> flag</li>
+<li>If local CPU → call <code>setrunnable(lp)</code></li>
+<li>
+<p>If remote CPU → send IPI via <code>lwkt_send_ipiq()</code></p>
+</li>
+<li>
+<p><strong>Sleeping with TDF_SINTR:</strong></p>
+</li>
+<li>Thread in <code>lwkt_sleep()</code> with <code>PCATCH</code></li>
+<li>
+<p>Same local/remote logic as above</p>
+</li>
+<li>
+<p><strong>Running in userland:</strong></p>
+</li>
+<li>Send IPI to remote CPU to knock thread into kernel</li>
+<li>IPI handler (<code>lwp_signotify_remote</code>) calls <code>signotify()</code></li>
+</ol>
+<p><strong>IPI handling:</strong> IPIs forward <code>LWPHOLD()</code> reference to target CPU if thread migrates.</p>
+<h3 id="find_lwp_for_signal"><code>find_lwp_for_signal</code><a class="headerlink" href="#find_lwp_for_signal" title="Permanent link">&para;</a></h3>
+<p>Source: <code>kern_sig.c:996-1095</code></p>
+<p>Select best LWP to receive signal:</p>
+<p><strong>Priority:</strong>
+1. <strong>Current preempted thread</strong> (if doesn't mask signal) — avoids context switch
+2. <strong>LSRUN thread</strong> — already running, will return to userland soon
+3. <strong>LSSLEEP thread with LWP_SINTR</strong> — can be interrupted
+4. <strong>LSSTOP thread</strong> — stopped, will check signal when resumed</p>
+<p><strong>Locking:</strong> Returns LWP with <code>lwp_token</code> held and <code>LWPHOLD()</code> reference.</p>
+<hr />
+<h2 id="signal-delivery-path">Signal Delivery Path<a class="headerlink" href="#signal-delivery-path" title="Permanent link">&para;</a></h2>
+<h3 id="process-control-signals">Process Control Signals<a class="headerlink" href="#process-control-signals" title="Permanent link">&para;</a></h3>
+<h4 id="proc_stop-stop-all-threads"><code>proc_stop</code> — Stop All Threads<a class="headerlink" href="#proc_stop-stop-all-threads" title="Permanent link">&para;</a></h4>
+<p>Source: <code>kern_sig.c:1584-1660</code></p>
+<p>Called when stop signal arrives (default action):</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a><span class="kt">void</span><span class="w"> </span><span class="nf">proc_stop</span><span class="p">(</span><span class="k">struct</span><span class="w"> </span><span class="nc">proc</span><span class="w"> </span><span class="o">*</span><span class="n">p</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">stat</span><span class="p">);</span><span class="w">  </span><span class="c1">// stat = SSTOP or SCORE</span>
+</code></pre></div>
+<p><strong>Algorithm:</strong>
+1. Set <code>p-&gt;p_stat = SSTOP</code> (or SCORE for coredump)
+2. For each LWP:
+   - <strong>LSSTOP:</strong> Already stopped, no action
+   - <strong>LSSLEEP:</strong> Set <code>LWP_MP_WSTOP</code>, increment <code>p-&gt;p_nstopped</code>
+   - <strong>LSRUN:</strong> Call <code>lwp_signotify()</code> to interrupt
+3. If all threads stopped (<code>p-&gt;p_nstopped == p-&gt;p_nthreads</code>):
+   - Clear <code>P_WAITED</code> flag
+   - Wake parent: <code>wakeup(parent)</code>
+   - Send <code>SIGCHLD</code> (unless PS_NOCLDSTOP set)</p>
+<p><strong>SCORE state:</strong> Special state for coredump — cannot be overridden by SIGCONT until coredump completes.</p>
+<p><strong>LWP_MP_WSTOP flag:</strong> Prevents sleeping threads from incrementing <code>p-&gt;p_nstopped</code> again when they reach <code>tstop()</code>.</p>
+<h4 id="proc_unstop-resume-all-threads"><code>proc_unstop</code> — Resume All Threads<a class="headerlink" href="#proc_unstop-resume-all-threads" title="Permanent link">&para;</a></h4>
+<p>Source: <code>kern_sig.c:1666-1728</code></p>
+<p>Called when SIGCONT arrives or SIGKILL overrides stop:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a><span class="kt">void</span><span class="w"> </span><span class="nf">proc_unstop</span><span class="p">(</span><span class="k">struct</span><span class="w"> </span><span class="nc">proc</span><span class="w"> </span><span class="o">*</span><span class="n">p</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">stat</span><span class="p">);</span>
+</code></pre></div>
+<p><strong>Algorithm:</strong>
+1. Verify <code>p-&gt;p_stat == stat</code> (SSTOP or SCORE)
+2. Set <code>p-&gt;p_stat = SACTIVE</code>
+3. For each LWP:
+   - <strong>LSRUN:</strong> Already running (unexpected but allowed)
+   - <strong>LSSLEEP:</strong> Clear <code>LWP_MP_WSTOP</code>, call <code>setrunnable()</code>
+   - <strong>LSSTOP:</strong> Call <code>setrunnable()</code> to wake thread</p>
+<p><strong>Effect:</strong> All threads transition from stopped to runnable, will return to userland or continue execution.</p>
+<h4 id="proc_stopwait-wait-for-all-threads-to-stop"><code>proc_stopwait</code> — Wait for All Threads to Stop<a class="headerlink" href="#proc_stopwait-wait-for-all-threads-to-stop" title="Permanent link">&para;</a></h4>
+<p>Source: <code>kern_sig.c:1731-1748</code></p>
+<p>Used before coredump to ensure all threads fully stopped:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a><span class="k">while</span><span class="w"> </span><span class="p">(</span><span class="n">p</span><span class="o">-&gt;</span><span class="n">p_nstopped</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">p</span><span class="o">-&gt;</span><span class="n">p_nthreads</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-12-2" name="__codelineno-12-2" href="#__codelineno-12-2"></a><span class="w">    </span><span class="n">tsleep</span><span class="p">(</span><span class="o">&amp;</span><span class="n">p</span><span class="o">-&gt;</span><span class="n">p_nstopped</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;stopwait&quot;</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">);</span>
+<a id="__codelineno-12-3" name="__codelineno-12-3" href="#__codelineno-12-3"></a><span class="p">}</span>
+</code></pre></div>
+<p>Polls until <code>p-&gt;p_nstopped</code> reaches <code>p-&gt;p_nthreads</code>.</p>
+<hr />
+<h2 id="signal-dispatch">Signal Dispatch<a class="headerlink" href="#signal-dispatch" title="Permanent link">&para;</a></h2>
+<h3 id="issignal-check-for-pending-signal"><code>issignal</code> — Check for Pending Signal<a class="headerlink" href="#issignal-check-for-pending-signal" title="Permanent link">&para;</a></h3>
+<p>Source: <code>kern_sig.c:1979-2248</code></p>
+<p>Called via <code>CURSIG()</code> macro to check if signal should be delivered:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a><span class="kt">int</span><span class="w"> </span><span class="nf">issignal</span><span class="p">(</span><span class="k">struct</span><span class="w"> </span><span class="nc">lwp</span><span class="w"> </span><span class="o">*</span><span class="n">lp</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">maytrace</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="o">*</span><span class="n">ptokp</span><span class="p">);</span>
+</code></pre></div>
+<p><strong>Returns:</strong> Signal number to handle, or 0 if none.</p>
+<p><strong>Algorithm:</strong></p>
+<ol>
+<li><strong>Quick check without token:</strong></li>
+<li>Compute <code>mask = lwp_sigpend(lp) &amp; ~lwp_sigmask</code></li>
+<li>Remove stop signals if <code>P_PPWAIT</code> (vfork parent)</li>
+<li>
+<p>If empty → return 0 (no signal)</p>
+</li>
+<li>
+<p><strong>Acquire token if signal in process list:</strong></p>
+</li>
+<li>
+<p>Recheck mask with token held (double-check pattern)</p>
+</li>
+<li>
+<p><strong>Handle ignored signals:</strong></p>
+</li>
+<li>
+<p>If <code>SIGISMEMBER(p_sigignore, sig)</code> → delete and continue</p>
+</li>
+<li>
+<p><strong>Tracing (P_TRACED):</strong></p>
+</li>
+<li>Stop process: <code>proc_stop(p, SSTOP)</code></li>
+<li>Call <code>tstop()</code> to block thread</li>
+<li>Parent can modify signal via ptrace: <code>p-&gt;p_xstat</code></li>
+<li>
+<p>If parent clears signal → continue loop</p>
+</li>
+<li>
+<p><strong>Determine action:</strong></p>
+</li>
+<li><code>SIG_DFL</code> — Default action (check properties)</li>
+<li><code>SIG_IGN</code> — Ignored (shouldn't happen, but continue)</li>
+<li>
+<p>Custom handler — return signal number</p>
+</li>
+<li>
+<p><strong>Default action handling:</strong></p>
+</li>
+<li><strong>SA_CKPT:</strong> Call <code>checkpoint_signal_handler()</code> (DragonFly checkpoint)</li>
+<li><strong>SA_STOP:</strong> Call <code>proc_stop()</code>, delete signal, continue loop</li>
+<li><strong>SA_IGNORE:</strong> Delete signal, continue loop (e.g., SIGCONT)</li>
+<li>
+<p><strong>SA_KILL/SA_CORE:</strong> Return signal for <code>postsig()</code> to handle</p>
+</li>
+<li>
+<p><strong>Delete signal from pending lists:</strong></p>
+</li>
+<li><code>lwp_delsig(lp, sig, haveptok)</code> removes from both <code>p_siglist</code> and <code>lwp_siglist</code></li>
+</ol>
+<p><strong>Token management:</strong> Carefully tracks whether <code>p-&gt;p_token</code> is held via <code>haveptok</code> flag, returns ownership via <code>ptokp</code> pointer.</p>
+<h3 id="postsig-execute-signal-action"><code>postsig</code> — Execute Signal Action<a class="headerlink" href="#postsig-execute-signal-action" title="Permanent link">&para;</a></h3>
+<p>Source: <code>kern_sig.c:2260-2360</code></p>
+<p>Deliver signal to handler or terminate process:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-14-1" name="__codelineno-14-1" href="#__codelineno-14-1"></a><span class="kt">void</span><span class="w"> </span><span class="nf">postsig</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">sig</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">haveptok</span><span class="p">);</span>
+</code></pre></div>
+<p><strong>Called from:</strong> Trap handler or syscall return path (userret).</p>
+<p><strong>Actions:</strong></p>
+<ol>
+<li>
+<p><strong>Virtual kernel:</strong> If in vkernel context, switch back to kernel context</p>
+</li>
+<li>
+<p><strong>Delete signal:</strong> <code>lwp_delsig(lp, sig, haveptok)</code></p>
+</li>
+<li>
+<p><strong>Notify kqueue:</strong> <code>KNOTE(&amp;p-&gt;p_klist, NOTE_SIGNAL | sig)</code></p>
+</li>
+<li>
+<p><strong>Default action (SIG_DFL):</strong></p>
+</li>
+<li>Call <code>sigexit(lp, sig)</code> to terminate process</li>
+<li>Generates core dump if SA_CORE property</li>
+<li>
+<p>Does not return</p>
+</li>
+<li>
+<p><strong>Custom handler:</strong></p>
+</li>
+<li>Determine mask to restore after handler:<ul>
+<li>If <code>LWP_OLDMASK</code> set (from sigsuspend) → use <code>lwp_oldsigmask</code></li>
+<li>Otherwise → use current <code>lwp_sigmask</code></li>
+</ul>
+</li>
+<li>Block additional signals: <code>SIGSETOR(lwp_sigmask, ps_catchmask[sig])</code></li>
+<li>Unless SA_NODEFER → also block signal itself</li>
+<li>Reset handler to SIG_DFL if SA_RESETHAND</li>
+<li>Call platform-specific sendsig: <code>(*sv_sendsig)(action, sig, &amp;returnmask, code)</code></li>
+<li>Increment <code>ru_nsignals</code> counter</li>
+</ol>
+<p><strong>Machine-dependent sendsig:</strong>
+- Sets up signal trampoline on user stack
+- Modifies user registers to call handler
+- Stores return mask for <code>sigreturn()</code> syscall</p>
+<hr />
+<h2 id="special-signal-handling">Special Signal Handling<a class="headerlink" href="#special-signal-handling" title="Permanent link">&para;</a></h2>
+<h3 id="trapsignal-synchronous-signal-from-trap"><code>trapsignal</code> — Synchronous Signal from Trap<a class="headerlink" href="#trapsignal-synchronous-signal-from-trap" title="Permanent link">&para;</a></h3>
+<p>Source: <code>kern_sig.c:940-985</code></p>
+<p>Deliver signal caused by trap (e.g., SIGSEGV, SIGFPE):</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-15-1" name="__codelineno-15-1" href="#__codelineno-15-1"></a><span class="kt">void</span><span class="w"> </span><span class="nf">trapsignal</span><span class="p">(</span><span class="k">struct</span><span class="w"> </span><span class="nc">lwp</span><span class="w"> </span><span class="o">*</span><span class="n">lp</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">sig</span><span class="p">,</span><span class="w"> </span><span class="n">u_long</span><span class="w"> </span><span class="n">code</span><span class="p">);</span>
+</code></pre></div>
+<p><strong>Difference from regular signals:</strong> These signals MUST be delivered to the specific LWP that caused the trap (never delivered generically to process).</p>
+<p><strong>Fast path:</strong> If signal is caught and not masked:
+- Immediately call <code>(*sv_sendsig)()</code> to invoke handler
+- No need to make signal pending
+- Update signal mask and apply SA_RESETHAND/SA_NODEFER</p>
+<p><strong>Slow path:</strong> Otherwise call <code>lwpsignal(p, lp, sig)</code> to queue signal.</p>
+<p><strong>Virtual kernel:</strong> If in vkernel emulation, switch back to vkernel context before delivering.</p>
+<h3 id="sigexit-terminate-with-signal"><code>sigexit</code> — Terminate with Signal<a class="headerlink" href="#sigexit-terminate-with-signal" title="Permanent link">&para;</a></h3>
+<p>Source: <code>kern_sig.c:2384-2430</code></p>
+<p>Force process exit due to signal:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-16-1" name="__codelineno-16-1" href="#__codelineno-16-1"></a><span class="kt">void</span><span class="w"> </span><span class="nf">sigexit</span><span class="p">(</span><span class="k">struct</span><span class="w"> </span><span class="nc">lwp</span><span class="w"> </span><span class="o">*</span><span class="n">lp</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">sig</span><span class="p">);</span>
+</code></pre></div>
+<p><strong>Steps:</strong></p>
+<ol>
+<li>
+<p>Set <code>p-&gt;p_acflag |= AXSIG</code> (accounting: terminated by signal)</p>
+</li>
+<li>
+<p><strong>Core dump (SA_CORE signals):</strong></p>
+</li>
+<li>Stop all threads: <code>proc_stop(p, SCORE)</code> + <code>proc_stopwait(p)</code></li>
+<li>Call <code>coredump(lp, sig)</code> to write core file</li>
+<li>If successful → set <code>WCOREFLAG</code> in exit status</li>
+<li>
+<p>Log message: <code>"pid %d (%s), uid %d: exited on signal %d (core dumped)"</code></p>
+</li>
+<li>
+<p><strong>Exit:</strong> Call <code>exit1(W_EXITCODE(0, sig))</code> — does not return</p>
+</li>
+</ol>
+<p><strong>Sysctl:</strong> <code>kern.logsigexit</code> controls logging (default 1).</p>
+<h3 id="coredump-generate-core-file"><code>coredump</code> — Generate Core File<a class="headerlink" href="#coredump-generate-core-file" title="Permanent link">&para;</a></h3>
+<p>Source: <code>kern_sig.c:2515-2678</code></p>
+<p>Write core dump to filesystem:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-17-1" name="__codelineno-17-1" href="#__codelineno-17-1"></a><span class="k">static</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="nf">coredump</span><span class="p">(</span><span class="k">struct</span><span class="w"> </span><span class="nc">lwp</span><span class="w"> </span><span class="o">*</span><span class="n">lp</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">sig</span><span class="p">);</span>
+</code></pre></div>
+<p><strong>Algorithm:</strong></p>
+<ol>
+<li><strong>Check permissions:</strong></li>
+<li>If sugid process → check <code>kern.sugid_coredump</code> sysctl</li>
+<li>
+<p>If disabled globally → check <code>kern.coredump</code> sysctl</p>
+</li>
+<li>
+<p><strong>Expand core filename:</strong></p>
+</li>
+<li>Default: <code>"%N.core"</code> (process name + ".core")</li>
+<li>Supports format specifiers: <code>%N</code> (name), <code>%P</code> (pid), <code>%U</code> (uid)</li>
+<li>
+<p>Example: <code>"/cores/%U/%N-%P"</code> → <code>/cores/1000/myapp-1234</code></p>
+</li>
+<li>
+<p><strong>Create core file:</strong></p>
+</li>
+<li>Call <code>nlookup_init_at()</code> with expanded path</li>
+<li>Open with <code>O_CREAT | O_TRUNC | O_NOFOLLOW</code></li>
+<li>
+<p>Prevent following symlinks (security)</p>
+</li>
+<li>
+<p><strong>Write core:</strong></p>
+</li>
+<li>Call <code>(*p-&gt;p_sysent-&gt;sv_coredump)(lp, sig, vp, limit)</code></li>
+<li>Platform-specific function writes ELF core format</li>
+<li>
+<p>Includes registers, memory segments, thread info</p>
+</li>
+<li>
+<p><strong>Cleanup:</strong></p>
+</li>
+<li>Close file</li>
+<li>Release vnode</li>
+</ol>
+<p><strong>Security:</strong> Setuid/setgid programs don't dump core by default (prevents password/key leakage).</p>
+<hr />
+<h2 id="process-group-signals">Process Group Signals<a class="headerlink" href="#process-group-signals" title="Permanent link">&para;</a></h2>
+<h3 id="pgsignal-signal-process-group"><code>pgsignal</code> — Signal Process Group<a class="headerlink" href="#pgsignal-signal-process-group" title="Permanent link">&para;</a></h3>
+<p>Source: <code>kern_sig.c:911-929</code></p>
+<p>Send signal to all members of process group:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-18-1" name="__codelineno-18-1" href="#__codelineno-18-1"></a><span class="kt">void</span><span class="w"> </span><span class="nf">pgsignal</span><span class="p">(</span><span class="k">struct</span><span class="w"> </span><span class="nc">pgrp</span><span class="w"> </span><span class="o">*</span><span class="n">pgrp</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">sig</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">checkctty</span><span class="p">);</span>
+</code></pre></div>
+<p><strong>Parameters:</strong>
+- <code>pgrp</code> — Process group structure
+- <code>sig</code> — Signal number
+- <code>checkctty</code> — If 1, only signal processes with controlling terminal</p>
+<p><strong>Algorithm:</strong>
+1. Acquire <code>pgrp-&gt;pg_lock</code> (prevents concurrent fork from missing signal)
+2. Iterate <code>pgrp-&gt;pg_members</code> list
+3. For each process:
+   - If <code>checkctty == 0</code> or <code>p-&gt;p_flags &amp; P_CONTROLT</code> → call <code>ksignal(p, sig)</code></p>
+<p><strong>Locking:</strong> Process group lock ensures that processes forking during signal delivery either:
+- See the lock and wait → receive signal after fork completes
+- Complete fork before lock → child added to group and receives signal</p>
+<hr />
+<h2 id="wait-for-signal">Wait for Signal<a class="headerlink" href="#wait-for-signal" title="Permanent link">&para;</a></h2>
+<h3 id="kern_sigtimedwait-wait-for-specific-signals"><code>kern_sigtimedwait</code> — Wait for Specific Signals<a class="headerlink" href="#kern_sigtimedwait-wait-for-specific-signals" title="Permanent link">&para;</a></h3>
+<p>Source: <code>kern_sig.c:1754-1866</code></p>
+<p>Wait for signal from specified set (with optional timeout):</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-19-1" name="__codelineno-19-1" href="#__codelineno-19-1"></a><span class="k">static</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="nf">kern_sigtimedwait</span><span class="p">(</span><span class="kt">sigset_t</span><span class="w"> </span><span class="n">waitset</span><span class="p">,</span><span class="w"> </span><span class="kt">siginfo_t</span><span class="w"> </span><span class="o">*</span><span class="n">info</span><span class="p">,</span>
+<a id="__codelineno-19-2" name="__codelineno-19-2" href="#__codelineno-19-2"></a><span class="w">                               </span><span class="k">struct</span><span class="w"> </span><span class="nc">timespec</span><span class="w"> </span><span class="o">*</span><span class="n">timeout</span><span class="p">);</span>
+</code></pre></div>
+<p><strong>Used by:</strong> <code>sigwaitinfo()</code>, <code>sigtimedwait()</code> system calls.</p>
+<p><strong>Algorithm:</strong></p>
+<ol>
+<li>Save current signal mask</li>
+<li>Compute timeout deadline (if specified)</li>
+<li>Loop:</li>
+<li>Check if any signal in <code>waitset</code> is pending: <code>set = lwp_sigpend(lp) &amp; waitset</code></li>
+<li>If signal found:<ul>
+<li>Temporarily fill signal mask to block all signals</li>
+<li>Call <code>issignal(lp, 1, NULL)</code> to process signal</li>
+<li>If SIGSTOP → may return 0, retry</li>
+<li>Delete signal from pending list</li>
+<li>Return signal number</li>
+</ul>
+</li>
+<li>If no signal and timeout expired → return EAGAIN</li>
+<li>
+<p>Otherwise:</p>
+<ul>
+<li>Block all signals in <code>waitset</code>: <code>lwp_sigmask &amp;= ~waitset</code></li>
+<li>Call <code>sigirefs_wait()</code> to synchronize</li>
+<li>Sleep: <code>tsleep(&amp;p-&gt;p_sigacts, PCATCH, "sigwt", hz)</code></li>
+<li>Wake on signal delivery (broken by <code>lwpsignal()</code>)</li>
+<li>Retry loop</li>
+</ul>
+</li>
+<li>
+<p>Restore original signal mask</p>
+</li>
+</ol>
+<p><strong>Return:</strong> Signal number in <code>info-&gt;si_signo</code>, or error code.</p>
+<p><strong>Note:</strong> Signal is <strong>consumed</strong> (removed from pending list), unlike normal signal delivery which queues for handler.</p>
+<hr />
+<h2 id="kqueue-integration">Kqueue Integration<a class="headerlink" href="#kqueue-integration" title="Permanent link">&para;</a></h2>
+<h3 id="filt_sigattachfilt_signal"><code>filt_sigattach</code>/<code>filt_signal</code><a class="headerlink" href="#filt_sigattachfilt_signal" title="Permanent link">&para;</a></h3>
+<p>Source: <code>kern_sig.c:84-89, 2562-2614</code></p>
+<p>Kqueue filter for signal notification:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-20-1" name="__codelineno-20-1" href="#__codelineno-20-1"></a><span class="k">struct</span><span class="w"> </span><span class="nc">filterops</span><span class="w"> </span><span class="n">sig_filtops</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-20-2" name="__codelineno-20-2" href="#__codelineno-20-2"></a><span class="w">    </span><span class="n">FILTEROP_MPSAFE</span><span class="p">,</span>
+<a id="__codelineno-20-3" name="__codelineno-20-3" href="#__codelineno-20-3"></a><span class="w">    </span><span class="n">filt_sigattach</span><span class="p">,</span>
+<a id="__codelineno-20-4" name="__codelineno-20-4" href="#__codelineno-20-4"></a><span class="w">    </span><span class="n">filt_sigdetach</span><span class="p">,</span>
+<a id="__codelineno-20-5" name="__codelineno-20-5" href="#__codelineno-20-5"></a><span class="w">    </span><span class="n">filt_signal</span>
+<a id="__codelineno-20-6" name="__codelineno-20-6" href="#__codelineno-20-6"></a><span class="p">};</span>
+</code></pre></div>
+<p><strong>Attach:</strong> Register knote on process: <code>KNOTE_INSERT(&amp;p-&gt;p_klist, kn)</code></p>
+<p><strong>Signal:</strong> When signal arrives, <code>lwpsignal()</code> calls:
+<div class="highlight"><pre><span></span><code><a id="__codelineno-21-1" name="__codelineno-21-1" href="#__codelineno-21-1"></a><span class="n">KNOTE</span><span class="p">(</span><span class="o">&amp;</span><span class="n">p</span><span class="o">-&gt;</span><span class="n">p_klist</span><span class="p">,</span><span class="w"> </span><span class="n">NOTE_SIGNAL</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">sig</span><span class="p">);</span>
+</code></pre></div></p>
+<p>This wakes any threads waiting in <code>kevent()</code> for signal notification.</p>
+<p><strong>Use case:</strong> Alternative to <code>sigwait()</code> — allows waiting for signals via kqueue instead of signal-specific APIs.</p>
+<hr />
+<h2 id="signal-interlock-mechanism">Signal Interlock Mechanism<a class="headerlink" href="#signal-interlock-mechanism" title="Permanent link">&para;</a></h2>
+<h3 id="sigirefs-signal-delivery-interlock"><code>sigirefs</code> — Signal Delivery Interlock<a class="headerlink" href="#sigirefs-signal-delivery-interlock" title="Permanent link">&para;</a></h3>
+<p>Source: (referenced throughout <code>kern_sig.c</code>)</p>
+<p>Prevents races between signal delivery and operations that change the signal mask (sigsuspend, ppoll, pselect):</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-22-1" name="__codelineno-22-1" href="#__codelineno-22-1"></a><span class="kt">void</span><span class="w"> </span><span class="nf">sigirefs_hold</span><span class="p">(</span><span class="k">struct</span><span class="w"> </span><span class="nc">proc</span><span class="w"> </span><span class="o">*</span><span class="n">p</span><span class="p">);</span><span class="w">     </span><span class="c1">// Increment p-&gt;p_sigirefs</span>
+<a id="__codelineno-22-2" name="__codelineno-22-2" href="#__codelineno-22-2"></a><span class="kt">void</span><span class="w"> </span><span class="nf">sigirefs_drop</span><span class="p">(</span><span class="k">struct</span><span class="w"> </span><span class="nc">proc</span><span class="w"> </span><span class="o">*</span><span class="n">p</span><span class="p">);</span><span class="w">     </span><span class="c1">// Decrement p-&gt;p_sigirefs</span>
+<a id="__codelineno-22-3" name="__codelineno-22-3" href="#__codelineno-22-3"></a><span class="kt">void</span><span class="w"> </span><span class="nf">sigirefs_wait</span><span class="p">(</span><span class="k">struct</span><span class="w"> </span><span class="nc">proc</span><span class="w"> </span><span class="o">*</span><span class="n">p</span><span class="p">);</span><span class="w">     </span><span class="c1">// Wait for p-&gt;p_sigirefs == 0</span>
+</code></pre></div>
+<p><strong>Problem:</strong> Without interlock:
+1. Thread calls <code>sigsuspend()</code>, changes mask, about to sleep
+2. Signal arrives, sees old mask, delivered to process list instead of LWP
+3. Thread sleeps, signal not delivered to correct LWP</p>
+<p><strong>Solution:</strong>
+1. <code>sigsuspend()</code> calls <code>sigirefs_wait()</code> before sleeping → waits for pending signal delivery to complete
+2. <code>lwpsignal()</code> calls <code>sigirefs_hold()</code> before checking mask → prevents mask changes during delivery
+3. After delivery, <code>sigirefs_drop()</code> releases hold</p>
+<p>This ensures mask changes and signal delivery don't race.</p>
+<hr />
+<h2 id="syscall-signal-interruption">Syscall Signal Interruption<a class="headerlink" href="#syscall-signal-interruption" title="Permanent link">&para;</a></h2>
+<h3 id="iscaught-check-for-interrupting-signal"><code>iscaught</code> — Check for Interrupting Signal<a class="headerlink" href="#iscaught-check-for-interrupting-signal" title="Permanent link">&para;</a></h3>
+<p>Source: <code>kern_sig.c:1948-1962</code></p>
+<p>Check if system call should be interrupted:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-23-1" name="__codelineno-23-1" href="#__codelineno-23-1"></a><span class="kt">int</span><span class="w"> </span><span class="nf">iscaught</span><span class="p">(</span><span class="k">struct</span><span class="w"> </span><span class="nc">lwp</span><span class="w"> </span><span class="o">*</span><span class="n">lp</span><span class="p">);</span>
+</code></pre></div>
+<p><strong>Returns:</strong>
+- <code>EINTR</code> — Signal interrupts syscall (signal in <code>ps_sigintr</code>)
+- <code>ERESTART</code> — Syscall should be restarted (signal not in <code>ps_sigintr</code>, i.e., SA_RESTART)
+- <code>EWOULDBLOCK</code> — No signal pending</p>
+<p><strong>Used by:</strong> Long-running syscalls (read, write, sleep) to check for pending signals.</p>
+<p><strong>Flow:</strong>
+1. Call <code>CURSIG(lp)</code> → <code>issignal()</code>
+2. If signal found → check if in <code>ps_sigintr</code> set
+3. Return appropriate error code
+4. Syscall code checks error and either aborts or restarts</p>
+<hr />
+<h2 id="dragonfly-specific-extensions">DragonFly-Specific Extensions<a class="headerlink" href="#dragonfly-specific-extensions" title="Permanent link">&para;</a></h2>
+<h3 id="checkpoint-signals">Checkpoint Signals<a class="headerlink" href="#checkpoint-signals" title="Permanent link">&para;</a></h3>
+<p>Source: <code>kern_sig.c:162-163</code></p>
+<p>DragonFly provides checkpoint/resume functionality via signals:</p>
+<ul>
+<li><strong>SIGCKPT</strong> (<code>32</code>) — SA_CKPT property, triggers <code>checkpoint_signal_handler()</code></li>
+<li><strong>SIGCKPTEXIT</strong> (<code>33</code>) — SA_CKPT | SA_KILL, checkpoint and exit</li>
+</ul>
+<p><strong>Use case:</strong> Save process state to disk, allowing resume later or on different machine.</p>
+<h3 id="cross-cpu-signal-delivery">Cross-CPU Signal Delivery<a class="headerlink" href="#cross-cpu-signal-delivery" title="Permanent link">&para;</a></h3>
+<p>DragonFly's LWKT threading and per-CPU design requires IPI-based signal notification:</p>
+<ul>
+<li><code>lwp_signotify()</code> checks if target LWP is on remote CPU</li>
+<li>Sends IPI via <code>lwkt_send_ipiq(gd, lwp_signotify_remote, lp)</code></li>
+<li>Remote CPU calls <code>signotify()</code> or <code>lwkt_schedule()</code> to wake thread</li>
+</ul>
+<p><strong>Forwarding:</strong> If thread migrates to another CPU before IPI delivery, IPI is forwarded again (with LWPHOLD reference).</p>
+<h3 id="thread-specific-signals">Thread-Specific Signals<a class="headerlink" href="#thread-specific-signals" title="Permanent link">&para;</a></h3>
+<p><code>lwp_kill()</code> syscall allows targeting specific thread (LWP):</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-24-1" name="__codelineno-24-1" href="#__codelineno-24-1"></a><span class="kt">int</span><span class="w"> </span><span class="nf">lwp_kill</span><span class="p">(</span><span class="kt">pid_t</span><span class="w"> </span><span class="n">pid</span><span class="p">,</span><span class="w"> </span><span class="n">lwpt_t</span><span class="w"> </span><span class="n">tid</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">sig</span><span class="p">);</span>
+</code></pre></div>
+<p><strong>Restriction:</strong> <code>tid</code> cannot be -1 (use <code>kill()</code> for process signals).</p>
+<p><strong>Use case:</strong> Send signal to specific thread in multi-threaded process (e.g., sampling profiler).</p>
+<hr />
+<h2 id="interaction-with-other-subsystems">Interaction with Other Subsystems<a class="headerlink" href="#interaction-with-other-subsystems" title="Permanent link">&para;</a></h2>
+<h3 id="signal-and-fork">Signal and Fork<a class="headerlink" href="#signal-and-fork" title="Permanent link">&para;</a></h3>
+<p>Source: <code>kern_fork.c</code></p>
+<p>On <code>fork()</code>:
+1. Child inherits <code>p_sigacts</code> (shared, refcounted)
+2. Child's <code>p_siglist</code> cleared (no pending signals)
+3. Child's <code>lp-&gt;lwp_siglist</code> cleared
+4. Child's <code>lp-&gt;lwp_sigmask</code> inherited from parent</p>
+<p>On <code>rfork(RFPROC)</code>:
+- Same as fork</p>
+<p>On <code>rfork(RFTHREAD)</code>:
+- <code>p_sigacts</code> shared with parent
+- <code>lwp_sigmask</code> inherited
+- Signals can target specific thread</p>
+<h3 id="signal-and-exec">Signal and Exec<a class="headerlink" href="#signal-and-exec" title="Permanent link">&para;</a></h3>
+<p>Source: <code>kern_exec.c</code>, calls <code>execsigs()</code></p>
+<p>On <code>execve()</code>:
+1. Reset all caught signals to SIG_DFL
+2. Held signals remain held (preserved in <code>lwp_sigmask</code>)
+3. Reset signal stack to user stack
+4. Clear SA_NOCLDWAIT / SA_NOCLDSTOP
+5. Reset SIGCHLD to SIG_DFL if ignored</p>
+<p><strong>Rationale:</strong> New program image shouldn't inherit old program's signal handlers.</p>
+<h3 id="signal-and-exit">Signal and Exit<a class="headerlink" href="#signal-and-exit" title="Permanent link">&para;</a></h3>
+<p>Source: <code>kern_exit.c</code></p>
+<p>On <code>exit()</code>:
+1. Parent receives SIGCHLD (unless PS_NOCLDSTOP or process stopped)
+2. If SA_NOCLDWAIT set → child immediately reaped (no zombie)
+3. Otherwise → child becomes zombie, <code>wait()</code> retrieves exit status
+4. If signal caused exit → <code>p-&gt;p_xstat</code> contains signal number | WCOREFLAG</p>
+<h3 id="signal-and-ptrace">Signal and Ptrace<a class="headerlink" href="#signal-and-ptrace" title="Permanent link">&para;</a></h3>
+<p>Source: <code>kern_sig.c:2060-2130</code></p>
+<p>When process traced (P_TRACED):
+1. <code>issignal()</code> stops process on every signal
+2. Parent debugger notified
+3. Debugger can:
+   - Inspect signal number in <code>p-&gt;p_xstat</code>
+   - Modify signal (change <code>p-&gt;p_xstat</code>)
+   - Clear signal (set <code>p-&gt;p_xstat = 0</code>)
+   - Continue process with <code>PTRACE_CONT</code></p>
+<p><strong>Use case:</strong> Debuggers intercept signals for single-stepping, breakpoints, etc.</p>
+<hr />
+<h2 id="key-algorithms">Key Algorithms<a class="headerlink" href="#key-algorithms" title="Permanent link">&para;</a></h2>
+<h3 id="signal-delivery-decision-tree">Signal Delivery Decision Tree<a class="headerlink" href="#signal-delivery-decision-tree" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-25-1" name="__codelineno-25-1" href="#__codelineno-25-1"></a>lwpsignal(p, lp, sig):
+<a id="__codelineno-25-2" name="__codelineno-25-2" href="#__codelineno-25-2"></a>    1. Is signal ignored (p_sigignore)?
+<a id="__codelineno-25-3" name="__codelineno-25-3" href="#__codelineno-25-3"></a>       → Yes: Discard (notify kqueue)
+<a id="__codelineno-25-4" name="__codelineno-25-4" href="#__codelineno-25-4"></a>       → No: Continue
+<a id="__codelineno-25-5" name="__codelineno-25-5" href="#__codelineno-25-5"></a>
+<a id="__codelineno-25-6" name="__codelineno-25-6" href="#__codelineno-25-6"></a>    2. Is signal a CONT (SA_CONT)?
+<a id="__codelineno-25-7" name="__codelineno-25-7" href="#__codelineno-25-7"></a>       → Yes: Clear pending STOP signals
+<a id="__codelineno-25-8" name="__codelineno-25-8" href="#__codelineno-25-8"></a>       → If process stopped: unstop process
+<a id="__codelineno-25-9" name="__codelineno-25-9" href="#__codelineno-25-9"></a>       → Continue
+<a id="__codelineno-25-10" name="__codelineno-25-10" href="#__codelineno-25-10"></a>
+<a id="__codelineno-25-11" name="__codelineno-25-11" href="#__codelineno-25-11"></a>    3. Is signal a STOP (SA_STOP)?
+<a id="__codelineno-25-12" name="__codelineno-25-12" href="#__codelineno-25-12"></a>       → Yes: Clear pending CONT signals
+<a id="__codelineno-25-13" name="__codelineno-25-13" href="#__codelineno-25-13"></a>       → If default action: stop process, done
+<a id="__codelineno-25-14" name="__codelineno-25-14" href="#__codelineno-25-14"></a>       → Otherwise: Continue
+<a id="__codelineno-25-15" name="__codelineno-25-15" href="#__codelineno-25-15"></a>
+<a id="__codelineno-25-16" name="__codelineno-25-16" href="#__codelineno-25-16"></a>    4. Is process already stopped (SSTOP)?
+<a id="__codelineno-25-17" name="__codelineno-25-17" href="#__codelineno-25-17"></a>       → Yes: Add signal to pending list
+<a id="__codelineno-25-18" name="__codelineno-25-18" href="#__codelineno-25-18"></a>       → If SIGKILL: unstop process
+<a id="__codelineno-25-19" name="__codelineno-25-19" href="#__codelineno-25-19"></a>       → If SIGCONT and caught: unstop process
+<a id="__codelineno-25-20" name="__codelineno-25-20" href="#__codelineno-25-20"></a>       → Otherwise: done
+<a id="__codelineno-25-21" name="__codelineno-25-21" href="#__codelineno-25-21"></a>
+<a id="__codelineno-25-22" name="__codelineno-25-22" href="#__codelineno-25-22"></a>    5. Find target LWP:
+<a id="__codelineno-25-23" name="__codelineno-25-23" href="#__codelineno-25-23"></a>       → If lp == NULL: find_lwp_for_signal()
+<a id="__codelineno-25-24" name="__codelineno-25-24" href="#__codelineno-25-24"></a>       → If all LWPs mask signal: deliver to process
+<a id="__codelineno-25-25" name="__codelineno-25-25" href="#__codelineno-25-25"></a>
+<a id="__codelineno-25-26" name="__codelineno-25-26" href="#__codelineno-25-26"></a>    6. Add signal to lwp_siglist
+<a id="__codelineno-25-27" name="__codelineno-25-27" href="#__codelineno-25-27"></a>    7. Call lwp_signotify(lp) to wake thread
+</code></pre></div>
+<h3 id="signal-dispatch-loop">Signal Dispatch Loop<a class="headerlink" href="#signal-dispatch-loop" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-26-1" name="__codelineno-26-1" href="#__codelineno-26-1"></a>User process trap/syscall return:
+<a id="__codelineno-26-2" name="__codelineno-26-2" href="#__codelineno-26-2"></a>    while (sig = CURSIG(lp)):
+<a id="__codelineno-26-3" name="__codelineno-26-3" href="#__codelineno-26-3"></a>        postsig(sig):
+<a id="__codelineno-26-4" name="__codelineno-26-4" href="#__codelineno-26-4"></a>            if action == SIG_DFL:
+<a id="__codelineno-26-5" name="__codelineno-26-5" href="#__codelineno-26-5"></a>                sigexit(lp, sig)  // Does not return
+<a id="__codelineno-26-6" name="__codelineno-26-6" href="#__codelineno-26-6"></a>            else:
+<a id="__codelineno-26-7" name="__codelineno-26-7" href="#__codelineno-26-7"></a>                Setup signal trampoline
+<a id="__codelineno-26-8" name="__codelineno-26-8" href="#__codelineno-26-8"></a>                Call (*sv_sendsig)(action, sig, &amp;mask, code)
+<a id="__codelineno-26-9" name="__codelineno-26-9" href="#__codelineno-26-9"></a>                Return to userland at handler
+</code></pre></div>
+<p>Handler executes, calls <code>sigreturn()</code>, kernel restores original mask and PC, returns to interrupted code.</p>
+<hr />
+<h2 id="performance-considerations">Performance Considerations<a class="headerlink" href="#performance-considerations" title="Permanent link">&para;</a></h2>
+<h3 id="signal-mask-operations">Signal Mask Operations<a class="headerlink" href="#signal-mask-operations" title="Permanent link">&para;</a></h3>
+<p>Signal masks use 128-bit sets (_SIG_WORDS = 4), operations are:
+- <code>SIGADDSET</code> / <code>SIGDELSET</code> — O(1) bit operations
+- <code>SIGEMPTYSET</code> / <code>SIGFILLSET</code> — O(_SIG_WORDS) loop (4 iterations)
+- <code>SIGSETOR</code> / <code>SIGSETNAND</code> — O(_SIG_WORDS) loop</p>
+<p><strong>Optimization:</strong> Atomic variants avoid lock overhead in <code>p-&gt;p_siglist</code>:
+- <code>SIGADDSET_ATOMIC</code> — <code>atomic_set_int()</code>
+- <code>SIGDELSET_ATOMIC</code> — <code>atomic_clear_int()</code></p>
+<h3 id="signal-delivery-fast-path">Signal Delivery Fast Path<a class="headerlink" href="#signal-delivery-fast-path" title="Permanent link">&para;</a></h3>
+<p><code>issignal()</code> has fast path without token:
+<div class="highlight"><pre><span></span><code><a id="__codelineno-27-1" name="__codelineno-27-1" href="#__codelineno-27-1"></a><span class="n">mask</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">lwp_sigpend</span><span class="p">(</span><span class="n">lp</span><span class="p">);</span>
+<a id="__codelineno-27-2" name="__codelineno-27-2" href="#__codelineno-27-2"></a><span class="n">SIGSETNAND</span><span class="p">(</span><span class="n">mask</span><span class="p">,</span><span class="w"> </span><span class="n">lp</span><span class="o">-&gt;</span><span class="n">lwp_sigmask</span><span class="p">);</span>
+<a id="__codelineno-27-3" name="__codelineno-27-3" href="#__codelineno-27-3"></a><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">SIGISEMPTY</span><span class="p">(</span><span class="n">mask</span><span class="p">))</span>
+<a id="__codelineno-27-4" name="__codelineno-27-4" href="#__codelineno-27-4"></a><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="p">(</span><span class="mi">0</span><span class="p">);</span><span class="w">  </span><span class="c1">// No signal, no token acquired</span>
+</code></pre></div></p>
+<p>Only acquires <code>p-&gt;p_token</code> if signal found in process list.</p>
+<h3 id="cross-cpu-delivery">Cross-CPU Delivery<a class="headerlink" href="#cross-cpu-delivery" title="Permanent link">&para;</a></h3>
+<p><code>lwp_signotify()</code> checks if target LWP is local before sending IPI:
+<div class="highlight"><pre><span></span><code><a id="__codelineno-28-1" name="__codelineno-28-1" href="#__codelineno-28-1"></a><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">dtd</span><span class="o">-&gt;</span><span class="n">td_gd</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">mycpu</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-28-2" name="__codelineno-28-2" href="#__codelineno-28-2"></a><span class="w">    </span><span class="n">setrunnable</span><span class="p">(</span><span class="n">lp</span><span class="p">);</span><span class="w">  </span><span class="c1">// Local, no IPI</span>
+<a id="__codelineno-28-3" name="__codelineno-28-3" href="#__codelineno-28-3"></a><span class="p">}</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-28-4" name="__codelineno-28-4" href="#__codelineno-28-4"></a><span class="w">    </span><span class="n">lwkt_send_ipiq</span><span class="p">(</span><span class="n">dtd</span><span class="o">-&gt;</span><span class="n">td_gd</span><span class="p">,</span><span class="w"> </span><span class="n">lwp_signotify_remote</span><span class="p">,</span><span class="w"> </span><span class="n">lp</span><span class="p">);</span><span class="w">  </span><span class="c1">// Remote IPI</span>
+<a id="__codelineno-28-5" name="__codelineno-28-5" href="#__codelineno-28-5"></a><span class="p">}</span>
+</code></pre></div></p>
+<p>Avoids IPI overhead for same-CPU signals.</p>
+<hr />
+<h2 id="debugging-and-observability">Debugging and Observability<a class="headerlink" href="#debugging-and-observability" title="Permanent link">&para;</a></h2>
+<h3 id="signal-logging">Signal Logging<a class="headerlink" href="#signal-logging" title="Permanent link">&para;</a></h3>
+<p><strong>Sysctl:</strong>
+- <code>kern.logsigexit</code> — Log signal-caused exits (default 1)
+- <code>kern.coredump</code> — Enable/disable core dumps (default 1)
+- <code>kern.sugid_coredump</code> — Allow setuid/setgid core dumps (default 0)</p>
+<p><strong>Ktrace:</strong>
+- <code>KTR_PSIG</code> — Trace signal delivery via <code>ktrace()</code>
+- Logs: signal number, action, mask, code</p>
+<p><strong>Log format:</strong>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-29-1" name="__codelineno-29-1" href="#__codelineno-29-1"></a>pid %d (%s), uid %d: exited on signal %d (core dumped)
+</code></pre></div></p>
+<h3 id="kqueue-monitoring">Kqueue Monitoring<a class="headerlink" href="#kqueue-monitoring" title="Permanent link">&para;</a></h3>
+<p>Register kevent to monitor process signals:
+<div class="highlight"><pre><span></span><code><a id="__codelineno-30-1" name="__codelineno-30-1" href="#__codelineno-30-1"></a><span class="k">struct</span><span class="w"> </span><span class="nc">kevent</span><span class="w"> </span><span class="n">kev</span><span class="p">;</span>
+<a id="__codelineno-30-2" name="__codelineno-30-2" href="#__codelineno-30-2"></a><span class="n">EV_SET</span><span class="p">(</span><span class="o">&amp;</span><span class="n">kev</span><span class="p">,</span><span class="w"> </span><span class="n">pid</span><span class="p">,</span><span class="w"> </span><span class="n">EVFILT_PROC</span><span class="p">,</span><span class="w"> </span><span class="n">EV_ADD</span><span class="p">,</span><span class="w"> </span><span class="n">NOTE_SIGNAL</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="nb">NULL</span><span class="p">);</span>
+<a id="__codelineno-30-3" name="__codelineno-30-3" href="#__codelineno-30-3"></a><span class="n">kevent</span><span class="p">(</span><span class="n">kq</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">kev</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="nb">NULL</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="nb">NULL</span><span class="p">);</span>
+</code></pre></div></p>
+<p>Wakes when any signal delivered to process.</p>
+<hr />
+<h2 id="summary">Summary<a class="headerlink" href="#summary" title="Permanent link">&para;</a></h2>
+<p>DragonFly BSD's signal implementation provides:</p>
+<ol>
+<li><strong>POSIX compliance</strong> with extensions for per-thread signals and checkpointing</li>
+<li><strong>Efficient signal delivery</strong> with fast-path checks and cross-CPU IPI notification</li>
+<li><strong>Fine-grained control</strong> via SA_* flags (RESTART, RESETHAND, NODEFER, SIGINFO)</li>
+<li><strong>Process control</strong> via STOP/CONT signals with accurate thread stopping</li>
+<li><strong>Ptrace integration</strong> for debugging with signal interception</li>
+<li><strong>Core dump generation</strong> with configurable paths and security controls</li>
+<li><strong>Kqueue integration</strong> for event-based signal monitoring</li>
+</ol>
+<p>Key design principles:</p>
+<ul>
+<li><strong>Per-thread masks</strong> allow fine-grained control in multi-threaded processes</li>
+<li><strong>Copy-on-write sigacts</strong> optimize fork() performance</li>
+<li><strong>Token-based locking</strong> ensures atomicity without global signal lock</li>
+<li><strong>IPI-based notification</strong> supports per-CPU LWKT threading model</li>
+<li><strong>Double-check pattern</strong> optimizes fast path (check without lock, recheck with lock)</li>
+<li><strong>Signal interlock</strong> (<code>sigirefs</code>) prevents races with mask-changing operations</li>
+</ul>
+<p>The signal subsystem forms the foundation for:
+- <strong>Job control</strong> (shell background/foreground)
+- <strong>Process monitoring</strong> (parent notification of child events)
+- <strong>Exception handling</strong> (trap delivery to user handlers)
+- <strong>Debugging</strong> (ptrace signal interception)
+- <strong>Inter-process communication</strong> (asynchronous event notification)</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": ["navigation.tabs", "navigation.sections", "navigation.expand", "navigation.top", "search.suggest", "search.highlight", "content.code.copy"], "search": "../../../assets/javascripts/workers/search.7a47a382.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../../assets/javascripts/bundle.e71a0d61.min.js"></script>
+      
+    
+  </body>
+</html>

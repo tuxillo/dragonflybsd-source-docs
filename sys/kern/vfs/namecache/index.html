@@ -1,0 +1,3408 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Comprehensive documentation for the DragonFly BSD kernel source code">
+      
+      
+        <meta name="author" content="DragonFly BSD Community">
+      
+      
+      
+        <link rel="prev" href="../">
+      
+      
+        <link rel="next" href="../../ipc/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.0">
+    
+    
+      
+        <title>Name Lookup & Caching - DragonFly BSD Kernel Documentation</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../../assets/stylesheets/main.618322db.min.css">
+      
+        
+        <link rel="stylesheet" href="../../../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#vfs-name-lookup-and-caching" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../../../.." title="DragonFly BSD Kernel Documentation" class="md-header__button md-logo" aria-label="DragonFly BSD Kernel Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            DragonFly BSD Kernel Documentation
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Name Lookup & Caching
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/tuxillo/dragonflybsd-source-docs" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    tuxillo/dragonflybsd-source-docs
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../.." class="md-tabs__link">
+        
+  
+  
+    
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../../getting-started/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Getting Started
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+    
+  
+  
+    
+    
+      <li class="md-tabs__item md-tabs__item--active">
+        <a href="../../../" class="md-tabs__link">
+          
+  
+  
+  Kernel Subsystems
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../../.." title="DragonFly BSD Kernel Documentation" class="md-nav__button md-logo" aria-label="DragonFly BSD Kernel Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    DragonFly BSD Kernel Documentation
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/tuxillo/dragonflybsd-source-docs" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    tuxillo/dragonflybsd-source-docs
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../getting-started/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Getting Started
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Kernel Subsystems
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Kernel Subsystems
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+          
+          
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_2" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_3_2" id="__nav_3_2_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    kern/
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_2_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_3_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    kern/
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../lwkt/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    LWKT Threading
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../synchronization/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Synchronization
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../time/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Time & Timers
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../memory/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Memory Management
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../initialization/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Initialization & Bootstrap
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../processes/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Processes & Threads
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../resources/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Process Resources & Credentials
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../signals/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Signals
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../scheduling/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Scheduling
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_2_11" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_3_2_11" id="__nav_3_2_11_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Virtual Filesystem
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_3_2_11_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_3_2_11">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Virtual Filesystem
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Name Lookup & Caching
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Name Lookup & Caching
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#overview" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Overview
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#key-data-structures" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Key Data Structures
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Key Data Structures">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#struct-namecache-sysnamecacheh125" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        struct namecache (sys/namecache.h:125)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#struct-nchandle-sysnamecacheh154" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        struct nchandle (sys/namecache.h:154)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#struct-nlookupdata-sysnlookuph68" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        struct nlookupdata (sys/nlookup.h:68)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#struct-nlcomponent-sysnlookuph55" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        struct nlcomponent (sys/nlookup.h:55)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#architecture" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Architecture
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Architecture">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#namecache-topology" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Namecache Topology
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#positive-vs-negative-caching" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Positive vs Negative Caching
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#hash-table-organization" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Hash Table Organization
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#reference-counting" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Reference Counting
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#locking-strategy" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Locking Strategy
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#core-namecache-operations" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Core Namecache Operations
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Core Namecache Operations">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#path-lookup-cache_nlookup-vfs_cachec3228" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Path Lookup: cache_nlookup() (vfs_cache.c:3228)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#resolution-cache_resolve-vfs_cachec4273" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Resolution: cache_resolve() (vfs_cache.c:4273)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#invalidation-cache_inval-vfs_cachec1692" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Invalidation: cache_inval() (vfs_cache.c:1692)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#reference-management" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Reference Management
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#mount-point-caching" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Mount Point Caching
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#new-lookup-api-nlookup" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        New Lookup API (nlookup)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="New Lookup API (nlookup)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#key-advantages-over-namei" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Key Advantages Over namei()
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#usage-pattern" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Usage Pattern
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#core-functions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Core Functions
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Core Functions">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#nlookup_init-vfs_nlookupc116" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        nlookup_init() (vfs_nlookup.c:116)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#nlookup-vfs_nlookupc530" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        nlookup() (vfs_nlookup.c:530)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#nlookup_done-vfs_nlookupc289" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        nlookup_done() (vfs_nlookup.c:289)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#access-checking-naccess-vfs_nlookupc1531" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Access Checking: naccess() (vfs_nlookup.c:1531)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#legacy-lookup-api-namei" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Legacy Lookup API (namei)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Legacy Lookup API (namei)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#relookup-vfs_lookupc75" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        relookup() (vfs_lookup.c:75)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#performance-optimizations" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Performance Optimizations
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Performance Optimizations">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#lock-free-lookups" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Lock-Free Lookups
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#per-cpu-negative-lists" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Per-CPU Negative Lists
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#mount-reference-caching" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Mount Reference Caching
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#namecache-size-limits" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Namecache Size Limits
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#filesystem-integration" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Filesystem Integration
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Filesystem Integration">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#required-vop-operations" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Required VOP Operations
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Required VOP Operations">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#vop_nresolve" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        VOP_NRESOLVE()
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#vop_ncreate" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        VOP_NCREATE()
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#vop_nremove" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        VOP_NREMOVE()
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#vop_nrename" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        VOP_NRENAME()
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#invalidation-requirements" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Invalidation Requirements
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#special-cases" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Special Cases
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Special Cases">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#mount-point-handling" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Mount Point Handling
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#jail-and-chroot" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Jail and Chroot
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#whiteouts-union-mounts" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Whiteouts (Union Mounts)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#common-operations" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Common Operations
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Common Operations">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#get-vnode-from-nchandle" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Get vnode from nchandle
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#get-nchandle-from-vnode" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Get nchandle from vnode
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#full-path-from-nchandle" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Full path from nchandle
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#check-if-path-is-open" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Check if path is open
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#statistics-and-debugging" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Statistics and Debugging
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Statistics and Debugging">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#sysctl-variables" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Sysctl Variables
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#per-cpu-statistics-struct-nchstats" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Per-CPU Statistics (struct nchstats)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#debug-variables" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Debug Variables
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#example-creating-a-file" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Example: Creating a File
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#summary" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Summary
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#related-documentation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Related Documentation
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#source-files" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Source Files
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../ipc/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    IPC & Sockets
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../devices/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Devices & Drivers
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../syscalls/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    System Calls
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+          
+          
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_3_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3_3" id="__nav_3_3_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    vm/
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    vm/
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../vm/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+          
+          
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_3_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_3_4" id="__nav_3_4_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    cpu/x86_64/
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    cpu/x86_64/
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../cpu/x86_64/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#overview" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Overview
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#key-data-structures" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Key Data Structures
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Key Data Structures">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#struct-namecache-sysnamecacheh125" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        struct namecache (sys/namecache.h:125)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#struct-nchandle-sysnamecacheh154" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        struct nchandle (sys/namecache.h:154)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#struct-nlookupdata-sysnlookuph68" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        struct nlookupdata (sys/nlookup.h:68)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#struct-nlcomponent-sysnlookuph55" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        struct nlcomponent (sys/nlookup.h:55)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#architecture" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Architecture
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Architecture">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#namecache-topology" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Namecache Topology
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#positive-vs-negative-caching" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Positive vs Negative Caching
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#hash-table-organization" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Hash Table Organization
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#reference-counting" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Reference Counting
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#locking-strategy" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Locking Strategy
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#core-namecache-operations" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Core Namecache Operations
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Core Namecache Operations">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#path-lookup-cache_nlookup-vfs_cachec3228" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Path Lookup: cache_nlookup() (vfs_cache.c:3228)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#resolution-cache_resolve-vfs_cachec4273" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Resolution: cache_resolve() (vfs_cache.c:4273)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#invalidation-cache_inval-vfs_cachec1692" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Invalidation: cache_inval() (vfs_cache.c:1692)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#reference-management" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Reference Management
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#mount-point-caching" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Mount Point Caching
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#new-lookup-api-nlookup" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        New Lookup API (nlookup)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="New Lookup API (nlookup)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#key-advantages-over-namei" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Key Advantages Over namei()
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#usage-pattern" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Usage Pattern
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#core-functions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Core Functions
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Core Functions">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#nlookup_init-vfs_nlookupc116" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        nlookup_init() (vfs_nlookup.c:116)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#nlookup-vfs_nlookupc530" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        nlookup() (vfs_nlookup.c:530)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#nlookup_done-vfs_nlookupc289" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        nlookup_done() (vfs_nlookup.c:289)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#access-checking-naccess-vfs_nlookupc1531" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Access Checking: naccess() (vfs_nlookup.c:1531)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#legacy-lookup-api-namei" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Legacy Lookup API (namei)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Legacy Lookup API (namei)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#relookup-vfs_lookupc75" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        relookup() (vfs_lookup.c:75)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#performance-optimizations" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Performance Optimizations
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Performance Optimizations">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#lock-free-lookups" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Lock-Free Lookups
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#per-cpu-negative-lists" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Per-CPU Negative Lists
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#mount-reference-caching" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Mount Reference Caching
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#namecache-size-limits" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Namecache Size Limits
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#filesystem-integration" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Filesystem Integration
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Filesystem Integration">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#required-vop-operations" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Required VOP Operations
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Required VOP Operations">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#vop_nresolve" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        VOP_NRESOLVE()
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#vop_ncreate" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        VOP_NCREATE()
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#vop_nremove" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        VOP_NREMOVE()
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#vop_nrename" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        VOP_NRENAME()
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#invalidation-requirements" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Invalidation Requirements
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#special-cases" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Special Cases
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Special Cases">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#mount-point-handling" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Mount Point Handling
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#jail-and-chroot" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Jail and Chroot
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#whiteouts-union-mounts" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Whiteouts (Union Mounts)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#common-operations" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Common Operations
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Common Operations">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#get-vnode-from-nchandle" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Get vnode from nchandle
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#get-nchandle-from-vnode" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Get nchandle from vnode
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#full-path-from-nchandle" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Full path from nchandle
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#check-if-path-is-open" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Check if path is open
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#statistics-and-debugging" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Statistics and Debugging
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Statistics and Debugging">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#sysctl-variables" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Sysctl Variables
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#per-cpu-statistics-struct-nchstats" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Per-CPU Statistics (struct nchstats)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#debug-variables" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Debug Variables
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#example-creating-a-file" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Example: Creating a File
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#summary" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Summary
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#related-documentation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Related Documentation
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#source-files" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Source Files
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="vfs-name-lookup-and-caching">VFS Name Lookup and Caching<a class="headerlink" href="#vfs-name-lookup-and-caching" title="Permanent link">&para;</a></h1>
+<h2 id="overview">Overview<a class="headerlink" href="#overview" title="Permanent link">&para;</a></h2>
+<p>The DragonFly BSD namecache subsystem provides a high-performance layer between pathname lookup operations and the underlying filesystem. It consists of three main components:</p>
+<ol>
+<li><strong>Namecache (<code>vfs_cache.c</code>)</strong> - The core caching infrastructure that maintains mappings between directory entries and vnodes</li>
+<li><strong>New Lookup API (<code>vfs_nlookup.c</code>)</strong> - Modern path resolution based on namecache records instead of vnode locking</li>
+<li><strong>Legacy Lookup (<code>vfs_lookup.c</code>)</strong> - Traditional BSD <code>namei()</code> compatibility for old code</li>
+</ol>
+<p>The namecache is fundamental to DragonFly's VFS design and all filesystem operations must interact with it, even filesystems that don't want to cache.</p>
+<h2 id="key-data-structures">Key Data Structures<a class="headerlink" href="#key-data-structures" title="Permanent link">&para;</a></h2>
+<h3 id="struct-namecache-sysnamecacheh125"><code>struct namecache</code> (<code>sys/namecache.h:125</code>)<a class="headerlink" href="#struct-namecache-sysnamecacheh125" title="Permanent link">&para;</a></h3>
+<p>The core namecache entry representing a single pathname component:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="k">struct</span><span class="w"> </span><span class="nc">namecache</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="w">    </span><span class="n">TAILQ_ENTRY</span><span class="p">(</span><span class="n">namecache</span><span class="p">)</span><span class="w"> </span><span class="n">nc_hash</span><span class="p">;</span><span class="w">      </span><span class="cm">/* hash chain (nc_parent,name) */</span>
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="w">    </span><span class="n">TAILQ_ENTRY</span><span class="p">(</span><span class="n">namecache</span><span class="p">)</span><span class="w"> </span><span class="n">nc_entry</span><span class="p">;</span><span class="w">     </span><span class="cm">/* scan via nc_parent-&gt;nc_list */</span>
+<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="w">    </span><span class="n">TAILQ_ENTRY</span><span class="p">(</span><span class="n">namecache</span><span class="p">)</span><span class="w"> </span><span class="n">nc_vnode</span><span class="p">;</span><span class="w">     </span><span class="cm">/* scan via vnode-&gt;v_namecache */</span>
+<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a><span class="w">    </span><span class="k">struct</span><span class="w"> </span><span class="nc">namecache_list</span><span class="w">  </span><span class="n">nc_list</span><span class="p">;</span><span class="w">      </span><span class="cm">/* list of children */</span>
+<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a><span class="w">    </span><span class="k">struct</span><span class="w"> </span><span class="nc">nchash_head</span><span class="w">    </span><span class="o">*</span><span class="n">nc_head</span><span class="p">;</span>
+<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a><span class="w">    </span><span class="k">struct</span><span class="w"> </span><span class="nc">namecache</span><span class="w">      </span><span class="o">*</span><span class="n">nc_parent</span><span class="p">;</span><span class="w">    </span><span class="cm">/* namecache entry for parent */</span>
+<a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a><span class="w">    </span><span class="k">struct</span><span class="w"> </span><span class="nc">vnode</span><span class="w">          </span><span class="o">*</span><span class="n">nc_vp</span><span class="p">;</span><span class="w">        </span><span class="cm">/* vnode representing name or NULL */</span>
+<a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a><span class="w">    </span><span class="n">u_short</span><span class="w">               </span><span class="n">nc_flag</span><span class="p">;</span>
+<a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a><span class="w">    </span><span class="n">u_char</span><span class="w">                </span><span class="n">nc_nlen</span><span class="p">;</span><span class="w">       </span><span class="cm">/* name length, 255 max */</span>
+<a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a><span class="w">    </span><span class="n">u_char</span><span class="w">                </span><span class="n">nc_unused</span><span class="p">;</span>
+<a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a><span class="w">    </span><span class="kt">char</span><span class="w">                  </span><span class="o">*</span><span class="n">nc_name</span><span class="p">;</span><span class="w">      </span><span class="cm">/* separately allocated segment name */</span>
+<a id="__codelineno-0-13" name="__codelineno-0-13" href="#__codelineno-0-13"></a><span class="w">    </span><span class="kt">int</span><span class="w">                   </span><span class="n">nc_error</span><span class="p">;</span>
+<a id="__codelineno-0-14" name="__codelineno-0-14" href="#__codelineno-0-14"></a><span class="w">    </span><span class="kt">int</span><span class="w">                   </span><span class="n">nc_timeout</span><span class="p">;</span><span class="w">    </span><span class="cm">/* compared against ticks, or 0 */</span>
+<a id="__codelineno-0-15" name="__codelineno-0-15" href="#__codelineno-0-15"></a><span class="w">    </span><span class="kt">int</span><span class="w">                   </span><span class="n">nc_negcpu</span><span class="p">;</span><span class="w">     </span><span class="cm">/* which ncneg list are we on? */</span>
+<a id="__codelineno-0-16" name="__codelineno-0-16" href="#__codelineno-0-16"></a><span class="w">    </span><span class="k">struct</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-0-17" name="__codelineno-0-17" href="#__codelineno-0-17"></a><span class="w">        </span><span class="n">u_int</span><span class="w">             </span><span class="n">nc_namecache_gen</span><span class="p">;</span><span class="w"> </span><span class="cm">/* mount generation (autoclear) */</span>
+<a id="__codelineno-0-18" name="__codelineno-0-18" href="#__codelineno-0-18"></a><span class="w">        </span><span class="n">u_int</span><span class="w">             </span><span class="n">nc_generation</span><span class="p">;</span><span class="w">    </span><span class="cm">/* see notes below */</span>
+<a id="__codelineno-0-19" name="__codelineno-0-19" href="#__codelineno-0-19"></a><span class="w">        </span><span class="kt">int</span><span class="w">               </span><span class="n">nc_refs</span><span class="p">;</span><span class="w">          </span><span class="cm">/* ref count prevents deletion */</span>
+<a id="__codelineno-0-20" name="__codelineno-0-20" href="#__codelineno-0-20"></a><span class="w">    </span><span class="p">}</span><span class="w"> </span><span class="n">__cachealign</span><span class="p">;</span>
+<a id="__codelineno-0-21" name="__codelineno-0-21" href="#__codelineno-0-21"></a><span class="w">    </span><span class="k">struct</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-0-22" name="__codelineno-0-22" href="#__codelineno-0-22"></a><span class="w">        </span><span class="k">struct</span><span class="w"> </span><span class="nc">lock</span><span class="w">       </span><span class="n">nc_lock</span><span class="p">;</span>
+<a id="__codelineno-0-23" name="__codelineno-0-23" href="#__codelineno-0-23"></a><span class="w">    </span><span class="p">}</span><span class="w"> </span><span class="n">__cachealign</span><span class="p">;</span>
+<a id="__codelineno-0-24" name="__codelineno-0-24" href="#__codelineno-0-24"></a><span class="p">};</span>
+</code></pre></div>
+<p><strong>Key fields:</strong></p>
+<ul>
+<li><strong><code>nc_parent</code></strong> - Points to parent directory's namecache entry, forming a tree from leaf to root</li>
+<li><strong><code>nc_vp</code></strong> - The vnode this entry represents; NULL for negative cache entries (non-existent files)</li>
+<li><strong><code>nc_name</code></strong> - The filename component (allocated separately)</li>
+<li><strong><code>nc_list</code></strong> - Children of this directory entry</li>
+<li><strong><code>nc_refs</code></strong> - Reference count (naturally 1, +1 if resolved, +1 for each child)</li>
+<li><strong><code>nc_generation</code></strong> - Incremented by 2 when entry changes, allowing lock-free detection of modifications</li>
+<li><strong><code>nc_flag</code></strong> - See flags below</li>
+</ul>
+<p><strong>Important flags (<code>NCF_*</code>):</strong></p>
+<ul>
+<li><code>NCF_UNRESOLVED</code> (0x0004) - Entry not yet resolved or invalidated</li>
+<li><code>NCF_WHITEOUT</code> (0x0002) - Negative entry is a whiteout (for union mounts)</li>
+<li><code>NCF_DESTROYED</code> (0x0400) - Name association considered destroyed</li>
+<li><code>NCF_ISMOUNTPT</code> (0x0008) - Someone may have mounted here</li>
+<li><code>NCF_ISSYMLINK</code> (0x0100) - Entry is a symlink</li>
+<li><code>NCF_ISDIR</code> (0x0200) - Entry is a directory</li>
+</ul>
+<h3 id="struct-nchandle-sysnamecacheh154"><code>struct nchandle</code> (<code>sys/namecache.h:154</code>)<a class="headerlink" href="#struct-nchandle-sysnamecacheh154" title="Permanent link">&para;</a></h3>
+<p>A handle to a namecache entry with associated mount point:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="k">struct</span><span class="w"> </span><span class="nc">nchandle</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="w">    </span><span class="k">struct</span><span class="w"> </span><span class="nc">namecache</span><span class="w"> </span><span class="o">*</span><span class="n">ncp</span><span class="p">;</span><span class="w">    </span><span class="cm">/* ncp in underlying filesystem */</span>
+<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="w">    </span><span class="k">struct</span><span class="w"> </span><span class="nc">mount</span><span class="w">     </span><span class="o">*</span><span class="n">mount</span><span class="p">;</span><span class="w">  </span><span class="cm">/* mount pt (possible overlay) */</span>
+<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a><span class="p">};</span>
+</code></pre></div>
+<p>The mount reference allows topologies to be replicated across mount overlays (nullfs, unionfs, etc.). This is DragonFly's key innovation for handling stacked filesystems.</p>
+<h3 id="struct-nlookupdata-sysnlookuph68"><code>struct nlookupdata</code> (<code>sys/nlookup.h:68</code>)<a class="headerlink" href="#struct-nlookupdata-sysnlookuph68" title="Permanent link">&para;</a></h3>
+<p>Encapsulates all state for a path lookup operation:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="k">struct</span><span class="w"> </span><span class="nc">nlookupdata</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="w">    </span><span class="k">struct</span><span class="w"> </span><span class="nc">nchandle</span><span class="w">  </span><span class="n">nl_nch</span><span class="p">;</span><span class="w">       </span><span class="cm">/* result */</span>
+<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="w">    </span><span class="k">struct</span><span class="w"> </span><span class="nc">nchandle</span><span class="w"> </span><span class="o">*</span><span class="n">nl_basench</span><span class="p">;</span><span class="w">   </span><span class="cm">/* start-point directory */</span>
+<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a><span class="w">    </span><span class="k">struct</span><span class="w"> </span><span class="nc">nchandle</span><span class="w">  </span><span class="n">nl_rootnch</span><span class="p">;</span><span class="w">   </span><span class="cm">/* root directory */</span>
+<a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a><span class="w">    </span><span class="k">struct</span><span class="w"> </span><span class="nc">nchandle</span><span class="w">  </span><span class="n">nl_jailnch</span><span class="p">;</span><span class="w">   </span><span class="cm">/* jail directory */</span>
+<a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a>
+<a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a><span class="w">    </span><span class="kt">char</span><span class="w">            </span><span class="o">*</span><span class="n">nl_path</span><span class="p">;</span><span class="w">      </span><span class="cm">/* path buffer */</span>
+<a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a><span class="w">    </span><span class="k">struct</span><span class="w"> </span><span class="nc">thread</span><span class="w">   </span><span class="o">*</span><span class="n">nl_td</span><span class="p">;</span><span class="w">        </span><span class="cm">/* thread requesting the nlookup */</span>
+<a id="__codelineno-2-9" name="__codelineno-2-9" href="#__codelineno-2-9"></a><span class="w">    </span><span class="k">struct</span><span class="w"> </span><span class="nc">ucred</span><span class="w">    </span><span class="o">*</span><span class="n">nl_cred</span><span class="p">;</span><span class="w">      </span><span class="cm">/* credentials for nlookup */</span>
+<a id="__codelineno-2-10" name="__codelineno-2-10" href="#__codelineno-2-10"></a><span class="w">    </span><span class="k">struct</span><span class="w"> </span><span class="nc">vnode</span><span class="w">    </span><span class="o">*</span><span class="n">nl_dvp</span><span class="p">;</span><span class="w">       </span><span class="cm">/* NLC_REFDVP */</span>
+<a id="__codelineno-2-11" name="__codelineno-2-11" href="#__codelineno-2-11"></a>
+<a id="__codelineno-2-12" name="__codelineno-2-12" href="#__codelineno-2-12"></a><span class="w">    </span><span class="kt">int</span><span class="w">              </span><span class="n">nl_flags</span><span class="p">;</span><span class="w">     </span><span class="cm">/* operations flags */</span>
+<a id="__codelineno-2-13" name="__codelineno-2-13" href="#__codelineno-2-13"></a><span class="w">    </span><span class="kt">int</span><span class="w">              </span><span class="n">nl_loopcnt</span><span class="p">;</span><span class="w">   </span><span class="cm">/* symlinks encountered */</span>
+<a id="__codelineno-2-14" name="__codelineno-2-14" href="#__codelineno-2-14"></a><span class="w">    </span><span class="kt">int</span><span class="w">              </span><span class="n">nl_dir_error</span><span class="p">;</span><span class="w"> </span><span class="cm">/* error assoc w/intermediate dir */</span>
+<a id="__codelineno-2-15" name="__codelineno-2-15" href="#__codelineno-2-15"></a><span class="w">    </span><span class="kt">int</span><span class="w">              </span><span class="n">nl_elmno</span><span class="p">;</span><span class="w">     </span><span class="cm">/* iteration# to help caches */</span>
+<a id="__codelineno-2-16" name="__codelineno-2-16" href="#__codelineno-2-16"></a>
+<a id="__codelineno-2-17" name="__codelineno-2-17" href="#__codelineno-2-17"></a><span class="w">    </span><span class="k">struct</span><span class="w"> </span><span class="nc">vnode</span><span class="w">    </span><span class="o">*</span><span class="n">nl_open_vp</span><span class="p">;</span>
+<a id="__codelineno-2-18" name="__codelineno-2-18" href="#__codelineno-2-18"></a><span class="w">    </span><span class="kt">int</span><span class="w">              </span><span class="n">nl_vp_fmode</span><span class="p">;</span>
+<a id="__codelineno-2-19" name="__codelineno-2-19" href="#__codelineno-2-19"></a><span class="p">};</span>
+</code></pre></div>
+<p><strong>Key flags (<code>NLC_*</code>):</strong></p>
+<ul>
+<li><code>NLC_FOLLOW</code> (0x00000001) - Follow leaf symlink</li>
+<li><code>NLC_CREATE</code> (0x00000080) - Do create checks</li>
+<li><code>NLC_DELETE</code> (0x00000100) - Do delete checks</li>
+<li><code>NLC_RENAME_SRC</code> (0x00002000) - Do rename checks (source)</li>
+<li><code>NLC_RENAME_DST</code> (0x00000200) - Do rename checks (target)</li>
+<li><code>NLC_OPEN</code> (0x00000400) - Do open checks</li>
+<li><code>NLC_SHAREDLOCK</code> (0x00004000) - Allow shared ncp &amp; vp lock</li>
+<li><code>NLC_REFDVP</code> (0x00040000) - Set ref'd/unlocked nl_dvp</li>
+<li><code>NLC_READ</code> (0x00400000) - Require read access</li>
+<li><code>NLC_WRITE</code> (0x00800000) - Require write access</li>
+<li><code>NLC_EXEC</code> (0x01000000) - Require execute access</li>
+</ul>
+<h3 id="struct-nlcomponent-sysnlookuph55"><code>struct nlcomponent</code> (<code>sys/nlookup.h:55</code>)<a class="headerlink" href="#struct-nlcomponent-sysnlookuph55" title="Permanent link">&para;</a></h3>
+<p>Represents a single path component during lookup:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="k">struct</span><span class="w"> </span><span class="nc">nlcomponent</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="w">    </span><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="n">nlc_nameptr</span><span class="p">;</span>
+<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a><span class="w">    </span><span class="kt">int</span><span class="w">   </span><span class="n">nlc_namelen</span><span class="p">;</span>
+<a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a><span class="p">};</span>
+</code></pre></div>
+<h2 id="architecture">Architecture<a class="headerlink" href="#architecture" title="Permanent link">&para;</a></h2>
+<h3 id="namecache-topology">Namecache Topology<a class="headerlink" href="#namecache-topology" title="Permanent link">&para;</a></h3>
+<p>The DragonFly namecache maintains a <strong>complete path from any active vnode to the root</strong> (except for NFS server and removed files). This is a key difference from traditional BSD systems:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>Root (&quot;/&quot;)
+<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>  └─ bin/
+<a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a>      └─ ls (vnode)
+<a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a>  └─ usr/
+<a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a>      └─ local/
+<a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a>          └─ bin/
+<a id="__codelineno-4-7" name="__codelineno-4-7" href="#__codelineno-4-7"></a>              └─ bash (vnode)
+</code></pre></div>
+<p>Each <code>namecache</code> entry points to its <code>nc_parent</code>, and parents maintain a list of children in <code>nc_list</code>. This bidirectional tree enables:</p>
+<ol>
+<li>Efficient forward lookups (parent → child)</li>
+<li>Efficient reverse path reconstruction (child → root for <code>getcwd()</code>)</li>
+<li>Efficient subtree invalidation (e.g., when unmounting)</li>
+</ol>
+<h3 id="positive-vs-negative-caching">Positive vs Negative Caching<a class="headerlink" href="#positive-vs-negative-caching" title="Permanent link">&para;</a></h3>
+<p><strong>Positive entries:</strong>
+- <code>nc_vp</code> != NULL
+- Represent files/directories that exist
+- May be unresolved (NCF_UNRESOLVED) if not yet looked up</p>
+<p><strong>Negative entries:</strong>
+- <code>nc_vp</code> == NULL
+- Represent failed lookups (file doesn't exist)
+- Stored in per-CPU negative lists for quick reclamation
+- May be whiteouts (NCF_WHITEOUT) for union filesystems</p>
+<p>Negative caching is crucial for performance, avoiding expensive filesystem lookups for common cases like:
+- PATH searches in shell (<code>/bin/foo</code>, <code>/usr/bin/foo</code>, etc.)
+- Probing for config files (<code>.bashrc</code>, <code>.config/app</code>, etc.)</p>
+<h3 id="hash-table-organization">Hash Table Organization<a class="headerlink" href="#hash-table-organization" title="Permanent link">&para;</a></h3>
+<p>The namecache uses a hash table indexed by <code>(nc_parent, name)</code>:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="cp">#define NCHHASH(hash)  (&amp;nchashtbl[(hash) &amp; nchash])</span>
+</code></pre></div>
+<p>Each hash bucket has its own spinlock. The implementation uses an update counter (<code>nc_generation</code>) to allow <strong>lock-free lookups</strong> in common cases - the code can detect if an entry changed during access and retry with locks if needed.</p>
+<h3 id="reference-counting">Reference Counting<a class="headerlink" href="#reference-counting" title="Permanent link">&para;</a></h3>
+<p>Namecache entries use <code>nc_refs</code> for lifecycle management:</p>
+<ul>
+<li><strong>Base ref</strong>: 1 (entry exists)</li>
+<li><strong>Resolved ref</strong>: +1 if entry is resolved (positive or negative)</li>
+<li><strong>Child refs</strong>: +1 for each child in <code>nc_list</code></li>
+<li><strong>Lookup refs</strong>: +1 while held by threads or mountcache</li>
+</ul>
+<p>On the <strong>1→0 transition</strong>, the entry must be destroyed immediately. The entry cannot be on any list at this point.</p>
+<p><strong>Reference management functions:</strong></p>
+<ul>
+<li><code>cache_hold()</code> / <code>cache_get()</code> - Acquire reference</li>
+<li><code>cache_put()</code> - Release reference (drop lock + drop ref)</li>
+<li><code>cache_drop()</code> - Release reference (no lock, just drop ref)</li>
+<li><code>_cache_drop()</code> - Internal version that handles 1→0 transition</li>
+</ul>
+<h3 id="locking-strategy">Locking Strategy<a class="headerlink" href="#locking-strategy" title="Permanent link">&para;</a></h3>
+<p>DragonFly uses <strong>child-to-parent lock ordering</strong>:</p>
+<ol>
+<li>Lock child first, then parent</li>
+<li>Allows forward scans (parent → child) to hold parent unlocked</li>
+<li>Deletions propagate bottom-up naturally</li>
+</ol>
+<p><strong>Lock types:</strong></p>
+<ul>
+<li><strong>Exclusive locks</strong> - Required for modifications, last element of path (unless NLC_SHAREDLOCK)</li>
+<li><strong>Shared locks</strong> - Allowed for intermediate path components, read-only operations</li>
+</ul>
+<p>The <code>nc_generation</code> field enables <strong>optimistic lock-free access</strong>:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="k">static</span><span class="w"> </span><span class="kr">__inline</span><span class="w"> </span><span class="kt">void</span>
+<a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a><span class="nf">_cache_ncp_gen_enter</span><span class="p">(</span><span class="k">struct</span><span class="w"> </span><span class="nc">namecache</span><span class="w"> </span><span class="o">*</span><span class="n">ncp</span><span class="p">)</span>
+<a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a><span class="p">{</span>
+<a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a><span class="w">    </span><span class="n">ncp</span><span class="o">-&gt;</span><span class="n">nc_generation</span><span class="w"> </span><span class="o">+=</span><span class="w"> </span><span class="mi">2</span><span class="p">;</span><span class="w">  </span><span class="cm">/* Odd = in-progress */</span>
+<a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a><span class="w">    </span><span class="n">cpu_sfence</span><span class="p">();</span>
+<a id="__codelineno-6-6" name="__codelineno-6-6" href="#__codelineno-6-6"></a><span class="p">}</span>
+<a id="__codelineno-6-7" name="__codelineno-6-7" href="#__codelineno-6-7"></a>
+<a id="__codelineno-6-8" name="__codelineno-6-8" href="#__codelineno-6-8"></a><span class="k">static</span><span class="w"> </span><span class="kr">__inline</span><span class="w"> </span><span class="kt">void</span>
+<a id="__codelineno-6-9" name="__codelineno-6-9" href="#__codelineno-6-9"></a><span class="nf">_cache_ncp_gen_exit</span><span class="p">(</span><span class="k">struct</span><span class="w"> </span><span class="nc">namecache</span><span class="w"> </span><span class="o">*</span><span class="n">ncp</span><span class="p">)</span>
+<a id="__codelineno-6-10" name="__codelineno-6-10" href="#__codelineno-6-10"></a><span class="p">{</span>
+<a id="__codelineno-6-11" name="__codelineno-6-11" href="#__codelineno-6-11"></a><span class="w">    </span><span class="n">cpu_sfence</span><span class="p">();</span>
+<a id="__codelineno-6-12" name="__codelineno-6-12" href="#__codelineno-6-12"></a><span class="w">    </span><span class="n">ncp</span><span class="o">-&gt;</span><span class="n">nc_generation</span><span class="w"> </span><span class="o">+=</span><span class="w"> </span><span class="mi">2</span><span class="p">;</span><span class="w">  </span><span class="cm">/* Even = stable */</span>
+<a id="__codelineno-6-13" name="__codelineno-6-13" href="#__codelineno-6-13"></a><span class="w">    </span><span class="n">cpu_sfence</span><span class="p">();</span>
+<a id="__codelineno-6-14" name="__codelineno-6-14" href="#__codelineno-6-14"></a><span class="p">}</span>
+</code></pre></div>
+<p>If <code>(nc_generation &amp; 1)</code> is set, modification is in progress. Readers check generation before and after access, retrying if it changed.</p>
+<h2 id="core-namecache-operations">Core Namecache Operations<a class="headerlink" href="#core-namecache-operations" title="Permanent link">&para;</a></h2>
+<h3 id="path-lookup-cache_nlookup-vfs_cachec3228">Path Lookup: <code>cache_nlookup()</code> (<code>vfs_cache.c:3228</code>)<a class="headerlink" href="#path-lookup-cache_nlookup-vfs_cachec3228" title="Permanent link">&para;</a></h3>
+<p>Looks up a single path component in the cache:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="k">struct</span><span class="w"> </span><span class="nc">nchandle</span><span class="w"> </span><span class="n">cache_nlookup</span><span class="p">(</span><span class="k">struct</span><span class="w"> </span><span class="nc">nchandle</span><span class="w"> </span><span class="o">*</span><span class="n">par_nch</span><span class="p">,</span><span class="w"> </span>
+<a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a><span class="w">                              </span><span class="k">struct</span><span class="w"> </span><span class="nc">nlcomponent</span><span class="w"> </span><span class="o">*</span><span class="n">nlc</span><span class="p">);</span>
+</code></pre></div>
+<p><strong>Algorithm:</strong></p>
+<ol>
+<li><strong>Hash lookup</strong> - Compute <code>hash(parent, name)</code> and search bucket</li>
+<li><strong>Lock-free scan</strong> - Check each entry's generation before/after reading</li>
+<li><strong>Match found</strong> - Return referenced nchandle</li>
+<li><strong>Miss</strong> - Call <code>cache_nlookup_create()</code> to create unresolved entry</li>
+<li><strong>Resolve</strong> - Call <code>cache_resolve()</code> to resolve via VOP_NRESOLVE()</li>
+</ol>
+<p><strong>Variants:</strong></p>
+<ul>
+<li><code>cache_nlookup_nonblock()</code> - Returns immediately if lock unavailable</li>
+<li><code>cache_nlookup_nonlocked()</code> - Optimistic lock-free lookup</li>
+<li><code>cache_nlookup_maybe_shared()</code> - Allows shared locks if <code>!excl</code></li>
+</ul>
+<h3 id="resolution-cache_resolve-vfs_cachec4273">Resolution: <code>cache_resolve()</code> (<code>vfs_cache.c:4273</code>)<a class="headerlink" href="#resolution-cache_resolve-vfs_cachec4273" title="Permanent link">&para;</a></h3>
+<p>Resolves an unresolved namecache entry by calling into the filesystem:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a><span class="kt">int</span><span class="w"> </span><span class="nf">cache_resolve</span><span class="p">(</span><span class="k">struct</span><span class="w"> </span><span class="nc">nchandle</span><span class="w"> </span><span class="o">*</span><span class="n">nch</span><span class="p">,</span><span class="w"> </span><span class="n">u_int</span><span class="w"> </span><span class="o">*</span><span class="n">genp</span><span class="p">,</span><span class="w"> </span><span class="k">struct</span><span class="w"> </span><span class="nc">ucred</span><span class="w"> </span><span class="o">*</span><span class="n">cred</span><span class="p">);</span>
+</code></pre></div>
+<p><strong>Steps:</strong></p>
+<ol>
+<li>Check if already resolved (fast path)</li>
+<li>Check generation counter for races</li>
+<li>Call <code>VOP_NRESOLVE(dvp, ncp, cred)</code> on parent directory</li>
+<li>Filesystem fills in <code>ncp-&gt;nc_vp</code> or leaves NULL for negative entry</li>
+<li>Clear <code>NCF_UNRESOLVED</code> flag</li>
+</ol>
+<p>This is the <strong>critical bridge</strong> between namecache and filesystem-specific code.</p>
+<h3 id="invalidation-cache_inval-vfs_cachec1692">Invalidation: <code>cache_inval()</code> (<code>vfs_cache.c:1692</code>)<a class="headerlink" href="#invalidation-cache_inval-vfs_cachec1692" title="Permanent link">&para;</a></h3>
+<p>Invalidates a namecache entry:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a><span class="kt">int</span><span class="w"> </span><span class="nf">cache_inval</span><span class="p">(</span><span class="k">struct</span><span class="w"> </span><span class="nc">nchandle</span><span class="w"> </span><span class="o">*</span><span class="n">nch</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">flags</span><span class="p">);</span>
+</code></pre></div>
+<p><strong>Flags:</strong></p>
+<ul>
+<li><code>CINV_DESTROY</code> (0x0001) - Mark destroyed so lookups ignore it</li>
+<li><code>CINV_CHILDREN</code> (0x0004) - Recursively invalidate all children</li>
+</ul>
+<p><strong>Use cases:</strong></p>
+<ul>
+<li>File/directory deletion</li>
+<li>Filesystem unmount</li>
+<li>Stale NFS entries</li>
+</ul>
+<h3 id="reference-management">Reference Management<a class="headerlink" href="#reference-management" title="Permanent link">&para;</a></h3>
+<p><strong><code>cache_get()</code> (<code>vfs_cache.c:1293</code>)</strong></p>
+<p>Acquires a reference and returns a handle:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a><span class="kt">void</span><span class="w"> </span><span class="nf">cache_get</span><span class="p">(</span><span class="k">struct</span><span class="w"> </span><span class="nc">nchandle</span><span class="w"> </span><span class="o">*</span><span class="n">nch</span><span class="p">,</span><span class="w"> </span><span class="k">struct</span><span class="w"> </span><span class="nc">nchandle</span><span class="w"> </span><span class="o">*</span><span class="n">target</span><span class="p">);</span>
+</code></pre></div>
+<p><strong><code>cache_put()</code> (<code>vfs_cache.c:1322</code>)</strong></p>
+<p>Drops lock and reference:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a><span class="kt">void</span><span class="w"> </span><span class="nf">cache_put</span><span class="p">(</span><span class="k">struct</span><span class="w"> </span><span class="nc">nchandle</span><span class="w"> </span><span class="o">*</span><span class="n">nch</span><span class="p">);</span>
+</code></pre></div>
+<p><strong><code>cache_drop()</code> (<code>vfs_cache.c:1090</code>)</strong></p>
+<p>Drops reference without affecting lock:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a><span class="kt">void</span><span class="w"> </span><span class="nf">cache_drop</span><span class="p">(</span><span class="k">struct</span><span class="w"> </span><span class="nc">nchandle</span><span class="w"> </span><span class="o">*</span><span class="n">nch</span><span class="p">);</span>
+</code></pre></div>
+<p><strong><code>cache_lock()</code> (<code>vfs_cache.c:1111</code>)</strong></p>
+<p>Acquires exclusive lock on namecache entry:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a><span class="kt">void</span><span class="w"> </span><span class="nf">cache_lock</span><span class="p">(</span><span class="k">struct</span><span class="w"> </span><span class="nc">nchandle</span><span class="w"> </span><span class="o">*</span><span class="n">nch</span><span class="p">);</span>
+</code></pre></div>
+<h3 id="mount-point-caching">Mount Point Caching<a class="headerlink" href="#mount-point-caching" title="Permanent link">&para;</a></h3>
+<p>DragonFly caches mount point references to reduce atomic operations on <code>mnt_refs</code>:</p>
+<p><strong>Per-CPU mount cache (<code>pcpu_mntcache</code>):</strong></p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-14-1" name="__codelineno-14-1" href="#__codelineno-14-1"></a><span class="k">struct</span><span class="w"> </span><span class="nc">mntcache_elm</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-14-2" name="__codelineno-14-2" href="#__codelineno-14-2"></a><span class="w">    </span><span class="k">struct</span><span class="w"> </span><span class="nc">namecache</span><span class="w"> </span><span class="o">*</span><span class="n">ncp</span><span class="p">;</span>
+<a id="__codelineno-14-3" name="__codelineno-14-3" href="#__codelineno-14-3"></a><span class="w">    </span><span class="k">struct</span><span class="w"> </span><span class="nc">mount</span><span class="w">     </span><span class="o">*</span><span class="n">mp</span><span class="p">;</span>
+<a id="__codelineno-14-4" name="__codelineno-14-4" href="#__codelineno-14-4"></a><span class="w">    </span><span class="kt">int</span><span class="w">              </span><span class="n">ticks</span><span class="p">;</span>
+<a id="__codelineno-14-5" name="__codelineno-14-5" href="#__codelineno-14-5"></a><span class="w">    </span><span class="kt">int</span><span class="w">              </span><span class="n">unused01</span><span class="p">;</span>
+<a id="__codelineno-14-6" name="__codelineno-14-6" href="#__codelineno-14-6"></a><span class="p">};</span>
+</code></pre></div>
+<ul>
+<li>32 entries per CPU, 8-way set associative</li>
+<li>LRU replacement based on <code>ticks</code></li>
+<li>Avoids cache-line ping-ponging in multi-socket systems</li>
+</ul>
+<p><strong>Functions:</strong></p>
+<ul>
+<li><code>_cache_mntref()</code> - Cache a mount ref</li>
+<li><code>_cache_mntrel()</code> - Release a cached mount ref</li>
+<li><code>cache_findmount()</code> - Find mount point for a namecache entry</li>
+</ul>
+<h2 id="new-lookup-api-nlookup">New Lookup API (nlookup)<a class="headerlink" href="#new-lookup-api-nlookup" title="Permanent link">&para;</a></h2>
+<p>The <strong>nlookup</strong> API is DragonFly's modern path resolution interface, replacing the traditional <code>namei()</code>.</p>
+<h3 id="key-advantages-over-namei">Key Advantages Over namei()<a class="headerlink" href="#key-advantages-over-namei" title="Permanent link">&para;</a></h3>
+<ol>
+<li><strong>Namecache-centric</strong> - Operations work on namecache records, not vnodes</li>
+<li><strong>Better parallelism</strong> - Lock granularity is per-entry, not per-vnode</li>
+<li><strong>Cleaner semantics</strong> - Locked/unlocked state is explicit</li>
+<li><strong>Overlay-aware</strong> - Native support for nullfs, unionfs via <code>nchandle</code></li>
+<li><strong>Negative caching</strong> - First-class support for non-existent entries</li>
+</ol>
+<h3 id="usage-pattern">Usage Pattern<a class="headerlink" href="#usage-pattern" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-15-1" name="__codelineno-15-1" href="#__codelineno-15-1"></a><span class="k">struct</span><span class="w"> </span><span class="nc">nlookupdata</span><span class="w"> </span><span class="n">nd</span><span class="p">;</span>
+<a id="__codelineno-15-2" name="__codelineno-15-2" href="#__codelineno-15-2"></a><span class="kt">int</span><span class="w"> </span><span class="n">error</span><span class="p">;</span>
+<a id="__codelineno-15-3" name="__codelineno-15-3" href="#__codelineno-15-3"></a>
+<a id="__codelineno-15-4" name="__codelineno-15-4" href="#__codelineno-15-4"></a><span class="cm">/* Initialize lookup */</span>
+<a id="__codelineno-15-5" name="__codelineno-15-5" href="#__codelineno-15-5"></a><span class="n">error</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">nlookup_init</span><span class="p">(</span><span class="o">&amp;</span><span class="n">nd</span><span class="p">,</span><span class="w"> </span><span class="n">path</span><span class="p">,</span><span class="w"> </span><span class="n">UIO_USERSPACE</span><span class="p">,</span><span class="w"> </span><span class="n">NLC_FOLLOW</span><span class="p">);</span>
+<a id="__codelineno-15-6" name="__codelineno-15-6" href="#__codelineno-15-6"></a><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">error</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-15-7" name="__codelineno-15-7" href="#__codelineno-15-7"></a><span class="w">    </span><span class="cm">/* Perform lookup */</span>
+<a id="__codelineno-15-8" name="__codelineno-15-8" href="#__codelineno-15-8"></a><span class="w">    </span><span class="n">error</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">nlookup</span><span class="p">(</span><span class="o">&amp;</span><span class="n">nd</span><span class="p">);</span>
+<a id="__codelineno-15-9" name="__codelineno-15-9" href="#__codelineno-15-9"></a><span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">error</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-15-10" name="__codelineno-15-10" href="#__codelineno-15-10"></a><span class="w">        </span><span class="cm">/* Use nd.nl_nch result */</span>
+<a id="__codelineno-15-11" name="__codelineno-15-11" href="#__codelineno-15-11"></a><span class="w">        </span><span class="k">struct</span><span class="w"> </span><span class="nc">nchandle</span><span class="w"> </span><span class="o">*</span><span class="n">nch</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="o">&amp;</span><span class="n">nd</span><span class="p">.</span><span class="n">nl_nch</span><span class="p">;</span>
+<a id="__codelineno-15-12" name="__codelineno-15-12" href="#__codelineno-15-12"></a><span class="w">        </span><span class="k">struct</span><span class="w"> </span><span class="nc">vnode</span><span class="w"> </span><span class="o">*</span><span class="n">vp</span><span class="p">;</span>
+<a id="__codelineno-15-13" name="__codelineno-15-13" href="#__codelineno-15-13"></a>
+<a id="__codelineno-15-14" name="__codelineno-15-14" href="#__codelineno-15-14"></a><span class="w">        </span><span class="n">error</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">cache_vget</span><span class="p">(</span><span class="n">nch</span><span class="p">,</span><span class="w"> </span><span class="n">cred</span><span class="p">,</span><span class="w"> </span><span class="n">LK_EXCLUSIVE</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">vp</span><span class="p">);</span>
+<a id="__codelineno-15-15" name="__codelineno-15-15" href="#__codelineno-15-15"></a><span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">error</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-15-16" name="__codelineno-15-16" href="#__codelineno-15-16"></a><span class="w">            </span><span class="cm">/* ... use vp ... */</span>
+<a id="__codelineno-15-17" name="__codelineno-15-17" href="#__codelineno-15-17"></a><span class="w">            </span><span class="n">vput</span><span class="p">(</span><span class="n">vp</span><span class="p">);</span>
+<a id="__codelineno-15-18" name="__codelineno-15-18" href="#__codelineno-15-18"></a><span class="w">        </span><span class="p">}</span>
+<a id="__codelineno-15-19" name="__codelineno-15-19" href="#__codelineno-15-19"></a><span class="w">    </span><span class="p">}</span>
+<a id="__codelineno-15-20" name="__codelineno-15-20" href="#__codelineno-15-20"></a><span class="w">    </span><span class="cm">/* Cleanup */</span>
+<a id="__codelineno-15-21" name="__codelineno-15-21" href="#__codelineno-15-21"></a><span class="w">    </span><span class="n">nlookup_done</span><span class="p">(</span><span class="o">&amp;</span><span class="n">nd</span><span class="p">);</span>
+<a id="__codelineno-15-22" name="__codelineno-15-22" href="#__codelineno-15-22"></a><span class="p">}</span>
+</code></pre></div>
+<h3 id="core-functions">Core Functions<a class="headerlink" href="#core-functions" title="Permanent link">&para;</a></h3>
+<h4 id="nlookup_init-vfs_nlookupc116"><code>nlookup_init()</code> (<code>vfs_nlookup.c:116</code>)<a class="headerlink" href="#nlookup_init-vfs_nlookupc116" title="Permanent link">&para;</a></h4>
+<p>Initialize a lookup operation:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-16-1" name="__codelineno-16-1" href="#__codelineno-16-1"></a><span class="kt">int</span><span class="w"> </span><span class="nf">nlookup_init</span><span class="p">(</span><span class="k">struct</span><span class="w"> </span><span class="nc">nlookupdata</span><span class="w"> </span><span class="o">*</span><span class="n">nd</span><span class="p">,</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="n">path</span><span class="p">,</span><span class="w"> </span>
+<a id="__codelineno-16-2" name="__codelineno-16-2" href="#__codelineno-16-2"></a><span class="w">                 </span><span class="k">enum</span><span class="w"> </span><span class="n">uio_seg</span><span class="w"> </span><span class="n">seg</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">flags</span><span class="p">);</span>
+</code></pre></div>
+<p><strong>Setup:</strong></p>
+<ol>
+<li>Allocate path buffer from <code>namei_oc</code> objcache</li>
+<li>Copy path from userspace/kernelspace</li>
+<li>Initialize <code>nl_nch</code> to current working directory (or root)</li>
+<li>Copy root directory to <code>nl_rootnch</code></li>
+<li>Copy jail directory to <code>nl_jailnch</code> (if jailed)</li>
+<li>Set credentials from current thread</li>
+</ol>
+<h4 id="nlookup-vfs_nlookupc530"><code>nlookup()</code> (<code>vfs_nlookup.c:530</code>)<a class="headerlink" href="#nlookup-vfs_nlookupc530" title="Permanent link">&para;</a></h4>
+<p>Perform the actual path lookup:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-17-1" name="__codelineno-17-1" href="#__codelineno-17-1"></a><span class="kt">int</span><span class="w"> </span><span class="nf">nlookup</span><span class="p">(</span><span class="k">struct</span><span class="w"> </span><span class="nc">nlookupdata</span><span class="w"> </span><span class="o">*</span><span class="n">nd</span><span class="p">);</span>
+</code></pre></div>
+<p><strong>Main loop algorithm:</strong></p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-18-1" name="__codelineno-18-1" href="#__codelineno-18-1"></a>for each path component:
+<a id="__codelineno-18-2" name="__codelineno-18-2" href="#__codelineno-18-2"></a>    1. Skip leading &#39;/&#39; characters
+<a id="__codelineno-18-3" name="__codelineno-18-3" href="#__codelineno-18-3"></a>    2. Check for root directory replacement
+<a id="__codelineno-18-4" name="__codelineno-18-4" href="#__codelineno-18-4"></a>    3. Check execute permission on current directory (naccess)
+<a id="__codelineno-18-5" name="__codelineno-18-5" href="#__codelineno-18-5"></a>    4. Extract next component (up to 255 chars)
+<a id="__codelineno-18-6" name="__codelineno-18-6" href="#__codelineno-18-6"></a>    5. Handle special cases:
+<a id="__codelineno-18-7" name="__codelineno-18-7" href="#__codelineno-18-7"></a>       - &quot;.&quot; = current directory (no-op)
+<a id="__codelineno-18-8" name="__codelineno-18-8" href="#__codelineno-18-8"></a>       - &quot;..&quot; = parent directory (traverse mounts)
+<a id="__codelineno-18-9" name="__codelineno-18-9" href="#__codelineno-18-9"></a>       - regular name = cache_nlookup()
+<a id="__codelineno-18-10" name="__codelineno-18-10" href="#__codelineno-18-10"></a>    6. If unresolved, call cache_resolve()
+<a id="__codelineno-18-11" name="__codelineno-18-11" href="#__codelineno-18-11"></a>    7. Handle symlinks (if NLC_FOLLOW and nc_flag &amp; NCF_ISSYMLINK)
+<a id="__codelineno-18-12" name="__codelineno-18-12" href="#__codelineno-18-12"></a>    8. Handle mount point crossings
+<a id="__codelineno-18-13" name="__codelineno-18-13" href="#__codelineno-18-13"></a>    9. Perform access checks based on nl_flags
+<a id="__codelineno-18-14" name="__codelineno-18-14" href="#__codelineno-18-14"></a>    10. Update nl_nch to point to new entry
+</code></pre></div>
+<p><strong>Symlink handling:</strong></p>
+<ul>
+<li>Detect via <code>NCF_ISSYMLINK</code> flag</li>
+<li>Read symlink contents via <code>VOP_READLINK()</code></li>
+<li>Restart lookup from symlink target</li>
+<li>Limit to <code>MAXSYMLINKS</code> (typically 32) to prevent loops</li>
+</ul>
+<p><strong>Mount point traversal:</strong></p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-19-1" name="__codelineno-19-1" href="#__codelineno-19-1"></a><span class="cm">/* Cross into mounted filesystem */</span>
+<a id="__codelineno-19-2" name="__codelineno-19-2" href="#__codelineno-19-2"></a><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">nch</span><span class="p">.</span><span class="n">ncp</span><span class="o">-&gt;</span><span class="n">nc_flag</span><span class="w"> </span><span class="o">&amp;</span><span class="w"> </span><span class="n">NCF_ISMOUNTPT</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-19-3" name="__codelineno-19-3" href="#__codelineno-19-3"></a><span class="w">    </span><span class="n">mp</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">cache_findmount</span><span class="p">(</span><span class="o">&amp;</span><span class="n">nch</span><span class="p">);</span>
+<a id="__codelineno-19-4" name="__codelineno-19-4" href="#__codelineno-19-4"></a><span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">mp</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-19-5" name="__codelineno-19-5" href="#__codelineno-19-5"></a><span class="w">        </span><span class="cm">/* Replace with mount point&#39;s root */</span>
+<a id="__codelineno-19-6" name="__codelineno-19-6" href="#__codelineno-19-6"></a><span class="w">        </span><span class="n">cache_dropmount</span><span class="p">(</span><span class="n">mp</span><span class="p">);</span>
+<a id="__codelineno-19-7" name="__codelineno-19-7" href="#__codelineno-19-7"></a><span class="w">    </span><span class="p">}</span>
+<a id="__codelineno-19-8" name="__codelineno-19-8" href="#__codelineno-19-8"></a><span class="p">}</span>
+</code></pre></div>
+<p><strong>Generation tracking:</strong></p>
+<p>The code carefully tracks <code>nc_generation</code> throughout:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-20-1" name="__codelineno-20-1" href="#__codelineno-20-1"></a><span class="n">nl_gen</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">nd</span><span class="o">-&gt;</span><span class="n">nl_nch</span><span class="p">.</span><span class="n">ncp</span><span class="o">-&gt;</span><span class="n">nc_generation</span><span class="w"> </span><span class="o">&amp;</span><span class="w"> </span><span class="o">~</span><span class="mi">3</span><span class="p">;</span>
+<a id="__codelineno-20-2" name="__codelineno-20-2" href="#__codelineno-20-2"></a><span class="p">...</span>
+<a id="__codelineno-20-3" name="__codelineno-20-3" href="#__codelineno-20-3"></a><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">gen_changed</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="p">(</span><span class="n">nl_gen</span><span class="w"> </span><span class="o">&amp;</span><span class="w"> </span><span class="mi">1</span><span class="p">))</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-20-4" name="__codelineno-20-4" href="#__codelineno-20-4"></a><span class="w">    </span><span class="cm">/* Retry lookup */</span>
+<a id="__codelineno-20-5" name="__codelineno-20-5" href="#__codelineno-20-5"></a><span class="w">    </span><span class="k">goto</span><span class="w"> </span><span class="n">nlookup_start</span><span class="p">;</span>
+<a id="__codelineno-20-6" name="__codelineno-20-6" href="#__codelineno-20-6"></a><span class="p">}</span>
+</code></pre></div>
+<p>This allows detection of concurrent modifications and automatic retry.</p>
+<h4 id="nlookup_done-vfs_nlookupc289"><code>nlookup_done()</code> (<code>vfs_nlookup.c:289</code>)<a class="headerlink" href="#nlookup_done-vfs_nlookupc289" title="Permanent link">&para;</a></h4>
+<p>Cleanup after lookup:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-21-1" name="__codelineno-21-1" href="#__codelineno-21-1"></a><span class="kt">void</span><span class="w"> </span><span class="nf">nlookup_done</span><span class="p">(</span><span class="k">struct</span><span class="w"> </span><span class="nc">nlookupdata</span><span class="w"> </span><span class="o">*</span><span class="n">nd</span><span class="p">);</span>
+</code></pre></div>
+<ul>
+<li>Release all nchandles</li>
+<li>Free path buffer</li>
+<li>Drop credential reference</li>
+<li>Close <code>nl_open_vp</code> if set</li>
+</ul>
+<h3 id="access-checking-naccess-vfs_nlookupc1531">Access Checking: <code>naccess()</code> (<code>vfs_nlookup.c:1531</code>)<a class="headerlink" href="#access-checking-naccess-vfs_nlookupc1531" title="Permanent link">&para;</a></h3>
+<p>Check permissions during path traversal:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-22-1" name="__codelineno-22-1" href="#__codelineno-22-1"></a><span class="k">static</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="nf">naccess</span><span class="p">(</span><span class="k">struct</span><span class="w"> </span><span class="nc">nlookupdata</span><span class="w"> </span><span class="o">*</span><span class="n">nd</span><span class="p">,</span><span class="w"> </span><span class="k">struct</span><span class="w"> </span><span class="nc">nchandle</span><span class="w"> </span><span class="o">*</span><span class="n">nch</span><span class="p">,</span>
+<a id="__codelineno-22-2" name="__codelineno-22-2" href="#__codelineno-22-2"></a><span class="w">                   </span><span class="n">u_int</span><span class="w"> </span><span class="o">*</span><span class="n">genp</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">vmode</span><span class="p">,</span><span class="w"> </span><span class="k">struct</span><span class="w"> </span><span class="nc">ucred</span><span class="w"> </span><span class="o">*</span><span class="n">cred</span><span class="p">,</span><span class="w"> </span>
+<a id="__codelineno-22-3" name="__codelineno-22-3" href="#__codelineno-22-3"></a><span class="w">                   </span><span class="kt">int</span><span class="w"> </span><span class="o">*</span><span class="n">stickyp</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">nchislocked</span><span class="p">);</span>
+</code></pre></div>
+<p><strong>Optimizations:</strong></p>
+<ol>
+<li><strong>Cached permissions</strong> - Check <code>NCF_WXOK</code> flag for world-searchable dirs</li>
+<li><strong>Lock-free</strong> - Avoids locking if cached perms are sufficient</li>
+<li><strong>Generation tracking</strong> - Detect races with <code>nc_generation</code></li>
+</ol>
+<h2 id="legacy-lookup-api-namei">Legacy Lookup API (namei)<a class="headerlink" href="#legacy-lookup-api-namei" title="Permanent link">&para;</a></h2>
+<h3 id="relookup-vfs_lookupc75"><code>relookup()</code> (<code>vfs_lookup.c:75</code>)<a class="headerlink" href="#relookup-vfs_lookupc75" title="Permanent link">&para;</a></h3>
+<p>Old API function used only by legacy <code>*_rename()</code> code:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-23-1" name="__codelineno-23-1" href="#__codelineno-23-1"></a><span class="kt">int</span><span class="w"> </span><span class="nf">relookup</span><span class="p">(</span><span class="k">struct</span><span class="w"> </span><span class="nc">vnode</span><span class="w"> </span><span class="o">*</span><span class="n">dvp</span><span class="p">,</span><span class="w"> </span><span class="k">struct</span><span class="w"> </span><span class="nc">vnode</span><span class="w"> </span><span class="o">**</span><span class="n">vpp</span><span class="p">,</span><span class="w"> </span>
+<a id="__codelineno-23-2" name="__codelineno-23-2" href="#__codelineno-23-2"></a><span class="w">             </span><span class="k">struct</span><span class="w"> </span><span class="nc">componentname</span><span class="w"> </span><span class="o">*</span><span class="n">cnp</span><span class="p">);</span>
+</code></pre></div>
+<p>This is a <strong>compatibility shim</strong>. New code should use nlookup exclusively.</p>
+<p><strong>Key differences from nlookup:</strong></p>
+<ul>
+<li>Works with vnodes directly (requires vnode locks)</li>
+<li>Uses <code>componentname</code> instead of <code>nlcomponent</code></li>
+<li>Less efficient due to vnode-based locking</li>
+<li>Does not support overlay mounts as cleanly</li>
+</ul>
+<h2 id="performance-optimizations">Performance Optimizations<a class="headerlink" href="#performance-optimizations" title="Permanent link">&para;</a></h2>
+<h3 id="lock-free-lookups">Lock-Free Lookups<a class="headerlink" href="#lock-free-lookups" title="Permanent link">&para;</a></h3>
+<p>The core innovation is <strong>optimistic lock-free access</strong>:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-24-1" name="__codelineno-24-1" href="#__codelineno-24-1"></a><span class="cm">/* Fast path - no locks */</span>
+<a id="__codelineno-24-2" name="__codelineno-24-2" href="#__codelineno-24-2"></a><span class="k">do</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-24-3" name="__codelineno-24-3" href="#__codelineno-24-3"></a><span class="w">    </span><span class="n">gen_before</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ncp</span><span class="o">-&gt;</span><span class="n">nc_generation</span><span class="p">;</span>
+<a id="__codelineno-24-4" name="__codelineno-24-4" href="#__codelineno-24-4"></a><span class="w">    </span><span class="n">cpu_lfence</span><span class="p">();</span>
+<a id="__codelineno-24-5" name="__codelineno-24-5" href="#__codelineno-24-5"></a><span class="w">    </span><span class="cm">/* ... read fields ... */</span>
+<a id="__codelineno-24-6" name="__codelineno-24-6" href="#__codelineno-24-6"></a><span class="w">    </span><span class="n">cpu_lfence</span><span class="p">();</span>
+<a id="__codelineno-24-7" name="__codelineno-24-7" href="#__codelineno-24-7"></a><span class="w">    </span><span class="n">gen_after</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ncp</span><span class="o">-&gt;</span><span class="n">nc_generation</span><span class="p">;</span>
+<a id="__codelineno-24-8" name="__codelineno-24-8" href="#__codelineno-24-8"></a><span class="p">}</span><span class="w"> </span><span class="k">while</span><span class="w"> </span><span class="p">(</span><span class="n">gen_before</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="n">gen_after</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="p">(</span><span class="n">gen_after</span><span class="w"> </span><span class="o">&amp;</span><span class="w"> </span><span class="mi">1</span><span class="p">));</span>
+</code></pre></div>
+<p>If generation matches and is even (not in-progress), the read is consistent.</p>
+<h3 id="per-cpu-negative-lists">Per-CPU Negative Lists<a class="headerlink" href="#per-cpu-negative-lists" title="Permanent link">&para;</a></h3>
+<p>Negative entries are stored in per-CPU lists (<code>pcpu_ncache[cpu].neg_list</code>):</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-25-1" name="__codelineno-25-1" href="#__codelineno-25-1"></a><span class="k">struct</span><span class="w"> </span><span class="nc">pcpu_ncache</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-25-2" name="__codelineno-25-2" href="#__codelineno-25-2"></a><span class="w">    </span><span class="k">struct</span><span class="w"> </span><span class="nc">spinlock</span><span class="w">       </span><span class="n">umount_spin</span><span class="p">;</span>
+<a id="__codelineno-25-3" name="__codelineno-25-3" href="#__codelineno-25-3"></a><span class="w">    </span><span class="k">struct</span><span class="w"> </span><span class="nc">spinlock</span><span class="w">       </span><span class="n">neg_spin</span><span class="p">;</span>
+<a id="__codelineno-25-4" name="__codelineno-25-4" href="#__codelineno-25-4"></a><span class="w">    </span><span class="k">struct</span><span class="w"> </span><span class="nc">namecache_list</span><span class="w"> </span><span class="n">neg_list</span><span class="p">;</span>
+<a id="__codelineno-25-5" name="__codelineno-25-5" href="#__codelineno-25-5"></a><span class="w">    </span><span class="kt">long</span><span class="w">                  </span><span class="n">neg_count</span><span class="p">;</span>
+<a id="__codelineno-25-6" name="__codelineno-25-6" href="#__codelineno-25-6"></a><span class="w">    </span><span class="kt">long</span><span class="w">                  </span><span class="n">vfscache_negs</span><span class="p">;</span>
+<a id="__codelineno-25-7" name="__codelineno-25-7" href="#__codelineno-25-7"></a><span class="w">    </span><span class="kt">long</span><span class="w">                  </span><span class="n">vfscache_count</span><span class="p">;</span>
+<a id="__codelineno-25-8" name="__codelineno-25-8" href="#__codelineno-25-8"></a><span class="w">    </span><span class="cm">/* ... statistics ... */</span>
+<a id="__codelineno-25-9" name="__codelineno-25-9" href="#__codelineno-25-9"></a><span class="p">}</span><span class="w"> </span><span class="n">__cachealign</span><span class="p">;</span>
+</code></pre></div>
+<p><strong>Benefits:</strong></p>
+<ul>
+<li>No inter-CPU contention on negative entry allocation/free</li>
+<li>Cache-line alignment prevents false sharing</li>
+<li>Quick reclamation when memory pressure hits</li>
+</ul>
+<h3 id="mount-reference-caching">Mount Reference Caching<a class="headerlink" href="#mount-reference-caching" title="Permanent link">&para;</a></h3>
+<p>The per-CPU mount cache (<code>pcpu_mntcache</code>) is critical for performance:</p>
+<ul>
+<li><strong>Problem</strong>: Atomic ops on <code>mp-&gt;mnt_refs</code> cause cache-line bouncing</li>
+<li><strong>Solution</strong>: Cache mount refs per-CPU, only updating global ref periodically</li>
+<li><strong>Result</strong>: 10-100x reduction in cache misses on multi-socket systems</li>
+</ul>
+<h3 id="namecache-size-limits">Namecache Size Limits<a class="headerlink" href="#namecache-size-limits" title="Permanent link">&para;</a></h3>
+<p>DragonFly dynamically balances cache sizes:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-26-1" name="__codelineno-26-1" href="#__codelineno-26-1"></a><span class="n">__read_mostly</span><span class="w"> </span><span class="k">static</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">ncnegfactor</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">16</span><span class="p">;</span><span class="w">   </span><span class="cm">/* ratio of negative entries */</span>
+<a id="__codelineno-26-2" name="__codelineno-26-2" href="#__codelineno-26-2"></a><span class="n">__read_mostly</span><span class="w"> </span><span class="k">static</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">ncposfactor</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">16</span><span class="p">;</span><span class="w">   </span><span class="cm">/* ratio of unres+leaf entries */</span>
+</code></pre></div>
+<p>Functions like <code>_cache_cleanneg()</code> and <code>_cache_cleanpos()</code> trim caches when:</p>
+<ol>
+<li>Memory pressure increases</li>
+<li>Ratios exceed configured factors</li>
+<li>Mount/unmount operations occur</li>
+</ol>
+<h2 id="filesystem-integration">Filesystem Integration<a class="headerlink" href="#filesystem-integration" title="Permanent link">&para;</a></h2>
+<h3 id="required-vop-operations">Required VOP Operations<a class="headerlink" href="#required-vop-operations" title="Permanent link">&para;</a></h3>
+<p>Filesystems must implement these to integrate with namecache:</p>
+<h4 id="vop_nresolve"><code>VOP_NRESOLVE()</code><a class="headerlink" href="#vop_nresolve" title="Permanent link">&para;</a></h4>
+<p>Resolve an unresolved namecache entry:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-27-1" name="__codelineno-27-1" href="#__codelineno-27-1"></a><span class="kt">int</span><span class="w"> </span><span class="nf">VOP_NRESOLVE</span><span class="p">(</span><span class="k">struct</span><span class="w"> </span><span class="nc">vnode</span><span class="w"> </span><span class="o">*</span><span class="n">dvp</span><span class="p">,</span><span class="w"> </span><span class="k">struct</span><span class="w"> </span><span class="nc">namecache</span><span class="w"> </span><span class="o">*</span><span class="n">ncp</span><span class="p">,</span><span class="w"> </span>
+<a id="__codelineno-27-2" name="__codelineno-27-2" href="#__codelineno-27-2"></a><span class="w">                 </span><span class="k">struct</span><span class="w"> </span><span class="nc">ucred</span><span class="w"> </span><span class="o">*</span><span class="n">cred</span><span class="p">);</span>
+</code></pre></div>
+<p><strong>Responsibilities:</strong></p>
+<ol>
+<li>Search directory <code>dvp</code> for name <code>ncp-&gt;nc_name</code></li>
+<li>If found: Call <code>cache_setvp(nch, vp)</code> to set <code>ncp-&gt;nc_vp</code></li>
+<li>If not found: Leave <code>ncp-&gt;nc_vp</code> as NULL (negative entry)</li>
+<li>Return 0 on success, error otherwise</li>
+</ol>
+<h4 id="vop_ncreate"><code>VOP_NCREATE()</code><a class="headerlink" href="#vop_ncreate" title="Permanent link">&para;</a></h4>
+<p>Create file via namecache:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-28-1" name="__codelineno-28-1" href="#__codelineno-28-1"></a><span class="kt">int</span><span class="w"> </span><span class="nf">VOP_NCREATE</span><span class="p">(</span><span class="k">struct</span><span class="w"> </span><span class="nc">vnode</span><span class="w"> </span><span class="o">*</span><span class="n">dvp</span><span class="p">,</span><span class="w"> </span><span class="k">struct</span><span class="w"> </span><span class="nc">vnode</span><span class="w"> </span><span class="o">**</span><span class="n">vpp</span><span class="p">,</span>
+<a id="__codelineno-28-2" name="__codelineno-28-2" href="#__codelineno-28-2"></a><span class="w">                </span><span class="k">struct</span><span class="w"> </span><span class="nc">nchandle</span><span class="w"> </span><span class="o">*</span><span class="n">nch</span><span class="p">,</span><span class="w"> </span><span class="k">struct</span><span class="w"> </span><span class="nc">vattr</span><span class="w"> </span><span class="o">*</span><span class="n">vap</span><span class="p">,</span>
+<a id="__codelineno-28-3" name="__codelineno-28-3" href="#__codelineno-28-3"></a><span class="w">                </span><span class="k">struct</span><span class="w"> </span><span class="nc">ucred</span><span class="w"> </span><span class="o">*</span><span class="n">cred</span><span class="p">);</span>
+</code></pre></div>
+<h4 id="vop_nremove"><code>VOP_NREMOVE()</code><a class="headerlink" href="#vop_nremove" title="Permanent link">&para;</a></h4>
+<p>Remove file via namecache:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-29-1" name="__codelineno-29-1" href="#__codelineno-29-1"></a><span class="kt">int</span><span class="w"> </span><span class="nf">VOP_NREMOVE</span><span class="p">(</span><span class="k">struct</span><span class="w"> </span><span class="nc">vnode</span><span class="w"> </span><span class="o">*</span><span class="n">dvp</span><span class="p">,</span><span class="w"> </span><span class="k">struct</span><span class="w"> </span><span class="nc">nchandle</span><span class="w"> </span><span class="o">*</span><span class="n">nch</span><span class="p">,</span>
+<a id="__codelineno-29-2" name="__codelineno-29-2" href="#__codelineno-29-2"></a><span class="w">                </span><span class="k">struct</span><span class="w"> </span><span class="nc">ucred</span><span class="w"> </span><span class="o">*</span><span class="n">cred</span><span class="p">);</span>
+</code></pre></div>
+<h4 id="vop_nrename"><code>VOP_NRENAME()</code><a class="headerlink" href="#vop_nrename" title="Permanent link">&para;</a></h4>
+<p>Rename via namecache:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-30-1" name="__codelineno-30-1" href="#__codelineno-30-1"></a><span class="kt">int</span><span class="w"> </span><span class="nf">VOP_NRENAME</span><span class="p">(</span><span class="k">struct</span><span class="w"> </span><span class="nc">nchandle</span><span class="w"> </span><span class="o">*</span><span class="n">fnch</span><span class="p">,</span><span class="w"> </span><span class="k">struct</span><span class="w"> </span><span class="nc">nchandle</span><span class="w"> </span><span class="o">*</span><span class="n">tnch</span><span class="p">,</span>
+<a id="__codelineno-30-2" name="__codelineno-30-2" href="#__codelineno-30-2"></a><span class="w">                </span><span class="k">struct</span><span class="w"> </span><span class="nc">vnode</span><span class="w"> </span><span class="o">*</span><span class="n">fdvp</span><span class="p">,</span><span class="w"> </span><span class="k">struct</span><span class="w"> </span><span class="nc">vnode</span><span class="w"> </span><span class="o">*</span><span class="n">tdvp</span><span class="p">,</span>
+<a id="__codelineno-30-3" name="__codelineno-30-3" href="#__codelineno-30-3"></a><span class="w">                </span><span class="k">struct</span><span class="w"> </span><span class="nc">ucred</span><span class="w"> </span><span class="o">*</span><span class="n">cred</span><span class="p">);</span>
+</code></pre></div>
+<h3 id="invalidation-requirements">Invalidation Requirements<a class="headerlink" href="#invalidation-requirements" title="Permanent link">&para;</a></h3>
+<p>Filesystems must invalidate namecache entries when:</p>
+<ol>
+<li><strong>File/directory deleted</strong> - <code>cache_inval(nch, CINV_DESTROY)</code></li>
+<li><strong>Directory modified</strong> - <code>cache_inval_vp(dvp, CINV_CHILDREN)</code></li>
+<li><strong>Vnode recycled</strong> - <code>cache_inval_vp(vp, CINV_DESTROY)</code></li>
+<li><strong>Mount/unmount</strong> - <code>cache_purgevfs(mp)</code></li>
+</ol>
+<p><strong>Example (tmpfs):</strong></p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-31-1" name="__codelineno-31-1" href="#__codelineno-31-1"></a><span class="cm">/* After unlinking a file */</span>
+<a id="__codelineno-31-2" name="__codelineno-31-2" href="#__codelineno-31-2"></a><span class="n">error</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">tmpfs_remove_dirent</span><span class="p">(</span><span class="n">dvp</span><span class="p">,</span><span class="w"> </span><span class="n">node</span><span class="p">,</span><span class="w"> </span><span class="n">nch</span><span class="p">);</span>
+<a id="__codelineno-31-3" name="__codelineno-31-3" href="#__codelineno-31-3"></a><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">error</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-31-4" name="__codelineno-31-4" href="#__codelineno-31-4"></a><span class="w">    </span><span class="n">cache_inval</span><span class="p">(</span><span class="n">nch</span><span class="p">,</span><span class="w"> </span><span class="n">CINV_DESTROY</span><span class="p">);</span>
+<a id="__codelineno-31-5" name="__codelineno-31-5" href="#__codelineno-31-5"></a><span class="w">    </span><span class="n">cache_inval_vp</span><span class="p">(</span><span class="n">vp</span><span class="p">,</span><span class="w"> </span><span class="n">CINV_DESTROY</span><span class="p">);</span>
+<a id="__codelineno-31-6" name="__codelineno-31-6" href="#__codelineno-31-6"></a><span class="p">}</span>
+</code></pre></div>
+<h2 id="special-cases">Special Cases<a class="headerlink" href="#special-cases" title="Permanent link">&para;</a></h2>
+<h3 id="mount-point-handling">Mount Point Handling<a class="headerlink" href="#mount-point-handling" title="Permanent link">&para;</a></h3>
+<p>When a lookup encounters a mount point:</p>
+<ol>
+<li>Detect via <code>NCF_ISMOUNTPT</code> flag</li>
+<li>Call <code>cache_findmount(nch)</code> to get mounted filesystem</li>
+<li>Replace <code>nch</code> with mount point's root <code>mp-&gt;mnt_ncmountpt</code></li>
+<li>Continue lookup in new filesystem</li>
+</ol>
+<p><strong>Reverse traversal (`..'):</strong></p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-32-1" name="__codelineno-32-1" href="#__codelineno-32-1"></a><span class="k">while</span><span class="w"> </span><span class="p">(</span><span class="n">nctmp</span><span class="p">.</span><span class="n">ncp</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">nctmp</span><span class="p">.</span><span class="n">mount</span><span class="o">-&gt;</span><span class="n">mnt_ncmountpt</span><span class="p">.</span><span class="n">ncp</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-32-2" name="__codelineno-32-2" href="#__codelineno-32-2"></a><span class="w">    </span><span class="cm">/* Traverse to mounted-on directory */</span>
+<a id="__codelineno-32-3" name="__codelineno-32-3" href="#__codelineno-32-3"></a><span class="w">    </span><span class="n">nctmp</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">nctmp</span><span class="p">.</span><span class="n">mount</span><span class="o">-&gt;</span><span class="n">mnt_ncmounton</span><span class="p">;</span>
+<a id="__codelineno-32-4" name="__codelineno-32-4" href="#__codelineno-32-4"></a><span class="p">}</span>
+<a id="__codelineno-32-5" name="__codelineno-32-5" href="#__codelineno-32-5"></a><span class="n">nctmp</span><span class="p">.</span><span class="n">ncp</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">nctmp</span><span class="p">.</span><span class="n">ncp</span><span class="o">-&gt;</span><span class="n">nc_parent</span><span class="p">;</span>
+</code></pre></div>
+<h3 id="jail-and-chroot">Jail and Chroot<a class="headerlink" href="#jail-and-chroot" title="Permanent link">&para;</a></h3>
+<p>The lookup code respects process jails and chroot:</p>
+<ul>
+<li><code>nl_rootnch</code> - Process's root (may be chrooted)</li>
+<li><code>nl_jailnch</code> - Jail's root (if jailed)</li>
+</ul>
+<p><strong>Root clamping:</strong></p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-33-1" name="__codelineno-33-1" href="#__codelineno-33-1"></a><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">nd</span><span class="o">-&gt;</span><span class="n">nl_nch</span><span class="p">.</span><span class="n">mount</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">nd</span><span class="o">-&gt;</span><span class="n">nl_rootnch</span><span class="p">.</span><span class="n">mount</span><span class="w"> </span><span class="o">&amp;&amp;</span>
+<a id="__codelineno-33-2" name="__codelineno-33-2" href="#__codelineno-33-2"></a><span class="w">    </span><span class="n">nd</span><span class="o">-&gt;</span><span class="n">nl_nch</span><span class="p">.</span><span class="n">ncp</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">nd</span><span class="o">-&gt;</span><span class="n">nl_rootnch</span><span class="p">.</span><span class="n">ncp</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-33-3" name="__codelineno-33-3" href="#__codelineno-33-3"></a><span class="w">    </span><span class="cm">/* At root, &quot;..&quot; returns root */</span>
+<a id="__codelineno-33-4" name="__codelineno-33-4" href="#__codelineno-33-4"></a><span class="w">    </span><span class="n">cache_copy</span><span class="p">(</span><span class="o">&amp;</span><span class="n">nd</span><span class="o">-&gt;</span><span class="n">nl_rootnch</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">nch</span><span class="p">);</span>
+<a id="__codelineno-33-5" name="__codelineno-33-5" href="#__codelineno-33-5"></a><span class="p">}</span>
+</code></pre></div>
+<h3 id="whiteouts-union-mounts">Whiteouts (Union Mounts)<a class="headerlink" href="#whiteouts-union-mounts" title="Permanent link">&para;</a></h3>
+<p>Whiteouts represent explicitly deleted entries in union filesystems:</p>
+<ul>
+<li>Negative entry with <code>NCF_WHITEOUT</code> flag set</li>
+<li>Prevents lower layers from showing through</li>
+<li>Created by <code>VOP_NWHITEOUT()</code></li>
+</ul>
+<h2 id="common-operations">Common Operations<a class="headerlink" href="#common-operations" title="Permanent link">&para;</a></h2>
+<h3 id="get-vnode-from-nchandle">Get vnode from nchandle<a class="headerlink" href="#get-vnode-from-nchandle" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-34-1" name="__codelineno-34-1" href="#__codelineno-34-1"></a><span class="k">struct</span><span class="w"> </span><span class="nc">vnode</span><span class="w"> </span><span class="o">*</span><span class="n">vp</span><span class="p">;</span>
+<a id="__codelineno-34-2" name="__codelineno-34-2" href="#__codelineno-34-2"></a><span class="n">error</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">cache_vget</span><span class="p">(</span><span class="n">nch</span><span class="p">,</span><span class="w"> </span><span class="n">cred</span><span class="p">,</span><span class="w"> </span><span class="n">LK_EXCLUSIVE</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">vp</span><span class="p">);</span>
+<a id="__codelineno-34-3" name="__codelineno-34-3" href="#__codelineno-34-3"></a><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">error</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-34-4" name="__codelineno-34-4" href="#__codelineno-34-4"></a><span class="w">    </span><span class="cm">/* ... use vp ... */</span>
+<a id="__codelineno-34-5" name="__codelineno-34-5" href="#__codelineno-34-5"></a><span class="w">    </span><span class="n">vput</span><span class="p">(</span><span class="n">vp</span><span class="p">);</span><span class="w">  </span><span class="cm">/* Release lock + ref */</span>
+<a id="__codelineno-34-6" name="__codelineno-34-6" href="#__codelineno-34-6"></a><span class="p">}</span>
+</code></pre></div>
+<h3 id="get-nchandle-from-vnode">Get nchandle from vnode<a class="headerlink" href="#get-nchandle-from-vnode" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-35-1" name="__codelineno-35-1" href="#__codelineno-35-1"></a><span class="k">struct</span><span class="w"> </span><span class="nc">nchandle</span><span class="w"> </span><span class="n">nch</span><span class="p">;</span>
+<a id="__codelineno-35-2" name="__codelineno-35-2" href="#__codelineno-35-2"></a><span class="n">error</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">cache_fromdvp</span><span class="p">(</span><span class="n">vp</span><span class="p">,</span><span class="w"> </span><span class="n">cred</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">nch</span><span class="p">);</span>
+<a id="__codelineno-35-3" name="__codelineno-35-3" href="#__codelineno-35-3"></a><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">error</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-35-4" name="__codelineno-35-4" href="#__codelineno-35-4"></a><span class="w">    </span><span class="cm">/* ... use nch ... */</span>
+<a id="__codelineno-35-5" name="__codelineno-35-5" href="#__codelineno-35-5"></a><span class="w">    </span><span class="n">cache_drop</span><span class="p">(</span><span class="o">&amp;</span><span class="n">nch</span><span class="p">);</span>
+<a id="__codelineno-35-6" name="__codelineno-35-6" href="#__codelineno-35-6"></a><span class="p">}</span>
+</code></pre></div>
+<h3 id="full-path-from-nchandle">Full path from nchandle<a class="headerlink" href="#full-path-from-nchandle" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-36-1" name="__codelineno-36-1" href="#__codelineno-36-1"></a><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="n">freebuf</span><span class="p">;</span>
+<a id="__codelineno-36-2" name="__codelineno-36-2" href="#__codelineno-36-2"></a><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="n">fullpath</span><span class="p">;</span>
+<a id="__codelineno-36-3" name="__codelineno-36-3" href="#__codelineno-36-3"></a><span class="n">error</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">cache_fullpath</span><span class="p">(</span><span class="n">p</span><span class="p">,</span><span class="w"> </span><span class="n">nch</span><span class="p">,</span><span class="w"> </span><span class="nb">NULL</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">fullpath</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">freebuf</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">);</span>
+<a id="__codelineno-36-4" name="__codelineno-36-4" href="#__codelineno-36-4"></a><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">error</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-36-5" name="__codelineno-36-5" href="#__codelineno-36-5"></a><span class="w">    </span><span class="n">kprintf</span><span class="p">(</span><span class="s">&quot;Path: %s</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">fullpath</span><span class="p">);</span>
+<a id="__codelineno-36-6" name="__codelineno-36-6" href="#__codelineno-36-6"></a><span class="w">    </span><span class="n">kfree</span><span class="p">(</span><span class="n">freebuf</span><span class="p">,</span><span class="w"> </span><span class="n">M_TEMP</span><span class="p">);</span>
+<a id="__codelineno-36-7" name="__codelineno-36-7" href="#__codelineno-36-7"></a><span class="p">}</span>
+</code></pre></div>
+<h3 id="check-if-path-is-open">Check if path is open<a class="headerlink" href="#check-if-path-is-open" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-37-1" name="__codelineno-37-1" href="#__codelineno-37-1"></a><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">cache_isopen</span><span class="p">(</span><span class="n">nch</span><span class="p">))</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-37-2" name="__codelineno-37-2" href="#__codelineno-37-2"></a><span class="w">    </span><span class="cm">/* Entry has open file descriptors */</span>
+<a id="__codelineno-37-3" name="__codelineno-37-3" href="#__codelineno-37-3"></a><span class="p">}</span>
+</code></pre></div>
+<h2 id="statistics-and-debugging">Statistics and Debugging<a class="headerlink" href="#statistics-and-debugging" title="Permanent link">&para;</a></h2>
+<h3 id="sysctl-variables">Sysctl Variables<a class="headerlink" href="#sysctl-variables" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-38-1" name="__codelineno-38-1" href="#__codelineno-38-1"></a>vfs.cache.numneg       - Number of negative entries
+<a id="__codelineno-38-2" name="__codelineno-38-2" href="#__codelineno-38-2"></a>vfs.cache.numcache     - Total namecache entries
+<a id="__codelineno-38-3" name="__codelineno-38-3" href="#__codelineno-38-3"></a>vfs.cache.numleafs     - Leaf entries (no children)
+<a id="__codelineno-38-4" name="__codelineno-38-4" href="#__codelineno-38-4"></a>vfs.cache.numunres     - Unresolved leaf entries
+</code></pre></div>
+<h3 id="per-cpu-statistics-struct-nchstats">Per-CPU Statistics (<code>struct nchstats</code>)<a class="headerlink" href="#per-cpu-statistics-struct-nchstats" title="Permanent link">&para;</a></h3>
+<p>Exported via <code>vfs.cache.nchstats</code> sysctl:</p>
+<ul>
+<li><code>ncs_goodhits</code> - Successful cache hits</li>
+<li><code>ncs_neghits</code> - Negative cache hits</li>
+<li><code>ncs_badhits</code> - Hits that required locking</li>
+<li><code>ncs_miss</code> - Cache misses requiring VOP_NRESOLVE</li>
+<li><code>ncs_longhits</code> - Long name hits (&gt; 32 chars)</li>
+</ul>
+<h3 id="debug-variables">Debug Variables<a class="headerlink" href="#debug-variables" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-39-1" name="__codelineno-39-1" href="#__codelineno-39-1"></a>debug.ncvp_debug       - Namecache debug level (0-3)
+<a id="__codelineno-39-2" name="__codelineno-39-2" href="#__codelineno-39-2"></a>debug.ncnegflush       - Batch flush negative entries
+<a id="__codelineno-39-3" name="__codelineno-39-3" href="#__codelineno-39-3"></a>debug.ncposflush       - Batch flush positive entries
+<a id="__codelineno-39-4" name="__codelineno-39-4" href="#__codelineno-39-4"></a>debug.nclockwarn       - Warn on locked entries in ticks
+</code></pre></div>
+<h2 id="example-creating-a-file">Example: Creating a File<a class="headerlink" href="#example-creating-a-file" title="Permanent link">&para;</a></h2>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-40-1" name="__codelineno-40-1" href="#__codelineno-40-1"></a><span class="k">struct</span><span class="w"> </span><span class="nc">nlookupdata</span><span class="w"> </span><span class="n">nd</span><span class="p">;</span>
+<a id="__codelineno-40-2" name="__codelineno-40-2" href="#__codelineno-40-2"></a><span class="k">struct</span><span class="w"> </span><span class="nc">vnode</span><span class="w"> </span><span class="o">*</span><span class="n">vp</span><span class="p">;</span>
+<a id="__codelineno-40-3" name="__codelineno-40-3" href="#__codelineno-40-3"></a><span class="k">struct</span><span class="w"> </span><span class="nc">vattr</span><span class="w"> </span><span class="n">vat</span><span class="p">;</span>
+<a id="__codelineno-40-4" name="__codelineno-40-4" href="#__codelineno-40-4"></a><span class="kt">int</span><span class="w"> </span><span class="n">error</span><span class="p">;</span>
+<a id="__codelineno-40-5" name="__codelineno-40-5" href="#__codelineno-40-5"></a>
+<a id="__codelineno-40-6" name="__codelineno-40-6" href="#__codelineno-40-6"></a><span class="cm">/* Lookup parent directory and target name */</span>
+<a id="__codelineno-40-7" name="__codelineno-40-7" href="#__codelineno-40-7"></a><span class="n">error</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">nlookup_init</span><span class="p">(</span><span class="o">&amp;</span><span class="n">nd</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;/tmp/newfile&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">UIO_SYSSPACE</span><span class="p">,</span><span class="w"> </span><span class="n">NLC_FOLLOW</span><span class="p">);</span>
+<a id="__codelineno-40-8" name="__codelineno-40-8" href="#__codelineno-40-8"></a><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">error</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-40-9" name="__codelineno-40-9" href="#__codelineno-40-9"></a><span class="w">    </span><span class="n">nd</span><span class="p">.</span><span class="n">nl_flags</span><span class="w"> </span><span class="o">|=</span><span class="w"> </span><span class="n">NLC_CREATE</span><span class="p">;</span>
+<a id="__codelineno-40-10" name="__codelineno-40-10" href="#__codelineno-40-10"></a><span class="w">    </span><span class="n">error</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">nlookup</span><span class="p">(</span><span class="o">&amp;</span><span class="n">nd</span><span class="p">);</span>
+<a id="__codelineno-40-11" name="__codelineno-40-11" href="#__codelineno-40-11"></a><span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">error</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-40-12" name="__codelineno-40-12" href="#__codelineno-40-12"></a><span class="w">        </span><span class="cm">/* Setup attributes */</span>
+<a id="__codelineno-40-13" name="__codelineno-40-13" href="#__codelineno-40-13"></a><span class="w">        </span><span class="n">VATTR_NULL</span><span class="p">(</span><span class="o">&amp;</span><span class="n">vat</span><span class="p">);</span>
+<a id="__codelineno-40-14" name="__codelineno-40-14" href="#__codelineno-40-14"></a><span class="w">        </span><span class="n">vat</span><span class="p">.</span><span class="n">va_type</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">VREG</span><span class="p">;</span>
+<a id="__codelineno-40-15" name="__codelineno-40-15" href="#__codelineno-40-15"></a><span class="w">        </span><span class="n">vat</span><span class="p">.</span><span class="n">va_mode</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mo">0644</span><span class="p">;</span>
+<a id="__codelineno-40-16" name="__codelineno-40-16" href="#__codelineno-40-16"></a>
+<a id="__codelineno-40-17" name="__codelineno-40-17" href="#__codelineno-40-17"></a><span class="w">        </span><span class="cm">/* Get parent directory vnode */</span>
+<a id="__codelineno-40-18" name="__codelineno-40-18" href="#__codelineno-40-18"></a><span class="w">        </span><span class="n">error</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">cache_vget</span><span class="p">(</span><span class="o">&amp;</span><span class="n">nd</span><span class="p">.</span><span class="n">nl_nch</span><span class="p">,</span><span class="w"> </span><span class="n">cred</span><span class="p">,</span><span class="w"> </span><span class="n">LK_EXCLUSIVE</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">vp</span><span class="p">);</span>
+<a id="__codelineno-40-19" name="__codelineno-40-19" href="#__codelineno-40-19"></a><span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">error</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-40-20" name="__codelineno-40-20" href="#__codelineno-40-20"></a><span class="w">            </span><span class="cm">/* Create the file */</span>
+<a id="__codelineno-40-21" name="__codelineno-40-21" href="#__codelineno-40-21"></a><span class="w">            </span><span class="n">error</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">VOP_NCREATE</span><span class="p">(</span><span class="n">vp</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">vp</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">nd</span><span class="p">.</span><span class="n">nl_nch</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">vat</span><span class="p">,</span><span class="w"> </span><span class="n">cred</span><span class="p">);</span>
+<a id="__codelineno-40-22" name="__codelineno-40-22" href="#__codelineno-40-22"></a><span class="w">            </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">error</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-40-23" name="__codelineno-40-23" href="#__codelineno-40-23"></a><span class="w">                </span><span class="cm">/* ... file created, vp is new file ... */</span>
+<a id="__codelineno-40-24" name="__codelineno-40-24" href="#__codelineno-40-24"></a><span class="w">                </span><span class="n">vput</span><span class="p">(</span><span class="n">vp</span><span class="p">);</span>
+<a id="__codelineno-40-25" name="__codelineno-40-25" href="#__codelineno-40-25"></a><span class="w">            </span><span class="p">}</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-40-26" name="__codelineno-40-26" href="#__codelineno-40-26"></a><span class="w">                </span><span class="n">vput</span><span class="p">(</span><span class="n">vp</span><span class="p">);</span>
+<a id="__codelineno-40-27" name="__codelineno-40-27" href="#__codelineno-40-27"></a><span class="w">            </span><span class="p">}</span>
+<a id="__codelineno-40-28" name="__codelineno-40-28" href="#__codelineno-40-28"></a><span class="w">        </span><span class="p">}</span>
+<a id="__codelineno-40-29" name="__codelineno-40-29" href="#__codelineno-40-29"></a><span class="w">    </span><span class="p">}</span>
+<a id="__codelineno-40-30" name="__codelineno-40-30" href="#__codelineno-40-30"></a><span class="w">    </span><span class="n">nlookup_done</span><span class="p">(</span><span class="o">&amp;</span><span class="n">nd</span><span class="p">);</span>
+<a id="__codelineno-40-31" name="__codelineno-40-31" href="#__codelineno-40-31"></a><span class="p">}</span>
+</code></pre></div>
+<h2 id="summary">Summary<a class="headerlink" href="#summary" title="Permanent link">&para;</a></h2>
+<p>The DragonFly namecache and nlookup system provides:</p>
+<ol>
+<li><strong>High-performance caching</strong> with lock-free reads</li>
+<li><strong>Negative caching</strong> to avoid redundant lookups</li>
+<li><strong>Clean API</strong> separating pathname lookup from vnode operations</li>
+<li><strong>Native overlay support</strong> via nchandle abstraction</li>
+<li><strong>Fine-grained locking</strong> for better SMP scalability</li>
+<li><strong>Complete path maintenance</strong> from leaf to root</li>
+</ol>
+<p>This design is a significant improvement over traditional BSD namecache, enabling better performance on modern multi-core systems while simplifying filesystem implementation.</p>
+<h2 id="related-documentation">Related Documentation<a class="headerlink" href="#related-documentation" title="Permanent link">&para;</a></h2>
+<ul>
+<li><a href="../">VFS Core</a> - VFS subsystem overview</li>
+<li><a href="mounting.md">VFS Mounting</a> - Mount point management (Phase 6c)</li>
+<li><a href="../../processes/">Process File Descriptors</a> - <code>fd_ncdir</code>, <code>fd_nrdir</code> usage</li>
+</ul>
+<h2 id="source-files">Source Files<a class="headerlink" href="#source-files" title="Permanent link">&para;</a></h2>
+<ul>
+<li><code>sys/kern/vfs_cache.c</code> (~5,000 lines) - Namecache implementation</li>
+<li><code>sys/kern/vfs_nlookup.c</code> (~2,300 lines) - New lookup API</li>
+<li><code>sys/kern/vfs_lookup.c</code> (~160 lines) - Legacy lookup API</li>
+<li><code>sys/sys/namecache.h</code> - Namecache structures and API</li>
+<li><code>sys/sys/nlookup.h</code> - nlookup structures and flags</li>
+</ul>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../../../..", "features": ["navigation.tabs", "navigation.sections", "navigation.expand", "navigation.top", "search.suggest", "search.highlight", "content.code.copy"], "search": "../../../../assets/javascripts/workers/search.7a47a382.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../../../assets/javascripts/bundle.e71a0d61.min.js"></script>
+      
+    
+  </body>
+</html>
