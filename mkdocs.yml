@@ -75,6 +75,7 @@ nav:
         - Name Lookup & Caching: sys/kern/vfs/namecache.md
         - Mounting & Unmounting: sys/kern/vfs/mounting.md
         - Buffer Cache & I/O: sys/kern/vfs/buffer-cache.md
+        - VFS Operations Framework: sys/kern/vfs/vfs-operations.md
       - IPC & Sockets: sys/kern/ipc.md
       - Devices & Drivers: sys/kern/devices.md
       - System Calls: sys/kern/syscalls.md
