@@ -2,6 +2,11 @@ site_name: DragonFly BSD Kernel Documentation
 site_description: Comprehensive documentation for the DragonFly BSD kernel source code
 site_author: DragonFly BSD Community
 
+# Repository links (enables "Edit on GitHub" feature)
+repo_url: https://github.com/tuxillo/dragonflybsd-source-docs
+repo_name: tuxillo/dragonflybsd-source-docs
+edit_uri: edit/master/docs/
+
 theme:
   name: material
   palette:
@@ -67,6 +72,7 @@ nav:
       - Scheduling: sys/kern/scheduling.md
       - Virtual Filesystem:
         - Overview: sys/kern/vfs/index.md
+        - Name Lookup & Caching: sys/kern/vfs/namecache.md
       - IPC & Sockets: sys/kern/ipc.md
       - Devices & Drivers: sys/kern/devices.md
       - System Calls: sys/kern/syscalls.md
