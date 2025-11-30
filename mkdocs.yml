@@ -62,6 +62,7 @@ nav:
       - Memory Management: sys/kern/memory.md
       - Initialization & Bootstrap: sys/kern/initialization.md
       - Processes & Threads: sys/kern/processes.md
+      - Process Resources & Credentials: sys/kern/resources.md
       - Scheduling: sys/kern/scheduling.md
       - Virtual Filesystem:
         - Overview: sys/kern/vfs/index.md
