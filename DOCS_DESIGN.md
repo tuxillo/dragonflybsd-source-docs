@@ -432,10 +432,56 @@ List of key source files with brief descriptions:
 3. **Refine structure** — Adjust navigation and organization as we learn what works
 4. **Keep PLAN.md as reference** — Planning docs remain valuable as reading guides for contributors
 
+## Current Status (as of 2025-11-30)
+
+### Infrastructure
+- ✅ MkDocs configured and operational (`mkdocs.yml` in place)
+- ✅ Documentation structure established (`docs/` directory)
+- ✅ Planning documents in `planning/sys/kern/PLAN.md`
+
+### Completed Phases (sys/kern/)
+- ✅ Phase 2: Memory allocation (kern_kmalloc.c, kern_slaballoc.c, kern_objcache.c, kern_mpipe.c)
+- ✅ Phase 3: Kernel initialization (init_main.c, init_sysent.c)
+- ✅ Phase 4a: Process/thread lifecycle (kern_fork.c, kern_exec.c, kern_exit.c, kern_proc.c, kern_threads.c, imgact_*.c)
+- ✅ Phase 4b: Process resources/credentials (kern_resource.c, kern_plimit.c, kern_prot.c, kern_descrip.c) - 857 lines
+- ✅ Phase 4c: Signals (kern_sig.c) - 1,018 lines
+- ✅ Phase 5: CPU scheduling (6 files: kern_sched.c, kern_synch.c, kern_usched.c, usched_*.c) - 924 lines
+- ✅ Phase 6a: VFS initialization and core (7 files: vfs_init.c, vfs_conf.c, vfs_subr.c, vfs_vfsops.c, vfs_vnops.c, vfs_vopops.c, vfs_default.c) - 729 lines
+
+### In Progress
+- 🔄 Phase 6b: VFS name lookup and caching (vfs_cache.c, vfs_nlookup.c, vfs_lookup.c)
+
+### Pending Phases (sys/kern/)
+- ⏳ Phase 0: LWKT (lightweight kernel threading)
+- ⏳ Phase 1a: Synchronization primitives
+- ⏳ Phase 1b: Time and timers
+- ⏳ Phase 6c: VFS mounting and syscalls
+- ⏳ Phase 6d: VFS buffer cache and I/O
+- ⏳ Phase 6e: VFS extensions (locking, journaling, quota, AIO)
+- ⏳ Phase 7: IPC and socket layer
+- ⏳ Phase 8+: Device infrastructure, TTY, system calls, etc.
+
+### Documentation Statistics
+- **Total commits:** 4 (latest session)
+- **Total documentation lines:** ~3,528 (latest session)
+- **Source files analyzed:** 17 (latest session, 23,792 lines)
+- **Repository status:** 4 commits ahead of origin/master
+- **Working tree:** Clean
+
+### Documentation Files
+- `docs/sys/kern/memory.md` - Memory allocation subsystem
+- `docs/sys/kern/initialization.md` - Kernel bootstrap
+- `docs/sys/kern/processes.md` - Process/thread lifecycle
+- `docs/sys/kern/resources.md` - Resource limits, credentials, file descriptors
+- `docs/sys/kern/signals.md` - Signal subsystem
+- `docs/sys/kern/scheduling.md` - CPU scheduling
+- `docs/sys/kern/vfs/index.md` - VFS initialization and core
+
 ## Next Steps
 
-1. Review and approve this design
-2. Set up MkDocs infrastructure (Phase 1)
-3. Begin with first subsystem documentation (LWKT)
-4. Establish documentation patterns through first few subsystems
-5. Scale to remaining subsystems following kern/PLAN.md phases
+1. Complete Phase 6b: VFS name lookup and caching
+2. Continue with remaining VFS phases (6c, 6d, 6e)
+3. Address Phase 0 and Phase 1 (foundational subsystems)
+4. Continue with Phase 7+ (IPC, devices, TTY, syscalls)
+5. Add diagrams and cross-references as subsystems are completed
+6. Deploy generated documentation when ready
