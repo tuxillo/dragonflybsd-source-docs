@@ -73,6 +73,7 @@ nav:
       - Virtual Filesystem:
         - Overview: sys/kern/vfs/index.md
         - Name Lookup & Caching: sys/kern/vfs/namecache.md
+        - Mounting & Unmounting: sys/kern/vfs/mounting.md
       - IPC & Sockets: sys/kern/ipc.md
       - Devices & Drivers: sys/kern/devices.md
       - System Calls: sys/kern/syscalls.md
