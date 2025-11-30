@@ -20,6 +20,8 @@
 5. **Commit discipline**
    - Make small, focused commits frequently.
    - Avoid bundling large, unrelated changes into a single commit.
+   - Before committing, review and adjust documentation for accuracy, clarity, and completeness.
+   - Ensure all cross-references, code locations (file:line), and technical details are correct.
 
 6. **No pushing to remotes**
    - Never run `git push` or any other command that modifies remote repositories.
