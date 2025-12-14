@@ -4,11 +4,14 @@ This plan captures the structure, key concepts, and documentation approach for P
 
 ## Overview
 
-Phase 7 covers **~18,850 lines** across **17 source files** in three subphases:
+Phase 7 covers **~18,850 lines** across **17 source files** in six subphases:
 
 | Subphase | Files | Lines | Description |
 |----------|-------|-------|-------------|
-| 7a | 11 UIPC files | ~13,350 | Socket layer, mbufs, domains, syscalls |
+| 7a1 | 2 files | ~3,160 | Mbufs - memory buffer system |
+| 7a2 | 3 files | ~4,178 | Socket core - socket layer and buffers |
+| 7a3 | 5 files | ~3,852 | Protocols - domains, Unix sockets, message-passing |
+| 7a4 | 1 file | ~1,973 | Socket syscalls - user interface |
 | 7b | 4 SysV files | ~3,055 | Message queues, semaphores, shared memory |
 | 7c | 2 other IPC | ~2,630 | Pipes, POSIX message queues |
 
@@ -16,21 +19,36 @@ Phase 7 covers **~18,850 lines** across **17 source files** in three subphases:
 
 ## Source Files by Subphase
 
-### 7a: UIPC (Unix IPC / Sockets)
+### 7a1: Mbufs (Memory Buffers)
+
+| File | Lines | Purpose |
+|------|-------|---------|
+| `uipc_mbuf.c` | 2755 | Mbuf allocation, manipulation, per-CPU caching |
+| `uipc_mbuf2.c` | 405 | Packet tags, additional mbuf utilities |
+
+### 7a2: Socket Core
 
 | File | Lines | Purpose |
 |------|-------|---------|
 | `uipc_socket.c` | 2698 | Core socket operations (create, bind, listen, connect, send, recv, close) |
 | `uipc_socket2.c` | 876 | Socket state management, wakeup, connection acceptance |
 | `uipc_sockbuf.c` | 604 | Socket buffer (sockbuf) management, append, drop, flush |
-| `uipc_mbuf.c` | 2755 | Mbuf allocation, manipulation, per-CPU caching |
-| `uipc_mbuf2.c` | 405 | Packet tags, additional mbuf utilities |
+
+### 7a3: Protocols and Unix Domain Sockets
+
+| File | Lines | Purpose |
+|------|-------|---------|
 | `uipc_domain.c` | 240 | Protocol domain registration and lookup |
 | `uipc_proto.c` | 98 | Local (Unix) domain protocol definitions |
 | `uipc_usrreq.c` | 2571 | Unix domain socket implementation |
 | `uipc_msg.c` | 791 | DragonFly message-based socket operations |
-| `uipc_syscalls.c` | 1973 | Socket system calls (socket, bind, connect, accept, send, recv, etc.) |
 | `uipc_accf.c` | 152 | Accept filter framework |
+
+### 7a4: Socket System Calls
+
+| File | Lines | Purpose |
+|------|-------|---------|
+| `uipc_syscalls.c` | 1973 | Socket system calls (socket, bind, connect, accept, send, recv, etc.) |
 
 ### 7b: System V IPC
 
