@@ -1,0 +1,4043 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Comprehensive documentation for the DragonFly BSD kernel source code">
+      
+      
+        <meta name="author" content="DragonFly BSD Community">
+      
+      
+      
+        <link rel="prev" href="../">
+      
+      
+        <link rel="next" href="../../devices/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.0">
+    
+    
+      
+        <title>Mbufs - DragonFly BSD Kernel Documentation</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../../assets/stylesheets/main.618322db.min.css">
+      
+        
+        <link rel="stylesheet" href="../../../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#mbuf-memory-buffers" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../../../.." title="DragonFly BSD Kernel Documentation" class="md-header__button md-logo" aria-label="DragonFly BSD Kernel Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            DragonFly BSD Kernel Documentation
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Mbufs
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/tuxillo/dragonflybsd-source-docs" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    tuxillo/dragonflybsd-source-docs
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../.." class="md-tabs__link">
+        
+  
+  
+    
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../../getting-started/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Getting Started
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+    
+  
+  
+    
+    
+      <li class="md-tabs__item md-tabs__item--active">
+        <a href="../../../" class="md-tabs__link">
+          
+  
+  
+  Kernel Subsystems
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../../.." title="DragonFly BSD Kernel Documentation" class="md-nav__button md-logo" aria-label="DragonFly BSD Kernel Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    DragonFly BSD Kernel Documentation
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/tuxillo/dragonflybsd-source-docs" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    tuxillo/dragonflybsd-source-docs
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../getting-started/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Getting Started
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Kernel Subsystems
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Kernel Subsystems
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+          
+          
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_2" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_3_2" id="__nav_3_2_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    kern/
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_2_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_3_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    kern/
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../lwkt/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    LWKT Threading
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../synchronization/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Synchronization
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../time/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Time & Timers
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../memory/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Memory Management
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../initialization/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Initialization & Bootstrap
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../processes/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Processes & Threads
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../resources/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Process Resources & Credentials
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../signals/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Signals
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../scheduling/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Scheduling
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_3_2_11" >
+        
+          
+          <label class="md-nav__link" for="__nav_3_2_11" id="__nav_3_2_11_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Virtual Filesystem
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_3_2_11_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_2_11">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Virtual Filesystem
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../vfs/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../vfs/namecache/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Name Lookup & Caching
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../vfs/mounting/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Mounting & Unmounting
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../vfs/buffer-cache/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Buffer Cache & I/O
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../vfs/vfs-operations/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    VFS Operations Framework
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../vfs/journaling/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Journaling System
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../vfs/vfs-locking/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Vnode Locking & Lifecycle
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../vfs/vfs-extensions/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    VFS Extensions & Helpers
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_2_12" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_3_2_12" id="__nav_3_2_12_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    IPC & Sockets
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_3_2_12_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_3_2_12">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    IPC & Sockets
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Mbufs
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Mbufs
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#design-overview" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Design Overview
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Design Overview">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#dragonfly-specific-features" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        DragonFly-Specific Features
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#data-structures" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Data Structures
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Data Structures">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#struct-mbuf" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        struct mbuf
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#struct-m_hdr" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        struct m_hdr
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#struct-pkthdr" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        struct pkthdr
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#struct-m_ext" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        struct m_ext
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#struct-mbcluster" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        struct mbcluster
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#struct-mbstat" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        struct mbstat
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#memory-layout" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Memory Layout
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Memory Layout">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#size-constants" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Size Constants
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#mbuf-variants" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Mbuf Variants
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#mbuf-flags" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Mbuf Flags
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Mbuf Flags">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#core-flags" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Core Flags
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#packet-flags" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Packet Flags
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#mbuf-types" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Mbuf Types
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#object-caches" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Object Caches
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Object Caches">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#cache-initialization" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Cache Initialization
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#allocation-functions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Allocation Functions
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Allocation Functions">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#basic-allocation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Basic Allocation
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#m_get-m_gethdr" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        m_get / m_gethdr
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#m_getcl" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        m_getcl
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#m_getl-inline" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        m_getl (Inline)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#m_getc" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        m_getc
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#deallocation-functions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Deallocation Functions
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Deallocation Functions">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#m_free" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        m_free
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#m_freem" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        m_freem
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#cluster-reference-counting" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Cluster Reference Counting
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Cluster Reference Counting">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#m_mclref" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        m_mclref
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#m_mclfree" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        m_mclfree
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#m_sharecount" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        m_sharecount
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#chain-manipulation-functions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Chain Manipulation Functions
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Chain Manipulation Functions">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#m_copym" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        m_copym
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#m_copypacket" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        m_copypacket
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#m_dup" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        m_dup
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#m_cat" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        m_cat
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#m_adj" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        m_adj
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#m_pullup" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        m_pullup
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#m_pulldown" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        m_pulldown
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#m_split" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        m_split
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#m_copydata" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        m_copydata
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#m_copyback" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        m_copyback
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#m_defrag" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        m_defrag
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#m_unshare" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        m_unshare
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#device-interface-functions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Device Interface Functions
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Device Interface Functions">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#m_devget" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        m_devget
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#m_devpad" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        m_devpad
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#packet-tags" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Packet Tags
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Packet Tags">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#struct-m_tag" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        struct m_tag
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tag-functions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Tag Functions
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tag-usage-example" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Tag Usage Example
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#utility-macros" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Utility Macros
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Utility Macros">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#data-access" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Data Access
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#space-calculation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Space Calculation
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#writability-check" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Writability Check
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#alignment" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Alignment
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#prepend" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Prepend
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#statistics-and-debugging" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Statistics and Debugging
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Statistics and Debugging">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#per-cpu-statistics" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Per-CPU Statistics
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#debug-support" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Debug Support
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#sysctl-interface" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Sysctl Interface
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#memory-reclamation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Memory Reclamation
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#see-also" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        See Also
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../devices/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Devices & Drivers
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../syscalls/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    System Calls
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+          
+          
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_3_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3_3" id="__nav_3_3_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    vm/
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    vm/
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../vm/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+          
+          
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_3_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_3_4" id="__nav_3_4_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    cpu/x86_64/
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    cpu/x86_64/
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../cpu/x86_64/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#design-overview" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Design Overview
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Design Overview">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#dragonfly-specific-features" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        DragonFly-Specific Features
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#data-structures" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Data Structures
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Data Structures">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#struct-mbuf" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        struct mbuf
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#struct-m_hdr" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        struct m_hdr
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#struct-pkthdr" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        struct pkthdr
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#struct-m_ext" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        struct m_ext
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#struct-mbcluster" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        struct mbcluster
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#struct-mbstat" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        struct mbstat
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#memory-layout" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Memory Layout
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Memory Layout">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#size-constants" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Size Constants
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#mbuf-variants" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Mbuf Variants
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#mbuf-flags" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Mbuf Flags
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Mbuf Flags">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#core-flags" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Core Flags
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#packet-flags" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Packet Flags
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#mbuf-types" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Mbuf Types
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#object-caches" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Object Caches
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Object Caches">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#cache-initialization" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Cache Initialization
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#allocation-functions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Allocation Functions
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Allocation Functions">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#basic-allocation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Basic Allocation
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#m_get-m_gethdr" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        m_get / m_gethdr
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#m_getcl" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        m_getcl
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#m_getl-inline" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        m_getl (Inline)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#m_getc" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        m_getc
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#deallocation-functions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Deallocation Functions
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Deallocation Functions">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#m_free" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        m_free
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#m_freem" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        m_freem
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#cluster-reference-counting" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Cluster Reference Counting
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Cluster Reference Counting">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#m_mclref" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        m_mclref
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#m_mclfree" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        m_mclfree
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#m_sharecount" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        m_sharecount
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#chain-manipulation-functions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Chain Manipulation Functions
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Chain Manipulation Functions">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#m_copym" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        m_copym
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#m_copypacket" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        m_copypacket
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#m_dup" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        m_dup
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#m_cat" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        m_cat
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#m_adj" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        m_adj
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#m_pullup" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        m_pullup
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#m_pulldown" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        m_pulldown
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#m_split" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        m_split
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#m_copydata" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        m_copydata
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#m_copyback" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        m_copyback
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#m_defrag" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        m_defrag
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#m_unshare" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        m_unshare
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#device-interface-functions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Device Interface Functions
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Device Interface Functions">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#m_devget" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        m_devget
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#m_devpad" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        m_devpad
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#packet-tags" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Packet Tags
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Packet Tags">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#struct-m_tag" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        struct m_tag
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tag-functions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Tag Functions
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tag-usage-example" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Tag Usage Example
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#utility-macros" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Utility Macros
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Utility Macros">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#data-access" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Data Access
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#space-calculation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Space Calculation
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#writability-check" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Writability Check
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#alignment" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Alignment
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#prepend" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Prepend
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#statistics-and-debugging" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Statistics and Debugging
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Statistics and Debugging">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#per-cpu-statistics" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Per-CPU Statistics
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#debug-support" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Debug Support
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#sysctl-interface" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Sysctl Interface
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#memory-reclamation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Memory Reclamation
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#see-also" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        See Also
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="mbuf-memory-buffers">Mbuf Memory Buffers<a class="headerlink" href="#mbuf-memory-buffers" title="Permanent link">&para;</a></h1>
+<p>The mbuf (memory buffer) subsystem provides efficient, flexible memory management for network data. Mbufs are the fundamental unit of memory used throughout the DragonFly BSD networking stack for storing packet data, protocol headers, and socket buffers.</p>
+<p><strong>Source files:</strong></p>
+<ul>
+<li><code>sys/kern/uipc_mbuf.c</code> - Core mbuf allocation and manipulation</li>
+<li><code>sys/kern/uipc_mbuf2.c</code> - Extended mbuf operations and packet tags</li>
+<li><code>sys/sys/mbuf.h</code> - Structure definitions and macros</li>
+</ul>
+<h2 id="design-overview">Design Overview<a class="headerlink" href="#design-overview" title="Permanent link">&para;</a></h2>
+<p>The mbuf system is designed around several key principles:</p>
+<ol>
+<li><strong>Fixed-size allocation</strong> - Mbufs are a single size (<code>MSIZE</code>), reducing fragmentation</li>
+<li><strong>Cluster attachment</strong> - Large data uses external clusters rather than mbuf chains</li>
+<li><strong>Per-CPU caching</strong> - Object caches provide lock-free allocation on each CPU</li>
+<li><strong>Reference counting</strong> - Clusters can be shared across multiple mbufs</li>
+<li><strong>Zero-copy optimization</strong> - Data can be shared without copying when safe</li>
+</ol>
+<h3 id="dragonfly-specific-features">DragonFly-Specific Features<a class="headerlink" href="#dragonfly-specific-features" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Per-CPU statistics</strong>: <code>mbstat[SMP_MAXCPU]</code> and <code>mbtypes[SMP_MAXCPU]</code> arrays with <code>__cachealign</code> for cache-line isolation</li>
+<li><strong>Object cache integration</strong>: Uses DragonFly's <code>objcache(9)</code> for efficient per-CPU allocation</li>
+<li><strong>Message-passing support</strong>: Embedded <code>netmsg</code> structures in mbuf headers for LWKT message passing</li>
+<li><strong>Jumbo cluster support</strong>: Native support for jumbo frames via <code>MJUMPAGESIZE</code> clusters</li>
+</ul>
+<h2 id="data-structures">Data Structures<a class="headerlink" href="#data-structures" title="Permanent link">&para;</a></h2>
+<h3 id="struct-mbuf">struct mbuf<a class="headerlink" href="#struct-mbuf" title="Permanent link">&para;</a></h3>
+<p>The core mbuf structure (<code>sys/mbuf.h:206</code>):</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="k">struct</span><span class="w"> </span><span class="nc">mbuf</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="w">    </span><span class="k">struct</span><span class="w"> </span><span class="nc">m_hdr</span><span class="w"> </span><span class="n">m_hdr</span><span class="p">;</span>
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="w">    </span><span class="k">union</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="w">        </span><span class="k">struct</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a><span class="w">            </span><span class="k">struct</span><span class="w"> </span><span class="nc">pkthdr</span><span class="w"> </span><span class="n">MH_pkthdr</span><span class="p">;</span><span class="w">    </span><span class="cm">/* M_PKTHDR set */</span>
+<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a><span class="w">            </span><span class="k">union</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a><span class="w">                </span><span class="k">struct</span><span class="w"> </span><span class="nc">m_ext</span><span class="w"> </span><span class="n">MH_ext</span><span class="p">;</span><span class="w">    </span><span class="cm">/* M_EXT set */</span>
+<a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a><span class="w">                </span><span class="kt">char</span><span class="w"> </span><span class="n">MH_databuf</span><span class="p">[</span><span class="n">MHLEN</span><span class="p">];</span>
+<a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a><span class="w">            </span><span class="p">}</span><span class="w"> </span><span class="n">MH_dat</span><span class="p">;</span>
+<a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a><span class="w">        </span><span class="p">}</span><span class="w"> </span><span class="n">MH</span><span class="p">;</span>
+<a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a><span class="w">        </span><span class="kt">char</span><span class="w"> </span><span class="n">M_databuf</span><span class="p">[</span><span class="n">MLEN</span><span class="p">];</span><span class="w">           </span><span class="cm">/* !M_PKTHDR, !M_EXT */</span>
+<a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a><span class="w">    </span><span class="p">}</span><span class="w"> </span><span class="n">M_dat</span><span class="p">;</span>
+<a id="__codelineno-0-13" name="__codelineno-0-13" href="#__codelineno-0-13"></a><span class="p">};</span>
+</code></pre></div>
+<p>Convenience macros provide field access:</p>
+<table>
+<thead>
+<tr>
+<th>Macro</th>
+<th>Field</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>m_next</code></td>
+<td><code>m_hdr.mh_next</code></td>
+<td>Next buffer in chain</td>
+</tr>
+<tr>
+<td><code>m_nextpkt</code></td>
+<td><code>m_hdr.mh_nextpkt</code></td>
+<td>Next chain in queue</td>
+</tr>
+<tr>
+<td><code>m_data</code></td>
+<td><code>m_hdr.mh_data</code></td>
+<td>Pointer to data</td>
+</tr>
+<tr>
+<td><code>m_len</code></td>
+<td><code>m_hdr.mh_len</code></td>
+<td>Data length in this mbuf</td>
+</tr>
+<tr>
+<td><code>m_flags</code></td>
+<td><code>m_hdr.mh_flags</code></td>
+<td>Flags (M_EXT, M_PKTHDR, etc.)</td>
+</tr>
+<tr>
+<td><code>m_type</code></td>
+<td><code>m_hdr.mh_type</code></td>
+<td>Type of data</td>
+</tr>
+<tr>
+<td><code>m_pkthdr</code></td>
+<td><code>M_dat.MH.MH_pkthdr</code></td>
+<td>Packet header (if M_PKTHDR)</td>
+</tr>
+<tr>
+<td><code>m_ext</code></td>
+<td><code>M_dat.MH.MH_dat.MH_ext</code></td>
+<td>External storage (if M_EXT)</td>
+</tr>
+</tbody>
+</table>
+<h3 id="struct-m_hdr">struct m_hdr<a class="headerlink" href="#struct-m_hdr" title="Permanent link">&para;</a></h3>
+<p>The mbuf header (<code>sys/mbuf.h:79</code>):</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="k">struct</span><span class="w"> </span><span class="nc">m_hdr</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="w">    </span><span class="k">struct</span><span class="w"> </span><span class="nc">mbuf</span><span class="w"> </span><span class="o">*</span><span class="n">mh_next</span><span class="p">;</span><span class="w">       </span><span class="cm">/* next buffer in chain */</span>
+<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="w">    </span><span class="k">union</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a><span class="w">        </span><span class="k">struct</span><span class="w"> </span><span class="nc">mbuf</span><span class="w"> </span><span class="o">*</span><span class="n">mh_nextpkt</span><span class="p">;</span>
+<a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a><span class="w">        </span><span class="n">STAILQ_ENTRY</span><span class="p">(</span><span class="n">mbuf</span><span class="p">)</span><span class="w"> </span><span class="n">mh_stailqpkt</span><span class="p">;</span>
+<a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a><span class="w">    </span><span class="p">};</span>
+<a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a><span class="w">    </span><span class="n">caddr_t</span><span class="w"> </span><span class="n">mh_data</span><span class="p">;</span><span class="w">            </span><span class="cm">/* location of data */</span>
+<a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a><span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="n">mh_len</span><span class="p">;</span><span class="w">                 </span><span class="cm">/* amount of data */</span>
+<a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a><span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="n">mh_flags</span><span class="p">;</span><span class="w">               </span><span class="cm">/* flags */</span>
+<a id="__codelineno-1-10" name="__codelineno-1-10" href="#__codelineno-1-10"></a><span class="w">    </span><span class="kt">short</span><span class="w"> </span><span class="n">mh_type</span><span class="p">;</span><span class="w">              </span><span class="cm">/* type of data */</span>
+<a id="__codelineno-1-11" name="__codelineno-1-11" href="#__codelineno-1-11"></a><span class="w">    </span><span class="kt">short</span><span class="w"> </span><span class="n">mh_pad</span><span class="p">;</span>
+<a id="__codelineno-1-12" name="__codelineno-1-12" href="#__codelineno-1-12"></a><span class="w">    </span><span class="k">union</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-1-13" name="__codelineno-1-13" href="#__codelineno-1-13"></a><span class="w">        </span><span class="k">struct</span><span class="w"> </span><span class="nc">netmsg_packet</span><span class="w"> </span><span class="n">mhm_pkt</span><span class="p">;</span><span class="w">   </span><span class="cm">/* hardware-&gt;proto msg */</span>
+<a id="__codelineno-1-14" name="__codelineno-1-14" href="#__codelineno-1-14"></a><span class="w">        </span><span class="k">struct</span><span class="w"> </span><span class="nc">netmsg_pru_send</span><span class="w"> </span><span class="n">mhm_snd</span><span class="p">;</span><span class="w"> </span><span class="cm">/* userspace-&gt;proto msg */</span>
+<a id="__codelineno-1-15" name="__codelineno-1-15" href="#__codelineno-1-15"></a><span class="w">        </span><span class="k">struct</span><span class="w"> </span><span class="nc">netmsg_inarp</span><span class="w"> </span><span class="n">mhm_arp</span><span class="p">;</span><span class="w">    </span><span class="cm">/* arpinput msg */</span>
+<a id="__codelineno-1-16" name="__codelineno-1-16" href="#__codelineno-1-16"></a><span class="w">        </span><span class="k">struct</span><span class="w"> </span><span class="nc">netmsg_ctlinput</span><span class="w"> </span><span class="n">mhm_ctl</span><span class="p">;</span><span class="w"> </span><span class="cm">/* ctlinput msg */</span>
+<a id="__codelineno-1-17" name="__codelineno-1-17" href="#__codelineno-1-17"></a><span class="w">        </span><span class="k">struct</span><span class="w"> </span><span class="nc">netmsg_genpkt</span><span class="w"> </span><span class="n">mhm_gen</span><span class="p">;</span><span class="w">   </span><span class="cm">/* generic pkt msg */</span>
+<a id="__codelineno-1-18" name="__codelineno-1-18" href="#__codelineno-1-18"></a><span class="w">        </span><span class="k">struct</span><span class="w"> </span><span class="nc">netmsg_forward</span><span class="w"> </span><span class="n">mhm_fwd</span><span class="p">;</span><span class="w">  </span><span class="cm">/* forwarding msg */</span>
+<a id="__codelineno-1-19" name="__codelineno-1-19" href="#__codelineno-1-19"></a><span class="w">    </span><span class="p">}</span><span class="w"> </span><span class="n">mh_msgu</span><span class="p">;</span>
+<a id="__codelineno-1-20" name="__codelineno-1-20" href="#__codelineno-1-20"></a><span class="p">};</span>
+</code></pre></div>
+<p>The embedded <code>netmsg</code> union enables efficient LWKT message passing without separate allocation.</p>
+<h3 id="struct-pkthdr">struct pkthdr<a class="headerlink" href="#struct-pkthdr" title="Permanent link">&para;</a></h3>
+<p>Packet header for first mbuf in chain (<code>sys/mbuf.h:153</code>):</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="k">struct</span><span class="w"> </span><span class="nc">pkthdr</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="w">    </span><span class="k">struct</span><span class="w"> </span><span class="nc">ifnet</span><span class="w"> </span><span class="o">*</span><span class="n">rcvif</span><span class="p">;</span><span class="w">        </span><span class="cm">/* receive interface */</span>
+<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="w">    </span><span class="k">struct</span><span class="w"> </span><span class="nc">packet_tags</span><span class="w"> </span><span class="n">tags</span><span class="p">;</span><span class="w">    </span><span class="cm">/* list of packet tags */</span>
+<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a><span class="w">    </span><span class="kt">void</span><span class="w"> </span><span class="o">*</span><span class="n">header</span><span class="p">;</span><span class="w">               </span><span class="cm">/* pointer to packet header */</span>
+<a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a><span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="n">len</span><span class="p">;</span><span class="w">                    </span><span class="cm">/* total packet length */</span>
+<a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a><span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="n">csum_flags</span><span class="p">;</span><span class="w">             </span><span class="cm">/* checksum flags */</span>
+<a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a><span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="n">csum_data</span><span class="p">;</span><span class="w">              </span><span class="cm">/* checksum data */</span>
+<a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a><span class="w">    </span><span class="kt">uint16_t</span><span class="w"> </span><span class="n">csum_iphlen</span><span class="p">;</span><span class="w">       </span><span class="cm">/* IP header length */</span>
+<a id="__codelineno-2-9" name="__codelineno-2-9" href="#__codelineno-2-9"></a><span class="w">    </span><span class="kt">uint8_t</span><span class="w"> </span><span class="n">csum_thlen</span><span class="p">;</span><span class="w">         </span><span class="cm">/* TCP/UDP header length */</span>
+<a id="__codelineno-2-10" name="__codelineno-2-10" href="#__codelineno-2-10"></a><span class="w">    </span><span class="kt">uint8_t</span><span class="w"> </span><span class="n">csum_lhlen</span><span class="p">;</span><span class="w">         </span><span class="cm">/* link header length */</span>
+<a id="__codelineno-2-11" name="__codelineno-2-11" href="#__codelineno-2-11"></a><span class="w">    </span><span class="kt">uint16_t</span><span class="w"> </span><span class="n">tso_segsz</span><span class="p">;</span><span class="w">         </span><span class="cm">/* TSO segment size */</span>
+<a id="__codelineno-2-12" name="__codelineno-2-12" href="#__codelineno-2-12"></a><span class="w">    </span><span class="kt">uint16_t</span><span class="w"> </span><span class="n">ether_vlantag</span><span class="p">;</span><span class="w">     </span><span class="cm">/* VLAN tag */</span>
+<a id="__codelineno-2-13" name="__codelineno-2-13" href="#__codelineno-2-13"></a><span class="w">    </span><span class="kt">uint16_t</span><span class="w"> </span><span class="n">hash</span><span class="p">;</span><span class="w">              </span><span class="cm">/* packet hash */</span>
+<a id="__codelineno-2-14" name="__codelineno-2-14" href="#__codelineno-2-14"></a><span class="w">    </span><span class="cm">/* ... additional fields ... */</span>
+<a id="__codelineno-2-15" name="__codelineno-2-15" href="#__codelineno-2-15"></a><span class="w">    </span><span class="k">struct</span><span class="w"> </span><span class="nc">pkthdr_pf</span><span class="w"> </span><span class="n">pf</span><span class="p">;</span><span class="w">        </span><span class="cm">/* PF state */</span>
+<a id="__codelineno-2-16" name="__codelineno-2-16" href="#__codelineno-2-16"></a><span class="p">};</span>
+</code></pre></div>
+<h3 id="struct-m_ext">struct m_ext<a class="headerlink" href="#struct-m_ext" title="Permanent link">&para;</a></h3>
+<p>External storage descriptor (<code>sys/mbuf.h:194</code>):</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="k">struct</span><span class="w"> </span><span class="nc">m_ext</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="w">    </span><span class="n">caddr_t</span><span class="w"> </span><span class="n">ext_buf</span><span class="p">;</span><span class="w">            </span><span class="cm">/* start of buffer */</span>
+<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a><span class="w">    </span><span class="kt">void</span><span class="w"> </span><span class="p">(</span><span class="o">*</span><span class="n">ext_free</span><span class="p">)(</span><span class="kt">void</span><span class="w"> </span><span class="o">*</span><span class="p">);</span><span class="w">   </span><span class="cm">/* free function */</span>
+<a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a><span class="w">    </span><span class="n">u_int</span><span class="w"> </span><span class="n">ext_size</span><span class="p">;</span><span class="w">             </span><span class="cm">/* size of buffer */</span>
+<a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a><span class="w">    </span><span class="kt">void</span><span class="w"> </span><span class="p">(</span><span class="o">*</span><span class="n">ext_ref</span><span class="p">)(</span><span class="kt">void</span><span class="w"> </span><span class="o">*</span><span class="p">);</span><span class="w">    </span><span class="cm">/* reference function */</span>
+<a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a><span class="w">    </span><span class="kt">void</span><span class="w"> </span><span class="o">*</span><span class="n">ext_arg</span><span class="p">;</span><span class="w">              </span><span class="cm">/* argument for callbacks */</span>
+<a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a><span class="p">};</span>
+</code></pre></div>
+<h3 id="struct-mbcluster">struct mbcluster<a class="headerlink" href="#struct-mbcluster" title="Permanent link">&para;</a></h3>
+<p>Cluster metadata for reference counting (<code>uipc_mbuf.c:101</code>):</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="k">struct</span><span class="w"> </span><span class="nc">mbcluster</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a><span class="w">    </span><span class="kt">int32_t</span><span class="w"> </span><span class="n">mcl_refs</span><span class="p">;</span><span class="w">           </span><span class="cm">/* reference count */</span>
+<a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a><span class="w">    </span><span class="kt">void</span><span class="w"> </span><span class="o">*</span><span class="n">mcl_data</span><span class="p">;</span><span class="w">             </span><span class="cm">/* pointer to cluster data */</span>
+<a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a><span class="p">};</span>
+</code></pre></div>
+<h3 id="struct-mbstat">struct mbstat<a class="headerlink" href="#struct-mbstat" title="Permanent link">&para;</a></h3>
+<p>Per-CPU statistics (<code>sys/mbuf.h:342</code>):</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="k">struct</span><span class="w"> </span><span class="nc">mbstat</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a><span class="w">    </span><span class="n">u_long</span><span class="w"> </span><span class="n">m_mbufs</span><span class="p">;</span><span class="w">         </span><span class="cm">/* mbufs obtained */</span>
+<a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a><span class="w">    </span><span class="n">u_long</span><span class="w"> </span><span class="n">m_clusters</span><span class="p">;</span><span class="w">      </span><span class="cm">/* clusters obtained */</span>
+<a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a><span class="w">    </span><span class="n">u_long</span><span class="w"> </span><span class="n">m_jclusters</span><span class="p">;</span><span class="w">     </span><span class="cm">/* jumbo clusters obtained */</span>
+<a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a><span class="w">    </span><span class="n">u_long</span><span class="w"> </span><span class="n">m_clfree</span><span class="p">;</span><span class="w">        </span><span class="cm">/* free clusters */</span>
+<a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a><span class="w">    </span><span class="n">u_long</span><span class="w"> </span><span class="n">m_drops</span><span class="p">;</span><span class="w">         </span><span class="cm">/* allocation failures */</span>
+<a id="__codelineno-5-7" name="__codelineno-5-7" href="#__codelineno-5-7"></a><span class="w">    </span><span class="n">u_long</span><span class="w"> </span><span class="n">m_wait</span><span class="p">;</span><span class="w">          </span><span class="cm">/* times waited for space */</span>
+<a id="__codelineno-5-8" name="__codelineno-5-8" href="#__codelineno-5-8"></a><span class="w">    </span><span class="n">u_long</span><span class="w"> </span><span class="n">m_drain</span><span class="p">;</span><span class="w">         </span><span class="cm">/* times drained protocols */</span>
+<a id="__codelineno-5-9" name="__codelineno-5-9" href="#__codelineno-5-9"></a><span class="w">    </span><span class="n">u_long</span><span class="w"> </span><span class="n">m_mcfail</span><span class="p">;</span><span class="w">        </span><span class="cm">/* m_copym failures */</span>
+<a id="__codelineno-5-10" name="__codelineno-5-10" href="#__codelineno-5-10"></a><span class="w">    </span><span class="n">u_long</span><span class="w"> </span><span class="n">m_mpfail</span><span class="p">;</span><span class="w">        </span><span class="cm">/* m_pullup failures */</span>
+<a id="__codelineno-5-11" name="__codelineno-5-11" href="#__codelineno-5-11"></a><span class="w">    </span><span class="cm">/* ... size constants ... */</span>
+<a id="__codelineno-5-12" name="__codelineno-5-12" href="#__codelineno-5-12"></a><span class="p">};</span>
+</code></pre></div>
+<h2 id="memory-layout">Memory Layout<a class="headerlink" href="#memory-layout" title="Permanent link">&para;</a></h2>
+<h3 id="size-constants">Size Constants<a class="headerlink" href="#size-constants" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Constant</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>MSIZE</code></td>
+<td>Total mbuf size (256 bytes typical)</td>
+</tr>
+<tr>
+<td><code>MLEN</code></td>
+<td>Data area in plain mbuf (<code>MSIZE - sizeof(m_hdr)</code>)</td>
+</tr>
+<tr>
+<td><code>MHLEN</code></td>
+<td>Data area with packet header (<code>MLEN - sizeof(pkthdr)</code>)</td>
+</tr>
+<tr>
+<td><code>MCLBYTES</code></td>
+<td>Standard cluster size (2048 bytes)</td>
+</tr>
+<tr>
+<td><code>MJUMPAGESIZE</code></td>
+<td>Jumbo cluster size (PAGE_SIZE)</td>
+</tr>
+<tr>
+<td><code>MINCLSIZE</code></td>
+<td>Minimum size to use cluster (<code>MHLEN + 1</code>)</td>
+</tr>
+</tbody>
+</table>
+<h3 id="mbuf-variants">Mbuf Variants<a class="headerlink" href="#mbuf-variants" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>Plain mbuf (no M_PKTHDR, no M_EXT):
+<a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a>+------------------+
+<a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a>| m_hdr            |
+<a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a>+------------------+
+<a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a>| m_dat[MLEN]      |  &lt;- m_data points here
+<a id="__codelineno-6-6" name="__codelineno-6-6" href="#__codelineno-6-6"></a>+------------------+
+<a id="__codelineno-6-7" name="__codelineno-6-7" href="#__codelineno-6-7"></a>
+<a id="__codelineno-6-8" name="__codelineno-6-8" href="#__codelineno-6-8"></a>Packet header mbuf (M_PKTHDR, no M_EXT):
+<a id="__codelineno-6-9" name="__codelineno-6-9" href="#__codelineno-6-9"></a>+------------------+
+<a id="__codelineno-6-10" name="__codelineno-6-10" href="#__codelineno-6-10"></a>| m_hdr            |
+<a id="__codelineno-6-11" name="__codelineno-6-11" href="#__codelineno-6-11"></a>+------------------+
+<a id="__codelineno-6-12" name="__codelineno-6-12" href="#__codelineno-6-12"></a>| pkthdr           |
+<a id="__codelineno-6-13" name="__codelineno-6-13" href="#__codelineno-6-13"></a>+------------------+
+<a id="__codelineno-6-14" name="__codelineno-6-14" href="#__codelineno-6-14"></a>| m_pktdat[MHLEN]  |  &lt;- m_data points here
+<a id="__codelineno-6-15" name="__codelineno-6-15" href="#__codelineno-6-15"></a>+------------------+
+<a id="__codelineno-6-16" name="__codelineno-6-16" href="#__codelineno-6-16"></a>
+<a id="__codelineno-6-17" name="__codelineno-6-17" href="#__codelineno-6-17"></a>Mbuf with cluster (M_EXT):
+<a id="__codelineno-6-18" name="__codelineno-6-18" href="#__codelineno-6-18"></a>+------------------+     +--------------------+
+<a id="__codelineno-6-19" name="__codelineno-6-19" href="#__codelineno-6-19"></a>| m_hdr            |     | cluster data       |
+<a id="__codelineno-6-20" name="__codelineno-6-20" href="#__codelineno-6-20"></a>+------------------+     | (MCLBYTES)         |
+<a id="__codelineno-6-21" name="__codelineno-6-21" href="#__codelineno-6-21"></a>| pkthdr (optional)|     |                    |
+<a id="__codelineno-6-22" name="__codelineno-6-22" href="#__codelineno-6-22"></a>+------------------+     |                    |
+<a id="__codelineno-6-23" name="__codelineno-6-23" href="#__codelineno-6-23"></a>| m_ext            |----&gt;|                    |
+<a id="__codelineno-6-24" name="__codelineno-6-24" href="#__codelineno-6-24"></a>+------------------+     +--------------------+
+</code></pre></div>
+<h2 id="mbuf-flags">Mbuf Flags<a class="headerlink" href="#mbuf-flags" title="Permanent link">&para;</a></h2>
+<h3 id="core-flags">Core Flags<a class="headerlink" href="#core-flags" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Flag</th>
+<th>Value</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>M_EXT</code></td>
+<td>0x0001</td>
+<td>Has external storage</td>
+</tr>
+<tr>
+<td><code>M_PKTHDR</code></td>
+<td>0x0002</td>
+<td>Start of record/packet</td>
+</tr>
+<tr>
+<td><code>M_EOR</code></td>
+<td>0x0004</td>
+<td>End of record</td>
+</tr>
+<tr>
+<td><code>M_CLCACHE</code></td>
+<td>0x2000</td>
+<td>Allocated from cluster cache</td>
+</tr>
+<tr>
+<td><code>M_EXT_CLUSTER</code></td>
+<td>0x4000</td>
+<td>Standard cluster (not custom)</td>
+</tr>
+<tr>
+<td><code>M_PHCACHE</code></td>
+<td>0x8000</td>
+<td>Allocated from packet header cache</td>
+</tr>
+</tbody>
+</table>
+<h3 id="packet-flags">Packet Flags<a class="headerlink" href="#packet-flags" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Flag</th>
+<th>Value</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>M_BCAST</code></td>
+<td>0x0100</td>
+<td>Broadcast packet</td>
+</tr>
+<tr>
+<td><code>M_MCAST</code></td>
+<td>0x0200</td>
+<td>Multicast packet</td>
+</tr>
+<tr>
+<td><code>M_FRAG</code></td>
+<td>0x0400</td>
+<td>Fragment of larger packet</td>
+</tr>
+<tr>
+<td><code>M_FIRSTFRAG</code></td>
+<td>0x0800</td>
+<td>First fragment</td>
+</tr>
+<tr>
+<td><code>M_LASTFRAG</code></td>
+<td>0x1000</td>
+<td>Last fragment</td>
+</tr>
+<tr>
+<td><code>M_VLANTAG</code></td>
+<td>0x20000</td>
+<td>VLAN tag valid</td>
+</tr>
+<tr>
+<td><code>M_HASH</code></td>
+<td>0x100000</td>
+<td>Hash field valid</td>
+</tr>
+</tbody>
+</table>
+<h3 id="mbuf-types">Mbuf Types<a class="headerlink" href="#mbuf-types" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Type</th>
+<th>Value</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>MT_FREE</code></td>
+<td>0</td>
+<td>On free list</td>
+</tr>
+<tr>
+<td><code>MT_DATA</code></td>
+<td>1</td>
+<td>Dynamic data</td>
+</tr>
+<tr>
+<td><code>MT_HEADER</code></td>
+<td>2</td>
+<td>Packet header</td>
+</tr>
+<tr>
+<td><code>MT_SONAME</code></td>
+<td>3</td>
+<td>Socket name</td>
+</tr>
+<tr>
+<td><code>MT_CONTROL</code></td>
+<td>5</td>
+<td>Control message</td>
+</tr>
+<tr>
+<td><code>MT_OOBDATA</code></td>
+<td>6</td>
+<td>Out-of-band data</td>
+</tr>
+</tbody>
+</table>
+<h2 id="object-caches">Object Caches<a class="headerlink" href="#object-caches" title="Permanent link">&para;</a></h2>
+<p>The mbuf subsystem uses eight specialized object caches for efficient allocation (<code>uipc_mbuf.c:91-98</code>):</p>
+<table>
+<thead>
+<tr>
+<th>Cache</th>
+<th>Contents</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>mbuf_cache</code></td>
+<td>Plain mbufs</td>
+</tr>
+<tr>
+<td><code>mbufphdr_cache</code></td>
+<td>Mbufs with packet header</td>
+</tr>
+<tr>
+<td><code>mclmeta_cache</code></td>
+<td>Standard cluster metadata</td>
+</tr>
+<tr>
+<td><code>mjclmeta_cache</code></td>
+<td>Jumbo cluster metadata</td>
+</tr>
+<tr>
+<td><code>mbufcluster_cache</code></td>
+<td>Mbuf + standard cluster</td>
+</tr>
+<tr>
+<td><code>mbufphdrcluster_cache</code></td>
+<td>Mbuf + pkthdr + standard cluster</td>
+</tr>
+<tr>
+<td><code>mbufjcluster_cache</code></td>
+<td>Mbuf + jumbo cluster</td>
+</tr>
+<tr>
+<td><code>mbufphdrjcluster_cache</code></td>
+<td>Mbuf + pkthdr + jumbo cluster</td>
+</tr>
+</tbody>
+</table>
+<p>Each cache is configured with constructor/destructor functions and uses per-CPU magazines for lock-free fast-path allocation.</p>
+<h3 id="cache-initialization">Cache Initialization<a class="headerlink" href="#cache-initialization" title="Permanent link">&para;</a></h3>
+<p>Caches are initialized in <code>mbinit()</code> (<code>uipc_mbuf.c:253</code>):</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="n">SYSINIT</span><span class="p">(</span><span class="n">mbuf</span><span class="p">,</span><span class="w"> </span><span class="n">SI_BOOT2_MACHDEP</span><span class="p">,</span><span class="w"> </span><span class="n">SI_ORDER_FIRST</span><span class="p">,</span><span class="w"> </span><span class="n">mbinit</span><span class="p">,</span><span class="w"> </span><span class="nb">NULL</span><span class="p">);</span>
+</code></pre></div>
+<p>The <code>mbinit_cluster()</code> function creates cluster caches using <code>SYSINIT</code> at <code>SI_ORDER_ANY</code> to ensure VM is ready.</p>
+<h2 id="allocation-functions">Allocation Functions<a class="headerlink" href="#allocation-functions" title="Permanent link">&para;</a></h2>
+<h3 id="basic-allocation">Basic Allocation<a class="headerlink" href="#basic-allocation" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Function</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>m_get(how, type)</code></td>
+<td>Allocate plain mbuf</td>
+</tr>
+<tr>
+<td><code>m_gethdr(how, type)</code></td>
+<td>Allocate mbuf with packet header</td>
+</tr>
+<tr>
+<td><code>m_getcl(how, type, flags)</code></td>
+<td>Allocate mbuf with standard cluster</td>
+</tr>
+<tr>
+<td><code>m_getjcl(how, type, flags, size)</code></td>
+<td>Allocate mbuf with jumbo cluster</td>
+</tr>
+<tr>
+<td><code>m_getl(len, how, type, flags, psize)</code></td>
+<td>Allocate appropriate mbuf for length</td>
+</tr>
+<tr>
+<td><code>m_getc(len, how, type)</code></td>
+<td>Allocate mbuf chain for length</td>
+</tr>
+</tbody>
+</table>
+<p>The <code>how</code> parameter is either <code>M_WAITOK</code> (can block) or <code>M_NOWAIT</code> (fails immediately if unavailable).</p>
+<h3 id="m_get-m_gethdr">m_get / m_gethdr<a class="headerlink" href="#m_get-m_gethdr" title="Permanent link">&para;</a></h3>
+<p>Basic mbuf allocation (<code>uipc_mbuf.c:423-457</code>):</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a><span class="k">struct</span><span class="w"> </span><span class="nc">mbuf</span><span class="w"> </span><span class="o">*</span>
+<a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a><span class="n">m_get</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">how</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">type</span><span class="p">)</span>
+<a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a><span class="p">{</span>
+<a id="__codelineno-8-4" name="__codelineno-8-4" href="#__codelineno-8-4"></a><span class="w">    </span><span class="k">struct</span><span class="w"> </span><span class="nc">mbuf</span><span class="w"> </span><span class="o">*</span><span class="n">m</span><span class="p">;</span>
+<a id="__codelineno-8-5" name="__codelineno-8-5" href="#__codelineno-8-5"></a><span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="n">ntries</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+<a id="__codelineno-8-6" name="__codelineno-8-6" href="#__codelineno-8-6"></a>
+<a id="__codelineno-8-7" name="__codelineno-8-7" href="#__codelineno-8-7"></a><span class="nl">retryonce</span><span class="p">:</span>
+<a id="__codelineno-8-8" name="__codelineno-8-8" href="#__codelineno-8-8"></a><span class="w">    </span><span class="n">m</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">objcache_get</span><span class="p">(</span><span class="n">mbuf_cache</span><span class="p">,</span><span class="w"> </span><span class="n">MB_OCFLAG</span><span class="p">(</span><span class="n">how</span><span class="p">));</span>
+<a id="__codelineno-8-9" name="__codelineno-8-9" href="#__codelineno-8-9"></a><span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">m</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="nb">NULL</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-8-10" name="__codelineno-8-10" href="#__codelineno-8-10"></a><span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">how</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">M_WAITOK</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">ntries</span><span class="o">++</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-8-11" name="__codelineno-8-11" href="#__codelineno-8-11"></a><span class="w">            </span><span class="n">m_reclaim</span><span class="p">();</span>
+<a id="__codelineno-8-12" name="__codelineno-8-12" href="#__codelineno-8-12"></a><span class="w">            </span><span class="k">goto</span><span class="w"> </span><span class="n">retryonce</span><span class="p">;</span>
+<a id="__codelineno-8-13" name="__codelineno-8-13" href="#__codelineno-8-13"></a><span class="w">        </span><span class="p">}</span>
+<a id="__codelineno-8-14" name="__codelineno-8-14" href="#__codelineno-8-14"></a><span class="w">        </span><span class="o">++</span><span class="n">mbstat</span><span class="p">[</span><span class="n">mycpu</span><span class="o">-&gt;</span><span class="n">gd_cpuid</span><span class="p">].</span><span class="n">m_drops</span><span class="p">;</span>
+<a id="__codelineno-8-15" name="__codelineno-8-15" href="#__codelineno-8-15"></a><span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="p">(</span><span class="nb">NULL</span><span class="p">);</span>
+<a id="__codelineno-8-16" name="__codelineno-8-16" href="#__codelineno-8-16"></a><span class="w">    </span><span class="p">}</span>
+<a id="__codelineno-8-17" name="__codelineno-8-17" href="#__codelineno-8-17"></a><span class="w">    </span><span class="cm">/* ... initialization ... */</span>
+<a id="__codelineno-8-18" name="__codelineno-8-18" href="#__codelineno-8-18"></a><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="p">(</span><span class="n">m</span><span class="p">);</span>
+<a id="__codelineno-8-19" name="__codelineno-8-19" href="#__codelineno-8-19"></a><span class="p">}</span>
+</code></pre></div>
+<h3 id="m_getcl">m_getcl<a class="headerlink" href="#m_getcl" title="Permanent link">&para;</a></h3>
+<p>Combined mbuf+cluster allocation (<code>uipc_mbuf.c:517-545</code>):</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a><span class="k">struct</span><span class="w"> </span><span class="nc">mbuf</span><span class="w"> </span><span class="o">*</span>
+<a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a><span class="n">m_getcl</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">how</span><span class="p">,</span><span class="w"> </span><span class="kt">short</span><span class="w"> </span><span class="n">type</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">flags</span><span class="p">)</span>
+<a id="__codelineno-9-3" name="__codelineno-9-3" href="#__codelineno-9-3"></a><span class="p">{</span>
+<a id="__codelineno-9-4" name="__codelineno-9-4" href="#__codelineno-9-4"></a><span class="w">    </span><span class="k">struct</span><span class="w"> </span><span class="nc">mbuf</span><span class="w"> </span><span class="o">*</span><span class="n">m</span><span class="p">;</span>
+<a id="__codelineno-9-5" name="__codelineno-9-5" href="#__codelineno-9-5"></a><span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="n">ntries</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+<a id="__codelineno-9-6" name="__codelineno-9-6" href="#__codelineno-9-6"></a>
+<a id="__codelineno-9-7" name="__codelineno-9-7" href="#__codelineno-9-7"></a><span class="nl">retryonce</span><span class="p">:</span>
+<a id="__codelineno-9-8" name="__codelineno-9-8" href="#__codelineno-9-8"></a><span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">flags</span><span class="w"> </span><span class="o">&amp;</span><span class="w"> </span><span class="n">M_PKTHDR</span><span class="p">)</span>
+<a id="__codelineno-9-9" name="__codelineno-9-9" href="#__codelineno-9-9"></a><span class="w">        </span><span class="n">m</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">objcache_get</span><span class="p">(</span><span class="n">mbufphdrcluster_cache</span><span class="p">,</span><span class="w"> </span><span class="n">MB_OCFLAG</span><span class="p">(</span><span class="n">how</span><span class="p">));</span>
+<a id="__codelineno-9-10" name="__codelineno-9-10" href="#__codelineno-9-10"></a><span class="w">    </span><span class="k">else</span>
+<a id="__codelineno-9-11" name="__codelineno-9-11" href="#__codelineno-9-11"></a><span class="w">        </span><span class="n">m</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">objcache_get</span><span class="p">(</span><span class="n">mbufcluster_cache</span><span class="p">,</span><span class="w"> </span><span class="n">MB_OCFLAG</span><span class="p">(</span><span class="n">how</span><span class="p">));</span>
+<a id="__codelineno-9-12" name="__codelineno-9-12" href="#__codelineno-9-12"></a><span class="w">    </span><span class="cm">/* ... */</span>
+<a id="__codelineno-9-13" name="__codelineno-9-13" href="#__codelineno-9-13"></a><span class="p">}</span>
+</code></pre></div>
+<h3 id="m_getl-inline">m_getl (Inline)<a class="headerlink" href="#m_getl-inline" title="Permanent link">&para;</a></h3>
+<p>Smart allocation based on length (<code>sys/mbuf.h:583-601</code>):</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a><span class="k">static</span><span class="w"> </span><span class="kr">__inline</span><span class="w"> </span><span class="k">struct</span><span class="w"> </span><span class="nc">mbuf</span><span class="w"> </span><span class="o">*</span>
+<a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a><span class="n">m_getl</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">len</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">how</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">type</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">flags</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="o">*</span><span class="n">psize</span><span class="p">)</span>
+<a id="__codelineno-10-3" name="__codelineno-10-3" href="#__codelineno-10-3"></a><span class="p">{</span>
+<a id="__codelineno-10-4" name="__codelineno-10-4" href="#__codelineno-10-4"></a><span class="w">    </span><span class="k">struct</span><span class="w"> </span><span class="nc">mbuf</span><span class="w"> </span><span class="o">*</span><span class="n">m</span><span class="p">;</span>
+<a id="__codelineno-10-5" name="__codelineno-10-5" href="#__codelineno-10-5"></a><span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="n">size</span><span class="p">;</span>
+<a id="__codelineno-10-6" name="__codelineno-10-6" href="#__codelineno-10-6"></a>
+<a id="__codelineno-10-7" name="__codelineno-10-7" href="#__codelineno-10-7"></a><span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">len</span><span class="w"> </span><span class="o">&gt;=</span><span class="w"> </span><span class="n">MINCLSIZE</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-10-8" name="__codelineno-10-8" href="#__codelineno-10-8"></a><span class="w">        </span><span class="n">m</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">m_getcl</span><span class="p">(</span><span class="n">how</span><span class="p">,</span><span class="w"> </span><span class="n">type</span><span class="p">,</span><span class="w"> </span><span class="n">flags</span><span class="p">);</span>
+<a id="__codelineno-10-9" name="__codelineno-10-9" href="#__codelineno-10-9"></a><span class="w">        </span><span class="n">size</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">MCLBYTES</span><span class="p">;</span>
+<a id="__codelineno-10-10" name="__codelineno-10-10" href="#__codelineno-10-10"></a><span class="w">    </span><span class="p">}</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">flags</span><span class="w"> </span><span class="o">&amp;</span><span class="w"> </span><span class="n">M_PKTHDR</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-10-11" name="__codelineno-10-11" href="#__codelineno-10-11"></a><span class="w">        </span><span class="n">m</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">m_gethdr</span><span class="p">(</span><span class="n">how</span><span class="p">,</span><span class="w"> </span><span class="n">type</span><span class="p">);</span>
+<a id="__codelineno-10-12" name="__codelineno-10-12" href="#__codelineno-10-12"></a><span class="w">        </span><span class="n">size</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">MHLEN</span><span class="p">;</span>
+<a id="__codelineno-10-13" name="__codelineno-10-13" href="#__codelineno-10-13"></a><span class="w">    </span><span class="p">}</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-10-14" name="__codelineno-10-14" href="#__codelineno-10-14"></a><span class="w">        </span><span class="n">m</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">m_get</span><span class="p">(</span><span class="n">how</span><span class="p">,</span><span class="w"> </span><span class="n">type</span><span class="p">);</span>
+<a id="__codelineno-10-15" name="__codelineno-10-15" href="#__codelineno-10-15"></a><span class="w">        </span><span class="n">size</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">MLEN</span><span class="p">;</span>
+<a id="__codelineno-10-16" name="__codelineno-10-16" href="#__codelineno-10-16"></a><span class="w">    </span><span class="p">}</span>
+<a id="__codelineno-10-17" name="__codelineno-10-17" href="#__codelineno-10-17"></a><span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">psize</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="nb">NULL</span><span class="p">)</span>
+<a id="__codelineno-10-18" name="__codelineno-10-18" href="#__codelineno-10-18"></a><span class="w">        </span><span class="o">*</span><span class="n">psize</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">size</span><span class="p">;</span>
+<a id="__codelineno-10-19" name="__codelineno-10-19" href="#__codelineno-10-19"></a><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">m</span><span class="p">;</span>
+<a id="__codelineno-10-20" name="__codelineno-10-20" href="#__codelineno-10-20"></a><span class="p">}</span>
+</code></pre></div>
+<h3 id="m_getc">m_getc<a class="headerlink" href="#m_getc" title="Permanent link">&para;</a></h3>
+<p>Allocate chain for specified length (<code>uipc_mbuf.c:1154-1201</code>):</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a><span class="k">struct</span><span class="w"> </span><span class="nc">mbuf</span><span class="w"> </span><span class="o">*</span>
+<a id="__codelineno-11-2" name="__codelineno-11-2" href="#__codelineno-11-2"></a><span class="n">m_getc</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">len</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">how</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">type</span><span class="p">)</span>
+<a id="__codelineno-11-3" name="__codelineno-11-3" href="#__codelineno-11-3"></a><span class="p">{</span>
+<a id="__codelineno-11-4" name="__codelineno-11-4" href="#__codelineno-11-4"></a><span class="w">    </span><span class="k">struct</span><span class="w"> </span><span class="nc">mbuf</span><span class="w"> </span><span class="o">*</span><span class="n">nfirst</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">NULL</span><span class="p">,</span><span class="w"> </span><span class="o">*</span><span class="n">n</span><span class="p">;</span>
+<a id="__codelineno-11-5" name="__codelineno-11-5" href="#__codelineno-11-5"></a><span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="n">nsize</span><span class="p">;</span>
+<a id="__codelineno-11-6" name="__codelineno-11-6" href="#__codelineno-11-6"></a>
+<a id="__codelineno-11-7" name="__codelineno-11-7" href="#__codelineno-11-7"></a><span class="w">    </span><span class="k">while</span><span class="w"> </span><span class="p">(</span><span class="n">len</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-11-8" name="__codelineno-11-8" href="#__codelineno-11-8"></a><span class="w">        </span><span class="n">n</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">m_getl</span><span class="p">(</span><span class="n">len</span><span class="p">,</span><span class="w"> </span><span class="n">how</span><span class="p">,</span><span class="w"> </span><span class="n">type</span><span class="p">,</span><span class="w"> </span><span class="n">nfirst</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="nb">NULL</span><span class="w"> </span><span class="o">?</span><span class="w"> </span><span class="n">M_PKTHDR</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">nsize</span><span class="p">);</span>
+<a id="__codelineno-11-9" name="__codelineno-11-9" href="#__codelineno-11-9"></a><span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">n</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="nb">NULL</span><span class="p">)</span>
+<a id="__codelineno-11-10" name="__codelineno-11-10" href="#__codelineno-11-10"></a><span class="w">            </span><span class="k">goto</span><span class="w"> </span><span class="n">failed</span><span class="p">;</span>
+<a id="__codelineno-11-11" name="__codelineno-11-11" href="#__codelineno-11-11"></a><span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">nfirst</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="nb">NULL</span><span class="p">)</span>
+<a id="__codelineno-11-12" name="__codelineno-11-12" href="#__codelineno-11-12"></a><span class="w">            </span><span class="n">nfirst</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">n</span><span class="p">;</span>
+<a id="__codelineno-11-13" name="__codelineno-11-13" href="#__codelineno-11-13"></a><span class="w">        </span><span class="cm">/* ... chain building ... */</span>
+<a id="__codelineno-11-14" name="__codelineno-11-14" href="#__codelineno-11-14"></a><span class="w">        </span><span class="n">len</span><span class="w"> </span><span class="o">-=</span><span class="w"> </span><span class="n">nsize</span><span class="p">;</span>
+<a id="__codelineno-11-15" name="__codelineno-11-15" href="#__codelineno-11-15"></a><span class="w">    </span><span class="p">}</span>
+<a id="__codelineno-11-16" name="__codelineno-11-16" href="#__codelineno-11-16"></a><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="p">(</span><span class="n">nfirst</span><span class="p">);</span>
+<a id="__codelineno-11-17" name="__codelineno-11-17" href="#__codelineno-11-17"></a><span class="p">}</span>
+</code></pre></div>
+<h2 id="deallocation-functions">Deallocation Functions<a class="headerlink" href="#deallocation-functions" title="Permanent link">&para;</a></h2>
+<h3 id="m_free">m_free<a class="headerlink" href="#m_free" title="Permanent link">&para;</a></h3>
+<p>Free single mbuf (<code>uipc_mbuf.c:1307-1456</code>):</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a><span class="k">struct</span><span class="w"> </span><span class="nc">mbuf</span><span class="w"> </span><span class="o">*</span>
+<a id="__codelineno-12-2" name="__codelineno-12-2" href="#__codelineno-12-2"></a><span class="n">m_free</span><span class="p">(</span><span class="k">struct</span><span class="w"> </span><span class="nc">mbuf</span><span class="w"> </span><span class="o">*</span><span class="n">m</span><span class="p">)</span>
+<a id="__codelineno-12-3" name="__codelineno-12-3" href="#__codelineno-12-3"></a><span class="p">{</span>
+<a id="__codelineno-12-4" name="__codelineno-12-4" href="#__codelineno-12-4"></a><span class="w">    </span><span class="k">struct</span><span class="w"> </span><span class="nc">mbuf</span><span class="w"> </span><span class="o">*</span><span class="n">n</span><span class="p">;</span>
+<a id="__codelineno-12-5" name="__codelineno-12-5" href="#__codelineno-12-5"></a><span class="w">    </span><span class="k">struct</span><span class="w"> </span><span class="nc">globaldata</span><span class="w"> </span><span class="o">*</span><span class="n">gd</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">mycpu</span><span class="p">;</span>
+<a id="__codelineno-12-6" name="__codelineno-12-6" href="#__codelineno-12-6"></a>
+<a id="__codelineno-12-7" name="__codelineno-12-7" href="#__codelineno-12-7"></a><span class="w">    </span><span class="n">KASSERT</span><span class="p">(</span><span class="n">m</span><span class="o">-&gt;</span><span class="n">m_type</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="n">MT_FREE</span><span class="p">,</span><span class="w"> </span><span class="p">(</span><span class="s">&quot;freeing free mbuf %p&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">m</span><span class="p">));</span>
+<a id="__codelineno-12-8" name="__codelineno-12-8" href="#__codelineno-12-8"></a><span class="w">    </span><span class="o">--</span><span class="n">mbtypes</span><span class="p">[</span><span class="n">gd</span><span class="o">-&gt;</span><span class="n">gd_cpuid</span><span class="p">].</span><span class="n">stats</span><span class="p">[</span><span class="n">m</span><span class="o">-&gt;</span><span class="n">m_type</span><span class="p">];</span>
+<a id="__codelineno-12-9" name="__codelineno-12-9" href="#__codelineno-12-9"></a><span class="w">    </span><span class="n">n</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">m</span><span class="o">-&gt;</span><span class="n">m_next</span><span class="p">;</span>
+<a id="__codelineno-12-10" name="__codelineno-12-10" href="#__codelineno-12-10"></a>
+<a id="__codelineno-12-11" name="__codelineno-12-11" href="#__codelineno-12-11"></a><span class="w">    </span><span class="cm">/* Clean up and return to appropriate cache */</span>
+<a id="__codelineno-12-12" name="__codelineno-12-12" href="#__codelineno-12-12"></a><span class="w">    </span><span class="k">switch</span><span class="w"> </span><span class="p">(</span><span class="n">m</span><span class="o">-&gt;</span><span class="n">m_flags</span><span class="w"> </span><span class="o">&amp;</span><span class="w"> </span><span class="p">(</span><span class="n">M_CLCACHE</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">M_EXT</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">M_EXT_CLUSTER</span><span class="p">))</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-12-13" name="__codelineno-12-13" href="#__codelineno-12-13"></a><span class="w">    </span><span class="k">case</span><span class="w"> </span><span class="no">M_CLCACHE</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="no">M_EXT</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="no">M_EXT_CLUSTER</span><span class="p">:</span>
+<a id="__codelineno-12-14" name="__codelineno-12-14" href="#__codelineno-12-14"></a><span class="w">        </span><span class="cm">/* Return to combined mbuf+cluster cache if not shared */</span>
+<a id="__codelineno-12-15" name="__codelineno-12-15" href="#__codelineno-12-15"></a><span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">m_sharecount</span><span class="p">(</span><span class="n">m</span><span class="p">)</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-12-16" name="__codelineno-12-16" href="#__codelineno-12-16"></a><span class="w">            </span><span class="n">m</span><span class="o">-&gt;</span><span class="n">m_data</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">m</span><span class="o">-&gt;</span><span class="n">m_ext</span><span class="p">.</span><span class="n">ext_buf</span><span class="p">;</span>
+<a id="__codelineno-12-17" name="__codelineno-12-17" href="#__codelineno-12-17"></a><span class="w">            </span><span class="n">objcache_put</span><span class="p">(</span><span class="n">mbufcluster_cache</span><span class="p">,</span><span class="w"> </span><span class="n">m</span><span class="p">);</span>
+<a id="__codelineno-12-18" name="__codelineno-12-18" href="#__codelineno-12-18"></a><span class="w">        </span><span class="p">}</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-12-19" name="__codelineno-12-19" href="#__codelineno-12-19"></a><span class="w">            </span><span class="cm">/* Cluster shared, must disconnect */</span>
+<a id="__codelineno-12-20" name="__codelineno-12-20" href="#__codelineno-12-20"></a><span class="w">            </span><span class="n">m</span><span class="o">-&gt;</span><span class="n">m_ext</span><span class="p">.</span><span class="n">ext_free</span><span class="p">(</span><span class="n">m</span><span class="o">-&gt;</span><span class="n">m_ext</span><span class="p">.</span><span class="n">ext_arg</span><span class="p">);</span>
+<a id="__codelineno-12-21" name="__codelineno-12-21" href="#__codelineno-12-21"></a><span class="w">            </span><span class="n">objcache_dtor</span><span class="p">(</span><span class="n">mbufcluster_cache</span><span class="p">,</span><span class="w"> </span><span class="n">m</span><span class="p">);</span>
+<a id="__codelineno-12-22" name="__codelineno-12-22" href="#__codelineno-12-22"></a><span class="w">        </span><span class="p">}</span>
+<a id="__codelineno-12-23" name="__codelineno-12-23" href="#__codelineno-12-23"></a><span class="w">        </span><span class="k">break</span><span class="p">;</span>
+<a id="__codelineno-12-24" name="__codelineno-12-24" href="#__codelineno-12-24"></a><span class="w">    </span><span class="cm">/* ... other cases ... */</span>
+<a id="__codelineno-12-25" name="__codelineno-12-25" href="#__codelineno-12-25"></a><span class="w">    </span><span class="p">}</span>
+<a id="__codelineno-12-26" name="__codelineno-12-26" href="#__codelineno-12-26"></a><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="p">(</span><span class="n">n</span><span class="p">);</span>
+<a id="__codelineno-12-27" name="__codelineno-12-27" href="#__codelineno-12-27"></a><span class="p">}</span>
+</code></pre></div>
+<p>Key handling for shared clusters: when <code>m_sharecount(m) &gt; 1</code>, the mbuf cannot be returned to the combined cache and must be destroyed.</p>
+<h3 id="m_freem">m_freem<a class="headerlink" href="#m_freem" title="Permanent link">&para;</a></h3>
+<p>Free entire mbuf chain (<code>uipc_mbuf.c:1469-1474</code>):</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a><span class="kt">void</span>
+<a id="__codelineno-13-2" name="__codelineno-13-2" href="#__codelineno-13-2"></a><span class="nf">m_freem</span><span class="p">(</span><span class="k">struct</span><span class="w"> </span><span class="nc">mbuf</span><span class="w"> </span><span class="o">*</span><span class="n">m</span><span class="p">)</span>
+<a id="__codelineno-13-3" name="__codelineno-13-3" href="#__codelineno-13-3"></a><span class="p">{</span>
+<a id="__codelineno-13-4" name="__codelineno-13-4" href="#__codelineno-13-4"></a><span class="w">    </span><span class="k">while</span><span class="w"> </span><span class="p">(</span><span class="n">m</span><span class="p">)</span>
+<a id="__codelineno-13-5" name="__codelineno-13-5" href="#__codelineno-13-5"></a><span class="w">        </span><span class="n">m</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">m_free</span><span class="p">(</span><span class="n">m</span><span class="p">);</span>
+<a id="__codelineno-13-6" name="__codelineno-13-6" href="#__codelineno-13-6"></a><span class="p">}</span>
+</code></pre></div>
+<h2 id="cluster-reference-counting">Cluster Reference Counting<a class="headerlink" href="#cluster-reference-counting" title="Permanent link">&para;</a></h2>
+<p>Clusters use atomic reference counting for safe sharing (<code>uipc_mbuf.c:1263-1296</code>):</p>
+<h3 id="m_mclref">m_mclref<a class="headerlink" href="#m_mclref" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-14-1" name="__codelineno-14-1" href="#__codelineno-14-1"></a><span class="k">static</span><span class="w"> </span><span class="kt">void</span>
+<a id="__codelineno-14-2" name="__codelineno-14-2" href="#__codelineno-14-2"></a><span class="nf">m_mclref</span><span class="p">(</span><span class="kt">void</span><span class="w"> </span><span class="o">*</span><span class="n">arg</span><span class="p">)</span>
+<a id="__codelineno-14-3" name="__codelineno-14-3" href="#__codelineno-14-3"></a><span class="p">{</span>
+<a id="__codelineno-14-4" name="__codelineno-14-4" href="#__codelineno-14-4"></a><span class="w">    </span><span class="k">struct</span><span class="w"> </span><span class="nc">mbcluster</span><span class="w"> </span><span class="o">*</span><span class="n">mcl</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">arg</span><span class="p">;</span>
+<a id="__codelineno-14-5" name="__codelineno-14-5" href="#__codelineno-14-5"></a><span class="w">    </span><span class="n">atomic_add_int</span><span class="p">(</span><span class="o">&amp;</span><span class="n">mcl</span><span class="o">-&gt;</span><span class="n">mcl_refs</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">);</span>
+<a id="__codelineno-14-6" name="__codelineno-14-6" href="#__codelineno-14-6"></a><span class="p">}</span>
+</code></pre></div>
+<h3 id="m_mclfree">m_mclfree<a class="headerlink" href="#m_mclfree" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-15-1" name="__codelineno-15-1" href="#__codelineno-15-1"></a><span class="k">static</span><span class="w"> </span><span class="kt">void</span>
+<a id="__codelineno-15-2" name="__codelineno-15-2" href="#__codelineno-15-2"></a><span class="nf">m_mclfree</span><span class="p">(</span><span class="kt">void</span><span class="w"> </span><span class="o">*</span><span class="n">arg</span><span class="p">)</span>
+<a id="__codelineno-15-3" name="__codelineno-15-3" href="#__codelineno-15-3"></a><span class="p">{</span>
+<a id="__codelineno-15-4" name="__codelineno-15-4" href="#__codelineno-15-4"></a><span class="w">    </span><span class="k">struct</span><span class="w"> </span><span class="nc">mbcluster</span><span class="w"> </span><span class="o">*</span><span class="n">mcl</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">arg</span><span class="p">;</span>
+<a id="__codelineno-15-5" name="__codelineno-15-5" href="#__codelineno-15-5"></a><span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">atomic_fetchadd_int</span><span class="p">(</span><span class="o">&amp;</span><span class="n">mcl</span><span class="o">-&gt;</span><span class="n">mcl_refs</span><span class="p">,</span><span class="w"> </span><span class="mi">-1</span><span class="p">)</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-15-6" name="__codelineno-15-6" href="#__codelineno-15-6"></a><span class="w">        </span><span class="o">--</span><span class="n">mbstat</span><span class="p">[</span><span class="n">mycpu</span><span class="o">-&gt;</span><span class="n">gd_cpuid</span><span class="p">].</span><span class="n">m_clusters</span><span class="p">;</span>
+<a id="__codelineno-15-7" name="__codelineno-15-7" href="#__codelineno-15-7"></a><span class="w">        </span><span class="n">objcache_put</span><span class="p">(</span><span class="n">mclmeta_cache</span><span class="p">,</span><span class="w"> </span><span class="n">mcl</span><span class="p">);</span>
+<a id="__codelineno-15-8" name="__codelineno-15-8" href="#__codelineno-15-8"></a><span class="w">    </span><span class="p">}</span>
+<a id="__codelineno-15-9" name="__codelineno-15-9" href="#__codelineno-15-9"></a><span class="p">}</span>
+</code></pre></div>
+<p>The <code>atomic_fetchadd_int()</code> returns the <em>previous</em> value, so a return of 1 means the reference count is now 0.</p>
+<h3 id="m_sharecount">m_sharecount<a class="headerlink" href="#m_sharecount" title="Permanent link">&para;</a></h3>
+<p>Check if cluster is shared (<code>uipc_mbuf.c:1040-1049</code>):</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-16-1" name="__codelineno-16-1" href="#__codelineno-16-1"></a><span class="kt">int</span>
+<a id="__codelineno-16-2" name="__codelineno-16-2" href="#__codelineno-16-2"></a><span class="nf">m_sharecount</span><span class="p">(</span><span class="k">struct</span><span class="w"> </span><span class="nc">mbuf</span><span class="w"> </span><span class="o">*</span><span class="n">m</span><span class="p">)</span>
+<a id="__codelineno-16-3" name="__codelineno-16-3" href="#__codelineno-16-3"></a><span class="p">{</span>
+<a id="__codelineno-16-4" name="__codelineno-16-4" href="#__codelineno-16-4"></a><span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">m</span><span class="o">-&gt;</span><span class="n">m_flags</span><span class="w"> </span><span class="o">&amp;</span><span class="w"> </span><span class="p">(</span><span class="n">M_EXT</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">M_EXT_CLUSTER</span><span class="p">))</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-16-5" name="__codelineno-16-5" href="#__codelineno-16-5"></a><span class="w">        </span><span class="k">struct</span><span class="w"> </span><span class="nc">mbcluster</span><span class="w"> </span><span class="o">*</span><span class="n">mcl</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">m</span><span class="o">-&gt;</span><span class="n">m_ext</span><span class="p">.</span><span class="n">ext_arg</span><span class="p">;</span>
+<a id="__codelineno-16-6" name="__codelineno-16-6" href="#__codelineno-16-6"></a><span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">mcl</span><span class="o">-&gt;</span><span class="n">mcl_refs</span><span class="p">;</span>
+<a id="__codelineno-16-7" name="__codelineno-16-7" href="#__codelineno-16-7"></a><span class="w">    </span><span class="p">}</span>
+<a id="__codelineno-16-8" name="__codelineno-16-8" href="#__codelineno-16-8"></a><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span><span class="w">  </span><span class="cm">/* Not external, single reference */</span>
+<a id="__codelineno-16-9" name="__codelineno-16-9" href="#__codelineno-16-9"></a><span class="p">}</span>
+</code></pre></div>
+<h2 id="chain-manipulation-functions">Chain Manipulation Functions<a class="headerlink" href="#chain-manipulation-functions" title="Permanent link">&para;</a></h2>
+<h3 id="m_copym">m_copym<a class="headerlink" href="#m_copym" title="Permanent link">&para;</a></h3>
+<p>Create read-only copy of mbuf chain (<code>uipc_mbuf.c:1530-1603</code>):</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-17-1" name="__codelineno-17-1" href="#__codelineno-17-1"></a><span class="k">struct</span><span class="w"> </span><span class="nc">mbuf</span><span class="w"> </span><span class="o">*</span>
+<a id="__codelineno-17-2" name="__codelineno-17-2" href="#__codelineno-17-2"></a><span class="n">m_copym</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="k">struct</span><span class="w"> </span><span class="nc">mbuf</span><span class="w"> </span><span class="o">*</span><span class="n">m</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">off0</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">len</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">wait</span><span class="p">)</span>
+</code></pre></div>
+<ul>
+<li>Copies from offset <code>off0</code> for <code>len</code> bytes (or <code>M_COPYALL</code>)</li>
+<li>Clusters are <strong>shared</strong> (reference count incremented), not copied</li>
+<li>Result is read-only due to shared clusters</li>
+</ul>
+<h3 id="m_copypacket">m_copypacket<a class="headerlink" href="#m_copypacket" title="Permanent link">&para;</a></h3>
+<p>Optimized full packet copy (<code>uipc_mbuf.c:1614-1665</code>):</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-18-1" name="__codelineno-18-1" href="#__codelineno-18-1"></a><span class="k">struct</span><span class="w"> </span><span class="nc">mbuf</span><span class="w"> </span><span class="o">*</span>
+<a id="__codelineno-18-2" name="__codelineno-18-2" href="#__codelineno-18-2"></a><span class="n">m_copypacket</span><span class="p">(</span><span class="k">struct</span><span class="w"> </span><span class="nc">mbuf</span><span class="w"> </span><span class="o">*</span><span class="n">m</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">how</span><span class="p">)</span>
+</code></pre></div>
+<ul>
+<li>Equivalent to <code>m_copym(m, 0, M_COPYALL, how)</code></li>
+<li>Preserves alignment of first mbuf</li>
+</ul>
+<h3 id="m_dup">m_dup<a class="headerlink" href="#m_dup" title="Permanent link">&para;</a></h3>
+<p>Create writable copy (<code>uipc_mbuf.c:1704-1759</code>):</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-19-1" name="__codelineno-19-1" href="#__codelineno-19-1"></a><span class="k">struct</span><span class="w"> </span><span class="nc">mbuf</span><span class="w"> </span><span class="o">*</span>
+<a id="__codelineno-19-2" name="__codelineno-19-2" href="#__codelineno-19-2"></a><span class="n">m_dup</span><span class="p">(</span><span class="k">struct</span><span class="w"> </span><span class="nc">mbuf</span><span class="w"> </span><span class="o">*</span><span class="n">m</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">how</span><span class="p">)</span>
+</code></pre></div>
+<ul>
+<li>Copies all data (clusters are copied, not shared)</li>
+<li>Result is fully writable</li>
+</ul>
+<h3 id="m_cat">m_cat<a class="headerlink" href="#m_cat" title="Permanent link">&para;</a></h3>
+<p>Concatenate chains (<code>uipc_mbuf.c:1841-1857</code>):</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-20-1" name="__codelineno-20-1" href="#__codelineno-20-1"></a><span class="kt">void</span>
+<a id="__codelineno-20-2" name="__codelineno-20-2" href="#__codelineno-20-2"></a><span class="nf">m_cat</span><span class="p">(</span><span class="k">struct</span><span class="w"> </span><span class="nc">mbuf</span><span class="w"> </span><span class="o">*</span><span class="n">m</span><span class="p">,</span><span class="w"> </span><span class="k">struct</span><span class="w"> </span><span class="nc">mbuf</span><span class="w"> </span><span class="o">*</span><span class="n">n</span><span class="p">)</span>
+<a id="__codelineno-20-3" name="__codelineno-20-3" href="#__codelineno-20-3"></a><span class="p">{</span>
+<a id="__codelineno-20-4" name="__codelineno-20-4" href="#__codelineno-20-4"></a><span class="w">    </span><span class="n">m</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">m_last</span><span class="p">(</span><span class="n">m</span><span class="p">);</span>
+<a id="__codelineno-20-5" name="__codelineno-20-5" href="#__codelineno-20-5"></a><span class="w">    </span><span class="k">while</span><span class="w"> </span><span class="p">(</span><span class="n">n</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-20-6" name="__codelineno-20-6" href="#__codelineno-20-6"></a><span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">m</span><span class="o">-&gt;</span><span class="n">m_flags</span><span class="w"> </span><span class="o">&amp;</span><span class="w"> </span><span class="n">M_EXT</span><span class="w"> </span><span class="o">||</span>
+<a id="__codelineno-20-7" name="__codelineno-20-7" href="#__codelineno-20-7"></a><span class="w">            </span><span class="n">m</span><span class="o">-&gt;</span><span class="n">m_data</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">m</span><span class="o">-&gt;</span><span class="n">m_len</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">n</span><span class="o">-&gt;</span><span class="n">m_len</span><span class="w"> </span><span class="o">&gt;=</span><span class="w"> </span><span class="o">&amp;</span><span class="n">m</span><span class="o">-&gt;</span><span class="n">m_dat</span><span class="p">[</span><span class="n">MLEN</span><span class="p">])</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-20-8" name="__codelineno-20-8" href="#__codelineno-20-8"></a><span class="w">            </span><span class="cm">/* Just link chains */</span>
+<a id="__codelineno-20-9" name="__codelineno-20-9" href="#__codelineno-20-9"></a><span class="w">            </span><span class="n">m</span><span class="o">-&gt;</span><span class="n">m_next</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">n</span><span class="p">;</span>
+<a id="__codelineno-20-10" name="__codelineno-20-10" href="#__codelineno-20-10"></a><span class="w">            </span><span class="k">return</span><span class="p">;</span>
+<a id="__codelineno-20-11" name="__codelineno-20-11" href="#__codelineno-20-11"></a><span class="w">        </span><span class="p">}</span>
+<a id="__codelineno-20-12" name="__codelineno-20-12" href="#__codelineno-20-12"></a><span class="w">        </span><span class="cm">/* Copy data into trailing space */</span>
+<a id="__codelineno-20-13" name="__codelineno-20-13" href="#__codelineno-20-13"></a><span class="w">        </span><span class="n">bcopy</span><span class="p">(</span><span class="n">mtod</span><span class="p">(</span><span class="n">n</span><span class="p">,</span><span class="w"> </span><span class="n">caddr_t</span><span class="p">),</span><span class="w"> </span><span class="n">mtod</span><span class="p">(</span><span class="n">m</span><span class="p">,</span><span class="w"> </span><span class="n">caddr_t</span><span class="p">)</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">m</span><span class="o">-&gt;</span><span class="n">m_len</span><span class="p">,</span><span class="w"> </span><span class="n">n</span><span class="o">-&gt;</span><span class="n">m_len</span><span class="p">);</span>
+<a id="__codelineno-20-14" name="__codelineno-20-14" href="#__codelineno-20-14"></a><span class="w">        </span><span class="n">m</span><span class="o">-&gt;</span><span class="n">m_len</span><span class="w"> </span><span class="o">+=</span><span class="w"> </span><span class="n">n</span><span class="o">-&gt;</span><span class="n">m_len</span><span class="p">;</span>
+<a id="__codelineno-20-15" name="__codelineno-20-15" href="#__codelineno-20-15"></a><span class="w">        </span><span class="n">n</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">m_free</span><span class="p">(</span><span class="n">n</span><span class="p">);</span>
+<a id="__codelineno-20-16" name="__codelineno-20-16" href="#__codelineno-20-16"></a><span class="w">    </span><span class="p">}</span>
+<a id="__codelineno-20-17" name="__codelineno-20-17" href="#__codelineno-20-17"></a><span class="p">}</span>
+</code></pre></div>
+<h3 id="m_adj">m_adj<a class="headerlink" href="#m_adj" title="Permanent link">&para;</a></h3>
+<p>Trim data from head or tail (<code>uipc_mbuf.c:1859-1928</code>):</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-21-1" name="__codelineno-21-1" href="#__codelineno-21-1"></a><span class="kt">void</span>
+<a id="__codelineno-21-2" name="__codelineno-21-2" href="#__codelineno-21-2"></a><span class="n">m_adj</span><span class="p">(</span><span class="k">struct</span><span class="w"> </span><span class="nc">mbuf</span><span class="w"> </span><span class="o">*</span><span class="n">mp</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">req_len</span><span class="p">)</span>
+</code></pre></div>
+<ul>
+<li>Positive <code>req_len</code>: trim from head</li>
+<li>Negative <code>req_len</code>: trim from tail</li>
+<li>Updates <code>m_pkthdr.len</code> if present</li>
+</ul>
+<h3 id="m_pullup">m_pullup<a class="headerlink" href="#m_pullup" title="Permanent link">&para;</a></h3>
+<p>Make initial bytes contiguous (<code>uipc_mbuf.c:2103-2159</code>):</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-22-1" name="__codelineno-22-1" href="#__codelineno-22-1"></a><span class="k">struct</span><span class="w"> </span><span class="nc">mbuf</span><span class="w"> </span><span class="o">*</span>
+<a id="__codelineno-22-2" name="__codelineno-22-2" href="#__codelineno-22-2"></a><span class="n">m_pullup</span><span class="p">(</span><span class="k">struct</span><span class="w"> </span><span class="nc">mbuf</span><span class="w"> </span><span class="o">*</span><span class="n">n</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">len</span><span class="p">)</span>
+</code></pre></div>
+<ul>
+<li>Ensures first <code>len</code> bytes are in first mbuf's data area</li>
+<li>Required for protocol header access via casting</li>
+<li>Frees original and returns NULL on failure</li>
+</ul>
+<h3 id="m_pulldown">m_pulldown<a class="headerlink" href="#m_pulldown" title="Permanent link">&para;</a></h3>
+<p>Make arbitrary region contiguous (<code>uipc_mbuf2.c:89-234</code>):</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-23-1" name="__codelineno-23-1" href="#__codelineno-23-1"></a><span class="k">struct</span><span class="w"> </span><span class="nc">mbuf</span><span class="w"> </span><span class="o">*</span>
+<a id="__codelineno-23-2" name="__codelineno-23-2" href="#__codelineno-23-2"></a><span class="n">m_pulldown</span><span class="p">(</span><span class="k">struct</span><span class="w"> </span><span class="nc">mbuf</span><span class="w"> </span><span class="o">*</span><span class="n">m</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">off</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">len</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="o">*</span><span class="n">offp</span><span class="p">)</span>
+</code></pre></div>
+<ul>
+<li>Makes bytes <code>[off, off+len)</code> contiguous</li>
+<li>More flexible than <code>m_pullup()</code></li>
+<li>Returns mbuf containing the region; <code>*offp</code> is offset within that mbuf</li>
+</ul>
+<h3 id="m_split">m_split<a class="headerlink" href="#m_split" title="Permanent link">&para;</a></h3>
+<p>Partition chain (<code>uipc_mbuf.c:2171-2229</code>):</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-24-1" name="__codelineno-24-1" href="#__codelineno-24-1"></a><span class="k">struct</span><span class="w"> </span><span class="nc">mbuf</span><span class="w"> </span><span class="o">*</span>
+<a id="__codelineno-24-2" name="__codelineno-24-2" href="#__codelineno-24-2"></a><span class="n">m_split</span><span class="p">(</span><span class="k">struct</span><span class="w"> </span><span class="nc">mbuf</span><span class="w"> </span><span class="o">*</span><span class="n">m0</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">len0</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">wait</span><span class="p">)</span>
+</code></pre></div>
+<ul>
+<li>Returns tail of chain starting at offset <code>len0</code></li>
+<li>Original chain is truncated to <code>len0</code> bytes</li>
+<li>May share clusters (result may be read-only)</li>
+</ul>
+<h3 id="m_copydata">m_copydata<a class="headerlink" href="#m_copydata" title="Permanent link">&para;</a></h3>
+<p>Copy to linear buffer (<code>uipc_mbuf.c:1671-1697</code>):</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-25-1" name="__codelineno-25-1" href="#__codelineno-25-1"></a><span class="kt">void</span>
+<a id="__codelineno-25-2" name="__codelineno-25-2" href="#__codelineno-25-2"></a><span class="n">m_copydata</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="k">struct</span><span class="w"> </span><span class="nc">mbuf</span><span class="w"> </span><span class="o">*</span><span class="n">m</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">off</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">len</span><span class="p">,</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="o">*</span><span class="n">cp</span><span class="p">)</span>
+</code></pre></div>
+<h3 id="m_copyback">m_copyback<a class="headerlink" href="#m_copyback" title="Permanent link">&para;</a></h3>
+<p>Copy from linear buffer (<code>uipc_mbuf.c:2408-2416</code>):</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-26-1" name="__codelineno-26-1" href="#__codelineno-26-1"></a><span class="kt">void</span>
+<a id="__codelineno-26-2" name="__codelineno-26-2" href="#__codelineno-26-2"></a><span class="n">m_copyback</span><span class="p">(</span><span class="k">struct</span><span class="w"> </span><span class="nc">mbuf</span><span class="w"> </span><span class="o">*</span><span class="n">m0</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">off</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">len</span><span class="p">,</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="o">*</span><span class="n">cp</span><span class="p">)</span>
+</code></pre></div>
+<h3 id="m_defrag">m_defrag<a class="headerlink" href="#m_defrag" title="Permanent link">&para;</a></h3>
+<p>Defragment chain (<code>uipc_mbuf.c:2591-2659</code>):</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-27-1" name="__codelineno-27-1" href="#__codelineno-27-1"></a><span class="k">struct</span><span class="w"> </span><span class="nc">mbuf</span><span class="w"> </span><span class="o">*</span>
+<a id="__codelineno-27-2" name="__codelineno-27-2" href="#__codelineno-27-2"></a><span class="n">m_defrag</span><span class="p">(</span><span class="k">struct</span><span class="w"> </span><span class="nc">mbuf</span><span class="w"> </span><span class="o">*</span><span class="n">m0</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">how</span><span class="p">)</span>
+</code></pre></div>
+<ul>
+<li>Creates shortest possible chain</li>
+<li>Useful before DMA operations requiring few scatter-gather entries</li>
+</ul>
+<h3 id="m_unshare">m_unshare<a class="headerlink" href="#m_unshare" title="Permanent link">&para;</a></h3>
+<p>Create writable chain (<code>uipc_mbuf.c:1958-2093</code>):</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-28-1" name="__codelineno-28-1" href="#__codelineno-28-1"></a><span class="k">struct</span><span class="w"> </span><span class="nc">mbuf</span><span class="w"> </span><span class="o">*</span>
+<a id="__codelineno-28-2" name="__codelineno-28-2" href="#__codelineno-28-2"></a><span class="n">m_unshare</span><span class="p">(</span><span class="k">struct</span><span class="w"> </span><span class="nc">mbuf</span><span class="w"> </span><span class="o">*</span><span class="n">m0</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">how</span><span class="p">)</span>
+</code></pre></div>
+<ul>
+<li>Replaces shared clusters with private copies</li>
+<li>Compacts chain where possible</li>
+<li>Used before encryption/compression that modifies data in place</li>
+</ul>
+<h2 id="device-interface-functions">Device Interface Functions<a class="headerlink" href="#device-interface-functions" title="Permanent link">&para;</a></h2>
+<h3 id="m_devget">m_devget<a class="headerlink" href="#m_devget" title="Permanent link">&para;</a></h3>
+<p>Copy from device memory to mbuf chain (<code>uipc_mbuf.c:2235-2270</code>):</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-29-1" name="__codelineno-29-1" href="#__codelineno-29-1"></a><span class="k">struct</span><span class="w"> </span><span class="nc">mbuf</span><span class="w"> </span><span class="o">*</span>
+<a id="__codelineno-29-2" name="__codelineno-29-2" href="#__codelineno-29-2"></a><span class="n">m_devget</span><span class="p">(</span><span class="kt">void</span><span class="w"> </span><span class="o">*</span><span class="n">buf</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">len</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">offset</span><span class="p">,</span><span class="w"> </span><span class="k">struct</span><span class="w"> </span><span class="nc">ifnet</span><span class="w"> </span><span class="o">*</span><span class="n">ifp</span><span class="p">)</span>
+</code></pre></div>
+<ul>
+<li>Creates chain from linear device buffer</li>
+<li>Sets <code>m_pkthdr.rcvif</code> to receiving interface</li>
+<li>Leaves room for <code>max_linkhdr</code> in first mbuf</li>
+</ul>
+<h3 id="m_devpad">m_devpad<a class="headerlink" href="#m_devpad" title="Permanent link">&para;</a></h3>
+<p>Pad packet to minimum length (<code>uipc_mbuf.c:2275-2318</code>):</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-30-1" name="__codelineno-30-1" href="#__codelineno-30-1"></a><span class="kt">int</span>
+<a id="__codelineno-30-2" name="__codelineno-30-2" href="#__codelineno-30-2"></a><span class="n">m_devpad</span><span class="p">(</span><span class="k">struct</span><span class="w"> </span><span class="nc">mbuf</span><span class="w"> </span><span class="o">*</span><span class="n">m</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">padto</span><span class="p">)</span>
+</code></pre></div>
+<ul>
+<li>Pads packet to <code>padto</code> bytes</li>
+<li>Required for Ethernet minimum frame size</li>
+</ul>
+<h2 id="packet-tags">Packet Tags<a class="headerlink" href="#packet-tags" title="Permanent link">&para;</a></h2>
+<p>Packet tags attach auxiliary information to mbufs without modifying the mbuf structure.</p>
+<h3 id="struct-m_tag">struct m_tag<a class="headerlink" href="#struct-m_tag" title="Permanent link">&para;</a></h3>
+<p>Tag structure (<code>sys/mbuf.h:138</code>):</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-31-1" name="__codelineno-31-1" href="#__codelineno-31-1"></a><span class="k">struct</span><span class="w"> </span><span class="nc">m_tag</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-31-2" name="__codelineno-31-2" href="#__codelineno-31-2"></a><span class="w">    </span><span class="n">SLIST_ENTRY</span><span class="p">(</span><span class="n">m_tag</span><span class="p">)</span><span class="w"> </span><span class="n">m_tag_link</span><span class="p">;</span><span class="w">  </span><span class="cm">/* List linkage */</span>
+<a id="__codelineno-31-3" name="__codelineno-31-3" href="#__codelineno-31-3"></a><span class="w">    </span><span class="kt">uint16_t</span><span class="w"> </span><span class="n">m_tag_id</span><span class="p">;</span><span class="w">              </span><span class="cm">/* Tag ID */</span>
+<a id="__codelineno-31-4" name="__codelineno-31-4" href="#__codelineno-31-4"></a><span class="w">    </span><span class="kt">uint16_t</span><span class="w"> </span><span class="n">m_tag_len</span><span class="p">;</span><span class="w">             </span><span class="cm">/* Data length */</span>
+<a id="__codelineno-31-5" name="__codelineno-31-5" href="#__codelineno-31-5"></a><span class="w">    </span><span class="kt">uint32_t</span><span class="w"> </span><span class="n">m_tag_cookie</span><span class="p">;</span><span class="w">          </span><span class="cm">/* ABI/Module ID */</span>
+<a id="__codelineno-31-6" name="__codelineno-31-6" href="#__codelineno-31-6"></a><span class="p">};</span>
+</code></pre></div>
+<p>Data follows immediately after the structure.</p>
+<h3 id="tag-functions">Tag Functions<a class="headerlink" href="#tag-functions" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Function</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>m_tag_alloc(cookie, type, len, how)</code></td>
+<td>Allocate tag with data</td>
+</tr>
+<tr>
+<td><code>m_tag_free(t)</code></td>
+<td>Free tag</td>
+</tr>
+<tr>
+<td><code>m_tag_prepend(m, t)</code></td>
+<td>Add tag to mbuf</td>
+</tr>
+<tr>
+<td><code>m_tag_unlink(m, t)</code></td>
+<td>Remove tag from mbuf</td>
+</tr>
+<tr>
+<td><code>m_tag_delete(m, t)</code></td>
+<td>Remove and free tag</td>
+</tr>
+<tr>
+<td><code>m_tag_delete_chain(m)</code></td>
+<td>Free all tags</td>
+</tr>
+<tr>
+<td><code>m_tag_locate(m, cookie, type, t)</code></td>
+<td>Find tag by cookie/type</td>
+</tr>
+<tr>
+<td><code>m_tag_copy(t, how)</code></td>
+<td>Copy single tag</td>
+</tr>
+<tr>
+<td><code>m_tag_copy_chain(to, from, how)</code></td>
+<td>Copy all tags</td>
+</tr>
+</tbody>
+</table>
+<h3 id="tag-usage-example">Tag Usage Example<a class="headerlink" href="#tag-usage-example" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-32-1" name="__codelineno-32-1" href="#__codelineno-32-1"></a><span class="k">struct</span><span class="w"> </span><span class="nc">m_tag</span><span class="w"> </span><span class="o">*</span><span class="n">tag</span><span class="p">;</span>
+<a id="__codelineno-32-2" name="__codelineno-32-2" href="#__codelineno-32-2"></a>
+<a id="__codelineno-32-3" name="__codelineno-32-3" href="#__codelineno-32-3"></a><span class="cm">/* Allocate and attach */</span>
+<a id="__codelineno-32-4" name="__codelineno-32-4" href="#__codelineno-32-4"></a><span class="n">tag</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">m_tag_alloc</span><span class="p">(</span><span class="n">MTAG_ABI_COMPAT</span><span class="p">,</span><span class="w"> </span><span class="n">type</span><span class="p">,</span><span class="w"> </span><span class="k">sizeof</span><span class="p">(</span><span class="n">data</span><span class="p">),</span><span class="w"> </span><span class="n">M_NOWAIT</span><span class="p">);</span>
+<a id="__codelineno-32-5" name="__codelineno-32-5" href="#__codelineno-32-5"></a><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">tag</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="nb">NULL</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-32-6" name="__codelineno-32-6" href="#__codelineno-32-6"></a><span class="w">    </span><span class="n">bcopy</span><span class="p">(</span><span class="o">&amp;</span><span class="n">data</span><span class="p">,</span><span class="w"> </span><span class="n">tag</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="k">sizeof</span><span class="p">(</span><span class="n">data</span><span class="p">));</span>
+<a id="__codelineno-32-7" name="__codelineno-32-7" href="#__codelineno-32-7"></a><span class="w">    </span><span class="n">m_tag_prepend</span><span class="p">(</span><span class="n">m</span><span class="p">,</span><span class="w"> </span><span class="n">tag</span><span class="p">);</span>
+<a id="__codelineno-32-8" name="__codelineno-32-8" href="#__codelineno-32-8"></a><span class="p">}</span>
+<a id="__codelineno-32-9" name="__codelineno-32-9" href="#__codelineno-32-9"></a>
+<a id="__codelineno-32-10" name="__codelineno-32-10" href="#__codelineno-32-10"></a><span class="cm">/* Find and use */</span>
+<a id="__codelineno-32-11" name="__codelineno-32-11" href="#__codelineno-32-11"></a><span class="n">tag</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">m_tag_locate</span><span class="p">(</span><span class="n">m</span><span class="p">,</span><span class="w"> </span><span class="n">MTAG_ABI_COMPAT</span><span class="p">,</span><span class="w"> </span><span class="n">type</span><span class="p">,</span><span class="w"> </span><span class="nb">NULL</span><span class="p">);</span>
+<a id="__codelineno-32-12" name="__codelineno-32-12" href="#__codelineno-32-12"></a><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">tag</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="nb">NULL</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-32-13" name="__codelineno-32-13" href="#__codelineno-32-13"></a><span class="w">    </span><span class="k">struct</span><span class="w"> </span><span class="nc">data</span><span class="w"> </span><span class="o">*</span><span class="n">dp</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="k">struct</span><span class="w"> </span><span class="nc">data</span><span class="w"> </span><span class="o">*</span><span class="p">)(</span><span class="n">tag</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="p">);</span>
+<a id="__codelineno-32-14" name="__codelineno-32-14" href="#__codelineno-32-14"></a><span class="w">    </span><span class="cm">/* use dp */</span>
+<a id="__codelineno-32-15" name="__codelineno-32-15" href="#__codelineno-32-15"></a><span class="p">}</span>
+</code></pre></div>
+<h2 id="utility-macros">Utility Macros<a class="headerlink" href="#utility-macros" title="Permanent link">&para;</a></h2>
+<h3 id="data-access">Data Access<a class="headerlink" href="#data-access" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-33-1" name="__codelineno-33-1" href="#__codelineno-33-1"></a><span class="n">mtod</span><span class="p">(</span><span class="n">m</span><span class="p">,</span><span class="w"> </span><span class="n">t</span><span class="p">)</span><span class="w">          </span><span class="cm">/* Cast m-&gt;m_data to type t */</span>
+<a id="__codelineno-33-2" name="__codelineno-33-2" href="#__codelineno-33-2"></a><span class="n">mtodoff</span><span class="p">(</span><span class="n">m</span><span class="p">,</span><span class="w"> </span><span class="n">t</span><span class="p">,</span><span class="w"> </span><span class="n">off</span><span class="p">)</span><span class="w">  </span><span class="cm">/* Cast m-&gt;m_data + off to type t */</span>
+</code></pre></div>
+<h3 id="space-calculation">Space Calculation<a class="headerlink" href="#space-calculation" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-34-1" name="__codelineno-34-1" href="#__codelineno-34-1"></a><span class="n">M_LEADINGSPACE</span><span class="p">(</span><span class="n">m</span><span class="p">)</span><span class="w">   </span><span class="cm">/* Bytes available before m_data */</span>
+<a id="__codelineno-34-2" name="__codelineno-34-2" href="#__codelineno-34-2"></a><span class="n">M_TRAILINGSPACE</span><span class="p">(</span><span class="n">m</span><span class="p">)</span><span class="w">  </span><span class="cm">/* Bytes available after data */</span>
+</code></pre></div>
+<h3 id="writability-check">Writability Check<a class="headerlink" href="#writability-check" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-35-1" name="__codelineno-35-1" href="#__codelineno-35-1"></a><span class="n">M_WRITABLE</span><span class="p">(</span><span class="n">m</span><span class="p">)</span><span class="w">       </span><span class="cm">/* True if mbuf data is writable */</span>
+<a id="__codelineno-35-2" name="__codelineno-35-2" href="#__codelineno-35-2"></a><span class="n">M_EXT_WRITABLE</span><span class="p">(</span><span class="n">m</span><span class="p">)</span><span class="w">   </span><span class="cm">/* True if cluster is writable (sharecount == 1) */</span>
+</code></pre></div>
+<h3 id="alignment">Alignment<a class="headerlink" href="#alignment" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-36-1" name="__codelineno-36-1" href="#__codelineno-36-1"></a><span class="n">M_ALIGN</span><span class="p">(</span><span class="n">m</span><span class="p">,</span><span class="w"> </span><span class="n">len</span><span class="p">)</span><span class="w">     </span><span class="cm">/* Align for &#39;len&#39; bytes at end of plain mbuf */</span>
+<a id="__codelineno-36-2" name="__codelineno-36-2" href="#__codelineno-36-2"></a><span class="n">MH_ALIGN</span><span class="p">(</span><span class="n">m</span><span class="p">,</span><span class="w"> </span><span class="n">len</span><span class="p">)</span><span class="w">    </span><span class="cm">/* Align for &#39;len&#39; bytes at end of pkthdr mbuf */</span>
+</code></pre></div>
+<h3 id="prepend">Prepend<a class="headerlink" href="#prepend" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-37-1" name="__codelineno-37-1" href="#__codelineno-37-1"></a><span class="n">M_PREPEND</span><span class="p">(</span><span class="n">m</span><span class="p">,</span><span class="w"> </span><span class="n">plen</span><span class="p">,</span><span class="w"> </span><span class="n">how</span><span class="p">)</span><span class="w">  </span><span class="cm">/* Prepend &#39;plen&#39; bytes to mbuf */</span>
+</code></pre></div>
+<p>Adjusts <code>m_data</code> and <code>m_len</code>; allocates new mbuf if insufficient leading space.</p>
+<h2 id="statistics-and-debugging">Statistics and Debugging<a class="headerlink" href="#statistics-and-debugging" title="Permanent link">&para;</a></h2>
+<h3 id="per-cpu-statistics">Per-CPU Statistics<a class="headerlink" href="#per-cpu-statistics" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-38-1" name="__codelineno-38-1" href="#__codelineno-38-1"></a><span class="k">extern</span><span class="w"> </span><span class="k">struct</span><span class="w"> </span><span class="nc">mbstat</span><span class="w"> </span><span class="n">mbstat</span><span class="p">[</span><span class="n">SMP_MAXCPU</span><span class="p">]</span><span class="w"> </span><span class="n">__cachealign</span><span class="p">;</span>
+<a id="__codelineno-38-2" name="__codelineno-38-2" href="#__codelineno-38-2"></a><span class="k">extern</span><span class="w"> </span><span class="k">struct</span><span class="w"> </span><span class="nc">mbtypes_stat</span><span class="w"> </span><span class="n">mbtypes</span><span class="p">[</span><span class="n">SMP_MAXCPU</span><span class="p">]</span><span class="w"> </span><span class="n">__cachealign</span><span class="p">;</span>
+</code></pre></div>
+<p>Statistics are updated without locking using CPU-local arrays.</p>
+<h3 id="debug-support">Debug Support<a class="headerlink" href="#debug-support" title="Permanent link">&para;</a></h3>
+<p>When <code>MBUF_DEBUG</code> is defined:</p>
+<ul>
+<li><code>m-&gt;m_hdr.mh_lastfunc</code> tracks last function that touched mbuf</li>
+<li><code>mbuftrackid()</code> records operations</li>
+<li><code>_m_free()</code> / <code>_m_freem()</code> include caller name</li>
+</ul>
+<h3 id="sysctl-interface">Sysctl Interface<a class="headerlink" href="#sysctl-interface" title="Permanent link">&para;</a></h3>
+<ul>
+<li><code>kern.ipc.nmbclusters</code> - Maximum clusters</li>
+<li><code>kern.ipc.nmbufs</code> - Maximum mbufs</li>
+<li><code>kern.ipc.mbuf_wait</code> - Wait count for allocation</li>
+</ul>
+<h2 id="memory-reclamation">Memory Reclamation<a class="headerlink" href="#memory-reclamation" title="Permanent link">&para;</a></h2>
+<p>When allocation fails with <code>M_WAITOK</code>, the system attempts reclamation (<code>uipc_mbuf.c:410-421</code>):</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-39-1" name="__codelineno-39-1" href="#__codelineno-39-1"></a><span class="k">static</span><span class="w"> </span><span class="kt">void</span>
+<a id="__codelineno-39-2" name="__codelineno-39-2" href="#__codelineno-39-2"></a><span class="nf">m_reclaim</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<a id="__codelineno-39-3" name="__codelineno-39-3" href="#__codelineno-39-3"></a><span class="p">{</span>
+<a id="__codelineno-39-4" name="__codelineno-39-4" href="#__codelineno-39-4"></a><span class="w">    </span><span class="k">struct</span><span class="w"> </span><span class="nc">domain</span><span class="w"> </span><span class="o">*</span><span class="n">dp</span><span class="p">;</span>
+<a id="__codelineno-39-5" name="__codelineno-39-5" href="#__codelineno-39-5"></a><span class="w">    </span><span class="k">struct</span><span class="w"> </span><span class="nc">protosw</span><span class="w"> </span><span class="o">*</span><span class="n">pr</span><span class="p">;</span>
+<a id="__codelineno-39-6" name="__codelineno-39-6" href="#__codelineno-39-6"></a>
+<a id="__codelineno-39-7" name="__codelineno-39-7" href="#__codelineno-39-7"></a><span class="w">    </span><span class="n">SLIST_FOREACH</span><span class="p">(</span><span class="n">dp</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">domains</span><span class="p">,</span><span class="w"> </span><span class="n">dom_next</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-39-8" name="__codelineno-39-8" href="#__codelineno-39-8"></a><span class="w">        </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="n">pr</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">dp</span><span class="o">-&gt;</span><span class="n">dom_protosw</span><span class="p">;</span><span class="w"> </span><span class="n">pr</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">dp</span><span class="o">-&gt;</span><span class="n">dom_protoswNPROTOSW</span><span class="p">;</span><span class="w"> </span><span class="n">pr</span><span class="o">++</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-39-9" name="__codelineno-39-9" href="#__codelineno-39-9"></a><span class="w">            </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">pr</span><span class="o">-&gt;</span><span class="n">pr_drain</span><span class="p">)</span>
+<a id="__codelineno-39-10" name="__codelineno-39-10" href="#__codelineno-39-10"></a><span class="w">                </span><span class="p">(</span><span class="o">*</span><span class="n">pr</span><span class="o">-&gt;</span><span class="n">pr_drain</span><span class="p">)();</span>
+<a id="__codelineno-39-11" name="__codelineno-39-11" href="#__codelineno-39-11"></a><span class="w">        </span><span class="p">}</span>
+<a id="__codelineno-39-12" name="__codelineno-39-12" href="#__codelineno-39-12"></a><span class="w">    </span><span class="p">}</span>
+<a id="__codelineno-39-13" name="__codelineno-39-13" href="#__codelineno-39-13"></a><span class="p">}</span>
+</code></pre></div>
+<p>Protocols implement <code>pr_drain</code> to release cached mbufs.</p>
+<h2 id="see-also">See Also<a class="headerlink" href="#see-also" title="Permanent link">&para;</a></h2>
+<ul>
+<li><a href="sockets.md">Socket Core</a> - Socket buffer management using mbufs</li>
+<li><a href="../../vfs/buffer-cache/">VFS Buffer Cache</a> - Similar caching concepts</li>
+<li><a href="../../memory/">Memory Management</a> - Kernel memory subsystem</li>
+</ul>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../../../..", "features": ["navigation.tabs", "navigation.sections", "navigation.expand", "navigation.top", "search.suggest", "search.highlight", "content.code.copy"], "search": "../../../../assets/javascripts/workers/search.7a47a382.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../../../assets/javascripts/bundle.e71a0d61.min.js"></script>
+      
+    
+  </body>
+</html>
