@@ -78,6 +78,7 @@ nav:
         - VFS Operations Framework: sys/kern/vfs/vfs-operations.md
         - Journaling System: sys/kern/vfs/journaling.md
         - Vnode Locking & Lifecycle: sys/kern/vfs/vfs-locking.md
+        - VFS Extensions & Helpers: sys/kern/vfs/vfs-extensions.md
       - IPC & Sockets: sys/kern/ipc.md
       - Devices & Drivers: sys/kern/devices.md
       - System Calls: sys/kern/syscalls.md
