@@ -479,6 +479,8 @@ List of key source files with brief descriptions:
 | `docs/sys/kern/vfs/buffer-cache.md` | Buffer cache and I/O | Complete |
 | `docs/sys/kern/vfs/vfs-operations.md` | VFS operations | Complete |
 | `docs/sys/kern/vfs/journaling.md` | Journaling support | Complete |
+| `docs/sys/kern/vfs/vfs-locking.md` | Vnode locking and lifecycle | Complete |
+| `docs/sys/kern/vfs/vfs-extensions.md` | VFS helpers, syncer, quotas | Complete |
 | `docs/sys/kern/ipc.md` | IPC and sockets | Stub |
 | `docs/sys/kern/devices.md` | Device infrastructure | Stub |
 | `docs/sys/kern/syscalls.md` | System calls | Stub |
