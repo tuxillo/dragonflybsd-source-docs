@@ -82,6 +82,7 @@ nav:
       - IPC & Sockets:
         - Overview: sys/kern/ipc.md
         - Mbufs: sys/kern/ipc/mbufs.md
+        - Sockets: sys/kern/ipc/sockets.md
       - Devices & Drivers: sys/kern/devices.md
       - System Calls: sys/kern/syscalls.md
     - vm/:
