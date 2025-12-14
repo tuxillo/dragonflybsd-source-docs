@@ -77,6 +77,7 @@ nav:
         - Buffer Cache & I/O: sys/kern/vfs/buffer-cache.md
         - VFS Operations Framework: sys/kern/vfs/vfs-operations.md
         - Journaling System: sys/kern/vfs/journaling.md
+        - Vnode Locking & Lifecycle: sys/kern/vfs/vfs-locking.md
       - IPC & Sockets: sys/kern/ipc.md
       - Devices & Drivers: sys/kern/devices.md
       - System Calls: sys/kern/syscalls.md
