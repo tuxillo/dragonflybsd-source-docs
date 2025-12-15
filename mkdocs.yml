@@ -87,6 +87,7 @@ nav:
         - Protocol Dispatch: sys/kern/ipc/protocol-dispatch.md
         - Pipes: sys/kern/ipc/pipes.md
         - POSIX Message Queues: sys/kern/ipc/mqueue.md
+        - System V Message Queues: sys/kern/ipc/sysv-msg.md
       - Devices & Drivers: sys/kern/devices.md
       - System Calls: sys/kern/syscalls.md
     - vm/:
