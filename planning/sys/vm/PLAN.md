@@ -161,14 +161,14 @@ Next phase
 |-------|------|-------|-------------|--------|
 | 1 (Headers) | ✅ | ✅ | ✅ | `3108069` |
 | 2 (vm_page.c) | ✅ | ✅ | ✅ | `cbd8cf1` |
-| 3 (vm_object.c) | Pending | Pending | Pending | - |
+| 3 (vm_object.c) | ✅ | ✅ | Pending | - |
 | 4 (vm_map.c) | Pending | Pending | Pending | - |
 | 5 (vm_fault.c) | Pending | Pending | Pending | - |
 | 6 (pageout/swap) | Pending | Pending | Pending | - |
 | 7 (pagers/mmap) | Pending | Pending | Pending | - |
 
 ### Next Action
-**Phase 3 → Read `vm_object.c` in chunks**, take notes, then write `docs/sys/vm/vm_object.md`.
+**Phase 3 → Write `docs/sys/vm/vm_object.md`** from accumulated notes, then commit.
 
 ---
 
@@ -1096,7 +1096,270 @@ PQ_ACTIVE ←→ PQ_INACTIVE
 
 ### Phase 3: VM Objects
 
-*(To be filled as we read vm_object.c)*
+**vm_object.c** (~2,034 lines) - VM object lifecycle, reference counting, and page management
+
+#### Global Data Structures
+
+**Hash Table:**
+```c
+struct vm_object_hash vm_object_hash[VMOBJ_HSIZE];  // VMOBJ_HSIZE = 256
+```
+- Each bucket has a TAILQ list + LWKT token
+- Hash function uses two primes for distribution:
+  - `VMOBJ_HASH_PRIME1` = 66555444443333333
+  - `VMOBJ_HASH_PRIME2` = 989042931893
+- `vmobj_hash(obj)` - Returns bucket for object pointer
+
+**Kernel Object:**
+```c
+static struct vm_object kernel_object_store;
+struct vm_object *kernel_object = &kernel_object_store;
+```
+- Single global kernel object for kernel address space
+- Initialized during `vm_object_init1()`
+
+#### Locking Functions
+
+All locking wraps LWKT tokens (soft-locks, blocking allowed):
+
+| Function | Description |
+|----------|-------------|
+| `vm_object_lock(obj)` | `lwkt_gettoken(&obj->token)` - exclusive |
+| `vm_object_lock_try(obj)` | `lwkt_trytoken()` - non-blocking |
+| `vm_object_lock_shared(obj)` | `lwkt_gettoken_shared()` - shared |
+| `vm_object_unlock(obj)` | `lwkt_reltoken()` |
+| `vm_object_upgrade(obj)` | Release + re-acquire exclusive |
+| `vm_object_downgrade(obj)` | Release + re-acquire shared |
+| `vm_object_lock_swap()` | `lwkt_token_swap()` |
+
+#### Hold/Drop Functions
+
+Hold prevents object from being freed while working with it:
+
+**`vm_object_hold(obj)`** (line 283):
+- `refcount_acquire(&obj->hold_count)` FIRST (makes object stable)
+- Then `vm_object_lock(obj)` (may block)
+- Must hold before blocking to prevent object being freed
+
+**`vm_object_hold_try(obj)`** (line 302):
+- Non-blocking version
+- Increments hold_count, tries lock
+- On failure: releases hold_count, may free if ref_count==0 && OBJ_DEAD
+
+**`vm_object_hold_shared(obj)`** (line 328):
+- Like hold but acquires shared lock
+
+**`vm_object_drop(obj)`** (line 352):
+- Releases hold_count + unlocks
+- On last hold (1→0): if ref_count==0 && OBJ_DEAD, frees object
+- Token might be shared at this point
+
+#### Object Allocation
+
+**`vm_quickcolor()`** (line 270):
+- Returns semi-random page color for new objects
+- Uses `gd->gd_curthread` address + `gd->gd_quick_color`
+- Increments quick_color by PQ_PRIME2 (23)
+
+**`_vm_object_allocate(type, size, obj, ident)`** (line 388):
+Core initialization for all objects:
+1. `RB_INIT(&object->rb_memq)` - page tree
+2. `lwkt_token_init(&object->token, ident)`
+3. `TAILQ_INIT(&object->backing_list)`
+4. `lockinit(&object->backing_lk, "baclk", 0, 0)`
+5. Sets type, size, ref_count=1, memattr=DEFAULT
+6. For DEFAULT/SWAP: sets `OBJ_ONEMAPPING`
+7. `pg_color = vm_quickcolor()`
+8. `RB_INIT(&object->swblock_root)` - swap blocks
+9. `pmap_object_init(object)` - arch-specific
+10. `vm_object_hold(object)` - returns held
+11. Inserts into hash table
+
+**`vm_object_allocate(type, size)`** (line 471):
+- kmalloc + `_vm_object_allocate()` + drop
+- Returns dropped (unheld) object
+
+**`vm_object_allocate_hold(type, size)`** (line 487):
+- kmalloc + `_vm_object_allocate()`
+- Returns HELD object for further atomic init
+
+**`vm_object_init(obj, size)`** (line 432):
+- Initializes existing object as OBJT_DEFAULT
+- For use with pre-allocated objects
+
+**`vm_object_init1()`** (line 445):
+- Called during early boot (before kmalloc)
+- Initializes hash table (256 buckets with tokens)
+- Creates kernel_object spanning KvaEnd
+
+**`vm_object_init2()`** (line 460):
+- Post-boot: sets M_VM_OBJECT to unlimited
+
+#### Reference Counting
+
+**`vm_object_reference_locked(obj)`** (line 506):
+- Adds reference while holding object token
+- For OBJT_VNODE: also calls `vref(obj->handle)`
+- Uses atomic_add_int for SMP safety
+
+**`vm_object_reference_quick(obj)`** (line 527):
+- Adds reference WITHOUT holding object
+- Only safe when caller knows object is deterministically referenced
+- Typical use: vnode refs, map_entry replication
+- For OBJT_VNODE: also calls `vref(obj->handle)`
+
+**`vm_object_vndeallocate(obj, vpp)`** (line 548):
+- Special deref for OBJT_VNODE
+- Handles ref_count atomically with retry loop
+- On 1→0: upgrades to exclusive, clears VTEXT flag
+- Returns vnode in *vpp for caller to vrele (or vreles if vpp==NULL)
+- Complex because shared lock can race to 0 in other paths
+
+**`vm_object_deallocate(obj)`** (line 615):
+Main deref entry point (object NOT held):
+- Fast path (count > 3): atomic decrement without locking
+- Slow path (count <= 3): hold + `vm_object_deallocate_locked()` + drop
+- For OBJT_VNODE: handles vref/vrele coordination
+- Avoids exclusive lock crowbar on highly shared binaries (exec/exit)
+
+**`vm_object_deallocate_locked(obj)`** (line 679):
+- Internal deref with object held
+- For OBJT_VNODE: delegates to `vm_object_vndeallocate()`
+- For others: requires exclusive lock
+- On 1→0: calls `vm_object_terminate()` if not OBJ_DEAD
+
+#### Object Termination
+
+**`vm_object_terminate(obj)`** (line 746):
+Destroys object with zero refs:
+
+1. Sets `OBJ_DEAD` flag (allows safe blocking after this)
+2. `vm_object_pip_wait()` - waits for paging_in_progress == 0
+3. For OBJT_VNODE:
+   - `vinvalbuf()` - flush buffers
+   - `vm_object_page_clean()` - clean dirty pages
+   - `vinvalbuf()` again (TMPFS may not flush to swap)
+4. Another `vm_object_pip_wait()`
+5. `pmap_object_free()` - cleanup shared pmaps
+6. Scan pages via `vm_object_terminate_callback()`:
+   - Loops until all pages freed
+   - Retries on busy pages
+7. `vm_pager_deallocate()` - notify pager
+8. Removes from hash table
+9. Object freed later in `vm_object_drop()` when hold_count reaches 0
+
+**`vm_object_terminate_callback(p, data)`** (line 878):
+Per-page callback during termination:
+- Tries to busy page (retries if busy)
+- For unwired pages: `vm_page_protect(VM_PROT_NONE)` + `vm_page_free()`
+- For wired pages: just removes from object (warning logged)
+- Yields every 64 pages to avoid hogging CPU
+
+#### Page Cleaning
+
+**`vm_object_page_clean(obj, start, end, flags)`** (line 944):
+Cleans dirty pages in range:
+
+- Only for OBJT_VNODE with OBJ_MIGHTBEDIRTY
+- Sets `OBJ_CLEANING` during operation
+- Flags:
+  - `OBJPC_SYNC` - synchronous I/O
+  - `OBJPC_INVAL` - invalidate after clean
+  - `OBJPC_NOSYNC` - skip PG_NOSYNC pages
+  - `OBJPC_CLUSTER_OK` - allow clustering
+
+**Pass 1** (`vm_object_page_clean_pass1`, line ~990):
+- Marks pages read-only via `vm_page_protect(VM_PROT_READ)`
+- If entire object cleaned successfully: clears OBJ_WRITEABLE|OBJ_MIGHTBEDIRTY
+- Clears VISDIRTY/VOBJDIRTY on vnode
+
+**Pass 2** (`vm_object_page_clean_pass2`, line 1063):
+- Skips pages without PG_CLEANCHK (inserted after pass1)
+- Tests dirty via `vm_page_test_dirty()`
+- Skips cache pages and clean pages
+- Calls `vm_object_page_collect_flush()` for dirty pages
+
+**`vm_object_page_collect_flush(obj, p, pagerflags)`** (line 1148):
+- Clusters adjacent dirty pages for efficient I/O
+- Uses array `ma[BLIST_MAX_ALLOC]` for page cluster
+- Scans backward (ib) and forward (is) from target page
+- Stops at: busy pages, non-CLEANCHK, cache pages, clean pages
+- Calls `vm_pageout_flush()` to write cluster
+
+#### madvise Support
+
+**`vm_object_madvise(obj, pindex, count, advise)`** (line 1261):
+Implements madvise at object level:
+
+| Advise | Action |
+|--------|--------|
+| `MADV_WILLNEED` | `vm_page_activate(m)` - move to active queue |
+| `MADV_DONTNEED` | `vm_page_dontneed(m)` - deactivate/cache |
+| `MADV_FREE` | Clear dirty + deactivate + free swap |
+
+MADV_FREE restrictions:
+- Only OBJT_DEFAULT or OBJT_SWAP
+- Only if OBJ_ONEMAPPING set
+- Clears `pmap_clear_modify()`, m->dirty, m->act_count
+- Frees swap backing via `swap_pager_freespace()`
+
+#### Page Removal
+
+**`vm_object_page_remove(obj, start, end, clean_only)`** (line 1368):
+Removes pages from object in range:
+
+1. Sets `paging_in_progress` (PIP)
+2. **Backing scan** (MGTDEVICE support):
+   - Iterates `object->backing_list` under `backing_lk`
+   - Calls `pmap_remove()` for each ba's address range
+   - Critical for MGTDEVICE which doesn't use rb_memq
+3. **RB tree scan** via `vm_object_page_remove_callback()`:
+   - Loops until all pages removed (retries on busy)
+4. Frees related swap (unless OBJT_SWAP && clean_only)
+
+**`vm_object_page_remove_callback(p, data)`** (line 1508):
+- Busies page, validates range
+- Wired pages: just invalidate (valid=0) if !clean_only
+- Clean_only mode: skips dirty pages and PG_NEED_COMMIT
+- Otherwise: `vm_page_protect(VM_PROT_NONE)` + `vm_page_free()`
+- Yields every 64 pages
+
+#### Object Coalescing
+
+**`vm_object_coalesce(prev_obj, prev_pindex, prev_size, next_size)`** (line 1601):
+Extends object into adjacent virtual memory region:
+
+- Only for OBJT_DEFAULT/OBJT_SWAP
+- Fails if ref_count > 1 (unless extending size)
+- Removes pages in new region if they exist
+- Extends `object->size` if needed
+- Returns TRUE on success
+
+#### Dirty Flag Management
+
+**`vm_object_set_writeable_dirty(obj)`** (line 1688):
+Marks object as potentially dirty:
+
+- Sets `OBJ_WRITEABLE | OBJ_MIGHTBEDIRTY`
+- Avoids atomic op if flags already set (fast path)
+- For OBJT_VNODE: sets VOBJDIRTY on vnode
+  - Uses `vsetobjdirty()` for MNTK_THR_SYNC mounts (syncer list)
+  - Uses `vsetflags(VOBJDIRTY)` for old-style mounts
+
+#### DDB Debugging Commands
+
+**`DB_SHOW_COMMAND(vmochk)`** (line 1830):
+- Scans all objects in hash table
+- Verifies internal objects are in some map
+- Warns on zero ref_count or unmapped objects
+
+**`DB_SHOW_COMMAND(object)`** (line 1870):
+- Prints object details: type, size, resident_page_count, ref_count, flags
+- With `full`: lists all pages with pindex and physical address
+
+**`DB_SHOW_COMMAND(vmopag)`** (line 1939):
+- Prints page runs for all objects
+- Shows physical address contiguity
 
 ---
 
