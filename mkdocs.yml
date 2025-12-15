@@ -85,6 +85,7 @@ nav:
         - Sockets: sys/kern/ipc/sockets.md
         - Unix Domain Sockets: sys/kern/ipc/unix-sockets.md
         - Protocol Dispatch: sys/kern/ipc/protocol-dispatch.md
+        - Pipes: sys/kern/ipc/pipes.md
       - Devices & Drivers: sys/kern/devices.md
       - System Calls: sys/kern/syscalls.md
     - vm/:
