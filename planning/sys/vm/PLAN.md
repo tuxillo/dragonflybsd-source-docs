@@ -159,8 +159,8 @@ Next phase
 
 | Phase | Read | Notes | Doc Written | Commit |
 |-------|------|-------|-------------|--------|
-| 1 (Headers) | ✅ | ✅ | Pending | `c5fde7c` |
-| 2 (vm_page.c) | Pending | Pending | Pending | - |
+| 1 (Headers) | ✅ | ✅ | ✅ | `3108069` |
+| 2 (vm_page.c) | ✅ | ✅ | In Progress | - |
 | 3 (vm_object.c) | Pending | Pending | Pending | - |
 | 4 (vm_map.c) | Pending | Pending | Pending | - |
 | 5 (vm_fault.c) | Pending | Pending | Pending | - |
@@ -168,7 +168,7 @@ Next phase
 | 7 (pagers/mmap) | Pending | Pending | Pending | - |
 
 ### Next Action
-**Phase 1 → Write `docs/sys/vm/index.md`** from header notes, then commit.
+**Phase 2 → Read `vm_page.c` in chunks**, take notes, then write `docs/sys/vm/vm_page.md`.
 
 ---
 
@@ -699,7 +699,398 @@ Key functions:
 
 ### Phase 2: Physical Page Management
 
-*(To be filled as we read vm_page.c)*
+**vm_page.c** (4,242 lines) - Physical page allocation and queue management
+
+#### Global Data Structures
+
+**Page Queues:**
+- `vm_page_queues[PQ_COUNT]` - Array of `struct vpgqueues`
+- 5 queue types × 1024 colors = 5120 total queues
+- Each queue has its own spinlock for SMP scalability
+
+**Page Hash Table (Heuristic Lookup):**
+```c
+struct vm_page_hash_elm {
+    vm_page_t m;
+    vm_object_t object;   // cached for fast comparison
+    vm_pindex_t pindex;   // cached for fast comparison
+    int ticks;            // LRU timestamp
+};
+```
+- `VM_PAGE_HASH_SET` = 4 (4-way set associative)
+- `VM_PAGE_HASH_MAX` = 8M entries maximum
+- Size scales with `vm_page_array_size / 16`
+- Used by `vm_page_hash_get()` for lockless lookup
+
+**DMA Reserve:**
+- `vm_contig_alist` - alist allocator for contiguous low-memory DMA pages
+- `vm_low_phys_reserved` - threshold for DMA reserve (default 65536 pages)
+- `vm_dma_reserved` - tunable, default 128MB on systems with 2G+ RAM
+- Pages below threshold marked `PG_FICTITIOUS | PG_UNQUEUED`, wired
+
+**Page Array:**
+- `vm_page_array` - Array of all `struct vm_page` in system
+- `vm_page_array_size` - Number of entries
+- `first_page` - First physical page index
+- `PHYS_TO_VM_PAGE(pa)` - Macro to convert physical address to vm_page
+
+#### Boot-Time Initialization
+
+**`vm_set_page_size()` (line 216):**
+- Sets `vmstats.v_page_size` to `PAGE_SIZE` (typically 4KB)
+- Called very early in boot
+
+**`vm_page_startup()` (line 326):**
+1. Rounds phys_avail[] ranges to page boundaries
+2. Finds largest memory block
+3. Initializes page queues via `vm_page_queue_init()`
+4. Allocates minidump bitmap (`vm_page_dump`)
+5. Calculates `vm_page_array` size and allocates it
+6. Initializes each `struct vm_page` with spinlock and `phys_addr`
+7. Adds pages to free queues via `vm_add_new_page()`
+8. Low memory (< `vm_low_phys_reserved`) goes to DMA alist instead
+
+**`vm_add_new_page()` (line 238):**
+- Calculates page color with CPU twisting for NUMA locality:
+  ```c
+  m->pc = (pa >> PAGE_SHIFT);
+  m->pc ^= ((pa >> PAGE_SHIFT) / PQ_L2_SIZE);
+  m->pc ^= ((pa >> PAGE_SHIFT) / (PQ_L2_SIZE * PQ_L2_SIZE));
+  m->pc &= PQ_L2_MASK;
+  ```
+- Pages added to HEAD of free queue (cache-hot)
+
+**`vm_numa_organize()` (line 517):**
+- Called during boot with NUMA topology info
+- Reorganizes page colors based on physical socket ID
+- `socket_mod = PQ_L2_SIZE / cpu_topology_phys_ids`
+- `socket_value = (physid % cpu_topology_phys_ids) * socket_mod`
+- Requeues pages to match socket affinity
+
+**`vm_numa_organize_finalize()` (line 633):**
+- Balances page queues after NUMA organization
+- Prevents empty queues that would force cross-socket borrowing
+- Calculates average pages per queue, rebalances to 90-100% of average
+
+**`vm_page_startup_finish()` (line 745):**
+- SYSINIT at `SI_SUB_PROC0_POST`
+- Returns excess DMA reserve to normal free queues
+- Allocates page hash table via `kmem_alloc3()`
+- Sets `set_assoc_mask` based on ncpus (8-way minimum, 16-way default max)
+
+#### Queue Spinlock Management
+
+**Locking Order:** Page spinlock first, then queue spinlock
+
+**`_vm_page_queue_spin_lock(m)` (line 912):**
+- Locks queue spinlock while holding page spinlock
+- Asserts queue hasn't changed during lock acquisition
+
+**`_vm_page_rem_queue_spinlocked(m)` (line 1020):**
+- Removes page from current queue
+- Adjusts per-CPU vmstats (`mycpu->gd_vmstats_adj`)
+- Synchronizes to global vmstats if adjustment gets too negative (-1024)
+- Returns base queue type (PQ_FREE, PQ_CACHE, etc.)
+
+**`_vm_page_add_queue_spinlocked(m, queue, athead)` (line 1086):**
+- Adds page to specified queue
+- PQ_FREE always inserted at HEAD (cache-hot)
+- Other queues respect `athead` parameter
+
+#### Page Lookup
+
+**`vm_page_lookup()` (line 1731):**
+- Requires vm_object token held
+- Does RB-tree lookup in `object->rb_memq`
+- Calls `vm_page_hash_enter()` on hit for future fast lookup
+
+**`vm_page_hash_get()` (line 1601):**
+- Lockless heuristic lookup
+- Returns soft-busied page on success, NULL on miss
+- 4-way set associative search
+- Only caches pages with `PG_MAPPEDMULTI` flag
+
+**`vm_page_lookup_busy_wait()` (line 1749):**
+- Lookup + busy with blocking wait
+- Sets `PBUSY_WANTED` and sleeps if page busy
+- Re-lookups after wakeup (page might have moved)
+
+**`vm_page_lookup_busy_try()` (line 1804):**
+- Non-blocking lookup + busy attempt
+- Returns page + error flag on busy conflict
+
+**`vm_page_lookup_sbusy_try()` (line 1849):**
+- Lookup + soft-busy for read-only access
+- Validates page data before returning
+
+#### Page Allocation
+
+**`vm_page_alloc()` (line 2528):**
+Main allocation entry point.
+
+Flags:
+- `VM_ALLOC_NORMAL` - Can use cache pages
+- `VM_ALLOC_QUICK` - Free queue only, skip cache
+- `VM_ALLOC_SYSTEM` - Can exhaust most of free list
+- `VM_ALLOC_INTERRUPT` - Can exhaust entire free list
+- `VM_ALLOC_CPU(n)` - CPU localization hint
+- `VM_ALLOC_ZERO` - Zero page if allocated (vm_page_grab only)
+- `VM_ALLOC_NULL_OK` - Return NULL on collision instead of panic
+
+Algorithm:
+1. Calculate `pg_color` via `vm_get_pg_color(cpuid, object, pindex)`
+2. Check free count thresholds:
+   - Normal: `v_free_count >= v_free_reserved`
+   - System: Can dip to `v_interrupt_free_min`
+   - Interrupt: Can use any free page
+3. Try `vm_page_select_free()` or `vm_page_select_free_or_cache()`
+4. If using cache page, free it first then retry (replenishes free count)
+5. Insert into object if provided
+6. Returns BUSY page
+
+**`vm_get_pg_color()` (line 1176):**
+CPU-localized page coloring algorithm:
+```c
+// With NUMA topology:
+physcale = PQ_L2_SIZE / cpu_topology_phys_ids;
+grpscale = physcale / cpu_topology_core_ids;
+cpuscale = grpscale / cpu_topology_ht_ids;
+
+pg_color = phys_id * physcale;
+pg_color += core_id * grpscale;
+pg_color += ht_id * cpuscale;
+pg_color += (pindex + object_pg_color) % cpuscale;
+```
+
+**`_vm_page_list_find()` (line 2006):**
+- Finds page on specified queue with color optimization
+- Tries exact color first, then widens search
+- Returns spinlocked page, removed from queue
+
+**`_vm_page_list_find_wide()` (line 2043):**
+- Widening search: 16 → 32 → 64 → 128 → ... → PQ_L2_MASK
+- Tracks `lastq` to skip known-empty queues
+- NUMA-aware: stays local before widening
+
+**`vm_page_select_cache()` (line 2314):**
+- Selects page from PQ_CACHE
+- Deactivates page if busy or dirty
+
+**`vm_page_select_free()` (line 2368):**
+- Selects page from PQ_FREE
+- Deactivates if busy (rare, from pmap_collect)
+
+**`vm_page_alloc_contig()` (line 2764):**
+- Allocates contiguous physical pages from DMA reserve
+- Uses `alist_alloc()` on `vm_contig_alist`
+- Returns base vm_page pointer
+
+**`vm_page_alloczwq()` (line 3738):**
+- Allocates without object association
+- Returns wired, non-busy page
+- Optionally zeros page
+
+**`vm_page_grab()` (line 3824):**
+- Lookup-or-allocate with object
+- Blocks on busy page if `VM_ALLOC_RETRY`
+- Handles `VM_ALLOC_ZERO` and `VM_ALLOC_FORCE_ZERO`
+
+#### Page Freeing
+
+**`vm_page_free_toq()` (line 3150):**
+Main free entry point.
+1. Asserts page not mapped (`pmap_mapped_sync()` if needed)
+2. Removes from object via `vm_page_remove()`
+3. For fictitious pages: just wakeup and return
+4. Removes from current queue
+5. Clears valid/dirty bits
+6. If `hold_count != 0`: goes to PQ_HOLD
+7. Otherwise: goes to PQ_FREE (at head for cache-hot)
+8. Wakes up page waiters
+9. Calls `vm_page_free_wakeup()` for memory-waiting threads
+
+**`vm_page_free_wakeup()` (line 3103):**
+- Wakes pageout daemon if it needs pages
+- Wakes memory-waiting processes if above hysteresis threshold
+
+**`vm_page_free_contig()` (line 2857):**
+- Frees contiguously allocated pages
+- Returns to DMA alist if in low memory region
+- Otherwise unwires and frees normally
+
+#### Page State Transitions
+
+**Queue Transitions:**
+```
+PQ_FREE ←→ (allocated/freed)
+    ↓
+PQ_ACTIVE ←→ PQ_INACTIVE
+    ↓           ↓
+    └──→ PQ_CACHE ──→ PQ_FREE
+              ↓
+          PQ_HOLD (if held during free)
+```
+
+**`vm_page_activate()` (line 3046):**
+- Moves page to PQ_ACTIVE queue
+- Sets `act_count` to at least `ACT_INIT`
+- Wakes pagedaemon if from PQ_CACHE/PQ_FREE
+
+**`vm_page_deactivate()` (line 3368):**
+- Moves page to PQ_INACTIVE queue
+- Clears `PG_WINATCFLS` flag
+- `athead` parameter for pseudo-cache behavior
+
+**`vm_page_cache()` (line 3484):**
+- Moves clean page to PQ_CACHE
+- Removes all pmap mappings first
+- Dirty pages get deactivated instead
+
+**`vm_page_try_to_cache()` (line 3393):**
+- Attempts to cache a busy page
+- Tests dirty via `vm_page_test_dirty()`
+- Unconditionally unbusies on return
+
+**`vm_page_try_to_free()` (line 3437):**
+- Attempts to free an unlocked page
+- Must not be dirty, held, wired, or special
+
+#### Busy State Management
+
+**`vm_page_busy_wait()` (line 1270):**
+- Waits for `PBUSY_LOCKED` to clear
+- If `also_m_busy`: also waits for soft-busy count = 0
+- Sets `PBUSY_WANTED` and sleeps
+
+**`vm_page_busy_try()` (line 1313):**
+- Non-blocking busy attempt
+- Returns TRUE on failure
+
+**`vm_page_wakeup()` (line 1366):**
+- Clears `PBUSY_LOCKED` and `PBUSY_WANTED`
+- Wakes waiters
+
+**`vm_page_sleep_busy()` (line 1139):**
+- Sleeps until page not busy (does not busy page)
+
+**Soft-Busy (`vm_page_io_start/finish`, line 3637):**
+- Increments/decrements `busy_count & PBUSY_MASK`
+- Allows compatible operations (e.g., read-only mapping during write)
+
+**`vm_page_sbusy_try()` (line 3668):**
+- Non-blocking soft-busy acquire
+- Uses cmpset to avoid racing hard-busy
+
+#### Wire/Unwire
+
+**`vm_page_wire()` (line 3244):**
+- Increments `wire_count` atomically
+- Adjusts `vmstats.v_wire_count` on 0→1 transition
+- No effect on fictitious pages
+
+**`vm_page_unwire()` (line 3293):**
+- Decrements `wire_count` atomically
+- On 1→0 transition:
+  - Activates if `PG_NEED_COMMIT` set
+  - Otherwise deactivates
+  - Adjusts vmstats
+
+#### Hold/Unhold
+
+**`vm_page_hold()` (line 1391):**
+- Prevents page from being freed
+- Does NOT prevent disassociation from object
+
+**`vm_page_unhold()` (line 1412):**
+- On last unhold, moves page from PQ_HOLD to PQ_FREE
+
+#### Page Insert/Remove
+
+**`vm_page_insert()` (line 1476):**
+- Requires object token held exclusively
+- Inserts into object's RB tree
+- Increments `resident_page_count`
+- Sets `OBJ_WRITEABLE`/`OBJ_MIGHTBEDIRTY` if dirty
+- Calls `swap_pager_page_inserted()` to check for swap
+
+**`vm_page_remove()` (line 1536):**
+- Requires page BUSY
+- Removes from object's RB tree
+- Decrements `resident_page_count`
+
+**`vm_page_rename()` (line 1919):**
+- Moves page between objects
+- Invalidates swap backing
+- Dirties the page
+
+#### Valid/Dirty Bit Management
+
+**Bitmap Format:**
+- 8 bits per page (PAGE_SIZE / DEV_BSIZE)
+- DEV_BSIZE = 512 bytes typically
+- Each bit covers one 512-byte chunk
+
+**`vm_page_bits()` (line 3902):**
+- Converts (base, size) to bit mask
+
+**`vm_page_set_valid()` (line 3995):**
+- Sets valid bits, zeros invalid portions
+
+**`vm_page_set_validclean()` (line 4014):**
+- Sets valid, clears dirty
+
+**`vm_page_dirty()` (line 4075):**
+- Sets all dirty bits
+- Updates object dirty flags
+
+**`vm_page_test_dirty()` (line 4184):**
+- Syncs dirty bit from pmap
+- Calls `pmap_is_modified()`
+
+**`vm_page_zero_invalid()` (line 4121):**
+- Zeros invalid portions of partially valid page
+- Used before mapping to userspace
+
+#### Memory Pressure / Waiting
+
+**`vm_wait()` (line 2926):**
+- Blocks until memory available
+- Nice-aware: `vm_paging_min_nice(nice + 1)`
+- Wakes pageout daemon
+
+**`vm_wait_pfault()` (line 2989):**
+- Called from page fault path
+- Uses process nice value directly
+- Can break out if `P_LOWMEMKILL` set
+
+**`vm_wait_nominal()` (line 2900):**
+- Waits until not in paging state
+- For kernel heavy memory operations
+
+#### madvise Support
+
+**`vm_page_dontneed()` (line 3571):**
+- Implements MADV_DONTNEED
+- Weighted: 3/32 deactivate, 28/32 cache (at head)
+- Clears PG_REFERENCED
+
+#### Special Pages
+
+**Fictitious Pages:**
+- `PG_FICTITIOUS` flag
+- Not in normal page array
+- `vm_page_initfake()` (line 1438) creates them
+- Wire/unwire have no effect
+- Used for device mappings
+
+**`vm_page_need_commit()` (line 3698):**
+- Sets `PG_NEED_COMMIT` for tmpfs/NFS
+- Clean pages with this flag cannot be reclaimed
+
+#### DDB Commands (Debug)
+
+- `show page` - Display vmstats
+- `show pageq` - Display queue lengths per color
 
 ---
 
