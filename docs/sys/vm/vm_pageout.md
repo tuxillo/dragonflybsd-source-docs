@@ -8,31 +8,24 @@ The pageout daemon manages memory reclamation when physical memory becomes scarc
 
 This document covers **two related but distinct subsystems**:
 
-```
-┌─────────────────────────────────────────────────────────────────────────┐
-│                    PAGEOUT DAEMON (vm_pageout.c)                        │
-│                                                                         │
-│  "When do we reclaim memory?"                                           │
-│                                                                         │
-│  - Monitors free memory against thresholds                              │
-│  - Scans page queues to find victims                                    │
-│  - Decides: activate, deactivate, cache, or launder                     │
-│  - Calls pagers to write dirty pages                                    │
-│  - Triggers OOM killer when all else fails                              │
-└─────────────────────────────────────────────────────────────────────────┘
-                                    │
-                                    │ "Write this dirty page"
-                                    ▼
-┌─────────────────────────────────────────────────────────────────────────┐
-│                     SWAP PAGER (swap_pager.c)                           │
-│                                                                         │
-│  "Where do we store anonymous pages?"                                   │
-│                                                                         │
-│  - Allocates blocks on swap device                                      │
-│  - Tracks which page→which block (RB-tree metadata)                     │
-│  - Handles I/O for pageout (write) and page fault (read)                │
-│  - Also used by: swapcache (file page caching on swap)                  │
-└─────────────────────────────────────────────────────────────────────────┘
+```mermaid
+flowchart TB
+    subgraph PAGEOUT["<b>PAGEOUT DAEMON</b> (vm_pageout.c)<br/><i>When do we reclaim memory?</i>"]
+        P1["Monitors free memory against thresholds"]
+        P2["Scans page queues to find victims"]
+        P3["Decides: activate, deactivate, cache, or launder"]
+        P4["Calls pagers to write dirty pages"]
+        P5["Triggers OOM killer when all else fails"]
+    end
+
+    subgraph SWAP["<b>SWAP PAGER</b> (swap_pager.c)<br/><i>Where do we store anonymous pages?</i>"]
+        S1["Allocates blocks on swap device"]
+        S2["Tracks which page → which block (RB-tree metadata)"]
+        S3["Handles I/O for pageout (write) and page fault (read)"]
+        S4["Also used by: swapcache (file page caching on swap)"]
+    end
+
+    PAGEOUT -->|"Write this dirty page"| SWAP
 ```
 
 **When you need to understand:**

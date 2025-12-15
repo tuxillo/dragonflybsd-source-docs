@@ -16,42 +16,38 @@ The memory mapping subsystem provides the mmap() interface for applications to m
 
 ## Syscall to VM Layer Flow
 
-```
-APPLICATION                         KERNEL
-───────────                         ──────
+```mermaid
+flowchart TB
+    subgraph APP["APPLICATION"]
+        MMAP["mmap(addr, len, prot, flags, fd, offset)"]
+    end
 
-mmap(addr, len, prot, flags, fd, offset)
-        │
-        v
-┌───────────────────────────────────────────────────────────────────┐
-│ sys_mmap() → kern_mmap()                                          │
-│                                                                   │
-│   1. Validate parameters (alignment, flags combinations)          │
-│   2. If file: get vnode, check permissions                        │
-│   3. If anonymous: object = NULL (deferred) or new OBJT_DEFAULT   │
-└───────────────────────────┬───────────────────────────────────────┘
-                            │
-                            v
-┌───────────────────────────────────────────────────────────────────┐
-│ vm_mmap() → vm_map_find()                                         │
-│                                                                   │
-│   1. Find free address range (or use MAP_FIXED address)           │
-│   2. Create vm_map_entry with backing info                        │
-│   3. For files: entry points to vnode's shared vm_object          │
-│   4. For anon: entry has NULL object (allocated on first fault)   │
-└───────────────────────────┬───────────────────────────────────────┘
-                            │
-                            v
-                     Returns address to user
-                            │
-                            │ (later: first access)
-                            v
-┌───────────────────────────────────────────────────────────────────┐
-│ vm_fault()                                                        │
-│                                                                   │
-│   For files: vnode_pager_getpage() → VOP_READ()                   │
-│   For anon: zero-fill page, create OBJT_DEFAULT object if needed  │
-└───────────────────────────────────────────────────────────────────┘
+    subgraph KERNEL["KERNEL"]
+        subgraph SYSMMAP["sys_mmap() → kern_mmap()"]
+            K1["1. Validate parameters (alignment, flags combinations)"]
+            K2["2. If file: get vnode, check permissions"]
+            K3["3. If anonymous: object = NULL (deferred) or new OBJT_DEFAULT"]
+        end
+
+        subgraph VMMMAP["vm_mmap() → vm_map_find()"]
+            V1["1. Find free address range (or use MAP_FIXED address)"]
+            V2["2. Create vm_map_entry with backing info"]
+            V3["3. For files: entry points to vnode's shared vm_object"]
+            V4["4. For anon: entry has NULL object (allocated on first fault)"]
+        end
+
+        RET["Returns address to user"]
+
+        subgraph FAULT["vm_fault()"]
+            F1["For files: vnode_pager_getpage() → VOP_READ()"]
+            F2["For anon: zero-fill page, create OBJT_DEFAULT object if needed"]
+        end
+    end
+
+    MMAP --> SYSMMAP
+    SYSMMAP --> VMMMAP
+    VMMMAP --> RET
+    RET -->|"later: first access"| FAULT
 ```
 
 ---
@@ -60,24 +56,29 @@ mmap(addr, len, prot, flags, fd, offset)
 
 Memory mapping connects user address space to backing store:
 
-```
-User Address Space          VM Layer              Backing Store
-─────────────────           ────────              ─────────────
-                            
-┌─────────────┐       ┌──────────────┐       ┌─────────────┐
-│  mmap()     │ ────→ │  vm_map_find │ ────→ │  Anonymous  │
-│  MAP_ANON   │       │  vm_object   │       │  (swap)     │
-└─────────────┘       └──────────────┘       └─────────────┘
+```mermaid
+flowchart LR
+    subgraph USER["User Address Space"]
+        MA["mmap()<br/>MAP_ANON"]
+        MF["mmap()<br/>file fd"]
+        MD["mmap()<br/>device"]
+    end
 
-┌─────────────┐       ┌──────────────┐       ┌─────────────┐
-│  mmap()     │ ────→ │  vm_map_find │ ────→ │ vnode_pager │
-│  file fd    │       │  vm_object   │       │  (file)     │
-└─────────────┘       └──────────────┘       └─────────────┘
+    subgraph VM["VM Layer"]
+        VA["vm_map_find<br/>vm_object"]
+        VF["vm_map_find<br/>vm_object"]
+        VD["vm_map_find<br/>vm_object"]
+    end
 
-┌─────────────┐       ┌──────────────┐       ┌─────────────┐
-│  mmap()     │ ────→ │  vm_map_find │ ────→ │  dev_pager  │
-│  device     │       │  vm_object   │       │  (device)   │
-└─────────────┘       └──────────────┘       └─────────────┘
+    subgraph BACKING["Backing Store"]
+        BA["Anonymous<br/>(swap)"]
+        BF["vnode_pager<br/>(file)"]
+        BD["dev_pager<br/>(device)"]
+    end
+
+    MA --> VA --> BA
+    MF --> VF --> BF
+    MD --> VD --> BD
 ```
 
 ## Vnode Pager (vnode_pager.c)

@@ -18,21 +18,44 @@ Understanding when this code runs helps navigate the 4,781 lines. Here's what ha
 | Stack growth | (fault) | `vm_map_growstack()` | Expands stack entry into reserved space |
 | Page fault | (trap) | `vm_map_lookup()` | Finds entry, handles COW, returns backing info |
 
-```
-USER                           vm_map.c                        RESULT
-────                           ────────                        ──────
-
-mmap(NULL, 4096, ...)    →    vm_map_findspace()         →    0x7f0000000000
-                         →    vm_map_insert()            →    new vm_map_entry
-
-*ptr = 42                →    vm_map_lookup()            →    entry + backing info
-                         →    (vm_fault handles rest)
-
-fork()                   →    vmspace_fork()             →    child vmspace
-                         →    vm_map_copy_entry()        →    COW entries
-
-munmap(ptr, 4096)        →    vm_map_delete()            →    entry removed
-                         →    pmap_remove()              →    PTEs cleared
+```mermaid
+flowchart LR
+    subgraph User["USER"]
+        mmap["mmap(NULL, 4096, ...)"]
+        access["*ptr = 42"]
+        fork["fork()"]
+        munmap["munmap(ptr, 4096)"]
+    end
+    
+    subgraph vmmap["vm_map.c"]
+        findspace["vm_map_findspace()"]
+        insert["vm_map_insert()"]
+        lookup["vm_map_lookup()"]
+        fault["(vm_fault handles rest)"]
+        vmfork["vmspace_fork()"]
+        copyentry["vm_map_copy_entry()"]
+        delete["vm_map_delete()"]
+        pmapremove["pmap_remove()"]
+    end
+    
+    subgraph Result["RESULT"]
+        addr["0x7f0000000000"]
+        newentry["new vm_map_entry"]
+        entryinfo["entry + backing info"]
+        childvm["child vmspace"]
+        cowentries["COW entries"]
+        removed["entry removed"]
+        cleared["PTEs cleared"]
+    end
+    
+    mmap --> findspace --> addr
+    mmap --> insert --> newentry
+    access --> lookup --> entryinfo
+    access --> fault
+    fork --> vmfork --> childvm
+    fork --> copyentry --> cowentries
+    munmap --> delete --> removed
+    munmap --> pmapremove --> cleared
 ```
 
 ---

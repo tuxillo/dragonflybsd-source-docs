@@ -6,20 +6,32 @@ VM objects are the fundamental abstraction for managing virtual memory contents 
 
 ## Where Objects Fit in the VM Hierarchy
 
-```
-USER PROCESS                     VM SUBSYSTEM
-─────────────                    ────────────
-                                     
-ptr = mmap(file)                 vm_map_entry
-     │                                │
-     │                           vm_map_backing
-     │                                │
-     └──────────────────────────► vm_object ◄───── vnode_pager
-                                      │
-                               ┌──────┼──────┐
-                               │      │      │
-                            vm_page vm_page vm_page
-                              (RB tree by page index)
+```mermaid
+flowchart LR
+    subgraph User["USER PROCESS"]
+        mmap["ptr = mmap(file)"]
+    end
+    
+    subgraph VM["VM SUBSYSTEM"]
+        entry["vm_map_entry"]
+        backing["vm_map_backing"]
+        object["vm_object"]
+        pager["vnode_pager"]
+        
+        entry --> backing
+        backing --> object
+        pager --> object
+        
+        subgraph pages["RB tree by page index"]
+            page1["vm_page"]
+            page2["vm_page"]
+            page3["vm_page"]
+        end
+        
+        object --> pages
+    end
+    
+    mmap --> entry
 ```
 
 **Key insight:** Objects are the *container* for pages. They don't manage address spaces (that's `vm_map`) or physical allocation (that's `vm_page`). They manage:

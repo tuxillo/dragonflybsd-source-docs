@@ -19,41 +19,39 @@ Page faults are **triggered by hardware** when a process accesses memory that:
 
 ## High-Level Flow
 
-```
-HARDWARE TRAP
-     │
-     v
-┌─────────────────────────────────────────────────────────────┐
-│ trap() → vm_fault(map, vaddr, fault_type, fault_flags)      │
-└─────────────────────────┬───────────────────────────────────┘
-                          │
-                          v
-┌─────────────────────────────────────────────────────────────┐
-│ 1. vm_map_lookup()                                          │
-│    - Find vm_map_entry for faulting address                 │
-│    - Handle COW setup (shadow object creation)              │
-│    - Return backing chain and protection                    │
-└─────────────────────────┬───────────────────────────────────┘
-                          │
-          ┌───────────────┴───────────────┐
-          │                               │
-          v                               v
-┌───────────────────────┐     ┌───────────────────────┐
-│ 2a. vm_fault_bypass() │     │ 2b. vm_fault_object() │
-│   (FAST PATH)         │     │   (SLOW PATH)         │
-│                       │     │                       │
-│ - Page in hash cache  │     │ - Walk backing chain  │
-│ - Already valid/dirty │     │ - Call pager if needed│
-│ - No locks needed     │     │ - Handle COW copy     │
-│ - Soft-busy only      │     │ - Zero-fill if new    │
-└───────────┬───────────┘     └───────────┬───────────┘
-            │                             │
-            └──────────────┬──────────────┘
-                           │
-                           v
-┌─────────────────────────────────────────────────────────────┐
-│ 3. pmap_enter() - Install PTE for virtual→physical mapping  │
-└─────────────────────────────────────────────────────────────┘
+```mermaid
+flowchart TB
+    trap["HARDWARE TRAP"]
+    vm_fault["trap() → vm_fault(map, vaddr, fault_type, fault_flags)"]
+    
+    subgraph lookup["1. vm_map_lookup()"]
+        find["Find vm_map_entry for faulting address"]
+        cow_setup["Handle COW setup (shadow object creation)"]
+        ret_backing["Return backing chain and protection"]
+    end
+    
+    subgraph fast["2a. vm_fault_bypass()<br/>FAST PATH"]
+        hash["Page in hash cache"]
+        valid["Already valid/dirty"]
+        nolock["No locks needed"]
+        sbusy["Soft-busy only"]
+    end
+    
+    subgraph slow["2b. vm_fault_object()<br/>SLOW PATH"]
+        walk["Walk backing chain"]
+        pager["Call pager if needed"]
+        cow_copy["Handle COW copy"]
+        zero["Zero-fill if new"]
+    end
+    
+    pmap["3. pmap_enter()<br/>Install PTE for virtual→physical mapping"]
+    
+    trap --> vm_fault
+    vm_fault --> lookup
+    lookup --> fast
+    lookup --> slow
+    fast --> pmap
+    slow --> pmap
 ```
 
 ---

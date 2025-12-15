@@ -238,30 +238,18 @@ The main page freeing function:
 
 ## Page State Transitions
 
-```
-                    ┌─────────────┐
-                    │   PQ_FREE   │
-                    └──────┬──────┘
-                           │ alloc
-                           ▼
-              ┌────────────────────────┐
-              │       PQ_ACTIVE        │
-              └────────────┬───────────┘
-                           │ deactivate
-                           ▼
-              ┌────────────────────────┐
-              │      PQ_INACTIVE       │
-              └────────────┬───────────┘
-                           │ clean
-                           ▼
-              ┌────────────────────────┐
-              │       PQ_CACHE         │◄──── clean, not mapped
-              └────────────┬───────────┘
-                           │ free
-                           ▼
-              ┌────────────────────────┐
-              │   PQ_FREE or PQ_HOLD   │
-              └────────────────────────┘
+```mermaid
+flowchart TB
+    PQ_FREE["PQ_FREE"]
+    PQ_ACTIVE["PQ_ACTIVE"]
+    PQ_INACTIVE["PQ_INACTIVE"]
+    PQ_CACHE["PQ_CACHE<br/><i>clean, not mapped</i>"]
+    PQ_FREE_OR_HOLD["PQ_FREE or PQ_HOLD"]
+    
+    PQ_FREE -->|alloc| PQ_ACTIVE
+    PQ_ACTIVE -->|deactivate| PQ_INACTIVE
+    PQ_INACTIVE -->|clean| PQ_CACHE
+    PQ_CACHE -->|free| PQ_FREE_OR_HOLD
 ```
 
 ### Activation
