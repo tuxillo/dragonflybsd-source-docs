@@ -163,12 +163,12 @@ Next phase
 | 2 (vm_page.c) | ✅ | ✅ | ✅ | `cbd8cf1` |
 | 3 (vm_object.c) | ✅ | ✅ | ✅ | `8f1191d` |
 | 4 (vm_map.c) | ✅ | ✅ | ✅ | `9c6de88` |
-| 5 (vm_fault.c) | ✅ | ✅ | ✅ | - |
-| 6 (pageout/swap) | Pending | Pending | Pending | - |
+| 5 (vm_fault.c) | ✅ | ✅ | ✅ | `1a02811` |
+| 6 (pageout/swap) | ✅ | ✅ | ✅ | - |
 | 7 (pagers/mmap) | Pending | Pending | Pending | - |
 
 ### Next Action
-**Phase 6 → Read `vm_pageout.c` and `swap_pager.c` in chunks**, take notes, then write pageout/swap documentation.
+**Phase 7 → Read `vnode_pager.c` and `vm_mmap.c`**, take notes, then write pagers/mmap documentation.
 
 ---
 
@@ -2466,7 +2466,510 @@ Lightweight prefault for shared locks:
 
 ### Phase 6: Pageout and Swap
 
-*(To be filled as we read vm_pageout.c and swap_pager.c)*
+#### 6.1 vm_pageout.c Overview and Tunables (lines 1-300)
+
+**Two Kernel Threads:**
+- `pagedaemon` - Primary pageout daemon
+- `emergpager` - Emergency pager (takes over when primary deadlocks on vnode)
+
+**Key Global Variables:**
+```c
+int vm_pages_needed;          // Pageout daemon tsleep event
+int vm_pageout_deficit;       // Estimated pages deficit
+int vm_pageout_pages_needed;  // Pageout daemon needs pages
+int vm_page_free_hysteresis = 16;
+```
+
+**Memory Thresholds (set in vm_pageout_free_page_calc()):**
+- `v_free_min` - Normal allocations minimum
+- `v_free_reserved` - System allocations reserve
+- `v_pageout_free_min` - Pageout daemon allocation reserve  
+- `v_interrupt_free_min` - Low-level allocations (swap structures)
+- `v_free_target` - Target free pages (2x v_free_min)
+- `v_paging_wait/start/target1/target2` - Paging thresholds (3x-5x v_free_min)
+
+**Tunables (sysctls):**
+| Sysctl | Default | Description |
+|--------|---------|-------------|
+| `vm.anonmem_decline` | ACT_DECLINE | Active→inactive for anon pages |
+| `vm.filemem_decline` | ACT_DECLINE*2 | Active→inactive for file pages |
+| `vm.max_launder` | physmem/256+16 | Max dirty pages to flush per pass |
+| `vm.emerg_launder` | 100 | Emergency pager minimum |
+| `vm.pageout_memuse_mode` | 2 | RSS enforcement: 0=disable, 1=passive, 2=active |
+| `vm.pageout_allow_active` | 1 | Allow inactive+active scanning |
+| `vm.queue_idle_perc` | 20 | Page stats stop percentage |
+| `vm.swap_enabled` | 1 | Enable entire process swapout |
+| `vm.defer_swapspace_pageouts` | 0 | Prefer dirty pages in mem |
+| `vm.disable_swapspace_pageouts` | 0 | Disallow swap pageouts |
+
+**Markers Structure:**
+```c
+struct markers {
+    struct vm_page hold;  // PQ_HOLD queue marker
+    struct vm_page stat;  // PQ_ACTIVE stats marker
+    struct vm_page pact;  // PQ_ACTIVE paging marker
+};
+```
+
+#### 6.2 Page Clustering and Flushing (lines 307-578)
+
+**vm_pageout_clean_helper()** - Clean dirty page and adjacent pages:
+- Takes a busied page, finds clusterable neighbors
+- Cluster aligned to `BLIST_MAX_ALLOC` (swap optimization)
+- Scans backward first for alignment, then forward
+- Clusterable pages: dirty, not wired/held, inactive or allowed-active
+- Sets PG_WINATCFLS flag to match primary page
+- Calls `vm_pageout_flush()` for actual I/O
+
+**vm_pageout_flush()** - Launder pages:
+1. Mark all pages read-only (`vm_page_protect`)
+2. Clear pmap modified bits (pager can't from interrupt context)
+3. Call `vm_pager_put_pages()` for I/O
+4. Handle results: VM_PAGER_OK/PEND/BAD/ERROR/FAIL/AGAIN
+5. For synchronous completion, optionally try_to_cache or deactivate
+
+**Pager Return Codes:**
+- `VM_PAGER_OK` - Success, page cleaned
+- `VM_PAGER_PEND` - Async I/O started
+- `VM_PAGER_BAD` - Page outside object range
+- `VM_PAGER_ERROR/FAIL` - Failed (e.g., out of swap)
+- `VM_PAGER_AGAIN` - Retry later
+
+#### 6.3 RSS Enforcement (lines 580-770)
+
+**vm_pageout_mdp_callback()** - Per-page callback for RSS scan:
+- Called via pmap_pgscan() for each mapped page
+- Checks if RSS above limit (`pmap_resident_tlnw_count`)
+- Skips wired/held/unqueued pages
+- Checks pmap references (`pmap_ts_referenced`)
+- Removes page from specific pmap if unreferenced
+- If unmapped entirely, deactivates and optionally launders
+
+**vm_pageout_map_deactivate_pages()** - RSS enforcement entry:
+- Called when `vm_pageout_memuse_mode >= 1`
+- Tracks scan position via `map->pgout_offset`
+- Wraps around address space with retries
+- Continues until RSS below limit
+
+#### 6.4 Inactive Queue Scan (lines 800-1022)
+
+**vm_pageout_scan_inactive()** - Main inactive queue scanner:
+- Processes ~1/MAXSCAN_DIVIDER (1/10) of queue per pass
+- Uses marker pages for position tracking
+- Calculates `max_launder` per queue from `vm_max_launder`
+
+**Emergency Pager Restrictions:**
+- Skips OBJT_VNODE pages (what caused primary to deadlock)
+- Only allows OBJT_DEFAULT, OBJT_SWAP
+- Exception: VCHR devices without D_NOEMERGPGR flag
+
+**Page Processing Logic:**
+1. Skip markers and already-busy pages
+2. Check wire_count (wired pages removed from queue)
+3. Check hold_count (held pages requeued at tail)
+4. Check references (pmap_ts_referenced, PG_REFERENCED)
+5. If referenced: activate with boosted act_count
+6. If unreferenced: proceed to clean/free
+
+**Early Termination:**
+- Stops if `vm_paging_target2()` satisfied
+- Returns full completion to prevent false OOM warnings
+
+#### 6.5 Page Decision Logic (lines 1031-1396)
+
+**vm_pageout_page()** - Individual page handling:
+
+Decision tree:
+1. Wired → unqueue and return
+2. Held → requeue at tail and return  
+3. No object or ref_count==0 → clear references, continue
+4. Referenced (pmap or PG_REFERENCED) → activate with ACT_ADVANCE+actcount
+5. Invalid (valid==0, no NEED_COMMIT) → free directly
+6. Clean (dirty==0, no NEED_COMMIT) → cache (vm_page_cache)
+7. Dirty, first pass, no WINATCFLS → set flag, requeue (double-LRU)
+8. Dirty, max_launder>0 → attempt pageout
+
+**Double-LRU for Dirty Pages:**
+- Dirty pages cycle twice through inactive queue before flush
+- Flag `PG_WINATCFLS` ("win at cache flush") tracks first pass
+- When `vm_pageout_memuse_mode >= 3`, single-LRU used instead
+
+**Vnode Page Handling:**
+- Must acquire vnode lock (vget with LK_EXCLUSIVE)
+- Uses `vpfailed` to skip recently-failed vnodes  
+- Handles races: page moved, freed, reused, rebusied
+- If vget blocks, validates page/object/vnode still match
+
+#### 6.6 Active Queue Scan (lines 1398-1656)
+
+**vm_pageout_scan_active()** - Deactivate pages to feed inactive queue:
+- Goal: Move pages from active to inactive
+- Scans ~1/10 of queue per iteration
+- Emergency pager skips vnode-backed pages
+
+**Activity Tracking:**
+- `actcount = pmap_ts_referenced(m)` + PG_REFERENCED flag
+- If active references: bump act_count, leave in active queue
+- If no references: decrement act_count based on object type
+
+**Deactivation Decision:**
+- `vm_anonmem_decline` for DEFAULT/SWAP objects
+- `vm_filemem_decline` for file-backed (2x anon rate)
+- Deactivate when: no object, ref_count==0, or act_count < pass+1
+- If shortage exists: try to cache clean pages directly
+
+#### 6.7 Cache Queue and OOM (lines 1658-1891)
+
+**vm_pageout_scan_cache()** - Free cached pages:
+- Uses two rovers (primary and emergency pager) to avoid contention
+- Scans PQ_CACHE queues, frees clean pages
+- Stops when v_free_target reached
+
+**OOM Killer Logic:**
+- Triggered when swap full AND still in shortage
+- Rate-limited to once per second
+- Scans all processes via allproc_scan()
+- Selects largest process (anonymous + swap pages)
+- Skips: system processes, init (pid 1), low pids with swap
+
+**vm_pageout_scan_callback()** - OOM victim selection:
+- Skips P_SYSTEM, pid==1, low pids if swap exists
+- Skips non-running processes
+- Size = vmspace_anonymous_count + vmspace_swap_count
+- Largest wins
+
+**Kill Action:**
+- Sets P_LOWMEMKILL flag
+- Calls `killproc(p, "out of swap space")`
+- Wakes up memory waiters
+
+#### 6.8 Pageout Daemon Main Loop (lines 2196-2769)
+
+**vm_pageout_thread()** - Main daemon function:
+
+**States:**
+- `PAGING_IDLE` - No paging needed
+- `PAGING_TARGET1` - Aggressive paging to target1
+- `PAGING_TARGET2` - Lazy paging to target2
+
+**Initialization (primary only):**
+1. Allocate markers for all queues (PQ_L2_SIZE each)
+2. Set `vm_max_launder = physmem/256 + 16`
+3. Calculate thresholds from v_free_min
+4. Set `v_inactive_target` = v_free_count/16
+5. Initialize `swap_pager_swap_init()`
+6. Sequence emergency pager startup
+
+**Main Loop:**
+```
+while (TRUE) {
+    1. Sleep until vm_pages_needed or timeout
+    2. Calculate avail_shortage from targets
+    3. Scan inactive queues (vm_pageout_scan_inactive)
+    4. Calculate inactive_shortage
+    5. Scan active queues (vm_pageout_scan_active)
+    6. Scan cache queues (vm_pageout_scan_cache)
+    7. Determine next state (IDLE/TARGET1/TARGET2)
+    8. Wakeup waiters if appropriate
+}
+```
+
+**Emergency Pager Differences:**
+- Sleeps on `&vm_pagedaemon_uptime` not `&vm_pages_needed`
+- Activates if primary hasn't updated uptime for 2+ seconds
+- Only handles anonymous/swap pages (avoids vnode deadlocks)
+- Iterates queues in reverse direction
+
+#### 6.9 Supporting Functions (lines 2770-2895)
+
+**pagedaemon_wakeup()** - Wake pageout daemon:
+- Called after consuming free/cache pages
+- Sets vm_pages_needed=1, wakes daemon
+- Under heavy pressure, increments vm_pages_needed
+
+**vm_req_vmdaemon()** - Request vmdaemon (RSS enforcement):
+- Rate-limited to once per second
+- Wakes vm_daemon_needed
+
+**vm_daemon()** - Process scanner for RSS limits:
+- Scans all processes via allproc_scan()
+- Calls vm_daemon_callback() per process
+
+**vm_daemon_callback()** - Per-process RSS check:
+- Gets RLIMIT_RSS limit
+- If resident > limit+4096, deactivates pages
+- Uses vm_pageout_map_deactivate_pages()
+
+#### 6.10 Key DragonFly-Specific Features (vm_pageout.c)
+
+1. **Dual Pageout Threads:**
+   - Primary for normal paging
+   - Emergency pager for deadlock recovery (swap-only)
+
+2. **Queue Distribution:**
+   - PQ_L2_SIZE (1024) parallel queues per type
+   - PQAVERAGE() distributes work across queues
+   - Markers per queue for incremental scanning
+
+3. **Three-State Paging:**
+   - IDLE → TARGET1 (aggressive) → TARGET2 (lazy)
+   - Prevents thrashing while ensuring responsiveness
+
+4. **RSS Enforcement:**
+   - `vm_pageout_memuse_mode` controls behavior
+   - Mode 2: Active paging for RLIMIT_RSS
+   - Mode 3: Single-LRU for dirty pages
+
+5. **Activity Tracking:**
+   - Separate decline rates for anon vs file pages
+   - `vm_pageout_page_stats()` for background act_count maintenance
+   - Dynamic `vm_pageout_stats_actcmp` threshold adjustment
+
+6. **OOM Killer:**
+   - Size-based victim selection
+   - Rate-limited (1/sec)
+   - P_LOWMEMKILL flag for identification
+
+#### 6.11 swap_pager.c Overview and Data Structures (lines 1-300)
+
+**Swap Pager Features (from header comments):**
+- Radix bitmap (blist) for swap space management
+- On-the-fly reallocation during putpages
+- On-the-fly deallocation
+- No garbage collection required
+
+**Key Global Variables:**
+```c
+int swap_pager_full;         // Swap exhausted (triggers OOM kill)
+int swap_fail_ticks;         // When exhaustion detected
+int swap_pager_almost_full;  // Near exhaustion (with hysteresis)
+swblk_t vm_swap_cache_use;   // Swap used for swapcache
+swblk_t vm_swap_anon_use;    // Swap used for anonymous pages
+struct blist *swapblist;     // Radix bitmap allocator
+```
+
+**Buffer Limits:**
+- `nsw_rcount` - Read buffer limit (nswbuf_kva/2)
+- `nsw_wcount_sync` - Sync write buffer limit (nswbuf_kva/4)
+- `nsw_wcount_async` - Async write buffer limit (default 4)
+- `nsw_cluster_max` - Max cluster size (MAXPHYS/PAGE_SIZE or MAX_PAGEOUT_CLUSTER)
+
+**Hysteresis Thresholds:**
+- `nswap_lowat` = 4% of total swap (default 128 pages)
+- `nswap_hiwat` = 6% of total swap (default 512 pages)
+- `swap_pager_almost_full` set when below lowat
+- Cleared when above hiwat
+
+**Swap Block Flags:**
+- `SWM_FREE` (0x02) - Free the swap block
+- `SWM_POP` (0x04) - Pop out (remove but don't free)
+
+**I/O Flags:**
+- `SWBIO_READ` (0x01) - Read operation
+- `SWBIO_WRITE` (0x02) - Write operation
+- `SWBIO_SYNC` (0x04) - Synchronous I/O
+- `SWBIO_TTC` (0x08) - Try to cache after I/O
+
+**Swap Metadata (struct swblock):**
+- Stored in RB-tree per object (`object->swblock_root`)
+- Each swblock covers `SWAP_META_PAGES` (16) contiguous page indices
+- `swb_index` - Base page index (aligned to SWAP_META_PAGES)
+- `swb_count` - Number of valid entries
+- `swb_pages[SWAP_META_PAGES]` - Swap block numbers
+
+#### 6.12 Swap Space Allocation (lines 514-800)
+
+**swp_pager_getswapspace()** - Allocate raw swap:
+- Uses blist_allocat() with iterator hint
+- Falls back to start if hint fails
+- Updates vm_swap_anon_use or vm_swap_cache_use
+- Triggers swap_pager_full=2 on failure
+
+**swp_pager_freeswapspace()** - Free swap blocks:
+- Updates swdevt[].sw_nused
+- Skips if device SW_CLOSING
+- Returns blocks to blist
+
+**swap_pager_freespace()** - Free page range metadata:
+- Entry point for external callers
+- Calls swp_pager_meta_free()
+
+**swap_pager_condfree()** - Conditional free (swapcache):
+- Frees whole meta-blocks with no resident pages
+- Returns count of blocks freed
+
+**swap_pager_reserve()** - Pre-allocate swap:
+- Allocates swap in BLIST_MAX_ALLOC chunks
+- Falls back to smaller allocations on failure
+- Used for anonymous memory reservation
+
+**swap_pager_copy()** - Copy swap metadata:
+- Transfers metadata from source to destination object
+- Source swapblk freed if destination has resident page
+- Used during shadow chain collapse
+
+#### 6.13 Pager Operations (lines 875-1275)
+
+**swap_pager_haspage()** - Check for backing store:
+- Looks up swblock metadata
+- Returns TRUE if valid swap exists
+
+**swap_pager_unswapped()** - Remove swap when page dirtied:
+- Clears PG_SWAPPED flag
+- Frees swap metadata entry
+
+**swap_pager_strategy()** - Direct swap I/O:
+- Handles BUF_CMD_READ, BUF_CMD_WRITE, BUF_CMD_FREEBLKS
+- Creates I/O cluster for contiguous blocks
+- Zero-fills reads with no backing store
+- Uses KVABIO to avoid pmap sync
+
+**I/O Clustering:**
+- Breaks at swap device stripe boundaries (SWB_DMMASK)
+- Batches contiguous operations
+- Uses chain bio completion
+
+#### 6.14 Page-In (swap_pager_getpage, lines 1300-1561)
+
+**Burst Reading:**
+- If page already valid, attempts read-ahead
+- Reads up to `swap_burst_read` contiguous pages
+- Sets PG_RAM on last page for pipeline continuation
+
+**Read Process:**
+1. Verify object match
+2. Look up swap block for requested page
+3. Scan for contiguous swap blocks (same stripe)
+4. Allocate pages for burst read
+5. Map pages to KVA, issue I/O
+6. Wait for PBUSY_SWAPINPROG to clear
+7. Return VM_PAGER_OK or VM_PAGER_ERROR
+
+**Read-ahead Only Mode:**
+- If original page valid, switches to read-ahead
+- Returns immediately without waiting
+- PG_RAM triggers further read-ahead on fault
+
+#### 6.15 Page-Out (swap_pager_putpages, lines 1563-1800)
+
+**Object Conversion:**
+- Converts OBJT_DEFAULT to OBJT_SWAP on first pageout
+
+**Synchronous Forcing:**
+- Non-pageout threads forced sync unless `swap_user_async=1`
+- Prevents single process hogging swap bandwidth
+
+**Write Process:**
+1. Allocate swap blocks (falls back to smaller chunks)
+2. Validate stripe boundary (adjust if crossing)
+3. Build swap metadata entries
+4. Issue I/O (async or sync based on flags)
+5. For sync: wait and call completion directly
+
+**Async Write Limits:**
+- `nsw_wcount_async_max` controlled by `swap_async_max` sysctl
+- Prevents swap I/O from starving other I/O
+- Default 4 concurrent async operations
+
+#### 6.16 I/O Completion (swp_pager_async_iodone, lines 1828-2109)
+
+**Common Processing:**
+- Remove KVA mapping (pmap_qremove)
+- Handle per-page based on read/write and success/error
+
+**Read Error Handling:**
+- Set m->valid = 0
+- Deactivate non-requested pages
+- Leave requested page busy for caller
+
+**Write Error Handling:**
+- Remove swap assignment
+- Re-dirty OBJT_SWAP pages (no other backing)
+- Activate page to prevent loss
+- Don't dirty non-OBJT_SWAP (has vnode backing)
+
+**Read Success:**
+- Set m->valid = VM_PAGE_BITS_ALL
+- Clear dirty bits
+- Set PG_SWAPPED flag
+- Deactivate non-requested pages
+
+**Write Success:**
+- Clear dirty bits (OBJT_SWAP only)
+- Set PG_SWAPPED flag
+- Deactivate if vm_paging_severe()
+- Try to cache if SWBIO_TTC flag
+
+#### 6.17 Swap Metadata Management (lines 2269-2601)
+
+**swp_pager_lookup()** - Find swblock by index:
+- Masks index to SWAP_META_MASK alignment
+- RB-tree lookup on object->swblock_root
+
+**swp_pager_meta_convert()** - Convert to swap object:
+- Changes OBJT_DEFAULT to OBJT_SWAP
+- Called on first swap allocation
+
+**swp_pager_meta_build()** - Add/update swap entry:
+- Creates swblock if needed (zone allocation)
+- Frees any previous swap at index
+- Updates swb_count and vmtotal.t_vm
+
+**swp_pager_meta_free()** - Free range of entries:
+- RB-tree scan with range comparison
+- Frees swap blocks and swblock if empty
+- Handles edge cases for partial swblock ranges
+
+**swp_pager_meta_free_all()** - Destroy all metadata:
+- Iterates RB-tree root
+- Frees all swap blocks
+- Releases all swblocks to zone
+
+**swp_pager_meta_ctl()** - Metadata control:
+- SWM_FREE: Remove and free swap
+- SWM_POP: Remove but don't free (for transfer)
+- Returns swap block or SWAPBLK_NONE
+
+#### 6.18 Swapoff Support (lines 2111-2267)
+
+**swap_pager_swapoff()** - Remove device from use:
+- Scans all OBJT_SWAP/OBJT_VNODE objects
+- Skips OBJ_NOPAGEIN objects
+- Pages in all blocks on target device
+- Returns 1 if blocks remain (partial success)
+
+**swp_pager_fault_page()** - Fault page during swapoff:
+- OBJT_VNODE: Use vm_object_page_remove()
+- OBJT_SWAP: Use vm_fault_object_page()
+
+#### 6.19 Key DragonFly-Specific Features (swap_pager.c)
+
+1. **Radix Bitmap (blist) Allocator:**
+   - Scales to arbitrary swap sizes
+   - Handles fragmentation efficiently
+   - O(log n) allocation/deallocation
+
+2. **RB-Tree Swap Metadata:**
+   - Per-object swap tracking
+   - 16 pages per swblock entry
+   - Efficient range operations
+
+3. **Dual Swap Tracking:**
+   - Separate anon vs cache accounting
+   - `vm_swap_anon_use` for anonymous pages
+   - `vm_swap_cache_use` for swapcache
+
+4. **KVABIO Support:**
+   - Avoids pmap synchronization overhead
+   - Uses pmap_qenter_noinval() for mapping
+
+5. **Stripe-Aware Clustering:**
+   - I/O doesn't cross device stripes
+   - SWB_DMMASK for boundary detection
+
+6. **Async Throttling:**
+   - Limits concurrent async writes
+   - Prevents swap I/O starvation
 
 ---
 

@@ -43,9 +43,7 @@ The DragonFly BSD virtual memory subsystem manages virtual address spaces, physi
 | [VM Objects](vm_object.md) | Object lifecycle, reference counting, page management |
 | [Address Space](vm_map.md) | Address space management, entries, backing chains |
 | [Page Faults](vm_fault.md) | Fault handling, COW, fast path optimization |
-| Page Faults | Fault handling, COW, fast path optimization |
-| Pageout | Memory reclamation, thresholds, pageout daemon |
-| Swap | Swap pager, block allocation, I/O |
+| [Pageout and Swap](vm_pageout.md) | Memory reclamation, swap pager, OOM killer |
 
 ## Key Data Structures
 

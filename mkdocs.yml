@@ -102,5 +102,6 @@ nav:
       - VM Objects: sys/vm/vm_object.md
       - Address Space: sys/vm/vm_map.md
       - Page Faults: sys/vm/vm_fault.md
+      - Pageout & Swap: sys/vm/vm_pageout.md
     - cpu/x86_64/:
       - Overview: sys/cpu/x86_64/index.md
