@@ -78,7 +78,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#ipc" class="md-skip">
+        <a href="#ipc-sockets-overview" class="md-skip">
           Skip to content
         </a>
       
@@ -1207,10 +1207,38 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#overview" class="md-nav__link">
+  <a href="#socket-layer" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Overview
+        Socket Layer
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Socket Layer">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#architecture" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Architecture
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#pipes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Pipes
       
     </span>
   </a>
@@ -1218,10 +1246,43 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#key-files" class="md-nav__link">
+  <a href="#message-queues" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Key Files
+        Message Queues
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#system-v-ipc" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        System V IPC
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#comparison" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Comparison
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#key-source-files" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Key Source Files
       
     </span>
   </a>
@@ -1893,10 +1954,38 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#overview" class="md-nav__link">
+  <a href="#socket-layer" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Overview
+        Socket Layer
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Socket Layer">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#architecture" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Architecture
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#pipes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Pipes
       
     </span>
   </a>
@@ -1904,10 +1993,43 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#key-files" class="md-nav__link">
+  <a href="#message-queues" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Key Files
+        Message Queues
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#system-v-ipc" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        System V IPC
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#comparison" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Comparison
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#key-source-files" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Key Source Files
       
     </span>
   </a>
@@ -1934,12 +2056,171 @@
   
 
 
-<h1 id="ipc">Ipc<a class="headerlink" href="#ipc" title="Permanent link">&para;</a></h1>
-<p><em>Documentation in progress. See planning/sys/kern/PLAN.md for details.</em></p>
-<h2 id="overview">Overview<a class="headerlink" href="#overview" title="Permanent link">&para;</a></h2>
-<p>To be documented.</p>
-<h2 id="key-files">Key Files<a class="headerlink" href="#key-files" title="Permanent link">&para;</a></h2>
-<p>To be listed.</p>
+<h1 id="ipc-sockets-overview">IPC &amp; Sockets Overview<a class="headerlink" href="#ipc-sockets-overview" title="Permanent link">&para;</a></h1>
+<p>DragonFly BSD provides multiple inter-process communication mechanisms,
+from low-level kernel primitives to POSIX-standard APIs. This section
+documents the kernel implementation of these facilities.</p>
+<hr />
+<h2 id="socket-layer">Socket Layer<a class="headerlink" href="#socket-layer" title="Permanent link">&para;</a></h2>
+<p>The socket abstraction provides a uniform interface for network and local
+communication:</p>
+<ul>
+<li><a href="mbufs/">Mbufs</a> - Network memory buffer management</li>
+<li><a href="sockets/">Sockets</a> - Socket API implementation and socket buffers</li>
+<li><a href="unix-sockets/">Unix Domain Sockets</a> - Local IPC via filesystem namespace</li>
+<li><a href="protocol-dispatch/">Protocol Dispatch</a> - Protocol family registration and netisr</li>
+</ul>
+<h3 id="architecture">Architecture<a class="headerlink" href="#architecture" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>User Space
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>    │
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>    ▼ socket(), bind(), connect(), send(), recv()
+<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>┌─────────────────────────────────────────────────────┐
+<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>│                   Socket Layer                       │
+<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>│  ┌─────────┐  ┌─────────┐  ┌─────────┐             │
+<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>│  │ socket  │  │ sockbuf │  │ protosw │             │
+<a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a>│  │ struct  │──│ (SSB)   │  │ dispatch│             │
+<a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a>│  └─────────┘  └─────────┘  └────┬────┘             │
+<a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a>└─────────────────────────────────┼───────────────────┘
+<a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a>                                  │
+<a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a>        ┌─────────────────────────┼─────────────────────────┐
+<a id="__codelineno-0-13" name="__codelineno-0-13" href="#__codelineno-0-13"></a>        │                         │                         │
+<a id="__codelineno-0-14" name="__codelineno-0-14" href="#__codelineno-0-14"></a>        ▼                         ▼                         ▼
+<a id="__codelineno-0-15" name="__codelineno-0-15" href="#__codelineno-0-15"></a>   ┌─────────┐              ┌──────────┐             ┌──────────┐
+<a id="__codelineno-0-16" name="__codelineno-0-16" href="#__codelineno-0-16"></a>   │  Unix   │              │   TCP    │             │   UDP    │
+<a id="__codelineno-0-17" name="__codelineno-0-17" href="#__codelineno-0-17"></a>   │ Domain  │              │   /IP    │             │   /IP    │
+<a id="__codelineno-0-18" name="__codelineno-0-18" href="#__codelineno-0-18"></a>   └─────────┘              └──────────┘             └──────────┘
+</code></pre></div>
+<hr />
+<h2 id="pipes">Pipes<a class="headerlink" href="#pipes" title="Permanent link">&para;</a></h2>
+<p>Traditional Unix pipes for unidirectional byte streams between related processes:</p>
+<ul>
+<li><a href="pipes/">Pipes</a> - pipe() system call, direct data transfer optimization</li>
+</ul>
+<hr />
+<h2 id="message-queues">Message Queues<a class="headerlink" href="#message-queues" title="Permanent link">&para;</a></h2>
+<p>Two message queue implementations:</p>
+<ul>
+<li><a href="mqueue/">POSIX Message Queues</a> - mq_open(), priority-based queuing</li>
+<li><a href="sysv-msg/">System V Message Queues</a> - msgget(), msgctl(), msgsnd(), msgrcv()</li>
+</ul>
+<hr />
+<h2 id="system-v-ipc">System V IPC<a class="headerlink" href="#system-v-ipc" title="Permanent link">&para;</a></h2>
+<p>Classic System V IPC primitives:</p>
+<ul>
+<li><a href="sysv-msg/">System V Message Queues</a> - Message passing</li>
+<li><a href="sysv-sem/">System V Semaphores</a> - Counting semaphores with undo support</li>
+<li><a href="sysv-shm/">System V Shared Memory</a> - Shared memory segments</li>
+</ul>
+<p>All System V IPC facilities share common permission checking via <code>ipcperm()</code>
+and use integer keys for namespace management.</p>
+<hr />
+<h2 id="comparison">Comparison<a class="headerlink" href="#comparison" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Mechanism</th>
+<th>Scope</th>
+<th>Data Model</th>
+<th>Persistence</th>
+<th>Best For</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Pipes</td>
+<td>Related processes</td>
+<td>Byte stream</td>
+<td>Process lifetime</td>
+<td>Simple parent-child</td>
+</tr>
+<tr>
+<td>Unix Sockets</td>
+<td>Local system</td>
+<td>Stream/Datagram</td>
+<td>Filesystem</td>
+<td>Local services, fd passing</td>
+</tr>
+<tr>
+<td>POSIX Mqueue</td>
+<td>System-wide</td>
+<td>Messages</td>
+<td>Kernel (can persist)</td>
+<td>Priority messaging</td>
+</tr>
+<tr>
+<td>SysV Mqueue</td>
+<td>System-wide</td>
+<td>Messages</td>
+<td>Kernel</td>
+<td>Legacy compatibility</td>
+</tr>
+<tr>
+<td>SysV Semaphores</td>
+<td>System-wide</td>
+<td>Counters</td>
+<td>Kernel</td>
+<td>Process synchronization</td>
+</tr>
+<tr>
+<td>SysV Shm</td>
+<td>System-wide</td>
+<td>Raw memory</td>
+<td>Kernel</td>
+<td>High-bandwidth sharing</td>
+</tr>
+<tr>
+<td>TCP/UDP Sockets</td>
+<td>Network</td>
+<td>Stream/Datagram</td>
+<td>Connection lifetime</td>
+<td>Network communication</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="key-source-files">Key Source Files<a class="headerlink" href="#key-source-files" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>File</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>sys/kern/uipc_socket.c</code></td>
+<td>Socket layer core</td>
+</tr>
+<tr>
+<td><code>sys/kern/uipc_usrreq.c</code></td>
+<td>Unix domain sockets</td>
+</tr>
+<tr>
+<td><code>sys/kern/uipc_mbuf.c</code></td>
+<td>Mbuf allocation</td>
+</tr>
+<tr>
+<td><code>sys/kern/sys_pipe.c</code></td>
+<td>Pipe implementation</td>
+</tr>
+<tr>
+<td><code>sys/kern/sys_mqueue.c</code></td>
+<td>POSIX message queues</td>
+</tr>
+<tr>
+<td><code>sys/kern/sysv_msg.c</code></td>
+<td>System V messages</td>
+</tr>
+<tr>
+<td><code>sys/kern/sysv_sem.c</code></td>
+<td>System V semaphores</td>
+</tr>
+<tr>
+<td><code>sys/kern/sysv_shm.c</code></td>
+<td>System V shared memory</td>
+</tr>
+</tbody>
+</table>
 
 
 
