@@ -89,6 +89,7 @@ nav:
         - POSIX Message Queues: sys/kern/ipc/mqueue.md
         - System V Message Queues: sys/kern/ipc/sysv-msg.md
         - System V Semaphores: sys/kern/ipc/sysv-sem.md
+        - System V Shared Memory: sys/kern/ipc/sysv-shm.md
       - Devices & Drivers: sys/kern/devices.md
       - System Calls: sys/kern/syscalls.md
     - vm/:
