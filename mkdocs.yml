@@ -94,6 +94,7 @@ nav:
       - NewBus Framework: sys/kern/newbus.md
       - Bus Resources & DMA: sys/kern/bus-resources.md
       - Disk Subsystem: sys/kern/disk.md
+      - Firmware Loading: sys/kern/firmware.md
       - System Calls: sys/kern/syscalls.md
     - vm/:
       - Overview: sys/vm/index.md
