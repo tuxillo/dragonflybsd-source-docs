@@ -1,231 +1,119 @@
 
-<!doctype html>
-<html lang="en" class="no-js">
-  <head>
-    
-      <meta charset="utf-8">
-      <meta name="viewport" content="width=device-width,initial-scale=1">
-      
-        <meta name="description" content="Comprehensive documentation for the DragonFly BSD kernel source code">
-      
-      
-        <meta name="author" content="DragonFly BSD Community">
-      
-      
-      
-        <link rel="prev" href="../">
-      
-      
-        <link rel="next" href="../vm_object/">
-      
-      
-        
-      
-      
-      <link rel="icon" href="../../../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.0">
-    
-    
-      
-        <title>Physical Pages - DragonFly BSD Kernel Documentation</title>
-      
-    
-    
-      <link rel="stylesheet" href="../../../assets/stylesheets/main.618322db.min.css">
-      
-        
-        <link rel="stylesheet" href="../../../assets/stylesheets/palette.ab4e12ef.min.css">
-      
-      
+<!DOCTYPE html>
 
-
-    
-    
-      
-    
-    
-      
-        
-        
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
-        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
-      
-    
-    
-    <script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
-    
-      
-
-    
-    
-  </head>
-  
-  
-    
-    
-      
-    
-    
-    
-    
-    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
-  
-    
-    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
-    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
-    <label class="md-overlay" for="__drawer"></label>
-    <div data-md-component="skip">
-      
-        
-        <a href="#physical-page-management" class="md-skip">
+<html class="no-js" lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width,initial-scale=1" name="viewport"/>
+<meta content="Comprehensive documentation for the DragonFly BSD kernel source code" name="description"/>
+<meta content="DragonFly BSD Community" name="author"/>
+<link href="../" rel="prev"/>
+<link href="../vm_object/" rel="next"/>
+<link href="../../../assets/images/favicon.png" rel="icon"/>
+<meta content="mkdocs-1.6.1, mkdocs-material-9.7.0" name="generator"/>
+<title>Physical Pages - DragonFly BSD Kernel Documentation</title>
+<link href="../../../assets/stylesheets/main.618322db.min.css" rel="stylesheet"/>
+<link href="../../../assets/stylesheets/palette.ab4e12ef.min.css" rel="stylesheet"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&amp;display=fallback" rel="stylesheet"/>
+<style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+<script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+</head>
+<body data-md-color-accent="indigo" data-md-color-primary="indigo" data-md-color-scheme="default" dir="ltr">
+<input autocomplete="off" class="md-toggle" data-md-toggle="drawer" id="__drawer" type="checkbox"/>
+<input autocomplete="off" class="md-toggle" data-md-toggle="search" id="__search" type="checkbox"/>
+<label class="md-overlay" for="__drawer"></label>
+<div data-md-component="skip">
+<a class="md-skip" href="#physical-page-management">
           Skip to content
         </a>
-      
-    </div>
-    <div data-md-component="announce">
-      
-    </div>
-    
-    
-      
-
+</div>
+<div data-md-component="announce">
+</div>
 <header class="md-header" data-md-component="header">
-  <nav class="md-header__inner md-grid" aria-label="Header">
-    <a href="../../.." title="DragonFly BSD Kernel Documentation" class="md-header__button md-logo" aria-label="DragonFly BSD Kernel Documentation" data-md-component="logo">
-      
-  
-  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
-
-    </a>
-    <label class="md-header__button md-icon" for="__drawer">
-      
-      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
-    </label>
-    <div class="md-header__title" data-md-component="header-title">
-      <div class="md-header__ellipsis">
-        <div class="md-header__topic">
-          <span class="md-ellipsis">
+<nav aria-label="Header" class="md-header__inner md-grid">
+<a aria-label="DragonFly BSD Kernel Documentation" class="md-header__button md-logo" data-md-component="logo" href="../../.." title="DragonFly BSD Kernel Documentation">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"></path></svg>
+</a>
+<label class="md-header__button md-icon" for="__drawer">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"></path></svg>
+</label>
+<div class="md-header__title" data-md-component="header-title">
+<div class="md-header__ellipsis">
+<div class="md-header__topic">
+<span class="md-ellipsis">
             DragonFly BSD Kernel Documentation
           </span>
-        </div>
-        <div class="md-header__topic" data-md-component="header-topic">
-          <span class="md-ellipsis">
+</div>
+<div class="md-header__topic" data-md-component="header-topic">
+<span class="md-ellipsis">
             
               Physical Pages
             
           </span>
-        </div>
-      </div>
-    </div>
-    
-      
-        <form class="md-header__option" data-md-component="palette">
-  
-    
-    
-    
-    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
-    
-      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
-      </label>
-    
-  
-    
-    
-    
-    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
-    
-      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
-      </label>
-    
-  
+</div>
+</div>
+</div>
+<form class="md-header__option" data-md-component="palette">
+<input aria-label="Switch to dark mode" class="md-option" data-md-color-accent="indigo" data-md-color-media="" data-md-color-primary="indigo" data-md-color-scheme="default" id="__palette_0" name="__palette" type="radio"/>
+<label class="md-header__button md-icon" for="__palette_1" hidden="" title="Switch to dark mode">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"></path></svg>
+</label>
+<input aria-label="Switch to light mode" class="md-option" data-md-color-accent="indigo" data-md-color-media="" data-md-color-primary="indigo" data-md-color-scheme="slate" id="__palette_1" name="__palette" type="radio"/>
+<label class="md-header__button md-icon" for="__palette_0" hidden="" title="Switch to light mode">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"></path></svg>
+</label>
 </form>
-      
-    
-    
-      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
-    
-    
-    
-      
-      
-        <label class="md-header__button md-icon" for="__search">
-          
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
-        </label>
-        <div class="md-search" data-md-component="search" role="dialog">
-  <label class="md-search__overlay" for="__search"></label>
-  <div class="md-search__inner" role="search">
-    <form class="md-search__form" name="search">
-      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
-      <label class="md-search__icon md-icon" for="__search">
-        
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
-        
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
-      </label>
-      <nav class="md-search__options" aria-label="Search">
-        
-        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
-          
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
-        </button>
-      </nav>
-      
-        <div class="md-search__suggest" data-md-component="search-suggest"></div>
-      
-    </form>
-    <div class="md-search__output">
-      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
-        <div class="md-search-result" data-md-component="search-result">
-          <div class="md-search-result__meta">
+<script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+<label class="md-header__button md-icon" for="__search">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"></path></svg>
+</label>
+<div class="md-search" data-md-component="search" role="dialog">
+<label class="md-search__overlay" for="__search"></label>
+<div class="md-search__inner" role="search">
+<form class="md-search__form" name="search">
+<input aria-label="Search" autocapitalize="off" autocomplete="off" autocorrect="off" class="md-search__input" data-md-component="search-query" name="query" placeholder="Search" required="" spellcheck="false" type="text"/>
+<label class="md-search__icon md-icon" for="__search">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"></path></svg>
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"></path></svg>
+</label>
+<nav aria-label="Search" class="md-search__options">
+<button aria-label="Clear" class="md-search__icon md-icon" tabindex="-1" title="Clear" type="reset">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"></path></svg>
+</button>
+</nav>
+<div class="md-search__suggest" data-md-component="search-suggest"></div>
+</form>
+<div class="md-search__output">
+<div class="md-search__scrollwrap" data-md-scrollfix="" tabindex="0">
+<div class="md-search-result" data-md-component="search-result">
+<div class="md-search-result__meta">
             Initializing search
           </div>
-          <ol class="md-search-result__list" role="presentation"></ol>
-        </div>
-      </div>
-    </div>
-  </div>
+<ol class="md-search-result__list" role="presentation"></ol>
 </div>
-      
-    
-    
-      <div class="md-header__source">
-        <a href="https://github.com/tuxillo/dragonflybsd-source-docs" title="Go to repository" class="md-source" data-md-component="source">
-  <div class="md-source__icon md-icon">
-    
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
-  </div>
-  <div class="md-source__repository">
+</div>
+</div>
+</div>
+</div>
+<div class="md-header__source">
+<a class="md-source" data-md-component="source" href="https://github.com/tuxillo/dragonflybsd-source-docs" title="Go to repository">
+<div class="md-source__icon md-icon">
+<svg viewbox="0 0 448 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"></path></svg>
+</div>
+<div class="md-source__repository">
     tuxillo/dragonflybsd-source-docs
   </div>
 </a>
-      </div>
-    
-  </nav>
-  
+</div>
+</nav>
 </header>
-    
-    <div class="md-container" data-md-component="container">
-      
-      
-        
-          
-            
-<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
-  <div class="md-grid">
-    <ul class="md-tabs__list">
-      
-        
-  
-  
-  
-  
-    <li class="md-tabs__item">
-      <a href="../../.." class="md-tabs__link">
+<div class="md-container" data-md-component="container">
+<nav aria-label="Tabs" class="md-tabs" data-md-component="tabs">
+<div class="md-grid">
+<ul class="md-tabs__list">
+<li class="md-tabs__item">
+<a class="md-tabs__link" href="../../..">
         
   
   
@@ -234,17 +122,9 @@
   Home
 
       </a>
-    </li>
-  
-
-      
-        
-  
-  
-  
-  
-    <li class="md-tabs__item">
-      <a href="../../../getting-started/" class="md-tabs__link">
+</li>
+<li class="md-tabs__item">
+<a class="md-tabs__link" href="../../../getting-started/">
         
   
   
@@ -253,89 +133,45 @@
   Getting Started
 
       </a>
-    </li>
-  
-
-      
-        
-  
-  
-  
-    
-  
-  
-    
-    
-      <li class="md-tabs__item md-tabs__item--active">
-        <a href="../../" class="md-tabs__link">
+</li>
+<li class="md-tabs__item md-tabs__item--active">
+<a class="md-tabs__link" href="../../">
           
   
   
   Kernel Subsystems
 
         </a>
-      </li>
-    
-  
-
-      
-    </ul>
-  </div>
+</li>
+</ul>
+</div>
 </nav>
-          
-        
-      
-      <main class="md-main" data-md-component="main">
-        <div class="md-main__inner md-grid">
-          
-            
-              
-              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
-                <div class="md-sidebar__scrollwrap">
-                  <div class="md-sidebar__inner">
-                    
-
-
-  
-
-
-<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
-  <label class="md-nav__title" for="__drawer">
-    <a href="../../.." title="DragonFly BSD Kernel Documentation" class="md-nav__button md-logo" aria-label="DragonFly BSD Kernel Documentation" data-md-component="logo">
-      
-  
-  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
-
-    </a>
+<main class="md-main" data-md-component="main">
+<div class="md-main__inner md-grid">
+<div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation">
+<div class="md-sidebar__scrollwrap">
+<div class="md-sidebar__inner">
+<nav aria-label="Navigation" class="md-nav md-nav--primary md-nav--lifted" data-md-level="0">
+<label class="md-nav__title" for="__drawer">
+<a aria-label="DragonFly BSD Kernel Documentation" class="md-nav__button md-logo" data-md-component="logo" href="../../.." title="DragonFly BSD Kernel Documentation">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"></path></svg>
+</a>
     DragonFly BSD Kernel Documentation
   </label>
-  
-    <div class="md-nav__source">
-      <a href="https://github.com/tuxillo/dragonflybsd-source-docs" title="Go to repository" class="md-source" data-md-component="source">
-  <div class="md-source__icon md-icon">
-    
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
-  </div>
-  <div class="md-source__repository">
+<div class="md-nav__source">
+<a class="md-source" data-md-component="source" href="https://github.com/tuxillo/dragonflybsd-source-docs" title="Go to repository">
+<div class="md-source__icon md-icon">
+<svg viewbox="0 0 448 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"></path></svg>
+</div>
+<div class="md-source__repository">
     tuxillo/dragonflybsd-source-docs
   </div>
 </a>
-    </div>
-  
-  <ul class="md-nav__list" data-md-scrollfix>
-    
-      
-      
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../.." class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
+</div>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../..">
+<span class="md-ellipsis">
     
   
     Home
@@ -343,26 +179,11 @@
 
     
   </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-    
-      
-      
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../../getting-started/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../../getting-started/">
+<span class="md-ellipsis">
     
   
     Getting Started
@@ -370,47 +191,12 @@
 
     
   </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-    
-      
-      
-  
-  
-    
-  
-  
-  
-    
-    
-    
-    
-      
-        
-        
-      
-      
-        
-      
-    
-    
-    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
-      
-        
-        
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" checked>
-        
-          
-          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="">
-            
-  
-  
-  <span class="md-ellipsis">
+</a>
+</li>
+<li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+<input checked="" class="md-nav__toggle md-toggle" id="__nav_3" type="checkbox"/>
+<label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="">
+<span class="md-ellipsis">
     
   
     Kernel Subsystems
@@ -418,35 +204,21 @@
 
     
   </span>
-  
-  
-
-            <span class="md-nav__icon md-icon"></span>
-          </label>
-        
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="true">
-          <label class="md-nav__title" for="__nav_3">
-            <span class="md-nav__icon md-icon"></span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="true" aria-labelledby="__nav_3_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_3">
+<span class="md-nav__icon md-icon"></span>
             
   
     Kernel Subsystems
   
 
           </label>
-          <ul class="md-nav__list" data-md-scrollfix>
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../">
+<span class="md-ellipsis">
     
   
     Overview
@@ -454,48 +226,12 @@
 
     
   </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    
-    
-    
-    
-      
-      
-        
-          
-          
-        
-      
-    
-    
-    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
-      
-        
-        
-          
-        
-        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_3_2" >
-        
-          
-          <label class="md-nav__link" for="__nav_3_2" id="__nav_3_2_label" tabindex="">
-            
-  
-  
-  <span class="md-ellipsis">
+</a>
+</li>
+<li class="md-nav__item md-nav__item--section md-nav__item--nested">
+<input class="md-nav__toggle md-toggle md-toggle--indeterminate" id="__nav_3_2" type="checkbox"/>
+<label class="md-nav__link" for="__nav_3_2" id="__nav_3_2_label" tabindex="">
+<span class="md-ellipsis">
     
   
     kern/
@@ -503,35 +239,21 @@
 
     
   </span>
-  
-  
-
-            <span class="md-nav__icon md-icon"></span>
-          </label>
-        
-        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_2_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_3_2">
-            <span class="md-nav__icon md-icon"></span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="false" aria-labelledby="__nav_3_2_label" class="md-nav" data-md-level="2">
+<label class="md-nav__title" for="__nav_3_2">
+<span class="md-nav__icon md-icon"></span>
             
   
     kern/
   
 
           </label>
-          <ul class="md-nav__list" data-md-scrollfix>
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../kern/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../kern/">
+<span class="md-ellipsis">
     
   
     Overview
@@ -539,27 +261,11 @@
 
     
   </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../kern/lwkt/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../kern/lwkt/">
+<span class="md-ellipsis">
     
   
     LWKT Threading
@@ -567,27 +273,11 @@
 
     
   </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../kern/synchronization/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../kern/synchronization/">
+<span class="md-ellipsis">
     
   
     Synchronization
@@ -595,55 +285,23 @@
 
     
   </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../kern/time/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../kern/time/">
+<span class="md-ellipsis">
     
   
-    Time & Timers
+    Time &amp; Timers
   
 
     
   </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../kern/memory/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../kern/memory/">
+<span class="md-ellipsis">
     
   
     Memory Management
@@ -651,111 +309,47 @@
 
     
   </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../kern/initialization/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../kern/initialization/">
+<span class="md-ellipsis">
     
   
-    Initialization & Bootstrap
+    Initialization &amp; Bootstrap
   
 
     
   </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../kern/processes/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../kern/processes/">
+<span class="md-ellipsis">
     
   
-    Processes & Threads
+    Processes &amp; Threads
   
 
     
   </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../kern/resources/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../kern/resources/">
+<span class="md-ellipsis">
     
   
-    Process Resources & Credentials
+    Process Resources &amp; Credentials
   
 
     
   </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../kern/signals/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../kern/signals/">
+<span class="md-ellipsis">
     
   
     Signals
@@ -763,27 +357,11 @@
 
     
   </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../kern/scheduling/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../kern/scheduling/">
+<span class="md-ellipsis">
     
   
     Scheduling
@@ -791,45 +369,12 @@
 
     
   </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    
-    
-    
-    
-      
-      
-        
-      
-    
-    
-    <li class="md-nav__item md-nav__item--nested">
-      
-        
-        
-          
-        
-        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_3_2_11" >
-        
-          
-          <label class="md-nav__link" for="__nav_3_2_11" id="__nav_3_2_11_label" tabindex="0">
-            
-  
-  
-  <span class="md-ellipsis">
+</a>
+</li>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle md-toggle--indeterminate" id="__nav_3_2_11" type="checkbox"/>
+<label class="md-nav__link" for="__nav_3_2_11" id="__nav_3_2_11_label" tabindex="0">
+<span class="md-ellipsis">
     
   
     Virtual Filesystem
@@ -837,35 +382,21 @@
 
     
   </span>
-  
-  
-
-            <span class="md-nav__icon md-icon"></span>
-          </label>
-        
-        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_3_2_11_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_3_2_11">
-            <span class="md-nav__icon md-icon"></span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="false" aria-labelledby="__nav_3_2_11_label" class="md-nav" data-md-level="3">
+<label class="md-nav__title" for="__nav_3_2_11">
+<span class="md-nav__icon md-icon"></span>
             
   
     Virtual Filesystem
   
 
           </label>
-          <ul class="md-nav__list" data-md-scrollfix>
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../kern/vfs/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../kern/vfs/">
+<span class="md-ellipsis">
     
   
     Overview
@@ -873,111 +404,47 @@
 
     
   </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../kern/vfs/namecache/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../kern/vfs/namecache/">
+<span class="md-ellipsis">
     
   
-    Name Lookup & Caching
+    Name Lookup &amp; Caching
   
 
     
   </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../kern/vfs/mounting/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../kern/vfs/mounting/">
+<span class="md-ellipsis">
     
   
-    Mounting & Unmounting
+    Mounting &amp; Unmounting
   
 
     
   </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../kern/vfs/buffer-cache/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../kern/vfs/buffer-cache/">
+<span class="md-ellipsis">
     
   
-    Buffer Cache & I/O
+    Buffer Cache &amp; I/O
   
 
     
   </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../kern/vfs/vfs-operations/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../kern/vfs/vfs-operations/">
+<span class="md-ellipsis">
     
   
     VFS Operations Framework
@@ -985,27 +452,11 @@
 
     
   </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../kern/vfs/journaling/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../kern/vfs/journaling/">
+<span class="md-ellipsis">
     
   
     Journaling System
@@ -1013,145 +464,61 @@
 
     
   </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../kern/vfs/vfs-locking/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../kern/vfs/vfs-locking/">
+<span class="md-ellipsis">
     
   
-    Vnode Locking & Lifecycle
+    Vnode Locking &amp; Lifecycle
   
 
     
   </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../kern/vfs/vfs-extensions/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../kern/vfs/vfs-extensions/">
+<span class="md-ellipsis">
     
   
-    VFS Extensions & Helpers
+    VFS Extensions &amp; Helpers
   
 
     
   </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-          </ul>
-        </nav>
-      
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    
-    
-    
-    
-      
-      
-        
-      
-    
-    
-    <li class="md-nav__item md-nav__item--nested">
-      
-        
-        
-          
-        
-        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_3_2_12" >
-        
-          
-          <label class="md-nav__link" for="__nav_3_2_12" id="__nav_3_2_12_label" tabindex="0">
-            
-  
-  
-  <span class="md-ellipsis">
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle md-toggle--indeterminate" id="__nav_3_2_12" type="checkbox"/>
+<label class="md-nav__link" for="__nav_3_2_12" id="__nav_3_2_12_label" tabindex="0">
+<span class="md-ellipsis">
     
   
-    IPC & Sockets
+    IPC &amp; Sockets
   
 
     
   </span>
-  
-  
-
-            <span class="md-nav__icon md-icon"></span>
-          </label>
-        
-        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_3_2_12_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_3_2_12">
-            <span class="md-nav__icon md-icon"></span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="false" aria-labelledby="__nav_3_2_12_label" class="md-nav" data-md-level="3">
+<label class="md-nav__title" for="__nav_3_2_12">
+<span class="md-nav__icon md-icon"></span>
             
   
-    IPC & Sockets
+    IPC &amp; Sockets
   
 
           </label>
-          <ul class="md-nav__list" data-md-scrollfix>
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../kern/ipc/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../kern/ipc/">
+<span class="md-ellipsis">
     
   
     Overview
@@ -1159,27 +526,11 @@
 
     
   </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../kern/ipc/mbufs/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../kern/ipc/mbufs/">
+<span class="md-ellipsis">
     
   
     Mbufs
@@ -1187,27 +538,11 @@
 
     
   </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../kern/ipc/sockets/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../kern/ipc/sockets/">
+<span class="md-ellipsis">
     
   
     Sockets
@@ -1215,27 +550,11 @@
 
     
   </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../kern/ipc/unix-sockets/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../kern/ipc/unix-sockets/">
+<span class="md-ellipsis">
     
   
     Unix Domain Sockets
@@ -1243,27 +562,11 @@
 
     
   </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../kern/ipc/protocol-dispatch/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../kern/ipc/protocol-dispatch/">
+<span class="md-ellipsis">
     
   
     Protocol Dispatch
@@ -1271,27 +574,11 @@
 
     
   </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../kern/ipc/pipes/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../kern/ipc/pipes/">
+<span class="md-ellipsis">
     
   
     Pipes
@@ -1299,27 +586,11 @@
 
     
   </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../kern/ipc/mqueue/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../kern/ipc/mqueue/">
+<span class="md-ellipsis">
     
   
     POSIX Message Queues
@@ -1327,27 +598,11 @@
 
     
   </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../kern/ipc/sysv-msg/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../kern/ipc/sysv-msg/">
+<span class="md-ellipsis">
     
   
     System V Message Queues
@@ -1355,27 +610,11 @@
 
     
   </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../kern/ipc/sysv-sem/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../kern/ipc/sysv-sem/">
+<span class="md-ellipsis">
     
   
     System V Semaphores
@@ -1383,27 +622,11 @@
 
     
   </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../kern/ipc/sysv-shm/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../kern/ipc/sysv-shm/">
+<span class="md-ellipsis">
     
   
     System V Shared Memory
@@ -1411,63 +634,26 @@
 
     
   </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-          </ul>
-        </nav>
-      
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../kern/devices/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../kern/devices/">
+<span class="md-ellipsis">
     
   
-    Devices & Drivers
+    Devices &amp; Drivers
   
 
     
   </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../kern/newbus/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../kern/newbus/">
+<span class="md-ellipsis">
     
   
     NewBus Framework
@@ -1475,55 +661,23 @@
 
     
   </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../kern/bus-resources/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../kern/bus-resources/">
+<span class="md-ellipsis">
     
   
-    Bus Resources & DMA
+    Bus Resources &amp; DMA
   
 
     
   </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../kern/disk/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../kern/disk/">
+<span class="md-ellipsis">
     
   
     Disk Subsystem
@@ -1531,27 +685,11 @@
 
     
   </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../kern/firmware/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../kern/firmware/">
+<span class="md-ellipsis">
     
   
     Firmware Loading
@@ -1559,27 +697,11 @@
 
     
   </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../kern/syscalls/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../kern/syscalls/">
+<span class="md-ellipsis">
     
   
     System Calls
@@ -1587,56 +709,15 @@
 
     
   </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-          </ul>
-        </nav>
-      
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-    
-  
-  
-  
-    
-    
-    
-    
-      
-      
-        
-          
-          
-        
-      
-    
-    
-    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
-      
-        
-        
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_3" checked>
-        
-          
-          <label class="md-nav__link" for="__nav_3_3" id="__nav_3_3_label" tabindex="">
-            
-  
-  
-  <span class="md-ellipsis">
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+<input checked="" class="md-nav__toggle md-toggle" id="__nav_3_3" type="checkbox"/>
+<label class="md-nav__link" for="__nav_3_3" id="__nav_3_3_label" tabindex="">
+<span class="md-ellipsis">
     
   
     vm/
@@ -1644,35 +725,21 @@
 
     
   </span>
-  
-  
-
-            <span class="md-nav__icon md-icon"></span>
-          </label>
-        
-        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_3_label" aria-expanded="true">
-          <label class="md-nav__title" for="__nav_3_3">
-            <span class="md-nav__icon md-icon"></span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="true" aria-labelledby="__nav_3_3_label" class="md-nav" data-md-level="2">
+<label class="md-nav__title" for="__nav_3_3">
+<span class="md-nav__icon md-icon"></span>
             
   
     vm/
   
 
           </label>
-          <ul class="md-nav__list" data-md-scrollfix>
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../">
+<span class="md-ellipsis">
     
   
     Overview
@@ -1680,36 +747,12 @@
 
     
   </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-    
-  
-  
-  
-    <li class="md-nav__item md-nav__item--active">
-      
-      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
-      
-      
-        
-      
-      
-        <label class="md-nav__link md-nav__link--active" for="__toc">
-          
-  
-  
-  <span class="md-ellipsis">
+</a>
+</li>
+<li class="md-nav__item md-nav__item--active">
+<input class="md-nav__toggle md-toggle" id="__toc" type="checkbox"/>
+<label class="md-nav__link md-nav__link--active" for="__toc">
+<span class="md-ellipsis">
     
   
     Physical Pages
@@ -1717,17 +760,10 @@
 
     
   </span>
-  
-  
-
-          <span class="md-nav__icon md-icon"></span>
-        </label>
-      
-      <a href="./" class="md-nav__link md-nav__link--active">
-        
-  
-  
-  <span class="md-ellipsis">
+<span class="md-nav__icon md-icon"></span>
+</label>
+<a class="md-nav__link md-nav__link--active" href="./">
+<span class="md-ellipsis">
     
   
     Physical Pages
@@ -1735,725 +771,561 @@
 
     
   </span>
-  
-  
-
-      </a>
-      
-        
-
-<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
-  
-  
-  
-    
-  
-  
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
+</a>
+<nav aria-label="Table of contents" class="md-nav md-nav--secondary">
+<label class="md-nav__title" for="__toc">
+<span class="md-nav__icon md-icon"></span>
       Table of contents
     </label>
-    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#when-you-need-this" class="md-nav__link">
-    <span class="md-ellipsis">
+<ul class="md-nav__list" data-md-component="toc" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#when-you-need-this">
+<span class="md-ellipsis">
       
         When You Need This
       
     </span>
-  </a>
-  
+</a>
 </li>
-      
-        <li class="md-nav__item">
-  <a href="#overview" class="md-nav__link">
-    <span class="md-ellipsis">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#overview">
+<span class="md-ellipsis">
       
         Overview
       
     </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Overview">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#key-concepts" class="md-nav__link">
-    <span class="md-ellipsis">
+</a>
+<nav aria-label="Overview" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#key-concepts">
+<span class="md-ellipsis">
       
         Key Concepts
       
     </span>
-  </a>
-  
+</a>
 </li>
-        
-      </ul>
-    </nav>
-  
+</ul>
+</nav>
 </li>
-      
-        <li class="md-nav__item">
-  <a href="#data-structures" class="md-nav__link">
-    <span class="md-ellipsis">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#data-structures">
+<span class="md-ellipsis">
       
         Data Structures
       
     </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Data Structures">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#page-array" class="md-nav__link">
-    <span class="md-ellipsis">
+</a>
+<nav aria-label="Data Structures" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#page-array">
+<span class="md-ellipsis">
       
         Page Array
       
     </span>
-  </a>
-  
+</a>
 </li>
-        
-          <li class="md-nav__item">
-  <a href="#page-queues" class="md-nav__link">
-    <span class="md-ellipsis">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#page-queues">
+<span class="md-ellipsis">
       
         Page Queues
       
     </span>
-  </a>
-  
+</a>
 </li>
-        
-          <li class="md-nav__item">
-  <a href="#page-hash-table" class="md-nav__link">
-    <span class="md-ellipsis">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#page-hash-table">
+<span class="md-ellipsis">
       
         Page Hash Table
       
     </span>
-  </a>
-  
+</a>
 </li>
-        
-      </ul>
-    </nav>
-  
+</ul>
+</nav>
 </li>
-      
-        <li class="md-nav__item">
-  <a href="#boot-time-initialization" class="md-nav__link">
-    <span class="md-ellipsis">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#boot-time-initialization">
+<span class="md-ellipsis">
       
         Boot-Time Initialization
       
     </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Boot-Time Initialization">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#vm_page_startup" class="md-nav__link">
-    <span class="md-ellipsis">
+</a>
+<nav aria-label="Boot-Time Initialization" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#vm_page_startup">
+<span class="md-ellipsis">
       
         vm_page_startup()
       
     </span>
-  </a>
-  
+</a>
 </li>
-        
-          <li class="md-nav__item">
-  <a href="#page-color-calculation" class="md-nav__link">
-    <span class="md-ellipsis">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#page-color-calculation">
+<span class="md-ellipsis">
       
         Page Color Calculation
       
     </span>
-  </a>
-  
+</a>
 </li>
-        
-          <li class="md-nav__item">
-  <a href="#numa-organization" class="md-nav__link">
-    <span class="md-ellipsis">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#numa-organization">
+<span class="md-ellipsis">
       
         NUMA Organization
       
     </span>
-  </a>
-  
+</a>
 </li>
-        
-          <li class="md-nav__item">
-  <a href="#dma-reserve" class="md-nav__link">
-    <span class="md-ellipsis">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#dma-reserve">
+<span class="md-ellipsis">
       
         DMA Reserve
       
     </span>
-  </a>
-  
+</a>
 </li>
-        
-      </ul>
-    </nav>
-  
+</ul>
+</nav>
 </li>
-      
-        <li class="md-nav__item">
-  <a href="#page-allocation" class="md-nav__link">
-    <span class="md-ellipsis">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#page-allocation">
+<span class="md-ellipsis">
       
         Page Allocation
       
     </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Page Allocation">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#vm_page_alloc" class="md-nav__link">
-    <span class="md-ellipsis">
+</a>
+<nav aria-label="Page Allocation" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#vm_page_alloc">
+<span class="md-ellipsis">
       
         vm_page_alloc()
       
     </span>
-  </a>
-  
+</a>
 </li>
-        
-          <li class="md-nav__item">
-  <a href="#cpu-localized-color-selection" class="md-nav__link">
-    <span class="md-ellipsis">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#cpu-localized-color-selection">
+<span class="md-ellipsis">
       
         CPU-Localized Color Selection
       
     </span>
-  </a>
-  
+</a>
 </li>
-        
-          <li class="md-nav__item">
-  <a href="#queue-search-algorithm" class="md-nav__link">
-    <span class="md-ellipsis">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#queue-search-algorithm">
+<span class="md-ellipsis">
       
         Queue Search Algorithm
       
     </span>
-  </a>
-  
+</a>
 </li>
-        
-          <li class="md-nav__item">
-  <a href="#contiguous-allocation" class="md-nav__link">
-    <span class="md-ellipsis">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#contiguous-allocation">
+<span class="md-ellipsis">
       
         Contiguous Allocation
       
     </span>
-  </a>
-  
+</a>
 </li>
-        
-          <li class="md-nav__item">
-  <a href="#other-allocation-functions" class="md-nav__link">
-    <span class="md-ellipsis">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#other-allocation-functions">
+<span class="md-ellipsis">
       
         Other Allocation Functions
       
     </span>
-  </a>
-  
+</a>
 </li>
-        
-      </ul>
-    </nav>
-  
+</ul>
+</nav>
 </li>
-      
-        <li class="md-nav__item">
-  <a href="#page-freeing" class="md-nav__link">
-    <span class="md-ellipsis">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#page-freeing">
+<span class="md-ellipsis">
       
         Page Freeing
       
     </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Page Freeing">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#vm_page_free_toq" class="md-nav__link">
-    <span class="md-ellipsis">
+</a>
+<nav aria-label="Page Freeing" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#vm_page_free_toq">
+<span class="md-ellipsis">
       
         vm_page_free_toq()
       
     </span>
-  </a>
-  
+</a>
 </li>
-        
-          <li class="md-nav__item">
-  <a href="#free-wakeup-logic" class="md-nav__link">
-    <span class="md-ellipsis">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#free-wakeup-logic">
+<span class="md-ellipsis">
       
         Free Wakeup Logic
       
     </span>
-  </a>
-  
+</a>
 </li>
-        
-      </ul>
-    </nav>
-  
+</ul>
+</nav>
 </li>
-      
-        <li class="md-nav__item">
-  <a href="#page-state-transitions" class="md-nav__link">
-    <span class="md-ellipsis">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#page-state-transitions">
+<span class="md-ellipsis">
       
         Page State Transitions
       
     </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Page State Transitions">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#activation" class="md-nav__link">
-    <span class="md-ellipsis">
+</a>
+<nav aria-label="Page State Transitions" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#activation">
+<span class="md-ellipsis">
       
         Activation
       
     </span>
-  </a>
-  
+</a>
 </li>
-        
-          <li class="md-nav__item">
-  <a href="#deactivation" class="md-nav__link">
-    <span class="md-ellipsis">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#deactivation">
+<span class="md-ellipsis">
       
         Deactivation
       
     </span>
-  </a>
-  
+</a>
 </li>
-        
-          <li class="md-nav__item">
-  <a href="#caching" class="md-nav__link">
-    <span class="md-ellipsis">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#caching">
+<span class="md-ellipsis">
       
         Caching
       
     </span>
-  </a>
-  
+</a>
 </li>
-        
-      </ul>
-    </nav>
-  
+</ul>
+</nav>
 </li>
-      
-        <li class="md-nav__item">
-  <a href="#busy-state-management" class="md-nav__link">
-    <span class="md-ellipsis">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#busy-state-management">
+<span class="md-ellipsis">
       
         Busy State Management
       
     </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Busy State Management">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#hard-busy-pbusy_locked" class="md-nav__link">
-    <span class="md-ellipsis">
+</a>
+<nav aria-label="Busy State Management" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#hard-busy-pbusy_locked">
+<span class="md-ellipsis">
       
         Hard Busy (PBUSY_LOCKED)
       
     </span>
-  </a>
-  
+</a>
 </li>
-        
-          <li class="md-nav__item">
-  <a href="#soft-busy-pbusy_mask" class="md-nav__link">
-    <span class="md-ellipsis">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#soft-busy-pbusy_mask">
+<span class="md-ellipsis">
       
         Soft Busy (PBUSY_MASK)
       
     </span>
-  </a>
-  
+</a>
 </li>
-        
-          <li class="md-nav__item">
-  <a href="#waiting" class="md-nav__link">
-    <span class="md-ellipsis">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#waiting">
+<span class="md-ellipsis">
       
         Waiting
       
     </span>
-  </a>
-  
+</a>
 </li>
-        
-      </ul>
-    </nav>
-  
+</ul>
+</nav>
 </li>
-      
-        <li class="md-nav__item">
-  <a href="#wireunwire" class="md-nav__link">
-    <span class="md-ellipsis">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#wireunwire">
+<span class="md-ellipsis">
       
         Wire/Unwire
       
     </span>
-  </a>
-  
+</a>
 </li>
-      
-        <li class="md-nav__item">
-  <a href="#holdunhold" class="md-nav__link">
-    <span class="md-ellipsis">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#holdunhold">
+<span class="md-ellipsis">
       
         Hold/Unhold
       
     </span>
-  </a>
-  
+</a>
 </li>
-      
-        <li class="md-nav__item">
-  <a href="#page-lookup" class="md-nav__link">
-    <span class="md-ellipsis">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#page-lookup">
+<span class="md-ellipsis">
       
         Page Lookup
       
     </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Page Lookup">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#standard-lookup" class="md-nav__link">
-    <span class="md-ellipsis">
+</a>
+<nav aria-label="Page Lookup" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#standard-lookup">
+<span class="md-ellipsis">
       
         Standard Lookup
       
     </span>
-  </a>
-  
+</a>
 </li>
-        
-          <li class="md-nav__item">
-  <a href="#lookup-busy" class="md-nav__link">
-    <span class="md-ellipsis">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#lookup-busy">
+<span class="md-ellipsis">
       
         Lookup + Busy
       
     </span>
-  </a>
-  
+</a>
 </li>
-        
-          <li class="md-nav__item">
-  <a href="#fast-heuristic-lookup" class="md-nav__link">
-    <span class="md-ellipsis">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#fast-heuristic-lookup">
+<span class="md-ellipsis">
       
         Fast Heuristic Lookup
       
     </span>
-  </a>
-  
+</a>
 </li>
-        
-      </ul>
-    </nav>
-  
+</ul>
+</nav>
 </li>
-      
-        <li class="md-nav__item">
-  <a href="#validdirty-bit-management" class="md-nav__link">
-    <span class="md-ellipsis">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#validdirty-bit-management">
+<span class="md-ellipsis">
       
         Valid/Dirty Bit Management
       
     </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Valid/Dirty Bit Management">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#functions" class="md-nav__link">
-    <span class="md-ellipsis">
+</a>
+<nav aria-label="Valid/Dirty Bit Management" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#functions">
+<span class="md-ellipsis">
       
         Functions
       
     </span>
-  </a>
-  
+</a>
 </li>
-        
-      </ul>
-    </nav>
-  
+</ul>
+</nav>
 </li>
-      
-        <li class="md-nav__item">
-  <a href="#memory-pressure-handling" class="md-nav__link">
-    <span class="md-ellipsis">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#memory-pressure-handling">
+<span class="md-ellipsis">
       
         Memory Pressure Handling
       
     </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Memory Pressure Handling">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#waiting-functions" class="md-nav__link">
-    <span class="md-ellipsis">
+</a>
+<nav aria-label="Memory Pressure Handling" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#waiting-functions">
+<span class="md-ellipsis">
       
         Waiting Functions
       
     </span>
-  </a>
-  
+</a>
 </li>
-        
-          <li class="md-nav__item">
-  <a href="#nice-aware-paging" class="md-nav__link">
-    <span class="md-ellipsis">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#nice-aware-paging">
+<span class="md-ellipsis">
       
         Nice-Aware Paging
       
     </span>
-  </a>
-  
+</a>
 </li>
-        
-          <li class="md-nav__item">
-  <a href="#low-memory-kill" class="md-nav__link">
-    <span class="md-ellipsis">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#low-memory-kill">
+<span class="md-ellipsis">
       
         Low Memory Kill
       
     </span>
-  </a>
-  
+</a>
 </li>
-        
-      </ul>
-    </nav>
-  
+</ul>
+</nav>
 </li>
-      
-        <li class="md-nav__item">
-  <a href="#madvise-support" class="md-nav__link">
-    <span class="md-ellipsis">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#madvise-support">
+<span class="md-ellipsis">
       
         madvise Support
       
     </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="madvise Support">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#vm_page_dontneed" class="md-nav__link">
-    <span class="md-ellipsis">
+</a>
+<nav aria-label="madvise Support" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#vm_page_dontneed">
+<span class="md-ellipsis">
       
         vm_page_dontneed()
       
     </span>
-  </a>
-  
+</a>
 </li>
-        
-      </ul>
-    </nav>
-  
+</ul>
+</nav>
 </li>
-      
-        <li class="md-nav__item">
-  <a href="#special-page-types" class="md-nav__link">
-    <span class="md-ellipsis">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#special-page-types">
+<span class="md-ellipsis">
       
         Special Page Types
       
     </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Special Page Types">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#fictitious-pages" class="md-nav__link">
-    <span class="md-ellipsis">
+</a>
+<nav aria-label="Special Page Types" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#fictitious-pages">
+<span class="md-ellipsis">
       
         Fictitious Pages
       
     </span>
-  </a>
-  
+</a>
 </li>
-        
-          <li class="md-nav__item">
-  <a href="#pages-requiring-commit" class="md-nav__link">
-    <span class="md-ellipsis">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#pages-requiring-commit">
+<span class="md-ellipsis">
       
         Pages Requiring Commit
       
     </span>
-  </a>
-  
+</a>
 </li>
-        
-      </ul>
-    </nav>
-  
+</ul>
+</nav>
 </li>
-      
-        <li class="md-nav__item">
-  <a href="#locking-rules" class="md-nav__link">
-    <span class="md-ellipsis">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#locking-rules">
+<span class="md-ellipsis">
       
         Locking Rules
       
     </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Locking Rules">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#queue-operations" class="md-nav__link">
-    <span class="md-ellipsis">
+</a>
+<nav aria-label="Locking Rules" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#queue-operations">
+<span class="md-ellipsis">
       
         Queue Operations
       
     </span>
-  </a>
-  
+</a>
 </li>
-        
-          <li class="md-nav__item">
-  <a href="#per-cpu-statistics" class="md-nav__link">
-    <span class="md-ellipsis">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#per-cpu-statistics">
+<span class="md-ellipsis">
       
         Per-CPU Statistics
       
     </span>
-  </a>
-  
+</a>
 </li>
-        
-      </ul>
-    </nav>
-  
+</ul>
+</nav>
 </li>
-      
-        <li class="md-nav__item">
-  <a href="#debugging" class="md-nav__link">
-    <span class="md-ellipsis">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#debugging">
+<span class="md-ellipsis">
       
         Debugging
       
     </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Debugging">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#ddb-commands" class="md-nav__link">
-    <span class="md-ellipsis">
+</a>
+<nav aria-label="Debugging" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#ddb-commands">
+<span class="md-ellipsis">
       
         DDB Commands
       
     </span>
-  </a>
-  
+</a>
 </li>
-        
-          <li class="md-nav__item">
-  <a href="#sysctls" class="md-nav__link">
-    <span class="md-ellipsis">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#sysctls">
+<span class="md-ellipsis">
       
         Sysctls
       
     </span>
-  </a>
-  
+</a>
 </li>
-        
-      </ul>
-    </nav>
-  
+</ul>
+</nav>
 </li>
-      
-        <li class="md-nav__item">
-  <a href="#dragonfly-specific-features" class="md-nav__link">
-    <span class="md-ellipsis">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#dragonfly-specific-features">
+<span class="md-ellipsis">
       
         DragonFly-Specific Features
       
     </span>
-  </a>
-  
+</a>
 </li>
-      
-        <li class="md-nav__item">
-  <a href="#see-also" class="md-nav__link">
-    <span class="md-ellipsis">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#see-also">
+<span class="md-ellipsis">
       
         See Also
       
     </span>
-  </a>
-  
+</a>
 </li>
-      
-    </ul>
-  
+</ul>
 </nav>
-      
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../vm_object/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../vm_object/">
+<span class="md-ellipsis">
     
   
     VM Objects
@@ -2461,27 +1333,11 @@
 
     
   </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../vm_map/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../vm_map/">
+<span class="md-ellipsis">
     
   
     Address Space
@@ -2489,27 +1345,11 @@
 
     
   </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../vm_fault/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../vm_fault/">
+<span class="md-ellipsis">
     
   
     Page Faults
@@ -2517,55 +1357,23 @@
 
     
   </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../vm_pageout/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../vm_pageout/">
+<span class="md-ellipsis">
     
   
-    Pageout & Swap
+    Pageout &amp; Swap
   
 
     
   </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../vm_mmap/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../vm_mmap/">
+<span class="md-ellipsis">
     
   
     Memory Mapping
@@ -2573,56 +1381,15 @@
 
     
   </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-          </ul>
-        </nav>
-      
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    
-    
-    
-    
-      
-      
-        
-          
-          
-        
-      
-    
-    
-    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
-      
-        
-        
-          
-        
-        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_3_4" >
-        
-          
-          <label class="md-nav__link" for="__nav_3_4" id="__nav_3_4_label" tabindex="">
-            
-  
-  
-  <span class="md-ellipsis">
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--section md-nav__item--nested">
+<input class="md-nav__toggle md-toggle md-toggle--indeterminate" id="__nav_3_4" type="checkbox"/>
+<label class="md-nav__link" for="__nav_3_4" id="__nav_3_4_label" tabindex="">
+<span class="md-ellipsis">
     
   
     cpu/x86_64/
@@ -2630,35 +1397,21 @@
 
     
   </span>
-  
-  
-
-            <span class="md-nav__icon md-icon"></span>
-          </label>
-        
-        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_4_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_3_4">
-            <span class="md-nav__icon md-icon"></span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="false" aria-labelledby="__nav_3_4_label" class="md-nav" data-md-level="2">
+<label class="md-nav__title" for="__nav_3_4">
+<span class="md-nav__icon md-icon"></span>
             
   
     cpu/x86_64/
   
 
           </label>
-          <ul class="md-nav__list" data-md-scrollfix>
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../cpu/x86_64/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../cpu/x86_64/">
+<span class="md-ellipsis">
     
   
     Overview
@@ -2666,759 +1419,582 @@
 
     
   </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-          </ul>
-        </nav>
-      
-    </li>
-  
-
-              
-            
-          </ul>
-        </nav>
-      
-    </li>
-  
-
-    
-  </ul>
+</a>
+</li>
+</ul>
 </nav>
-                  </div>
-                </div>
-              </div>
-            
-            
-              
-              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
-                <div class="md-sidebar__scrollwrap">
-                  <div class="md-sidebar__inner">
-                    
-
-<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
-  
-  
-  
-    
-  
-  
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
+</li>
+</ul>
+</nav>
+</li>
+</ul>
+</nav>
+</div>
+</div>
+</div>
+<div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc">
+<div class="md-sidebar__scrollwrap">
+<div class="md-sidebar__inner">
+<nav aria-label="Table of contents" class="md-nav md-nav--secondary">
+<label class="md-nav__title" for="__toc">
+<span class="md-nav__icon md-icon"></span>
       Table of contents
     </label>
-    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#when-you-need-this" class="md-nav__link">
-    <span class="md-ellipsis">
+<ul class="md-nav__list" data-md-component="toc" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#when-you-need-this">
+<span class="md-ellipsis">
       
         When You Need This
       
     </span>
-  </a>
-  
+</a>
 </li>
-      
-        <li class="md-nav__item">
-  <a href="#overview" class="md-nav__link">
-    <span class="md-ellipsis">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#overview">
+<span class="md-ellipsis">
       
         Overview
       
     </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Overview">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#key-concepts" class="md-nav__link">
-    <span class="md-ellipsis">
+</a>
+<nav aria-label="Overview" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#key-concepts">
+<span class="md-ellipsis">
       
         Key Concepts
       
     </span>
-  </a>
-  
+</a>
 </li>
-        
-      </ul>
-    </nav>
-  
+</ul>
+</nav>
 </li>
-      
-        <li class="md-nav__item">
-  <a href="#data-structures" class="md-nav__link">
-    <span class="md-ellipsis">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#data-structures">
+<span class="md-ellipsis">
       
         Data Structures
       
     </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Data Structures">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#page-array" class="md-nav__link">
-    <span class="md-ellipsis">
+</a>
+<nav aria-label="Data Structures" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#page-array">
+<span class="md-ellipsis">
       
         Page Array
       
     </span>
-  </a>
-  
+</a>
 </li>
-        
-          <li class="md-nav__item">
-  <a href="#page-queues" class="md-nav__link">
-    <span class="md-ellipsis">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#page-queues">
+<span class="md-ellipsis">
       
         Page Queues
       
     </span>
-  </a>
-  
+</a>
 </li>
-        
-          <li class="md-nav__item">
-  <a href="#page-hash-table" class="md-nav__link">
-    <span class="md-ellipsis">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#page-hash-table">
+<span class="md-ellipsis">
       
         Page Hash Table
       
     </span>
-  </a>
-  
+</a>
 </li>
-        
-      </ul>
-    </nav>
-  
+</ul>
+</nav>
 </li>
-      
-        <li class="md-nav__item">
-  <a href="#boot-time-initialization" class="md-nav__link">
-    <span class="md-ellipsis">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#boot-time-initialization">
+<span class="md-ellipsis">
       
         Boot-Time Initialization
       
     </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Boot-Time Initialization">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#vm_page_startup" class="md-nav__link">
-    <span class="md-ellipsis">
+</a>
+<nav aria-label="Boot-Time Initialization" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#vm_page_startup">
+<span class="md-ellipsis">
       
         vm_page_startup()
       
     </span>
-  </a>
-  
+</a>
 </li>
-        
-          <li class="md-nav__item">
-  <a href="#page-color-calculation" class="md-nav__link">
-    <span class="md-ellipsis">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#page-color-calculation">
+<span class="md-ellipsis">
       
         Page Color Calculation
       
     </span>
-  </a>
-  
+</a>
 </li>
-        
-          <li class="md-nav__item">
-  <a href="#numa-organization" class="md-nav__link">
-    <span class="md-ellipsis">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#numa-organization">
+<span class="md-ellipsis">
       
         NUMA Organization
       
     </span>
-  </a>
-  
+</a>
 </li>
-        
-          <li class="md-nav__item">
-  <a href="#dma-reserve" class="md-nav__link">
-    <span class="md-ellipsis">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#dma-reserve">
+<span class="md-ellipsis">
       
         DMA Reserve
       
     </span>
-  </a>
-  
+</a>
 </li>
-        
-      </ul>
-    </nav>
-  
+</ul>
+</nav>
 </li>
-      
-        <li class="md-nav__item">
-  <a href="#page-allocation" class="md-nav__link">
-    <span class="md-ellipsis">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#page-allocation">
+<span class="md-ellipsis">
       
         Page Allocation
       
     </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Page Allocation">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#vm_page_alloc" class="md-nav__link">
-    <span class="md-ellipsis">
+</a>
+<nav aria-label="Page Allocation" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#vm_page_alloc">
+<span class="md-ellipsis">
       
         vm_page_alloc()
       
     </span>
-  </a>
-  
+</a>
 </li>
-        
-          <li class="md-nav__item">
-  <a href="#cpu-localized-color-selection" class="md-nav__link">
-    <span class="md-ellipsis">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#cpu-localized-color-selection">
+<span class="md-ellipsis">
       
         CPU-Localized Color Selection
       
     </span>
-  </a>
-  
+</a>
 </li>
-        
-          <li class="md-nav__item">
-  <a href="#queue-search-algorithm" class="md-nav__link">
-    <span class="md-ellipsis">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#queue-search-algorithm">
+<span class="md-ellipsis">
       
         Queue Search Algorithm
       
     </span>
-  </a>
-  
+</a>
 </li>
-        
-          <li class="md-nav__item">
-  <a href="#contiguous-allocation" class="md-nav__link">
-    <span class="md-ellipsis">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#contiguous-allocation">
+<span class="md-ellipsis">
       
         Contiguous Allocation
       
     </span>
-  </a>
-  
+</a>
 </li>
-        
-          <li class="md-nav__item">
-  <a href="#other-allocation-functions" class="md-nav__link">
-    <span class="md-ellipsis">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#other-allocation-functions">
+<span class="md-ellipsis">
       
         Other Allocation Functions
       
     </span>
-  </a>
-  
+</a>
 </li>
-        
-      </ul>
-    </nav>
-  
+</ul>
+</nav>
 </li>
-      
-        <li class="md-nav__item">
-  <a href="#page-freeing" class="md-nav__link">
-    <span class="md-ellipsis">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#page-freeing">
+<span class="md-ellipsis">
       
         Page Freeing
       
     </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Page Freeing">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#vm_page_free_toq" class="md-nav__link">
-    <span class="md-ellipsis">
+</a>
+<nav aria-label="Page Freeing" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#vm_page_free_toq">
+<span class="md-ellipsis">
       
         vm_page_free_toq()
       
     </span>
-  </a>
-  
+</a>
 </li>
-        
-          <li class="md-nav__item">
-  <a href="#free-wakeup-logic" class="md-nav__link">
-    <span class="md-ellipsis">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#free-wakeup-logic">
+<span class="md-ellipsis">
       
         Free Wakeup Logic
       
     </span>
-  </a>
-  
+</a>
 </li>
-        
-      </ul>
-    </nav>
-  
+</ul>
+</nav>
 </li>
-      
-        <li class="md-nav__item">
-  <a href="#page-state-transitions" class="md-nav__link">
-    <span class="md-ellipsis">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#page-state-transitions">
+<span class="md-ellipsis">
       
         Page State Transitions
       
     </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Page State Transitions">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#activation" class="md-nav__link">
-    <span class="md-ellipsis">
+</a>
+<nav aria-label="Page State Transitions" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#activation">
+<span class="md-ellipsis">
       
         Activation
       
     </span>
-  </a>
-  
+</a>
 </li>
-        
-          <li class="md-nav__item">
-  <a href="#deactivation" class="md-nav__link">
-    <span class="md-ellipsis">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#deactivation">
+<span class="md-ellipsis">
       
         Deactivation
       
     </span>
-  </a>
-  
+</a>
 </li>
-        
-          <li class="md-nav__item">
-  <a href="#caching" class="md-nav__link">
-    <span class="md-ellipsis">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#caching">
+<span class="md-ellipsis">
       
         Caching
       
     </span>
-  </a>
-  
+</a>
 </li>
-        
-      </ul>
-    </nav>
-  
+</ul>
+</nav>
 </li>
-      
-        <li class="md-nav__item">
-  <a href="#busy-state-management" class="md-nav__link">
-    <span class="md-ellipsis">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#busy-state-management">
+<span class="md-ellipsis">
       
         Busy State Management
       
     </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Busy State Management">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#hard-busy-pbusy_locked" class="md-nav__link">
-    <span class="md-ellipsis">
+</a>
+<nav aria-label="Busy State Management" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#hard-busy-pbusy_locked">
+<span class="md-ellipsis">
       
         Hard Busy (PBUSY_LOCKED)
       
     </span>
-  </a>
-  
+</a>
 </li>
-        
-          <li class="md-nav__item">
-  <a href="#soft-busy-pbusy_mask" class="md-nav__link">
-    <span class="md-ellipsis">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#soft-busy-pbusy_mask">
+<span class="md-ellipsis">
       
         Soft Busy (PBUSY_MASK)
       
     </span>
-  </a>
-  
+</a>
 </li>
-        
-          <li class="md-nav__item">
-  <a href="#waiting" class="md-nav__link">
-    <span class="md-ellipsis">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#waiting">
+<span class="md-ellipsis">
       
         Waiting
       
     </span>
-  </a>
-  
+</a>
 </li>
-        
-      </ul>
-    </nav>
-  
+</ul>
+</nav>
 </li>
-      
-        <li class="md-nav__item">
-  <a href="#wireunwire" class="md-nav__link">
-    <span class="md-ellipsis">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#wireunwire">
+<span class="md-ellipsis">
       
         Wire/Unwire
       
     </span>
-  </a>
-  
+</a>
 </li>
-      
-        <li class="md-nav__item">
-  <a href="#holdunhold" class="md-nav__link">
-    <span class="md-ellipsis">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#holdunhold">
+<span class="md-ellipsis">
       
         Hold/Unhold
       
     </span>
-  </a>
-  
+</a>
 </li>
-      
-        <li class="md-nav__item">
-  <a href="#page-lookup" class="md-nav__link">
-    <span class="md-ellipsis">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#page-lookup">
+<span class="md-ellipsis">
       
         Page Lookup
       
     </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Page Lookup">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#standard-lookup" class="md-nav__link">
-    <span class="md-ellipsis">
+</a>
+<nav aria-label="Page Lookup" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#standard-lookup">
+<span class="md-ellipsis">
       
         Standard Lookup
       
     </span>
-  </a>
-  
+</a>
 </li>
-        
-          <li class="md-nav__item">
-  <a href="#lookup-busy" class="md-nav__link">
-    <span class="md-ellipsis">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#lookup-busy">
+<span class="md-ellipsis">
       
         Lookup + Busy
       
     </span>
-  </a>
-  
+</a>
 </li>
-        
-          <li class="md-nav__item">
-  <a href="#fast-heuristic-lookup" class="md-nav__link">
-    <span class="md-ellipsis">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#fast-heuristic-lookup">
+<span class="md-ellipsis">
       
         Fast Heuristic Lookup
       
     </span>
-  </a>
-  
+</a>
 </li>
-        
-      </ul>
-    </nav>
-  
+</ul>
+</nav>
 </li>
-      
-        <li class="md-nav__item">
-  <a href="#validdirty-bit-management" class="md-nav__link">
-    <span class="md-ellipsis">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#validdirty-bit-management">
+<span class="md-ellipsis">
       
         Valid/Dirty Bit Management
       
     </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Valid/Dirty Bit Management">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#functions" class="md-nav__link">
-    <span class="md-ellipsis">
+</a>
+<nav aria-label="Valid/Dirty Bit Management" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#functions">
+<span class="md-ellipsis">
       
         Functions
       
     </span>
-  </a>
-  
+</a>
 </li>
-        
-      </ul>
-    </nav>
-  
+</ul>
+</nav>
 </li>
-      
-        <li class="md-nav__item">
-  <a href="#memory-pressure-handling" class="md-nav__link">
-    <span class="md-ellipsis">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#memory-pressure-handling">
+<span class="md-ellipsis">
       
         Memory Pressure Handling
       
     </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Memory Pressure Handling">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#waiting-functions" class="md-nav__link">
-    <span class="md-ellipsis">
+</a>
+<nav aria-label="Memory Pressure Handling" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#waiting-functions">
+<span class="md-ellipsis">
       
         Waiting Functions
       
     </span>
-  </a>
-  
+</a>
 </li>
-        
-          <li class="md-nav__item">
-  <a href="#nice-aware-paging" class="md-nav__link">
-    <span class="md-ellipsis">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#nice-aware-paging">
+<span class="md-ellipsis">
       
         Nice-Aware Paging
       
     </span>
-  </a>
-  
+</a>
 </li>
-        
-          <li class="md-nav__item">
-  <a href="#low-memory-kill" class="md-nav__link">
-    <span class="md-ellipsis">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#low-memory-kill">
+<span class="md-ellipsis">
       
         Low Memory Kill
       
     </span>
-  </a>
-  
+</a>
 </li>
-        
-      </ul>
-    </nav>
-  
+</ul>
+</nav>
 </li>
-      
-        <li class="md-nav__item">
-  <a href="#madvise-support" class="md-nav__link">
-    <span class="md-ellipsis">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#madvise-support">
+<span class="md-ellipsis">
       
         madvise Support
       
     </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="madvise Support">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#vm_page_dontneed" class="md-nav__link">
-    <span class="md-ellipsis">
+</a>
+<nav aria-label="madvise Support" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#vm_page_dontneed">
+<span class="md-ellipsis">
       
         vm_page_dontneed()
       
     </span>
-  </a>
-  
+</a>
 </li>
-        
-      </ul>
-    </nav>
-  
+</ul>
+</nav>
 </li>
-      
-        <li class="md-nav__item">
-  <a href="#special-page-types" class="md-nav__link">
-    <span class="md-ellipsis">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#special-page-types">
+<span class="md-ellipsis">
       
         Special Page Types
       
     </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Special Page Types">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#fictitious-pages" class="md-nav__link">
-    <span class="md-ellipsis">
+</a>
+<nav aria-label="Special Page Types" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#fictitious-pages">
+<span class="md-ellipsis">
       
         Fictitious Pages
       
     </span>
-  </a>
-  
+</a>
 </li>
-        
-          <li class="md-nav__item">
-  <a href="#pages-requiring-commit" class="md-nav__link">
-    <span class="md-ellipsis">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#pages-requiring-commit">
+<span class="md-ellipsis">
       
         Pages Requiring Commit
       
     </span>
-  </a>
-  
+</a>
 </li>
-        
-      </ul>
-    </nav>
-  
+</ul>
+</nav>
 </li>
-      
-        <li class="md-nav__item">
-  <a href="#locking-rules" class="md-nav__link">
-    <span class="md-ellipsis">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#locking-rules">
+<span class="md-ellipsis">
       
         Locking Rules
       
     </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Locking Rules">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#queue-operations" class="md-nav__link">
-    <span class="md-ellipsis">
+</a>
+<nav aria-label="Locking Rules" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#queue-operations">
+<span class="md-ellipsis">
       
         Queue Operations
       
     </span>
-  </a>
-  
+</a>
 </li>
-        
-          <li class="md-nav__item">
-  <a href="#per-cpu-statistics" class="md-nav__link">
-    <span class="md-ellipsis">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#per-cpu-statistics">
+<span class="md-ellipsis">
       
         Per-CPU Statistics
       
     </span>
-  </a>
-  
+</a>
 </li>
-        
-      </ul>
-    </nav>
-  
+</ul>
+</nav>
 </li>
-      
-        <li class="md-nav__item">
-  <a href="#debugging" class="md-nav__link">
-    <span class="md-ellipsis">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#debugging">
+<span class="md-ellipsis">
       
         Debugging
       
     </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Debugging">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#ddb-commands" class="md-nav__link">
-    <span class="md-ellipsis">
+</a>
+<nav aria-label="Debugging" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#ddb-commands">
+<span class="md-ellipsis">
       
         DDB Commands
       
     </span>
-  </a>
-  
+</a>
 </li>
-        
-          <li class="md-nav__item">
-  <a href="#sysctls" class="md-nav__link">
-    <span class="md-ellipsis">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#sysctls">
+<span class="md-ellipsis">
       
         Sysctls
       
     </span>
-  </a>
-  
+</a>
 </li>
-        
-      </ul>
-    </nav>
-  
+</ul>
+</nav>
 </li>
-      
-        <li class="md-nav__item">
-  <a href="#dragonfly-specific-features" class="md-nav__link">
-    <span class="md-ellipsis">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#dragonfly-specific-features">
+<span class="md-ellipsis">
       
         DragonFly-Specific Features
       
     </span>
-  </a>
-  
+</a>
 </li>
-      
-        <li class="md-nav__item">
-  <a href="#see-also" class="md-nav__link">
-    <span class="md-ellipsis">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#see-also">
+<span class="md-ellipsis">
       
         See Also
       
     </span>
-  </a>
-  
+</a>
 </li>
-      
-    </ul>
-  
+</ul>
 </nav>
-                  </div>
-                </div>
-              </div>
-            
-          
-          
-            <div class="md-content" data-md-component="content">
-              
-              <article class="md-content__inner md-typeset">
-                
-                  
-
-
-  
-  
-
-
-<h1 id="physical-page-management">Physical Page Management<a class="headerlink" href="#physical-page-management" title="Permanent link">&para;</a></h1>
+</div>
+</div>
+</div>
+<div class="md-content" data-md-component="content">
+<article class="md-content__inner md-typeset">
+<h1 id="physical-page-management">Physical Page Management<a class="headerlink" href="#physical-page-management" title="Permanent link">¶</a></h1>
 <p>This document describes DragonFly BSD's physical page management subsystem, implemented in <code>sys/vm/vm_page.c</code>. The subsystem manages all physical memory pages in the system, including allocation, freeing, queue management, and state transitions.</p>
 <p><strong>Source file:</strong> <code>sys/vm/vm_page.c</code> (~4,200 lines)</p>
-<hr />
-<h2 id="when-you-need-this">When You Need This<a class="headerlink" href="#when-you-need-this" title="Permanent link">&para;</a></h2>
+<hr/>
+<h2 id="when-you-need-this">When You Need This<a class="headerlink" href="#when-you-need-this" title="Permanent link">¶</a></h2>
 <table>
 <thead>
 <tr>
@@ -3460,26 +2036,26 @@
 </tr>
 </tbody>
 </table>
-<hr />
-<h2 id="overview">Overview<a class="headerlink" href="#overview" title="Permanent link">&para;</a></h2>
+<hr/>
+<h2 id="overview">Overview<a class="headerlink" href="#overview" title="Permanent link">¶</a></h2>
 <p>Every physical page in the system is represented by a <code>struct vm_page</code> (128 bytes). These structures are stored in a global array (<code>vm_page_array</code>) and indexed by physical page number. The VM system organizes pages into multiple queues based on their state and uses sophisticated coloring and NUMA-aware algorithms to optimize memory locality.</p>
-<h3 id="key-concepts">Key Concepts<a class="headerlink" href="#key-concepts" title="Permanent link">&para;</a></h3>
+<h3 id="key-concepts">Key Concepts<a class="headerlink" href="#key-concepts" title="Permanent link">¶</a></h3>
 <ul>
 <li><strong>Page coloring</strong>: Pages are distributed across 1024 queues per queue type to reduce lock contention and improve cache behavior</li>
 <li><strong>NUMA awareness</strong>: Page allocation considers CPU topology to prefer local memory</li>
 <li><strong>Busy state</strong>: Pages use atomic busy/soft-busy counts instead of traditional locks</li>
 <li><strong>Per-CPU statistics</strong>: Reduces cache-line bouncing by caching vmstats locally</li>
 </ul>
-<hr />
-<h2 id="data-structures">Data Structures<a class="headerlink" href="#data-structures" title="Permanent link">&para;</a></h2>
-<h3 id="page-array">Page Array<a class="headerlink" href="#page-array" title="Permanent link">&para;</a></h3>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">vm_page_t</span><span class="w"> </span><span class="n">vm_page_array</span><span class="p">;</span><span class="w">           </span><span class="c1">// Global array of all vm_page structures</span>
-<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="n">vm_pindex_t</span><span class="w"> </span><span class="n">vm_page_array_size</span><span class="p">;</span><span class="w">    </span><span class="c1">// Number of entries</span>
-<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="n">vm_pindex_t</span><span class="w"> </span><span class="n">first_page</span><span class="p">;</span><span class="w">            </span><span class="c1">// First physical page index</span>
+<hr/>
+<h2 id="data-structures">Data Structures<a class="headerlink" href="#data-structures" title="Permanent link">¶</a></h2>
+<h3 id="page-array">Page Array<a class="headerlink" href="#page-array" title="Permanent link">¶</a></h3>
+<div class="highlight"><pre><span></span><code><a href="#__codelineno-0-1" id="__codelineno-0-1" name="__codelineno-0-1"></a><span class="n">vm_page_t</span><span class="w"> </span><span class="n">vm_page_array</span><span class="p">;</span><span class="w">           </span><span class="c1">// Global array of all vm_page structures</span>
+<a href="#__codelineno-0-2" id="__codelineno-0-2" name="__codelineno-0-2"></a><span class="n">vm_pindex_t</span><span class="w"> </span><span class="n">vm_page_array_size</span><span class="p">;</span><span class="w">    </span><span class="c1">// Number of entries</span>
+<a href="#__codelineno-0-3" id="__codelineno-0-3" name="__codelineno-0-3"></a><span class="n">vm_pindex_t</span><span class="w"> </span><span class="n">first_page</span><span class="p">;</span><span class="w">            </span><span class="c1">// First physical page index</span>
 </code></pre></div>
 <p>The macro <code>PHYS_TO_VM_PAGE(pa)</code> converts a physical address to its corresponding <code>vm_page</code> pointer.</p>
-<h3 id="page-queues">Page Queues<a class="headerlink" href="#page-queues" title="Permanent link">&para;</a></h3>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="k">struct</span><span class="w"> </span><span class="nc">vpgqueues</span><span class="w"> </span><span class="n">vm_page_queues</span><span class="p">[</span><span class="n">PQ_COUNT</span><span class="p">];</span>
+<h3 id="page-queues">Page Queues<a class="headerlink" href="#page-queues" title="Permanent link">¶</a></h3>
+<div class="highlight"><pre><span></span><code><a href="#__codelineno-1-1" id="__codelineno-1-1" name="__codelineno-1-1"></a><span class="k">struct</span><span class="w"> </span><span class="nc">vpgqueues</span><span class="w"> </span><span class="n">vm_page_queues</span><span class="p">[</span><span class="n">PQ_COUNT</span><span class="p">];</span>
 </code></pre></div>
 <p>Five queue types, each with 1024 color variants (<code>PQ_L2_SIZE</code>):</p>
 <table>
@@ -3517,23 +2093,23 @@
 - <code>pl</code> - Page list (TAILQ)
 - <code>lcnt</code> - Local count
 - <code>lastq</code> - Heuristic for skipping empty queues</p>
-<h3 id="page-hash-table">Page Hash Table<a class="headerlink" href="#page-hash-table" title="Permanent link">&para;</a></h3>
+<h3 id="page-hash-table">Page Hash Table<a class="headerlink" href="#page-hash-table" title="Permanent link">¶</a></h3>
 <p>A lockless heuristic cache for fast page lookups:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="k">struct</span><span class="w"> </span><span class="nc">vm_page_hash_elm</span><span class="w"> </span><span class="p">{</span>
-<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="w">    </span><span class="n">vm_page_t</span><span class="w">   </span><span class="n">m</span><span class="p">;</span>
-<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="w">    </span><span class="n">vm_object_t</span><span class="w"> </span><span class="n">object</span><span class="p">;</span><span class="w">   </span><span class="c1">// Cached for fast comparison</span>
-<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a><span class="w">    </span><span class="n">vm_pindex_t</span><span class="w"> </span><span class="n">pindex</span><span class="p">;</span><span class="w">   </span><span class="c1">// Cached for fast comparison</span>
-<a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a><span class="w">    </span><span class="kt">int</span><span class="w">         </span><span class="n">ticks</span><span class="p">;</span><span class="w">    </span><span class="c1">// LRU timestamp</span>
-<a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a><span class="p">};</span>
+<div class="highlight"><pre><span></span><code><a href="#__codelineno-2-1" id="__codelineno-2-1" name="__codelineno-2-1"></a><span class="k">struct</span><span class="w"> </span><span class="nc">vm_page_hash_elm</span><span class="w"> </span><span class="p">{</span>
+<a href="#__codelineno-2-2" id="__codelineno-2-2" name="__codelineno-2-2"></a><span class="w">    </span><span class="n">vm_page_t</span><span class="w">   </span><span class="n">m</span><span class="p">;</span>
+<a href="#__codelineno-2-3" id="__codelineno-2-3" name="__codelineno-2-3"></a><span class="w">    </span><span class="n">vm_object_t</span><span class="w"> </span><span class="n">object</span><span class="p">;</span><span class="w">   </span><span class="c1">// Cached for fast comparison</span>
+<a href="#__codelineno-2-4" id="__codelineno-2-4" name="__codelineno-2-4"></a><span class="w">    </span><span class="n">vm_pindex_t</span><span class="w"> </span><span class="n">pindex</span><span class="p">;</span><span class="w">   </span><span class="c1">// Cached for fast comparison</span>
+<a href="#__codelineno-2-5" id="__codelineno-2-5" name="__codelineno-2-5"></a><span class="w">    </span><span class="kt">int</span><span class="w">         </span><span class="n">ticks</span><span class="p">;</span><span class="w">    </span><span class="c1">// LRU timestamp</span>
+<a href="#__codelineno-2-6" id="__codelineno-2-6" name="__codelineno-2-6"></a><span class="p">};</span>
 </code></pre></div>
 <ul>
 <li>4-way set associative (<code>VM_PAGE_HASH_SET</code>)</li>
 <li>Maximum 8 million entries</li>
 <li>Only caches pages with <code>PG_MAPPEDMULTI</code> flag</li>
 </ul>
-<hr />
-<h2 id="boot-time-initialization">Boot-Time Initialization<a class="headerlink" href="#boot-time-initialization" title="Permanent link">&para;</a></h2>
-<h3 id="vm_page_startup"><code>vm_page_startup()</code><a class="headerlink" href="#vm_page_startup" title="Permanent link">&para;</a></h3>
+<hr/>
+<h2 id="boot-time-initialization">Boot-Time Initialization<a class="headerlink" href="#boot-time-initialization" title="Permanent link">¶</a></h2>
+<h3 id="vm_page_startup"><code>vm_page_startup()</code><a class="headerlink" href="#vm_page_startup" title="Permanent link">¶</a></h3>
 <p>Called early in boot to initialize the page management subsystem:</p>
 <ol>
 <li><strong>Aligns physical memory ranges</strong> - Rounds <code>phys_avail[]</code> to page boundaries</li>
@@ -3543,32 +2119,32 @@
 <li><strong>Initializes page structures</strong> - Sets up spinlocks and physical addresses</li>
 <li><strong>Populates free queues</strong> - Adds pages in ascending physical order</li>
 </ol>
-<h3 id="page-color-calculation">Page Color Calculation<a class="headerlink" href="#page-color-calculation" title="Permanent link">&para;</a></h3>
+<h3 id="page-color-calculation">Page Color Calculation<a class="headerlink" href="#page-color-calculation" title="Permanent link">¶</a></h3>
 <p>During boot, page colors are calculated with CPU locality twisting:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="n">m</span><span class="o">-&gt;</span><span class="n">pc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="n">pa</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="n">PAGE_SHIFT</span><span class="p">);</span>
-<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="n">m</span><span class="o">-&gt;</span><span class="n">pc</span><span class="w"> </span><span class="o">^=</span><span class="w"> </span><span class="p">((</span><span class="n">pa</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="n">PAGE_SHIFT</span><span class="p">)</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="n">PQ_L2_SIZE</span><span class="p">);</span>
-<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a><span class="n">m</span><span class="o">-&gt;</span><span class="n">pc</span><span class="w"> </span><span class="o">^=</span><span class="w"> </span><span class="p">((</span><span class="n">pa</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="n">PAGE_SHIFT</span><span class="p">)</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="p">(</span><span class="n">PQ_L2_SIZE</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">PQ_L2_SIZE</span><span class="p">));</span>
-<a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a><span class="n">m</span><span class="o">-&gt;</span><span class="n">pc</span><span class="w"> </span><span class="o">&amp;=</span><span class="w"> </span><span class="n">PQ_L2_MASK</span><span class="p">;</span>
+<div class="highlight"><pre><span></span><code><a href="#__codelineno-3-1" id="__codelineno-3-1" name="__codelineno-3-1"></a><span class="n">m</span><span class="o">-&gt;</span><span class="n">pc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="n">pa</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="n">PAGE_SHIFT</span><span class="p">);</span>
+<a href="#__codelineno-3-2" id="__codelineno-3-2" name="__codelineno-3-2"></a><span class="n">m</span><span class="o">-&gt;</span><span class="n">pc</span><span class="w"> </span><span class="o">^=</span><span class="w"> </span><span class="p">((</span><span class="n">pa</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="n">PAGE_SHIFT</span><span class="p">)</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="n">PQ_L2_SIZE</span><span class="p">);</span>
+<a href="#__codelineno-3-3" id="__codelineno-3-3" name="__codelineno-3-3"></a><span class="n">m</span><span class="o">-&gt;</span><span class="n">pc</span><span class="w"> </span><span class="o">^=</span><span class="w"> </span><span class="p">((</span><span class="n">pa</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="n">PAGE_SHIFT</span><span class="p">)</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="p">(</span><span class="n">PQ_L2_SIZE</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">PQ_L2_SIZE</span><span class="p">));</span>
+<a href="#__codelineno-3-4" id="__codelineno-3-4" name="__codelineno-3-4"></a><span class="n">m</span><span class="o">-&gt;</span><span class="n">pc</span><span class="w"> </span><span class="o">&amp;=</span><span class="w"> </span><span class="n">PQ_L2_MASK</span><span class="p">;</span>
 </code></pre></div>
 <p>This distributes pages across queues while maintaining locality.</p>
-<h3 id="numa-organization">NUMA Organization<a class="headerlink" href="#numa-organization" title="Permanent link">&para;</a></h3>
+<h3 id="numa-organization">NUMA Organization<a class="headerlink" href="#numa-organization" title="Permanent link">¶</a></h3>
 <p><code>vm_numa_organize()</code> reorganizes page colors based on physical socket ID:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="n">socket_mod</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">PQ_L2_SIZE</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="n">cpu_topology_phys_ids</span><span class="p">;</span>
-<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a><span class="n">socket_value</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="n">physid</span><span class="w"> </span><span class="o">%</span><span class="w"> </span><span class="n">cpu_topology_phys_ids</span><span class="p">)</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">socket_mod</span><span class="p">;</span>
+<div class="highlight"><pre><span></span><code><a href="#__codelineno-4-1" id="__codelineno-4-1" name="__codelineno-4-1"></a><span class="n">socket_mod</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">PQ_L2_SIZE</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="n">cpu_topology_phys_ids</span><span class="p">;</span>
+<a href="#__codelineno-4-2" id="__codelineno-4-2" name="__codelineno-4-2"></a><span class="n">socket_value</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="n">physid</span><span class="w"> </span><span class="o">%</span><span class="w"> </span><span class="n">cpu_topology_phys_ids</span><span class="p">)</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">socket_mod</span><span class="p">;</span>
 </code></pre></div>
 <p><code>vm_numa_organize_finalize()</code> then balances queues to prevent empty queues that would force cross-socket borrowing.</p>
-<h3 id="dma-reserve">DMA Reserve<a class="headerlink" href="#dma-reserve" title="Permanent link">&para;</a></h3>
+<h3 id="dma-reserve">DMA Reserve<a class="headerlink" href="#dma-reserve" title="Permanent link">¶</a></h3>
 <p>Low physical memory is reserved for DMA operations:</p>
 <ul>
 <li><strong><code>vm_low_phys_reserved</code></strong>: Threshold for DMA reserve (default 65536 pages)</li>
 <li><strong><code>vm_dma_reserved</code></strong>: Tunable amount to keep reserved (default 128MB on 2G+ systems)</li>
 <li>Pages in this range are marked <code>PG_FICTITIOUS | PG_UNQUEUED</code> and managed by <code>vm_contig_alist</code></li>
 </ul>
-<hr />
-<h2 id="page-allocation">Page Allocation<a class="headerlink" href="#page-allocation" title="Permanent link">&para;</a></h2>
-<h3 id="vm_page_alloc"><code>vm_page_alloc()</code><a class="headerlink" href="#vm_page_alloc" title="Permanent link">&para;</a></h3>
+<hr/>
+<h2 id="page-allocation">Page Allocation<a class="headerlink" href="#page-allocation" title="Permanent link">¶</a></h2>
+<h3 id="vm_page_alloc"><code>vm_page_alloc()</code><a class="headerlink" href="#vm_page_alloc" title="Permanent link">¶</a></h3>
 <p>The primary page allocation function.</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="n">vm_page_t</span><span class="w"> </span><span class="nf">vm_page_alloc</span><span class="p">(</span><span class="n">vm_object_t</span><span class="w"> </span><span class="n">object</span><span class="p">,</span><span class="w"> </span><span class="n">vm_pindex_t</span><span class="w"> </span><span class="n">pindex</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">page_req</span><span class="p">);</span>
+<div class="highlight"><pre><span></span><code><a href="#__codelineno-5-1" id="__codelineno-5-1" name="__codelineno-5-1"></a><span class="n">vm_page_t</span><span class="w"> </span><span class="nf">vm_page_alloc</span><span class="p">(</span><span class="n">vm_object_t</span><span class="w"> </span><span class="n">object</span><span class="p">,</span><span class="w"> </span><span class="n">vm_pindex_t</span><span class="w"> </span><span class="n">pindex</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">page_req</span><span class="p">);</span>
 </code></pre></div>
 <p><strong>Allocation flags:</strong></p>
 <table>
@@ -3618,19 +2194,19 @@
 <li>Insert into object if provided</li>
 <li>Return BUSY page</li>
 </ol>
-<h3 id="cpu-localized-color-selection">CPU-Localized Color Selection<a class="headerlink" href="#cpu-localized-color-selection" title="Permanent link">&para;</a></h3>
+<h3 id="cpu-localized-color-selection">CPU-Localized Color Selection<a class="headerlink" href="#cpu-localized-color-selection" title="Permanent link">¶</a></h3>
 <p><code>vm_get_pg_color()</code> calculates colors considering CPU topology:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="c1">// General format: [phys_id][core_id][cpuid][set-associativity]</span>
-<a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a><span class="n">physcale</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">PQ_L2_SIZE</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="n">cpu_topology_phys_ids</span><span class="p">;</span>
-<a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a><span class="n">grpscale</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">physcale</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="n">cpu_topology_core_ids</span><span class="p">;</span>
-<a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a><span class="n">cpuscale</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">grpscale</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="n">cpu_topology_ht_ids</span><span class="p">;</span>
-<a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a>
-<a id="__codelineno-6-6" name="__codelineno-6-6" href="#__codelineno-6-6"></a><span class="n">pg_color</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">phys_id</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">physcale</span><span class="p">;</span>
-<a id="__codelineno-6-7" name="__codelineno-6-7" href="#__codelineno-6-7"></a><span class="n">pg_color</span><span class="w"> </span><span class="o">+=</span><span class="w"> </span><span class="n">core_id</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">grpscale</span><span class="p">;</span>
-<a id="__codelineno-6-8" name="__codelineno-6-8" href="#__codelineno-6-8"></a><span class="n">pg_color</span><span class="w"> </span><span class="o">+=</span><span class="w"> </span><span class="n">ht_id</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">cpuscale</span><span class="p">;</span>
-<a id="__codelineno-6-9" name="__codelineno-6-9" href="#__codelineno-6-9"></a><span class="n">pg_color</span><span class="w"> </span><span class="o">+=</span><span class="w"> </span><span class="p">(</span><span class="n">pindex</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">object_pg_color</span><span class="p">)</span><span class="w"> </span><span class="o">%</span><span class="w"> </span><span class="n">cpuscale</span><span class="p">;</span>
+<div class="highlight"><pre><span></span><code><a href="#__codelineno-6-1" id="__codelineno-6-1" name="__codelineno-6-1"></a><span class="c1">// General format: [phys_id][core_id][cpuid][set-associativity]</span>
+<a href="#__codelineno-6-2" id="__codelineno-6-2" name="__codelineno-6-2"></a><span class="n">physcale</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">PQ_L2_SIZE</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="n">cpu_topology_phys_ids</span><span class="p">;</span>
+<a href="#__codelineno-6-3" id="__codelineno-6-3" name="__codelineno-6-3"></a><span class="n">grpscale</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">physcale</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="n">cpu_topology_core_ids</span><span class="p">;</span>
+<a href="#__codelineno-6-4" id="__codelineno-6-4" name="__codelineno-6-4"></a><span class="n">cpuscale</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">grpscale</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="n">cpu_topology_ht_ids</span><span class="p">;</span>
+<a href="#__codelineno-6-5" id="__codelineno-6-5" name="__codelineno-6-5"></a>
+<a href="#__codelineno-6-6" id="__codelineno-6-6" name="__codelineno-6-6"></a><span class="n">pg_color</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">phys_id</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">physcale</span><span class="p">;</span>
+<a href="#__codelineno-6-7" id="__codelineno-6-7" name="__codelineno-6-7"></a><span class="n">pg_color</span><span class="w"> </span><span class="o">+=</span><span class="w"> </span><span class="n">core_id</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">grpscale</span><span class="p">;</span>
+<a href="#__codelineno-6-8" id="__codelineno-6-8" name="__codelineno-6-8"></a><span class="n">pg_color</span><span class="w"> </span><span class="o">+=</span><span class="w"> </span><span class="n">ht_id</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">cpuscale</span><span class="p">;</span>
+<a href="#__codelineno-6-9" id="__codelineno-6-9" name="__codelineno-6-9"></a><span class="n">pg_color</span><span class="w"> </span><span class="o">+=</span><span class="w"> </span><span class="p">(</span><span class="n">pindex</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">object_pg_color</span><span class="p">)</span><span class="w"> </span><span class="o">%</span><span class="w"> </span><span class="n">cpuscale</span><span class="p">;</span>
 </code></pre></div>
-<h3 id="queue-search-algorithm">Queue Search Algorithm<a class="headerlink" href="#queue-search-algorithm" title="Permanent link">&para;</a></h3>
+<h3 id="queue-search-algorithm">Queue Search Algorithm<a class="headerlink" href="#queue-search-algorithm" title="Permanent link">¶</a></h3>
 <p><code>_vm_page_list_find()</code> searches for pages with widening locality:</p>
 <ol>
 <li>Try exact color queue first</li>
@@ -3638,16 +2214,16 @@
 <li>Track <code>lastq</code> to skip known-empty queues</li>
 <li>Return spinlocked page removed from queue</li>
 </ol>
-<h3 id="contiguous-allocation">Contiguous Allocation<a class="headerlink" href="#contiguous-allocation" title="Permanent link">&para;</a></h3>
+<h3 id="contiguous-allocation">Contiguous Allocation<a class="headerlink" href="#contiguous-allocation" title="Permanent link">¶</a></h3>
 <p>For DMA and device drivers requiring physically contiguous memory:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="n">vm_page_t</span><span class="w"> </span><span class="nf">vm_page_alloc_contig</span><span class="p">(</span><span class="n">vm_paddr_t</span><span class="w"> </span><span class="n">low</span><span class="p">,</span><span class="w"> </span><span class="n">vm_paddr_t</span><span class="w"> </span><span class="n">high</span><span class="p">,</span>
-<a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a><span class="w">                               </span><span class="kt">unsigned</span><span class="w"> </span><span class="kt">long</span><span class="w"> </span><span class="n">alignment</span><span class="p">,</span>
-<a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a><span class="w">                               </span><span class="kt">unsigned</span><span class="w"> </span><span class="kt">long</span><span class="w"> </span><span class="n">boundary</span><span class="p">,</span>
-<a id="__codelineno-7-4" name="__codelineno-7-4" href="#__codelineno-7-4"></a><span class="w">                               </span><span class="kt">unsigned</span><span class="w"> </span><span class="kt">long</span><span class="w"> </span><span class="n">size</span><span class="p">,</span>
-<a id="__codelineno-7-5" name="__codelineno-7-5" href="#__codelineno-7-5"></a><span class="w">                               </span><span class="n">vm_memattr_t</span><span class="w"> </span><span class="n">memattr</span><span class="p">);</span>
+<div class="highlight"><pre><span></span><code><a href="#__codelineno-7-1" id="__codelineno-7-1" name="__codelineno-7-1"></a><span class="n">vm_page_t</span><span class="w"> </span><span class="nf">vm_page_alloc_contig</span><span class="p">(</span><span class="n">vm_paddr_t</span><span class="w"> </span><span class="n">low</span><span class="p">,</span><span class="w"> </span><span class="n">vm_paddr_t</span><span class="w"> </span><span class="n">high</span><span class="p">,</span>
+<a href="#__codelineno-7-2" id="__codelineno-7-2" name="__codelineno-7-2"></a><span class="w">                               </span><span class="kt">unsigned</span><span class="w"> </span><span class="kt">long</span><span class="w"> </span><span class="n">alignment</span><span class="p">,</span>
+<a href="#__codelineno-7-3" id="__codelineno-7-3" name="__codelineno-7-3"></a><span class="w">                               </span><span class="kt">unsigned</span><span class="w"> </span><span class="kt">long</span><span class="w"> </span><span class="n">boundary</span><span class="p">,</span>
+<a href="#__codelineno-7-4" id="__codelineno-7-4" name="__codelineno-7-4"></a><span class="w">                               </span><span class="kt">unsigned</span><span class="w"> </span><span class="kt">long</span><span class="w"> </span><span class="n">size</span><span class="p">,</span>
+<a href="#__codelineno-7-5" id="__codelineno-7-5" name="__codelineno-7-5"></a><span class="w">                               </span><span class="n">vm_memattr_t</span><span class="w"> </span><span class="n">memattr</span><span class="p">);</span>
 </code></pre></div>
 <p>Uses the <code>vm_contig_alist</code> allocator for low-memory DMA pages.</p>
-<h3 id="other-allocation-functions">Other Allocation Functions<a class="headerlink" href="#other-allocation-functions" title="Permanent link">&para;</a></h3>
+<h3 id="other-allocation-functions">Other Allocation Functions<a class="headerlink" href="#other-allocation-functions" title="Permanent link">¶</a></h3>
 <table>
 <thead>
 <tr>
@@ -3666,9 +2242,9 @@
 </tr>
 </tbody>
 </table>
-<hr />
-<h2 id="page-freeing">Page Freeing<a class="headerlink" href="#page-freeing" title="Permanent link">&para;</a></h2>
-<h3 id="vm_page_free_toq"><code>vm_page_free_toq()</code><a class="headerlink" href="#vm_page_free_toq" title="Permanent link">&para;</a></h3>
+<hr/>
+<h2 id="page-freeing">Page Freeing<a class="headerlink" href="#page-freeing" title="Permanent link">¶</a></h2>
+<h3 id="vm_page_free_toq"><code>vm_page_free_toq()</code><a class="headerlink" href="#vm_page_free_toq" title="Permanent link">¶</a></h3>
 <p>The main page freeing function:</p>
 <ol>
 <li>Assert page not mapped (calls <code>pmap_mapped_sync()</code> if needed)</li>
@@ -3682,111 +2258,99 @@
 <li>Wake up page waiters</li>
 <li>Wake memory-waiting threads via <code>vm_page_free_wakeup()</code></li>
 </ol>
-<h3 id="free-wakeup-logic">Free Wakeup Logic<a class="headerlink" href="#free-wakeup-logic" title="Permanent link">&para;</a></h3>
+<h3 id="free-wakeup-logic">Free Wakeup Logic<a class="headerlink" href="#free-wakeup-logic" title="Permanent link">¶</a></h3>
 <p><code>vm_page_free_wakeup()</code> signals:
 - <strong>Pageout daemon</strong>: If it needs pages and threshold met
 - <strong>Memory-waiting processes</strong>: If above hysteresis threshold</p>
-<hr />
-<h2 id="page-state-transitions">Page State Transitions<a class="headerlink" href="#page-state-transitions" title="Permanent link">&para;</a></h2>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a>                    ┌─────────────┐
-<a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a>                    │   PQ_FREE   │
-<a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a>                    └──────┬──────┘
-<a id="__codelineno-8-4" name="__codelineno-8-4" href="#__codelineno-8-4"></a>                           │ alloc
-<a id="__codelineno-8-5" name="__codelineno-8-5" href="#__codelineno-8-5"></a>                           ▼
-<a id="__codelineno-8-6" name="__codelineno-8-6" href="#__codelineno-8-6"></a>              ┌────────────────────────┐
-<a id="__codelineno-8-7" name="__codelineno-8-7" href="#__codelineno-8-7"></a>              │       PQ_ACTIVE        │
-<a id="__codelineno-8-8" name="__codelineno-8-8" href="#__codelineno-8-8"></a>              └────────────┬───────────┘
-<a id="__codelineno-8-9" name="__codelineno-8-9" href="#__codelineno-8-9"></a>                           │ deactivate
-<a id="__codelineno-8-10" name="__codelineno-8-10" href="#__codelineno-8-10"></a>                           ▼
-<a id="__codelineno-8-11" name="__codelineno-8-11" href="#__codelineno-8-11"></a>              ┌────────────────────────┐
-<a id="__codelineno-8-12" name="__codelineno-8-12" href="#__codelineno-8-12"></a>              │      PQ_INACTIVE       │
-<a id="__codelineno-8-13" name="__codelineno-8-13" href="#__codelineno-8-13"></a>              └────────────┬───────────┘
-<a id="__codelineno-8-14" name="__codelineno-8-14" href="#__codelineno-8-14"></a>                           │ clean
-<a id="__codelineno-8-15" name="__codelineno-8-15" href="#__codelineno-8-15"></a>                           ▼
-<a id="__codelineno-8-16" name="__codelineno-8-16" href="#__codelineno-8-16"></a>              ┌────────────────────────┐
-<a id="__codelineno-8-17" name="__codelineno-8-17" href="#__codelineno-8-17"></a>              │       PQ_CACHE         │◄──── clean, not mapped
-<a id="__codelineno-8-18" name="__codelineno-8-18" href="#__codelineno-8-18"></a>              └────────────┬───────────┘
-<a id="__codelineno-8-19" name="__codelineno-8-19" href="#__codelineno-8-19"></a>                           │ free
-<a id="__codelineno-8-20" name="__codelineno-8-20" href="#__codelineno-8-20"></a>                           ▼
-<a id="__codelineno-8-21" name="__codelineno-8-21" href="#__codelineno-8-21"></a>              ┌────────────────────────┐
-<a id="__codelineno-8-22" name="__codelineno-8-22" href="#__codelineno-8-22"></a>              │   PQ_FREE or PQ_HOLD   │
-<a id="__codelineno-8-23" name="__codelineno-8-23" href="#__codelineno-8-23"></a>              └────────────────────────┘
-</code></pre></div>
-<h3 id="activation">Activation<a class="headerlink" href="#activation" title="Permanent link">&para;</a></h3>
+<hr/>
+<h2 id="page-state-transitions">Page State Transitions<a class="headerlink" href="#page-state-transitions" title="Permanent link">¶</a></h2>
+<pre class="mermaid"><code>flowchart TB
+    PQ_FREE["PQ_FREE"]
+    PQ_ACTIVE["PQ_ACTIVE"]
+    PQ_INACTIVE["PQ_INACTIVE"]
+    PQ_CACHE["PQ_CACHE<br/><i>clean, not mapped</i>"]
+    PQ_FREE_OR_HOLD["PQ_FREE or PQ_HOLD"]
+
+    PQ_FREE --&gt;|alloc| PQ_ACTIVE
+    PQ_ACTIVE --&gt;|deactivate| PQ_INACTIVE
+    PQ_INACTIVE --&gt;|clean| PQ_CACHE
+    PQ_CACHE --&gt;|free| PQ_FREE_OR_HOLD
+</code></pre>
+<h3 id="activation">Activation<a class="headerlink" href="#activation" title="Permanent link">¶</a></h3>
 <p><code>vm_page_activate()</code> moves a page to <code>PQ_ACTIVE</code>:
 - Sets <code>act_count</code> to at least <code>ACT_INIT</code>
 - Wakes pagedaemon if page was on cache/free queue</p>
-<h3 id="deactivation">Deactivation<a class="headerlink" href="#deactivation" title="Permanent link">&para;</a></h3>
+<h3 id="deactivation">Deactivation<a class="headerlink" href="#deactivation" title="Permanent link">¶</a></h3>
 <p><code>vm_page_deactivate()</code> moves a page to <code>PQ_INACTIVE</code>:
 - Clears <code>PG_WINATCFLS</code> flag
 - Optional <code>athead</code> for pseudo-cache behavior (MADV_DONTNEED)</p>
-<h3 id="caching">Caching<a class="headerlink" href="#caching" title="Permanent link">&para;</a></h3>
+<h3 id="caching">Caching<a class="headerlink" href="#caching" title="Permanent link">¶</a></h3>
 <p><code>vm_page_cache()</code> moves a clean page to <code>PQ_CACHE</code>:
 - Removes all pmap mappings first
 - Dirty pages are deactivated instead</p>
-<hr />
-<h2 id="busy-state-management">Busy State Management<a class="headerlink" href="#busy-state-management" title="Permanent link">&para;</a></h2>
+<hr/>
+<h2 id="busy-state-management">Busy State Management<a class="headerlink" href="#busy-state-management" title="Permanent link">¶</a></h2>
 <p>DragonFly uses atomic busy counts instead of traditional locks.</p>
-<h3 id="hard-busy-pbusy_locked">Hard Busy (<code>PBUSY_LOCKED</code>)<a class="headerlink" href="#hard-busy-pbusy_locked" title="Permanent link">&para;</a></h3>
+<h3 id="hard-busy-pbusy_locked">Hard Busy (<code>PBUSY_LOCKED</code>)<a class="headerlink" href="#hard-busy-pbusy_locked" title="Permanent link">¶</a></h3>
 <p>Exclusive access to the page.</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a><span class="kt">void</span><span class="w"> </span><span class="nf">vm_page_busy_wait</span><span class="p">(</span><span class="n">vm_page_t</span><span class="w"> </span><span class="n">m</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">also_m_busy</span><span class="p">,</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="n">msg</span><span class="p">);</span>
-<a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a><span class="kt">int</span><span class="w">  </span><span class="nf">vm_page_busy_try</span><span class="p">(</span><span class="n">vm_page_t</span><span class="w"> </span><span class="n">m</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">also_m_busy</span><span class="p">);</span>
-<a id="__codelineno-9-3" name="__codelineno-9-3" href="#__codelineno-9-3"></a><span class="kt">void</span><span class="w"> </span><span class="nf">vm_page_wakeup</span><span class="p">(</span><span class="n">vm_page_t</span><span class="w"> </span><span class="n">m</span><span class="p">);</span>
+<div class="highlight"><pre><span></span><code><a href="#__codelineno-8-1" id="__codelineno-8-1" name="__codelineno-8-1"></a><span class="kt">void</span><span class="w"> </span><span class="nf">vm_page_busy_wait</span><span class="p">(</span><span class="n">vm_page_t</span><span class="w"> </span><span class="n">m</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">also_m_busy</span><span class="p">,</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="n">msg</span><span class="p">);</span>
+<a href="#__codelineno-8-2" id="__codelineno-8-2" name="__codelineno-8-2"></a><span class="kt">int</span><span class="w">  </span><span class="nf">vm_page_busy_try</span><span class="p">(</span><span class="n">vm_page_t</span><span class="w"> </span><span class="n">m</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">also_m_busy</span><span class="p">);</span>
+<a href="#__codelineno-8-3" id="__codelineno-8-3" name="__codelineno-8-3"></a><span class="kt">void</span><span class="w"> </span><span class="nf">vm_page_wakeup</span><span class="p">(</span><span class="n">vm_page_t</span><span class="w"> </span><span class="n">m</span><span class="p">);</span>
 </code></pre></div>
 <ul>
 <li><code>vm_page_busy_wait()</code>: Blocks until page not busy</li>
 <li><code>vm_page_busy_try()</code>: Non-blocking attempt, returns TRUE on failure</li>
 <li><code>vm_page_wakeup()</code>: Clears busy and wakes waiters</li>
 </ul>
-<h3 id="soft-busy-pbusy_mask">Soft Busy (<code>PBUSY_MASK</code>)<a class="headerlink" href="#soft-busy-pbusy_mask" title="Permanent link">&para;</a></h3>
+<h3 id="soft-busy-pbusy_mask">Soft Busy (<code>PBUSY_MASK</code>)<a class="headerlink" href="#soft-busy-pbusy_mask" title="Permanent link">¶</a></h3>
 <p>Shared access for compatible operations (e.g., read-only mapping during write).</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a><span class="kt">void</span><span class="w"> </span><span class="nf">vm_page_io_start</span><span class="p">(</span><span class="n">vm_page_t</span><span class="w"> </span><span class="n">m</span><span class="p">);</span><span class="w">   </span><span class="c1">// Increment soft-busy (requires hard-busy)</span>
-<a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a><span class="kt">void</span><span class="w"> </span><span class="nf">vm_page_io_finish</span><span class="p">(</span><span class="n">vm_page_t</span><span class="w"> </span><span class="n">m</span><span class="p">);</span><span class="w">  </span><span class="c1">// Decrement soft-busy</span>
-<a id="__codelineno-10-3" name="__codelineno-10-3" href="#__codelineno-10-3"></a><span class="kt">int</span><span class="w">  </span><span class="nf">vm_page_sbusy_try</span><span class="p">(</span><span class="n">vm_page_t</span><span class="w"> </span><span class="n">m</span><span class="p">);</span><span class="w">  </span><span class="c1">// Non-blocking soft-busy acquire</span>
+<div class="highlight"><pre><span></span><code><a href="#__codelineno-9-1" id="__codelineno-9-1" name="__codelineno-9-1"></a><span class="kt">void</span><span class="w"> </span><span class="nf">vm_page_io_start</span><span class="p">(</span><span class="n">vm_page_t</span><span class="w"> </span><span class="n">m</span><span class="p">);</span><span class="w">   </span><span class="c1">// Increment soft-busy (requires hard-busy)</span>
+<a href="#__codelineno-9-2" id="__codelineno-9-2" name="__codelineno-9-2"></a><span class="kt">void</span><span class="w"> </span><span class="nf">vm_page_io_finish</span><span class="p">(</span><span class="n">vm_page_t</span><span class="w"> </span><span class="n">m</span><span class="p">);</span><span class="w">  </span><span class="c1">// Decrement soft-busy</span>
+<a href="#__codelineno-9-3" id="__codelineno-9-3" name="__codelineno-9-3"></a><span class="kt">int</span><span class="w">  </span><span class="nf">vm_page_sbusy_try</span><span class="p">(</span><span class="n">vm_page_t</span><span class="w"> </span><span class="n">m</span><span class="p">);</span><span class="w">  </span><span class="c1">// Non-blocking soft-busy acquire</span>
 </code></pre></div>
-<h3 id="waiting">Waiting<a class="headerlink" href="#waiting" title="Permanent link">&para;</a></h3>
+<h3 id="waiting">Waiting<a class="headerlink" href="#waiting" title="Permanent link">¶</a></h3>
 <p><code>vm_page_sleep_busy()</code> sleeps until page not busy without acquiring it.</p>
-<hr />
-<h2 id="wireunwire">Wire/Unwire<a class="headerlink" href="#wireunwire" title="Permanent link">&para;</a></h2>
+<hr/>
+<h2 id="wireunwire">Wire/Unwire<a class="headerlink" href="#wireunwire" title="Permanent link">¶</a></h2>
 <p>Wiring prevents a page from being paged out.</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a><span class="kt">void</span><span class="w"> </span><span class="nf">vm_page_wire</span><span class="p">(</span><span class="n">vm_page_t</span><span class="w"> </span><span class="n">m</span><span class="p">);</span>
-<a id="__codelineno-11-2" name="__codelineno-11-2" href="#__codelineno-11-2"></a><span class="kt">void</span><span class="w"> </span><span class="nf">vm_page_unwire</span><span class="p">(</span><span class="n">vm_page_t</span><span class="w"> </span><span class="n">m</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">activate</span><span class="p">);</span>
+<div class="highlight"><pre><span></span><code><a href="#__codelineno-10-1" id="__codelineno-10-1" name="__codelineno-10-1"></a><span class="kt">void</span><span class="w"> </span><span class="nf">vm_page_wire</span><span class="p">(</span><span class="n">vm_page_t</span><span class="w"> </span><span class="n">m</span><span class="p">);</span>
+<a href="#__codelineno-10-2" id="__codelineno-10-2" name="__codelineno-10-2"></a><span class="kt">void</span><span class="w"> </span><span class="nf">vm_page_unwire</span><span class="p">(</span><span class="n">vm_page_t</span><span class="w"> </span><span class="n">m</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">activate</span><span class="p">);</span>
 </code></pre></div>
 <ul>
 <li><code>vm_page_wire()</code>: Increments <code>wire_count</code>, adjusts vmstats on 0→1</li>
 <li><code>vm_page_unwire()</code>: Decrements <code>wire_count</code>, activates or deactivates on 1→0</li>
 <li>Fictitious pages ignore wire operations</li>
 </ul>
-<hr />
-<h2 id="holdunhold">Hold/Unhold<a class="headerlink" href="#holdunhold" title="Permanent link">&para;</a></h2>
+<hr/>
+<h2 id="holdunhold">Hold/Unhold<a class="headerlink" href="#holdunhold" title="Permanent link">¶</a></h2>
 <p>Holding prevents page reuse but not disassociation from object.</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a><span class="kt">void</span><span class="w"> </span><span class="nf">vm_page_hold</span><span class="p">(</span><span class="n">vm_page_t</span><span class="w"> </span><span class="n">m</span><span class="p">);</span>
-<a id="__codelineno-12-2" name="__codelineno-12-2" href="#__codelineno-12-2"></a><span class="kt">void</span><span class="w"> </span><span class="nf">vm_page_unhold</span><span class="p">(</span><span class="n">vm_page_t</span><span class="w"> </span><span class="n">m</span><span class="p">);</span>
+<div class="highlight"><pre><span></span><code><a href="#__codelineno-11-1" id="__codelineno-11-1" name="__codelineno-11-1"></a><span class="kt">void</span><span class="w"> </span><span class="nf">vm_page_hold</span><span class="p">(</span><span class="n">vm_page_t</span><span class="w"> </span><span class="n">m</span><span class="p">);</span>
+<a href="#__codelineno-11-2" id="__codelineno-11-2" name="__codelineno-11-2"></a><span class="kt">void</span><span class="w"> </span><span class="nf">vm_page_unhold</span><span class="p">(</span><span class="n">vm_page_t</span><span class="w"> </span><span class="n">m</span><span class="p">);</span>
 </code></pre></div>
 <p>On last unhold, if page is on <code>PQ_HOLD</code>, it moves to <code>PQ_FREE</code>.</p>
-<hr />
-<h2 id="page-lookup">Page Lookup<a class="headerlink" href="#page-lookup" title="Permanent link">&para;</a></h2>
-<h3 id="standard-lookup">Standard Lookup<a class="headerlink" href="#standard-lookup" title="Permanent link">&para;</a></h3>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a><span class="n">vm_page_t</span><span class="w"> </span><span class="nf">vm_page_lookup</span><span class="p">(</span><span class="n">vm_object_t</span><span class="w"> </span><span class="n">object</span><span class="p">,</span><span class="w"> </span><span class="n">vm_pindex_t</span><span class="w"> </span><span class="n">pindex</span><span class="p">);</span>
+<hr/>
+<h2 id="page-lookup">Page Lookup<a class="headerlink" href="#page-lookup" title="Permanent link">¶</a></h2>
+<h3 id="standard-lookup">Standard Lookup<a class="headerlink" href="#standard-lookup" title="Permanent link">¶</a></h3>
+<div class="highlight"><pre><span></span><code><a href="#__codelineno-12-1" id="__codelineno-12-1" name="__codelineno-12-1"></a><span class="n">vm_page_t</span><span class="w"> </span><span class="nf">vm_page_lookup</span><span class="p">(</span><span class="n">vm_object_t</span><span class="w"> </span><span class="n">object</span><span class="p">,</span><span class="w"> </span><span class="n">vm_pindex_t</span><span class="w"> </span><span class="n">pindex</span><span class="p">);</span>
 </code></pre></div>
 <p>Requires object token held. Does RB-tree lookup and populates hash cache.</p>
-<h3 id="lookup-busy">Lookup + Busy<a class="headerlink" href="#lookup-busy" title="Permanent link">&para;</a></h3>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-14-1" name="__codelineno-14-1" href="#__codelineno-14-1"></a><span class="c1">// Blocking</span>
-<a id="__codelineno-14-2" name="__codelineno-14-2" href="#__codelineno-14-2"></a><span class="n">vm_page_t</span><span class="w"> </span><span class="nf">vm_page_lookup_busy_wait</span><span class="p">(</span><span class="n">vm_object_t</span><span class="w"> </span><span class="n">object</span><span class="p">,</span><span class="w"> </span><span class="n">vm_pindex_t</span><span class="w"> </span><span class="n">pindex</span><span class="p">,</span>
-<a id="__codelineno-14-3" name="__codelineno-14-3" href="#__codelineno-14-3"></a><span class="w">                                   </span><span class="kt">int</span><span class="w"> </span><span class="n">also_m_busy</span><span class="p">,</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="n">msg</span><span class="p">);</span>
-<a id="__codelineno-14-4" name="__codelineno-14-4" href="#__codelineno-14-4"></a>
-<a id="__codelineno-14-5" name="__codelineno-14-5" href="#__codelineno-14-5"></a><span class="c1">// Non-blocking</span>
-<a id="__codelineno-14-6" name="__codelineno-14-6" href="#__codelineno-14-6"></a><span class="n">vm_page_t</span><span class="w"> </span><span class="nf">vm_page_lookup_busy_try</span><span class="p">(</span><span class="n">vm_object_t</span><span class="w"> </span><span class="n">object</span><span class="p">,</span><span class="w"> </span><span class="n">vm_pindex_t</span><span class="w"> </span><span class="n">pindex</span><span class="p">,</span>
-<a id="__codelineno-14-7" name="__codelineno-14-7" href="#__codelineno-14-7"></a><span class="w">                                  </span><span class="kt">int</span><span class="w"> </span><span class="n">also_m_busy</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="o">*</span><span class="n">errorp</span><span class="p">);</span>
+<h3 id="lookup-busy">Lookup + Busy<a class="headerlink" href="#lookup-busy" title="Permanent link">¶</a></h3>
+<div class="highlight"><pre><span></span><code><a href="#__codelineno-13-1" id="__codelineno-13-1" name="__codelineno-13-1"></a><span class="c1">// Blocking</span>
+<a href="#__codelineno-13-2" id="__codelineno-13-2" name="__codelineno-13-2"></a><span class="n">vm_page_t</span><span class="w"> </span><span class="nf">vm_page_lookup_busy_wait</span><span class="p">(</span><span class="n">vm_object_t</span><span class="w"> </span><span class="n">object</span><span class="p">,</span><span class="w"> </span><span class="n">vm_pindex_t</span><span class="w"> </span><span class="n">pindex</span><span class="p">,</span>
+<a href="#__codelineno-13-3" id="__codelineno-13-3" name="__codelineno-13-3"></a><span class="w">                                   </span><span class="kt">int</span><span class="w"> </span><span class="n">also_m_busy</span><span class="p">,</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="n">msg</span><span class="p">);</span>
+<a href="#__codelineno-13-4" id="__codelineno-13-4" name="__codelineno-13-4"></a>
+<a href="#__codelineno-13-5" id="__codelineno-13-5" name="__codelineno-13-5"></a><span class="c1">// Non-blocking</span>
+<a href="#__codelineno-13-6" id="__codelineno-13-6" name="__codelineno-13-6"></a><span class="n">vm_page_t</span><span class="w"> </span><span class="nf">vm_page_lookup_busy_try</span><span class="p">(</span><span class="n">vm_object_t</span><span class="w"> </span><span class="n">object</span><span class="p">,</span><span class="w"> </span><span class="n">vm_pindex_t</span><span class="w"> </span><span class="n">pindex</span><span class="p">,</span>
+<a href="#__codelineno-13-7" id="__codelineno-13-7" name="__codelineno-13-7"></a><span class="w">                                  </span><span class="kt">int</span><span class="w"> </span><span class="n">also_m_busy</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="o">*</span><span class="n">errorp</span><span class="p">);</span>
 </code></pre></div>
-<h3 id="fast-heuristic-lookup">Fast Heuristic Lookup<a class="headerlink" href="#fast-heuristic-lookup" title="Permanent link">&para;</a></h3>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-15-1" name="__codelineno-15-1" href="#__codelineno-15-1"></a><span class="n">vm_page_t</span><span class="w"> </span><span class="nf">vm_page_hash_get</span><span class="p">(</span><span class="n">vm_object_t</span><span class="w"> </span><span class="n">object</span><span class="p">,</span><span class="w"> </span><span class="n">vm_pindex_t</span><span class="w"> </span><span class="n">pindex</span><span class="p">);</span>
+<h3 id="fast-heuristic-lookup">Fast Heuristic Lookup<a class="headerlink" href="#fast-heuristic-lookup" title="Permanent link">¶</a></h3>
+<div class="highlight"><pre><span></span><code><a href="#__codelineno-14-1" id="__codelineno-14-1" name="__codelineno-14-1"></a><span class="n">vm_page_t</span><span class="w"> </span><span class="nf">vm_page_hash_get</span><span class="p">(</span><span class="n">vm_object_t</span><span class="w"> </span><span class="n">object</span><span class="p">,</span><span class="w"> </span><span class="n">vm_pindex_t</span><span class="w"> </span><span class="n">pindex</span><span class="p">);</span>
 </code></pre></div>
 <p>Lockless lookup returning soft-busied page on hit.</p>
-<hr />
-<h2 id="validdirty-bit-management">Valid/Dirty Bit Management<a class="headerlink" href="#validdirty-bit-management" title="Permanent link">&para;</a></h2>
+<hr/>
+<h2 id="validdirty-bit-management">Valid/Dirty Bit Management<a class="headerlink" href="#validdirty-bit-management" title="Permanent link">¶</a></h2>
 <p>Each page has 8 valid and 8 dirty bits (one per DEV_BSIZE chunk, typically 512 bytes).</p>
-<h3 id="functions">Functions<a class="headerlink" href="#functions" title="Permanent link">&para;</a></h3>
+<h3 id="functions">Functions<a class="headerlink" href="#functions" title="Permanent link">¶</a></h3>
 <table>
 <thead>
 <tr>
@@ -3833,9 +2397,9 @@
 </tr>
 </tbody>
 </table>
-<hr />
-<h2 id="memory-pressure-handling">Memory Pressure Handling<a class="headerlink" href="#memory-pressure-handling" title="Permanent link">&para;</a></h2>
-<h3 id="waiting-functions">Waiting Functions<a class="headerlink" href="#waiting-functions" title="Permanent link">&para;</a></h3>
+<hr/>
+<h2 id="memory-pressure-handling">Memory Pressure Handling<a class="headerlink" href="#memory-pressure-handling" title="Permanent link">¶</a></h2>
+<h3 id="waiting-functions">Waiting Functions<a class="headerlink" href="#waiting-functions" title="Permanent link">¶</a></h3>
 <table>
 <thead>
 <tr>
@@ -3862,50 +2426,50 @@
 </tr>
 </tbody>
 </table>
-<h3 id="nice-aware-paging">Nice-Aware Paging<a class="headerlink" href="#nice-aware-paging" title="Permanent link">&para;</a></h3>
+<h3 id="nice-aware-paging">Nice-Aware Paging<a class="headerlink" href="#nice-aware-paging" title="Permanent link">¶</a></h3>
 <p>Process nice value affects paging thresholds:
 - Higher nice = earlier blocking
 - Prevents nice'd memory hogs from impacting normal processes</p>
-<h3 id="low-memory-kill">Low Memory Kill<a class="headerlink" href="#low-memory-kill" title="Permanent link">&para;</a></h3>
+<h3 id="low-memory-kill">Low Memory Kill<a class="headerlink" href="#low-memory-kill" title="Permanent link">¶</a></h3>
 <p>Processes with <code>P_LOWMEMKILL</code> flag can break out of wait loops.</p>
-<hr />
-<h2 id="madvise-support">madvise Support<a class="headerlink" href="#madvise-support" title="Permanent link">&para;</a></h2>
-<h3 id="vm_page_dontneed"><code>vm_page_dontneed()</code><a class="headerlink" href="#vm_page_dontneed" title="Permanent link">&para;</a></h3>
+<hr/>
+<h2 id="madvise-support">madvise Support<a class="headerlink" href="#madvise-support" title="Permanent link">¶</a></h2>
+<h3 id="vm_page_dontneed"><code>vm_page_dontneed()</code><a class="headerlink" href="#vm_page_dontneed" title="Permanent link">¶</a></h3>
 <p>Implements <code>MADV_DONTNEED</code>:
 - 3/32 chance: deactivate page
 - 28/32 chance: deactivate at head (pseudo-cache)
 - Clears <code>PG_REFERENCED</code></p>
-<hr />
-<h2 id="special-page-types">Special Page Types<a class="headerlink" href="#special-page-types" title="Permanent link">&para;</a></h2>
-<h3 id="fictitious-pages">Fictitious Pages<a class="headerlink" href="#fictitious-pages" title="Permanent link">&para;</a></h3>
+<hr/>
+<h2 id="special-page-types">Special Page Types<a class="headerlink" href="#special-page-types" title="Permanent link">¶</a></h2>
+<h3 id="fictitious-pages">Fictitious Pages<a class="headerlink" href="#fictitious-pages" title="Permanent link">¶</a></h3>
 <p>Pages with <code>PG_FICTITIOUS</code> flag:
 - Not in normal page array
 - Created via <code>vm_page_initfake()</code>
 - Wire/unwire operations ignored
 - Used for device mappings (GPU, etc.)</p>
-<h3 id="pages-requiring-commit">Pages Requiring Commit<a class="headerlink" href="#pages-requiring-commit" title="Permanent link">&para;</a></h3>
+<h3 id="pages-requiring-commit">Pages Requiring Commit<a class="headerlink" href="#pages-requiring-commit" title="Permanent link">¶</a></h3>
 <p>Pages with <code>PG_NEED_COMMIT</code> flag:
 - Cannot be reclaimed even if clean
 - Used by tmpfs, NFS
 - Set via <code>vm_page_need_commit()</code></p>
-<hr />
-<h2 id="locking-rules">Locking Rules<a class="headerlink" href="#locking-rules" title="Permanent link">&para;</a></h2>
-<h3 id="queue-operations">Queue Operations<a class="headerlink" href="#queue-operations" title="Permanent link">&para;</a></h3>
+<hr/>
+<h2 id="locking-rules">Locking Rules<a class="headerlink" href="#locking-rules" title="Permanent link">¶</a></h2>
+<h3 id="queue-operations">Queue Operations<a class="headerlink" href="#queue-operations" title="Permanent link">¶</a></h3>
 <p>Locking order: <strong>Page spinlock first, then queue spinlock</strong></p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-16-1" name="__codelineno-16-1" href="#__codelineno-16-1"></a><span class="n">vm_page_spin_lock</span><span class="p">(</span><span class="n">m</span><span class="p">);</span><span class="w">           </span><span class="c1">// Lock page</span>
-<a id="__codelineno-16-2" name="__codelineno-16-2" href="#__codelineno-16-2"></a><span class="n">_vm_page_queue_spin_lock</span><span class="p">(</span><span class="n">m</span><span class="p">);</span><span class="w">    </span><span class="c1">// Then lock its queue</span>
-<a id="__codelineno-16-3" name="__codelineno-16-3" href="#__codelineno-16-3"></a><span class="c1">// ... manipulate queue ...</span>
-<a id="__codelineno-16-4" name="__codelineno-16-4" href="#__codelineno-16-4"></a><span class="n">_vm_page_queue_spin_unlock</span><span class="p">(</span><span class="n">m</span><span class="p">);</span><span class="w">  </span><span class="c1">// Unlock queue first</span>
-<a id="__codelineno-16-5" name="__codelineno-16-5" href="#__codelineno-16-5"></a><span class="n">vm_page_spin_unlock</span><span class="p">(</span><span class="n">m</span><span class="p">);</span><span class="w">         </span><span class="c1">// Then unlock page</span>
+<div class="highlight"><pre><span></span><code><a href="#__codelineno-15-1" id="__codelineno-15-1" name="__codelineno-15-1"></a><span class="n">vm_page_spin_lock</span><span class="p">(</span><span class="n">m</span><span class="p">);</span><span class="w">           </span><span class="c1">// Lock page</span>
+<a href="#__codelineno-15-2" id="__codelineno-15-2" name="__codelineno-15-2"></a><span class="n">_vm_page_queue_spin_lock</span><span class="p">(</span><span class="n">m</span><span class="p">);</span><span class="w">    </span><span class="c1">// Then lock its queue</span>
+<a href="#__codelineno-15-3" id="__codelineno-15-3" name="__codelineno-15-3"></a><span class="c1">// ... manipulate queue ...</span>
+<a href="#__codelineno-15-4" id="__codelineno-15-4" name="__codelineno-15-4"></a><span class="n">_vm_page_queue_spin_unlock</span><span class="p">(</span><span class="n">m</span><span class="p">);</span><span class="w">  </span><span class="c1">// Unlock queue first</span>
+<a href="#__codelineno-15-5" id="__codelineno-15-5" name="__codelineno-15-5"></a><span class="n">vm_page_spin_unlock</span><span class="p">(</span><span class="n">m</span><span class="p">);</span><span class="w">         </span><span class="c1">// Then unlock page</span>
 </code></pre></div>
-<h3 id="per-cpu-statistics">Per-CPU Statistics<a class="headerlink" href="#per-cpu-statistics" title="Permanent link">&para;</a></h3>
+<h3 id="per-cpu-statistics">Per-CPU Statistics<a class="headerlink" href="#per-cpu-statistics" title="Permanent link">¶</a></h3>
 <p>Queue adjustments update per-CPU vmstats:
 - <code>mycpu-&gt;gd_vmstats_adj</code> - Accumulated adjustments
 - <code>mycpu-&gt;gd_vmstats</code> - Current view
 - Synchronized to global <code>vmstats</code> periodically or when threshold exceeded</p>
-<hr />
-<h2 id="debugging">Debugging<a class="headerlink" href="#debugging" title="Permanent link">&para;</a></h2>
-<h3 id="ddb-commands">DDB Commands<a class="headerlink" href="#ddb-commands" title="Permanent link">&para;</a></h3>
+<hr/>
+<h2 id="debugging">Debugging<a class="headerlink" href="#debugging" title="Permanent link">¶</a></h2>
+<h3 id="ddb-commands">DDB Commands<a class="headerlink" href="#ddb-commands" title="Permanent link">¶</a></h3>
 <table>
 <thead>
 <tr>
@@ -3924,7 +2488,7 @@
 </tr>
 </tbody>
 </table>
-<h3 id="sysctls">Sysctls<a class="headerlink" href="#sysctls" title="Permanent link">&para;</a></h3>
+<h3 id="sysctls">Sysctls<a class="headerlink" href="#sysctls" title="Permanent link">¶</a></h3>
 <table>
 <thead>
 <tr>
@@ -3947,8 +2511,8 @@
 </tr>
 </tbody>
 </table>
-<hr />
-<h2 id="dragonfly-specific-features">DragonFly-Specific Features<a class="headerlink" href="#dragonfly-specific-features" title="Permanent link">&para;</a></h2>
+<hr/>
+<h2 id="dragonfly-specific-features">DragonFly-Specific Features<a class="headerlink" href="#dragonfly-specific-features" title="Permanent link">¶</a></h2>
 <ol>
 <li><strong>1024-color page queues</strong> - Extreme SMP scalability</li>
 <li><strong>NUMA-aware coloring</strong> - Automatic per-socket page distribution</li>
@@ -3957,73 +2521,44 @@
 <li><strong>Nice-aware paging</strong> - Fair memory allocation under pressure</li>
 <li><strong>DMA alist reserve</strong> - Efficient contiguous allocation</li>
 </ol>
-<hr />
-<h2 id="see-also">See Also<a class="headerlink" href="#see-also" title="Permanent link">&para;</a></h2>
+<hr/>
+<h2 id="see-also">See Also<a class="headerlink" href="#see-also" title="Permanent link">¶</a></h2>
 <ul>
 <li><a href="../">VM Architecture Overview</a></li>
 <li><code>sys/vm/vm_page.h</code> - Page structure and flags</li>
 <li><code>sys/vm/vm_page2.h</code> - Inline functions and thresholds</li>
 </ul>
-
-
-
-
-
-
-
-
-
-
-
-
-                
-              </article>
-            </div>
-          
-          
+</article>
+</div>
 <script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
-        </div>
-        
-          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
-  
-  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+</div>
+<button class="md-top md-icon" data-md-component="top" hidden="" type="button">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"></path></svg>
   Back to top
 </button>
-        
-      </main>
-      
-        <footer class="md-footer">
-  
-  <div class="md-footer-meta md-typeset">
-    <div class="md-footer-meta__inner md-grid">
-      <div class="md-copyright">
+</main>
+<footer class="md-footer">
+<div class="md-footer-meta md-typeset">
+<div class="md-footer-meta__inner md-grid">
+<div class="md-copyright">
   
   
     Made with
-    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+    <a href="https://squidfunk.github.io/mkdocs-material/" rel="noopener" target="_blank">
       Material for MkDocs
     </a>
-  
 </div>
-      
-    </div>
-  </div>
+</div>
+</div>
 </footer>
-      
-    </div>
-    <div class="md-dialog" data-md-component="dialog">
-      <div class="md-dialog__inner md-typeset"></div>
-    </div>
-    
-    
-    
-      
-      
-      <script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": ["navigation.tabs", "navigation.sections", "navigation.expand", "navigation.top", "search.suggest", "search.highlight", "content.code.copy"], "search": "../../../assets/javascripts/workers/search.7a47a382.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
-    
-    
-      <script src="../../../assets/javascripts/bundle.e71a0d61.min.js"></script>
-      
-    
-  </body>
+</div>
+<div class="md-dialog" data-md-component="dialog">
+<div class="md-dialog__inner md-typeset"></div>
+</div>
+<script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": ["navigation.tabs", "navigation.sections", "navigation.expand", "navigation.top", "search.suggest", "search.highlight", "content.code.copy"], "search": "../../../assets/javascripts/workers/search.7a47a382.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+<script src="../../../assets/javascripts/bundle.e71a0d61.min.js"></script>
+<script type="module">import mermaid from "https://unpkg.com/mermaid@10.4.0/dist/mermaid.esm.min.mjs";
+window.mermaidConfig = {default: {
+    startOnLoad: false
+}};</script></body>
 </html>
