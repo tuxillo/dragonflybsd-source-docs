@@ -1741,13 +1741,11 @@
 </tbody>
 </table>
 <p>State transitions prevent thrashing while ensuring responsiveness:</p>
-<div class="highlight"><pre><span></span><code><a href="#__codelineno-1-1" id="__codelineno-1-1" name="__codelineno-1-1"></a>         shortage detected
-<a href="#__codelineno-1-2" id="__codelineno-1-2" name="__codelineno-1-2"></a>IDLE ───────────────────────→ TARGET1
-<a href="#__codelineno-1-3" id="__codelineno-1-3" name="__codelineno-1-3"></a>  ↑                              │
-<a href="#__codelineno-1-4" id="__codelineno-1-4" name="__codelineno-1-4"></a>  │      target1 reached         ↓
-<a href="#__codelineno-1-5" id="__codelineno-1-5" name="__codelineno-1-5"></a>  ←──────────────────────── TARGET2
-<a href="#__codelineno-1-6" id="__codelineno-1-6" name="__codelineno-1-6"></a>        target2 reached
-</code></pre></div>
+<pre class="mermaid"><code>flowchart LR
+    IDLE --&gt;|"shortage detected"| TARGET1
+    TARGET1 --&gt;|"target1 reached"| TARGET2
+    TARGET2 --&gt;|"target2 reached"| IDLE
+</code></pre>
 <h3 id="key-sysctls">Key Sysctls<a class="headerlink" href="#key-sysctls" title="Permanent link">¶</a></h3>
 <table>
 <thead>
@@ -1815,15 +1813,15 @@
 <li>For each page, call <code>vm_pageout_page()</code> for decision</li>
 </ol>
 <p><strong>Per-page decision in <code>vm_pageout_page()</code>:</strong></p>
-<div class="highlight"><pre><span></span><code><a href="#__codelineno-2-1" id="__codelineno-2-1" name="__codelineno-2-1"></a>Page state              Action
-<a href="#__codelineno-2-2" id="__codelineno-2-2" name="__codelineno-2-2"></a>──────────────────────  ─────────────────────────────────
-<a href="#__codelineno-2-3" id="__codelineno-2-3" name="__codelineno-2-3"></a>Wired                   Remove from queue
-<a href="#__codelineno-2-4" id="__codelineno-2-4" name="__codelineno-2-4"></a>Held                    Requeue at tail
-<a href="#__codelineno-2-5" id="__codelineno-2-5" name="__codelineno-2-5"></a>Referenced (pmap/flag)  Activate with boosted act_count
-<a href="#__codelineno-2-6" id="__codelineno-2-6" name="__codelineno-2-6"></a>Invalid (valid==0)      Free directly
-<a href="#__codelineno-2-7" id="__codelineno-2-7" name="__codelineno-2-7"></a>Clean (dirty==0)        Cache via vm_page_cache()
-<a href="#__codelineno-2-8" id="__codelineno-2-8" name="__codelineno-2-8"></a>Dirty, first pass       Set PG_WINATCFLS, requeue (double-LRU)
-<a href="#__codelineno-2-9" id="__codelineno-2-9" name="__codelineno-2-9"></a>Dirty, second pass      Attempt pageout via vm_pageout_clean_helper()
+<div class="highlight"><pre><span></span><code><a href="#__codelineno-1-1" id="__codelineno-1-1" name="__codelineno-1-1"></a>Page state              Action
+<a href="#__codelineno-1-2" id="__codelineno-1-2" name="__codelineno-1-2"></a>──────────────────────  ─────────────────────────────────
+<a href="#__codelineno-1-3" id="__codelineno-1-3" name="__codelineno-1-3"></a>Wired                   Remove from queue
+<a href="#__codelineno-1-4" id="__codelineno-1-4" name="__codelineno-1-4"></a>Held                    Requeue at tail
+<a href="#__codelineno-1-5" id="__codelineno-1-5" name="__codelineno-1-5"></a>Referenced (pmap/flag)  Activate with boosted act_count
+<a href="#__codelineno-1-6" id="__codelineno-1-6" name="__codelineno-1-6"></a>Invalid (valid==0)      Free directly
+<a href="#__codelineno-1-7" id="__codelineno-1-7" name="__codelineno-1-7"></a>Clean (dirty==0)        Cache via vm_page_cache()
+<a href="#__codelineno-1-8" id="__codelineno-1-8" name="__codelineno-1-8"></a>Dirty, first pass       Set PG_WINATCFLS, requeue (double-LRU)
+<a href="#__codelineno-1-9" id="__codelineno-1-9" name="__codelineno-1-9"></a>Dirty, second pass      Attempt pageout via vm_pageout_clean_helper()
 </code></pre></div>
 <p><strong>Double-LRU for Dirty Pages:</strong></p>
 <p>Dirty pages cycle through the inactive queue twice before laundering. The <code>PG_WINATCFLS</code> ("win at cache flush") flag tracks the first pass. This reduces unnecessary I/O for pages that may be freed or become clean naturally.</p>
@@ -1912,22 +1910,22 @@
 <li>Set <code>P_LOWMEMKILL</code> flag and call <code>killproc()</code></li>
 </ol>
 <p><strong>Victim size calculation:</strong>
-<div class="highlight"><pre><span></span><code><a href="#__codelineno-3-1" id="__codelineno-3-1" name="__codelineno-3-1"></a><span class="n">size</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">vmspace_anonymous_count</span><span class="p">(</span><span class="n">vm</span><span class="p">)</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">vmspace_swap_count</span><span class="p">(</span><span class="n">vm</span><span class="p">)</span>
+<div class="highlight"><pre><span></span><code><a href="#__codelineno-2-1" id="__codelineno-2-1" name="__codelineno-2-1"></a><span class="n">size</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">vmspace_anonymous_count</span><span class="p">(</span><span class="n">vm</span><span class="p">)</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">vmspace_swap_count</span><span class="p">(</span><span class="n">vm</span><span class="p">)</span>
 </code></pre></div></p>
 <h3 id="main-loop">Main Loop<a class="headerlink" href="#main-loop" title="Permanent link">¶</a></h3>
 <p><code>vm_pageout_thread()</code> main loop:</p>
-<div class="highlight"><pre><span></span><code><a href="#__codelineno-4-1" id="__codelineno-4-1" name="__codelineno-4-1"></a>Initialize markers, thresholds, swap pager
-<a href="#__codelineno-4-2" id="__codelineno-4-2" name="__codelineno-4-2"></a>
-<a href="#__codelineno-4-3" id="__codelineno-4-3" name="__codelineno-4-3"></a>while (TRUE) {
-<a href="#__codelineno-4-4" id="__codelineno-4-4" name="__codelineno-4-4"></a>    1. Sleep until vm_pages_needed or timeout
-<a href="#__codelineno-4-5" id="__codelineno-4-5" name="__codelineno-4-5"></a>    2. Calculate avail_shortage from targets
-<a href="#__codelineno-4-6" id="__codelineno-4-6" name="__codelineno-4-6"></a>    3. vm_pageout_scan_inactive() - launder/free pages
-<a href="#__codelineno-4-7" id="__codelineno-4-7" name="__codelineno-4-7"></a>    4. Calculate inactive_shortage
-<a href="#__codelineno-4-8" id="__codelineno-4-8" name="__codelineno-4-8"></a>    5. vm_pageout_scan_active() - feed inactive queue
-<a href="#__codelineno-4-9" id="__codelineno-4-9" name="__codelineno-4-9"></a>    6. vm_pageout_scan_cache() - free cached pages
-<a href="#__codelineno-4-10" id="__codelineno-4-10" name="__codelineno-4-10"></a>    7. Determine next state (IDLE/TARGET1/TARGET2)
-<a href="#__codelineno-4-11" id="__codelineno-4-11" name="__codelineno-4-11"></a>    8. Wakeup memory waiters if appropriate
-<a href="#__codelineno-4-12" id="__codelineno-4-12" name="__codelineno-4-12"></a>}
+<div class="highlight"><pre><span></span><code><a href="#__codelineno-3-1" id="__codelineno-3-1" name="__codelineno-3-1"></a>Initialize markers, thresholds, swap pager
+<a href="#__codelineno-3-2" id="__codelineno-3-2" name="__codelineno-3-2"></a>
+<a href="#__codelineno-3-3" id="__codelineno-3-3" name="__codelineno-3-3"></a>while (TRUE) {
+<a href="#__codelineno-3-4" id="__codelineno-3-4" name="__codelineno-3-4"></a>    1. Sleep until vm_pages_needed or timeout
+<a href="#__codelineno-3-5" id="__codelineno-3-5" name="__codelineno-3-5"></a>    2. Calculate avail_shortage from targets
+<a href="#__codelineno-3-6" id="__codelineno-3-6" name="__codelineno-3-6"></a>    3. vm_pageout_scan_inactive() - launder/free pages
+<a href="#__codelineno-3-7" id="__codelineno-3-7" name="__codelineno-3-7"></a>    4. Calculate inactive_shortage
+<a href="#__codelineno-3-8" id="__codelineno-3-8" name="__codelineno-3-8"></a>    5. vm_pageout_scan_active() - feed inactive queue
+<a href="#__codelineno-3-9" id="__codelineno-3-9" name="__codelineno-3-9"></a>    6. vm_pageout_scan_cache() - free cached pages
+<a href="#__codelineno-3-10" id="__codelineno-3-10" name="__codelineno-3-10"></a>    7. Determine next state (IDLE/TARGET1/TARGET2)
+<a href="#__codelineno-3-11" id="__codelineno-3-11" name="__codelineno-3-11"></a>    8. Wakeup memory waiters if appropriate
+<a href="#__codelineno-3-12" id="__codelineno-3-12" name="__codelineno-3-12"></a>}
 </code></pre></div>
 <p><strong>Emergency pager differences:</strong></p>
 <ul>
@@ -1939,47 +1937,40 @@
 <h2 id="swap-pager-swap_pagerc">Swap Pager (swap_pager.c)<a class="headerlink" href="#swap-pager-swap_pagerc" title="Permanent link">¶</a></h2>
 <h3 id="architecture">Architecture<a class="headerlink" href="#architecture" title="Permanent link">¶</a></h3>
 <p>The swap pager provides block storage for anonymous memory:</p>
-<div class="highlight"><pre><span></span><code><a href="#__codelineno-5-1" id="__codelineno-5-1" name="__codelineno-5-1"></a>                     vm_object
-<a href="#__codelineno-5-2" id="__codelineno-5-2" name="__codelineno-5-2"></a>                         │
-<a href="#__codelineno-5-3" id="__codelineno-5-3" name="__codelineno-5-3"></a>                         ↓
-<a href="#__codelineno-5-4" id="__codelineno-5-4" name="__codelineno-5-4"></a>              ┌──────────────────┐
-<a href="#__codelineno-5-5" id="__codelineno-5-5" name="__codelineno-5-5"></a>              │   swblock_root   │  RB-tree of swap metadata
-<a href="#__codelineno-5-6" id="__codelineno-5-6" name="__codelineno-5-6"></a>              │    (RB-tree)     │
-<a href="#__codelineno-5-7" id="__codelineno-5-7" name="__codelineno-5-7"></a>              └────────┬─────────┘
-<a href="#__codelineno-5-8" id="__codelineno-5-8" name="__codelineno-5-8"></a>                       │
-<a href="#__codelineno-5-9" id="__codelineno-5-9" name="__codelineno-5-9"></a>         ┌─────────────┼─────────────┐
-<a href="#__codelineno-5-10" id="__codelineno-5-10" name="__codelineno-5-10"></a>         ↓             ↓             ↓
-<a href="#__codelineno-5-11" id="__codelineno-5-11" name="__codelineno-5-11"></a>    ┌─────────┐   ┌─────────┐   ┌─────────┐
-<a href="#__codelineno-5-12" id="__codelineno-5-12" name="__codelineno-5-12"></a>    │ swblock │   │ swblock │   │ swblock │
-<a href="#__codelineno-5-13" id="__codelineno-5-13" name="__codelineno-5-13"></a>    │ (16 pgs)│   │ (16 pgs)│   │ (16 pgs)│
-<a href="#__codelineno-5-14" id="__codelineno-5-14" name="__codelineno-5-14"></a>    └────┬────┘   └────┬────┘   └────┬────┘
-<a href="#__codelineno-5-15" id="__codelineno-5-15" name="__codelineno-5-15"></a>         │             │             │
-<a href="#__codelineno-5-16" id="__codelineno-5-16" name="__codelineno-5-16"></a>         ↓             ↓             ↓
-<a href="#__codelineno-5-17" id="__codelineno-5-17" name="__codelineno-5-17"></a>    ┌─────────────────────────────────────┐
-<a href="#__codelineno-5-18" id="__codelineno-5-18" name="__codelineno-5-18"></a>    │          swapblist (blist)          │  Radix bitmap allocator
-<a href="#__codelineno-5-19" id="__codelineno-5-19" name="__codelineno-5-19"></a>    │       Swap block allocation         │
-<a href="#__codelineno-5-20" id="__codelineno-5-20" name="__codelineno-5-20"></a>    └─────────────────────────────────────┘
-<a href="#__codelineno-5-21" id="__codelineno-5-21" name="__codelineno-5-21"></a>                       │
-<a href="#__codelineno-5-22" id="__codelineno-5-22" name="__codelineno-5-22"></a>                       ↓
-<a href="#__codelineno-5-23" id="__codelineno-5-23" name="__codelineno-5-23"></a>    ┌─────────────────────────────────────┐
-<a href="#__codelineno-5-24" id="__codelineno-5-24" name="__codelineno-5-24"></a>    │         Swap devices (disks)        │
-<a href="#__codelineno-5-25" id="__codelineno-5-25" name="__codelineno-5-25"></a>    └─────────────────────────────────────┘
-</code></pre></div>
+<pre class="mermaid"><code>flowchart TB
+    OBJ["vm_object"]
+
+    subgraph RBTREE["swblock_root (RB-tree)<br/><i>RB-tree of swap metadata</i>"]
+        SWB1["swblock<br/>(16 pgs)"]
+        SWB2["swblock<br/>(16 pgs)"]
+        SWB3["swblock<br/>(16 pgs)"]
+    end
+
+    BLIST["swapblist (blist)<br/><i>Radix bitmap allocator</i><br/>Swap block allocation"]
+
+    DISK["Swap devices (disks)"]
+
+    OBJ --&gt; RBTREE
+    SWB1 --&gt; BLIST
+    SWB2 --&gt; BLIST
+    SWB3 --&gt; BLIST
+    BLIST --&gt; DISK
+</code></pre>
 <h3 id="key-data-structures">Key Data Structures<a class="headerlink" href="#key-data-structures" title="Permanent link">¶</a></h3>
 <p><strong>struct swblock</strong> - Swap metadata per 16-page range:</p>
-<div class="highlight"><pre><span></span><code><a href="#__codelineno-6-1" id="__codelineno-6-1" name="__codelineno-6-1"></a><span class="k">struct</span><span class="w"> </span><span class="nc">swblock</span><span class="w"> </span><span class="p">{</span>
-<a href="#__codelineno-6-2" id="__codelineno-6-2" name="__codelineno-6-2"></a><span class="w">    </span><span class="n">RB_ENTRY</span><span class="p">(</span><span class="n">swblock</span><span class="p">)</span><span class="w"> </span><span class="n">swb_entry</span><span class="p">;</span><span class="w">         </span><span class="cm">/* RB-tree linkage */</span>
-<a href="#__codelineno-6-3" id="__codelineno-6-3" name="__codelineno-6-3"></a><span class="w">    </span><span class="n">vm_pindex_t</span><span class="w">       </span><span class="n">swb_index</span><span class="p">;</span><span class="w">         </span><span class="cm">/* Base page index (aligned) */</span>
-<a href="#__codelineno-6-4" id="__codelineno-6-4" name="__codelineno-6-4"></a><span class="w">    </span><span class="kt">int</span><span class="w">               </span><span class="n">swb_count</span><span class="p">;</span><span class="w">         </span><span class="cm">/* Valid entries */</span>
-<a href="#__codelineno-6-5" id="__codelineno-6-5" name="__codelineno-6-5"></a><span class="w">    </span><span class="n">swblk_t</span><span class="w">           </span><span class="n">swb_pages</span><span class="p">[</span><span class="n">SWAP_META_PAGES</span><span class="p">];</span><span class="w">  </span><span class="cm">/* Block numbers (16) */</span>
-<a href="#__codelineno-6-6" id="__codelineno-6-6" name="__codelineno-6-6"></a><span class="p">};</span>
+<div class="highlight"><pre><span></span><code><a href="#__codelineno-4-1" id="__codelineno-4-1" name="__codelineno-4-1"></a><span class="k">struct</span><span class="w"> </span><span class="nc">swblock</span><span class="w"> </span><span class="p">{</span>
+<a href="#__codelineno-4-2" id="__codelineno-4-2" name="__codelineno-4-2"></a><span class="w">    </span><span class="n">RB_ENTRY</span><span class="p">(</span><span class="n">swblock</span><span class="p">)</span><span class="w"> </span><span class="n">swb_entry</span><span class="p">;</span><span class="w">         </span><span class="cm">/* RB-tree linkage */</span>
+<a href="#__codelineno-4-3" id="__codelineno-4-3" name="__codelineno-4-3"></a><span class="w">    </span><span class="n">vm_pindex_t</span><span class="w">       </span><span class="n">swb_index</span><span class="p">;</span><span class="w">         </span><span class="cm">/* Base page index (aligned) */</span>
+<a href="#__codelineno-4-4" id="__codelineno-4-4" name="__codelineno-4-4"></a><span class="w">    </span><span class="kt">int</span><span class="w">               </span><span class="n">swb_count</span><span class="p">;</span><span class="w">         </span><span class="cm">/* Valid entries */</span>
+<a href="#__codelineno-4-5" id="__codelineno-4-5" name="__codelineno-4-5"></a><span class="w">    </span><span class="n">swblk_t</span><span class="w">           </span><span class="n">swb_pages</span><span class="p">[</span><span class="n">SWAP_META_PAGES</span><span class="p">];</span><span class="w">  </span><span class="cm">/* Block numbers (16) */</span>
+<a href="#__codelineno-4-6" id="__codelineno-4-6" name="__codelineno-4-6"></a><span class="p">};</span>
 </code></pre></div>
 <p><strong>Global state:</strong></p>
-<div class="highlight"><pre><span></span><code><a href="#__codelineno-7-1" id="__codelineno-7-1" name="__codelineno-7-1"></a><span class="k">struct</span><span class="w"> </span><span class="nc">blist</span><span class="w"> </span><span class="o">*</span><span class="n">swapblist</span><span class="p">;</span><span class="w">      </span><span class="cm">/* Radix bitmap allocator */</span>
-<a href="#__codelineno-7-2" id="__codelineno-7-2" name="__codelineno-7-2"></a><span class="kt">int</span><span class="w"> </span><span class="n">swap_pager_full</span><span class="p">;</span><span class="w">          </span><span class="cm">/* Swap exhausted flag (triggers OOM) */</span>
-<a href="#__codelineno-7-3" id="__codelineno-7-3" name="__codelineno-7-3"></a><span class="kt">int</span><span class="w"> </span><span class="n">swap_pager_almost_full</span><span class="p">;</span><span class="w">   </span><span class="cm">/* Near exhaustion (with hysteresis) */</span>
-<a href="#__codelineno-7-4" id="__codelineno-7-4" name="__codelineno-7-4"></a><span class="n">swblk_t</span><span class="w"> </span><span class="n">vm_swap_anon_use</span><span class="p">;</span><span class="w">     </span><span class="cm">/* Swap used for anonymous pages */</span>
-<a href="#__codelineno-7-5" id="__codelineno-7-5" name="__codelineno-7-5"></a><span class="n">swblk_t</span><span class="w"> </span><span class="n">vm_swap_cache_use</span><span class="p">;</span><span class="w">    </span><span class="cm">/* Swap used for swapcache */</span>
+<div class="highlight"><pre><span></span><code><a href="#__codelineno-5-1" id="__codelineno-5-1" name="__codelineno-5-1"></a><span class="k">struct</span><span class="w"> </span><span class="nc">blist</span><span class="w"> </span><span class="o">*</span><span class="n">swapblist</span><span class="p">;</span><span class="w">      </span><span class="cm">/* Radix bitmap allocator */</span>
+<a href="#__codelineno-5-2" id="__codelineno-5-2" name="__codelineno-5-2"></a><span class="kt">int</span><span class="w"> </span><span class="n">swap_pager_full</span><span class="p">;</span><span class="w">          </span><span class="cm">/* Swap exhausted flag (triggers OOM) */</span>
+<a href="#__codelineno-5-3" id="__codelineno-5-3" name="__codelineno-5-3"></a><span class="kt">int</span><span class="w"> </span><span class="n">swap_pager_almost_full</span><span class="p">;</span><span class="w">   </span><span class="cm">/* Near exhaustion (with hysteresis) */</span>
+<a href="#__codelineno-5-4" id="__codelineno-5-4" name="__codelineno-5-4"></a><span class="n">swblk_t</span><span class="w"> </span><span class="n">vm_swap_anon_use</span><span class="p">;</span><span class="w">     </span><span class="cm">/* Swap used for anonymous pages */</span>
+<a href="#__codelineno-5-5" id="__codelineno-5-5" name="__codelineno-5-5"></a><span class="n">swblk_t</span><span class="w"> </span><span class="n">vm_swap_cache_use</span><span class="p">;</span><span class="w">    </span><span class="cm">/* Swap used for swapcache */</span>
 </code></pre></div>
 <h3 id="swap-space-allocation">Swap Space Allocation<a class="headerlink" href="#swap-space-allocation" title="Permanent link">¶</a></h3>
 <p><strong>Radix bitmap (blist) allocator:</strong></p>
@@ -1999,10 +1990,10 @@
 <li>Cleared when above hiwat</li>
 </ul>
 <h3 id="swap-io-limits">Swap I/O Limits<a class="headerlink" href="#swap-io-limits" title="Permanent link">¶</a></h3>
-<div class="highlight"><pre><span></span><code><a href="#__codelineno-8-1" id="__codelineno-8-1" name="__codelineno-8-1"></a><span class="n">nsw_rcount</span><span class="w">         </span><span class="o">=</span><span class="w"> </span><span class="n">nswbuf_kva</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="mi">2</span><span class="w">   </span><span class="cm">/* Read buffer limit */</span>
-<a href="#__codelineno-8-2" id="__codelineno-8-2" name="__codelineno-8-2"></a><span class="n">nsw_wcount_sync</span><span class="w">    </span><span class="o">=</span><span class="w"> </span><span class="n">nswbuf_kva</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="mi">4</span><span class="w">   </span><span class="cm">/* Sync write limit */</span>
-<a href="#__codelineno-8-3" id="__codelineno-8-3" name="__codelineno-8-3"></a><span class="n">nsw_wcount_async</span><span class="w">   </span><span class="o">=</span><span class="w"> </span><span class="n">swap_async_max</span><span class="w">   </span><span class="cm">/* Async write limit (default 4) */</span>
-<a href="#__codelineno-8-4" id="__codelineno-8-4" name="__codelineno-8-4"></a><span class="n">nsw_cluster_max</span><span class="w">    </span><span class="o">=</span><span class="w"> </span><span class="n">MAXPHYS</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="n">PAGE_SIZE</span><span class="w">  </span><span class="cm">/* Max cluster size */</span>
+<div class="highlight"><pre><span></span><code><a href="#__codelineno-6-1" id="__codelineno-6-1" name="__codelineno-6-1"></a><span class="n">nsw_rcount</span><span class="w">         </span><span class="o">=</span><span class="w"> </span><span class="n">nswbuf_kva</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="mi">2</span><span class="w">   </span><span class="cm">/* Read buffer limit */</span>
+<a href="#__codelineno-6-2" id="__codelineno-6-2" name="__codelineno-6-2"></a><span class="n">nsw_wcount_sync</span><span class="w">    </span><span class="o">=</span><span class="w"> </span><span class="n">nswbuf_kva</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="mi">4</span><span class="w">   </span><span class="cm">/* Sync write limit */</span>
+<a href="#__codelineno-6-3" id="__codelineno-6-3" name="__codelineno-6-3"></a><span class="n">nsw_wcount_async</span><span class="w">   </span><span class="o">=</span><span class="w"> </span><span class="n">swap_async_max</span><span class="w">   </span><span class="cm">/* Async write limit (default 4) */</span>
+<a href="#__codelineno-6-4" id="__codelineno-6-4" name="__codelineno-6-4"></a><span class="n">nsw_cluster_max</span><span class="w">    </span><span class="o">=</span><span class="w"> </span><span class="n">MAXPHYS</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="n">PAGE_SIZE</span><span class="w">  </span><span class="cm">/* Max cluster size */</span>
 </code></pre></div>
 <h3 id="page-in-swap_pager_getpage">Page-In (swap_pager_getpage)<a class="headerlink" href="#page-in-swap_pager_getpage" title="Permanent link">¶</a></h3>
 <p><strong>Burst reading for sequential access:</strong></p>
@@ -2014,13 +2005,13 @@
 <li>Issue I/O and wait for <code>PBUSY_SWAPINPROG</code> to clear</li>
 </ol>
 <p><strong>Read process:</strong></p>
-<div class="highlight"><pre><span></span><code><a href="#__codelineno-9-1" id="__codelineno-9-1" name="__codelineno-9-1"></a>1. Verify object match
-<a href="#__codelineno-9-2" id="__codelineno-9-2" name="__codelineno-9-2"></a>2. Look up swap block for requested page
-<a href="#__codelineno-9-3" id="__codelineno-9-3" name="__codelineno-9-3"></a>3. Scan for contiguous swap blocks (same stripe)
-<a href="#__codelineno-9-4" id="__codelineno-9-4" name="__codelineno-9-4"></a>4. Allocate pages for burst read
-<a href="#__codelineno-9-5" id="__codelineno-9-5" name="__codelineno-9-5"></a>5. Map pages to KVA, issue I/O
-<a href="#__codelineno-9-6" id="__codelineno-9-6" name="__codelineno-9-6"></a>6. Wait for completion
-<a href="#__codelineno-9-7" id="__codelineno-9-7" name="__codelineno-9-7"></a>7. Return VM_PAGER_OK or VM_PAGER_ERROR
+<div class="highlight"><pre><span></span><code><a href="#__codelineno-7-1" id="__codelineno-7-1" name="__codelineno-7-1"></a>1. Verify object match
+<a href="#__codelineno-7-2" id="__codelineno-7-2" name="__codelineno-7-2"></a>2. Look up swap block for requested page
+<a href="#__codelineno-7-3" id="__codelineno-7-3" name="__codelineno-7-3"></a>3. Scan for contiguous swap blocks (same stripe)
+<a href="#__codelineno-7-4" id="__codelineno-7-4" name="__codelineno-7-4"></a>4. Allocate pages for burst read
+<a href="#__codelineno-7-5" id="__codelineno-7-5" name="__codelineno-7-5"></a>5. Map pages to KVA, issue I/O
+<a href="#__codelineno-7-6" id="__codelineno-7-6" name="__codelineno-7-6"></a>6. Wait for completion
+<a href="#__codelineno-7-7" id="__codelineno-7-7" name="__codelineno-7-7"></a>7. Return VM_PAGER_OK or VM_PAGER_ERROR
 </code></pre></div>
 <h3 id="page-out-swap_pager_putpages">Page-Out (swap_pager_putpages)<a class="headerlink" href="#page-out-swap_pager_putpages" title="Permanent link">¶</a></h3>
 <p><strong>Object conversion:</strong></p>
