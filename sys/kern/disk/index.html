@@ -1996,6 +1996,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#io-scheduling-dsched" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        I/O Scheduling (dsched)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#sysctl-interface" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2720,6 +2731,17 @@
     <span class="md-ellipsis">
       
         Initialization
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#io-scheduling-dsched" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        I/O Scheduling (dsched)
       
     </span>
   </a>
@@ -3931,6 +3953,31 @@ BSD partitions (within slices).</p>
 <a id="__codelineno-25-27" name="__codelineno-25-27" href="#__codelineno-25-27"></a>
 <a id="__codelineno-25-28" name="__codelineno-25-28" href="#__codelineno-25-28"></a><span class="n">SYSINIT</span><span class="p">(</span><span class="n">disk_register</span><span class="p">,</span><span class="w"> </span><span class="n">SI_SUB_PRE_DRIVERS</span><span class="p">,</span><span class="w"> </span><span class="n">SI_ORDER_FIRST</span><span class="p">,</span><span class="w"> </span><span class="n">disk_init</span><span class="p">,</span><span class="w"> </span><span class="nb">NULL</span><span class="p">);</span>
 </code></pre></div>
+<hr />
+<h2 id="io-scheduling-dsched">I/O Scheduling (dsched)<a class="headerlink" href="#io-scheduling-dsched" title="Permanent link">&para;</a></h2>
+<p>The disk subsystem includes stub entry points for I/O scheduling (<code>dsched</code>):</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-26-1" name="__codelineno-26-1" href="#__codelineno-26-1"></a><span class="cm">/* sys/kern/kern_dsched.c - stubs only */</span>
+<a id="__codelineno-26-2" name="__codelineno-26-2" href="#__codelineno-26-2"></a><span class="kt">void</span><span class="w"> </span><span class="nf">dsched_disk_create</span><span class="p">(</span><span class="k">struct</span><span class="w"> </span><span class="nc">disk</span><span class="w"> </span><span class="o">*</span><span class="n">dp</span><span class="p">,</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="n">head_name</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">unit</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="p">}</span>
+<a id="__codelineno-26-3" name="__codelineno-26-3" href="#__codelineno-26-3"></a><span class="kt">void</span><span class="w"> </span><span class="nf">dsched_disk_update</span><span class="p">(</span><span class="k">struct</span><span class="w"> </span><span class="nc">disk</span><span class="w"> </span><span class="o">*</span><span class="n">dp</span><span class="p">,</span><span class="w"> </span><span class="k">struct</span><span class="w"> </span><span class="nc">disk_info</span><span class="w"> </span><span class="o">*</span><span class="n">info</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="p">}</span>
+<a id="__codelineno-26-4" name="__codelineno-26-4" href="#__codelineno-26-4"></a><span class="kt">void</span><span class="w"> </span><span class="nf">dsched_disk_destroy</span><span class="p">(</span><span class="k">struct</span><span class="w"> </span><span class="nc">disk</span><span class="w"> </span><span class="o">*</span><span class="n">dp</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="p">}</span>
+</code></pre></div>
+<p>These functions are called from <code>disk_create()</code>, <code>disk_setdiskinfo()</code>, and
+<code>disk_destroy()</code> but do nothing. The original dsched framework was removed
+in November 2015 (commit <code>3573cf7bf6</code>) with this explanation:</p>
+<blockquote>
+<p>After consultation, remove dsched from the kernel. The original idea is
+still valid but the current implementation has had lingering bugs for
+several years now and we've determined that it's just got its fingers
+into too many structures.</p>
+<p>Also, the implementation was designed before SSDs, and doesn't play well
+with SSDs.</p>
+<p>Leave various empty entry points in so we can revisit at some future date.</p>
+</blockquote>
+<p>The removal deleted ~5,800 lines of code including three I/O schedulers:
+- <strong>BFQ</strong> (Budget Fair Queueing) - ~2,100 lines
+- <strong>FQ</strong> (Fair Queueing) - ~900 lines<br />
+- <strong>AS</strong> (Anticipatory Scheduler) - ~290 lines</p>
+<p>The stub entry points remain to allow potential future reimplementation.</p>
 <hr />
 <h2 id="sysctl-interface">Sysctl Interface<a class="headerlink" href="#sysctl-interface" title="Permanent link">&para;</a></h2>
 <table>
