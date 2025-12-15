@@ -4,6 +4,45 @@ The pageout daemon manages memory reclamation when physical memory becomes scarc
 
 **Source files:** `sys/vm/vm_pageout.c` (~2,895 lines), `sys/vm/swap_pager.c` (~2,600 lines)
 
+## Two Subsystems, One Goal
+
+This document covers **two related but distinct subsystems**:
+
+```
+┌─────────────────────────────────────────────────────────────────────────┐
+│                    PAGEOUT DAEMON (vm_pageout.c)                        │
+│                                                                         │
+│  "When do we reclaim memory?"                                           │
+│                                                                         │
+│  - Monitors free memory against thresholds                              │
+│  - Scans page queues to find victims                                    │
+│  - Decides: activate, deactivate, cache, or launder                     │
+│  - Calls pagers to write dirty pages                                    │
+│  - Triggers OOM killer when all else fails                              │
+└─────────────────────────────────────────────────────────────────────────┘
+                                    │
+                                    │ "Write this dirty page"
+                                    ▼
+┌─────────────────────────────────────────────────────────────────────────┐
+│                     SWAP PAGER (swap_pager.c)                           │
+│                                                                         │
+│  "Where do we store anonymous pages?"                                   │
+│                                                                         │
+│  - Allocates blocks on swap device                                      │
+│  - Tracks which page→which block (RB-tree metadata)                     │
+│  - Handles I/O for pageout (write) and page fault (read)                │
+│  - Also used by: swapcache (file page caching on swap)                  │
+└─────────────────────────────────────────────────────────────────────────┘
+```
+
+**When you need to understand:**
+- Why the system is low on memory → Pageout daemon (thresholds, scanning)
+- Why a process was OOM killed → Pageout daemon (OOM killer)
+- Why swap I/O is slow → Swap pager (async limits, clustering)
+- Why swap space is exhausted → Swap pager (allocation, hysteresis)
+
+---
+
 ## Overview
 
 When free memory falls below critical thresholds, the pageout daemon scans page queues to:

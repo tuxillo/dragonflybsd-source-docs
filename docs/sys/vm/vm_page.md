@@ -6,6 +6,19 @@ This document describes DragonFly BSD's physical page management subsystem, impl
 
 ---
 
+## When You Need This
+
+| Scenario | Key Functions | Section |
+|----------|---------------|---------|
+| Allocating a page during fault handling | `vm_page_alloc()`, `vm_page_grab()` | [Page Allocation](#page-allocation) |
+| Understanding why a page can't be freed | Wire count, hold count, busy state | [Wire/Unwire](#wireunwire), [Hold](#holdunhold), [Busy State](#busy-state-management) |
+| Implementing a new pager | `vm_page_set_valid()`, `vm_page_dirty()` | [Valid/Dirty Bits](#validdirty-bit-management) |
+| Debugging memory pressure issues | Page queues, vmstats | [Page Queues](#page-queues), [Memory Pressure](#memory-pressure-handling) |
+| Writing DMA-capable driver code | `vm_page_alloc_contig()` | [Contiguous Allocation](#contiguous-allocation) |
+| Understanding pageout victim selection | Queue transitions | [Page State Transitions](#page-state-transitions) |
+
+---
+
 ## Overview
 
 Every physical page in the system is represented by a `struct vm_page` (128 bytes). These structures are stored in a global array (`vm_page_array`) and indexed by physical page number. The VM system organizes pages into multiple queues based on their state and uses sophisticated coloring and NUMA-aware algorithms to optimize memory locality.

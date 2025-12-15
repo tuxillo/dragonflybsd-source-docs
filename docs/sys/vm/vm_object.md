@@ -4,6 +4,42 @@ VM objects are the fundamental abstraction for managing virtual memory contents 
 
 **Source file:** `sys/vm/vm_object.c` (~2,034 lines)
 
+## Where Objects Fit in the VM Hierarchy
+
+```
+USER PROCESS                     VM SUBSYSTEM
+─────────────                    ────────────
+                                     
+ptr = mmap(file)                 vm_map_entry
+     │                                │
+     │                           vm_map_backing
+     │                                │
+     └──────────────────────────► vm_object ◄───── vnode_pager
+                                      │
+                               ┌──────┼──────┐
+                               │      │      │
+                            vm_page vm_page vm_page
+                              (RB tree by page index)
+```
+
+**Key insight:** Objects are the *container* for pages. They don't manage address spaces (that's `vm_map`) or physical allocation (that's `vm_page`). They manage:
+
+- Which pages belong together logically
+- How to populate missing pages (via pager)
+- Sharing between processes (file-backed)
+
+## Common Scenarios
+
+| Scenario | Object Type | What Happens |
+|----------|-------------|--------------|
+| `malloc(large)` | OBJT_DEFAULT→OBJT_SWAP | Anonymous object created, pages added on fault, swapped under pressure |
+| `mmap(file)` | OBJT_VNODE | Object tied to vnode, pages loaded from file on fault |
+| `fork()` | Parent's objects | Child gets new vm_map_backing pointing to same objects (COW) |
+| GPU memory | OBJT_MGTDEVICE | Device manages pages, object tracks mappings |
+| `shm_open()` | OBJT_SWAP | Swap-backed object shared between processes |
+
+---
+
 ## Overview
 
 A VM object maintains:

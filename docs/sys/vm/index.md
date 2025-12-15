@@ -35,6 +35,71 @@ The DragonFly BSD virtual memory subsystem manages virtual address spaces, physi
                                      +-------------+
 ```
 
+## Reading Guide
+
+**Start here based on what you're trying to do:**
+
+| If you want to... | Read this | Why |
+|-------------------|-----------|-----|
+| Understand how `mmap()` works | [Memory Mapping](vm_mmap.md) | Traces syscall to VM layer |
+| Debug a page fault or crash | [Page Faults](vm_fault.md) | Explains fault handling and COW |
+| Investigate memory pressure/OOM | [Pageout and Swap](vm_pageout.md) | Covers reclamation and OOM killer |
+| Add a new memory mapping type | [Address Space](vm_map.md) | Shows map entry creation |
+| Work with page allocation | [Physical Pages](vm_page.md) | Low-level page management |
+| Implement a new pager | [VM Objects](vm_object.md) | Object-pager relationship |
+
+**Recommended reading order for newcomers:**
+
+1. This overview (understand the hierarchy)
+2. [Memory Mapping](vm_mmap.md) (see how userspace enters the VM)
+3. [Page Faults](vm_fault.md) (see how pages get populated)
+4. [Physical Pages](vm_page.md) (understand page lifecycle)
+
+## How Operations Flow Through the VM
+
+```
+USER SPACE                          KERNEL
+──────────                          ──────
+   │
+   │ mmap(file, ...)
+   v
+┌──────────────────────────────────────────────────────────────┐
+│ vm_mmap.c: sys_mmap()                                        │
+│   - Validate parameters                                      │
+│   - Call vm_map_entry_create() to reserve address range      │
+└─────────────────────────┬────────────────────────────────────┘
+                          │
+                          v (returns to user, no pages yet)
+   │
+   │ *ptr = 42;  (first access)
+   v
+┌──────────────────────────────────────────────────────────────┐
+│ vm_fault.c: vm_fault()                                       │
+│   - Lookup vm_map_entry for faulting address                 │
+│   - Walk vm_map_backing chain to find/create vm_object       │
+│   - Call pager (vnode_pager or swap_pager) to load page      │
+└─────────────────────────┬────────────────────────────────────┘
+                          │
+                          v
+┌──────────────────────────────────────────────────────────────┐
+│ vm_page.c: vm_page_alloc()                                   │
+│   - Grab page from PQ_FREE queue                             │
+│   - Associate with vm_object at page index                   │
+│   - Mark busy while I/O in progress                          │
+└─────────────────────────┬────────────────────────────────────┘
+                          │
+                          v (page now resident)
+   │
+   │ (memory pressure)
+   v
+┌──────────────────────────────────────────────────────────────┐
+│ vm_pageout.c: vm_pageout_daemon()                            │
+│   - Scan inactive queue for victims                          │
+│   - Write dirty pages to swap/file                           │
+│   - Move clean pages to free queue                           │
+└──────────────────────────────────────────────────────────────┘
+```
+
 ## Subsystem Documentation
 
 | Document | Description |

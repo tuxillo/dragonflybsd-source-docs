@@ -4,6 +4,58 @@ The memory mapping subsystem provides the mmap() interface for applications to m
 
 **Source files:** `sys/vm/vm_mmap.c` (~1,530 lines), `sys/vm/vnode_pager.c` (~832 lines)
 
+## Common Use Cases
+
+| What You Want | Syscall | Flags | What Happens |
+|---------------|---------|-------|--------------|
+| Allocate heap memory | `mmap(NULL, size, RW, MAP_ANON\|MAP_PRIVATE, -1, 0)` | Anonymous, private | Creates vm_map_entry, pages zero-filled on demand |
+| Map a file read-only | `mmap(NULL, size, R, MAP_SHARED, fd, 0)` | File-backed, shared | Creates entry pointing to vnode's vm_object |
+| Shared memory (IPC) | `shm_open()` + `mmap(MAP_SHARED)` | Anonymous, shared | Multiple processes share same vm_object |
+| Memory-mapped I/O | `mmap(/dev/mem or device)` | Device-backed | Uses dev_pager, may be uncached |
+| Copy-on-write fork | (internal) | Private after fork | Parent/child share until write triggers COW |
+
+## Syscall to VM Layer Flow
+
+```
+APPLICATION                         KERNEL
+───────────                         ──────
+
+mmap(addr, len, prot, flags, fd, offset)
+        │
+        v
+┌───────────────────────────────────────────────────────────────────┐
+│ sys_mmap() → kern_mmap()                                          │
+│                                                                   │
+│   1. Validate parameters (alignment, flags combinations)          │
+│   2. If file: get vnode, check permissions                        │
+│   3. If anonymous: object = NULL (deferred) or new OBJT_DEFAULT   │
+└───────────────────────────┬───────────────────────────────────────┘
+                            │
+                            v
+┌───────────────────────────────────────────────────────────────────┐
+│ vm_mmap() → vm_map_find()                                         │
+│                                                                   │
+│   1. Find free address range (or use MAP_FIXED address)           │
+│   2. Create vm_map_entry with backing info                        │
+│   3. For files: entry points to vnode's shared vm_object          │
+│   4. For anon: entry has NULL object (allocated on first fault)   │
+└───────────────────────────┬───────────────────────────────────────┘
+                            │
+                            v
+                     Returns address to user
+                            │
+                            │ (later: first access)
+                            v
+┌───────────────────────────────────────────────────────────────────┐
+│ vm_fault()                                                        │
+│                                                                   │
+│   For files: vnode_pager_getpage() → VOP_READ()                   │
+│   For anon: zero-fill page, create OBJT_DEFAULT object if needed  │
+└───────────────────────────────────────────────────────────────────┘
+```
+
+---
+
 ## Overview
 
 Memory mapping connects user address space to backing store:

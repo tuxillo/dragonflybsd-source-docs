@@ -4,6 +4,39 @@ The VM map subsystem manages virtual address spaces in DragonFly BSD. It handles
 
 **Source file:** `sys/vm/vm_map.c` (~4,781 lines)
 
+## Common Operations
+
+Understanding when this code runs helps navigate the 4,781 lines. Here's what happens for common scenarios:
+
+| User Action | Syscall | Key Functions | What Happens |
+|-------------|---------|---------------|--------------|
+| `mmap()` | `sys_mmap` | `vm_map_find()` → `vm_map_insert()` | Creates vm_map_entry, may coalesce with previous |
+| `munmap()` | `sys_munmap` | `vm_map_remove()` → `vm_map_delete()` | Clips entries, removes pmap mappings, frees objects |
+| `mprotect()` | `sys_mprotect` | `vm_map_protect()` | Two-pass: validate then apply to entries and pmap |
+| `mlock()` | `sys_mlock` | `vm_map_user_wiring()` | Faults in pages, sets USER_WIRED flag |
+| `fork()` | `sys_fork` | `vmspace_fork()` → `vm_map_copy_entry()` | Clones entries, sets up COW sharing |
+| Stack growth | (fault) | `vm_map_growstack()` | Expands stack entry into reserved space |
+| Page fault | (trap) | `vm_map_lookup()` | Finds entry, handles COW, returns backing info |
+
+```
+USER                           vm_map.c                        RESULT
+────                           ────────                        ──────
+
+mmap(NULL, 4096, ...)    →    vm_map_findspace()         →    0x7f0000000000
+                         →    vm_map_insert()            →    new vm_map_entry
+
+*ptr = 42                →    vm_map_lookup()            →    entry + backing info
+                         →    (vm_fault handles rest)
+
+fork()                   →    vmspace_fork()             →    child vmspace
+                         →    vm_map_copy_entry()        →    COW entries
+
+munmap(ptr, 4096)        →    vm_map_delete()            →    entry removed
+                         →    pmap_remove()              →    PTEs cleared
+```
+
+---
+
 ## Overview
 
 A virtual address space is represented by two key structures:

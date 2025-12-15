@@ -4,6 +4,60 @@ The page fault handler resolves virtual memory faults by locating or creating ph
 
 **Source file:** `sys/vm/vm_fault.c` (~3,243 lines)
 
+## When This Code Runs
+
+Page faults are **triggered by hardware** when a process accesses memory that:
+
+| Trigger | Cause | Typical Resolution |
+|---------|-------|-------------------|
+| First access after mmap() | No PTE exists | Allocate page, zero-fill or load from file |
+| Exec touches new code page | Demand paging | Load from executable via vnode_pager |
+| Write to COW page after fork() | PTE is read-only | Copy page, update PTE to writable |
+| Stack growth | Access below current stack | Expand stack via `vm_map_growstack()` |
+| Swapped-out page access | Page not resident | Load from swap via swap_pager |
+| MADV_DONTNEED region access | Page was freed | Zero-fill new page |
+
+## High-Level Flow
+
+```
+HARDWARE TRAP
+     │
+     v
+┌─────────────────────────────────────────────────────────────┐
+│ trap() → vm_fault(map, vaddr, fault_type, fault_flags)      │
+└─────────────────────────┬───────────────────────────────────┘
+                          │
+                          v
+┌─────────────────────────────────────────────────────────────┐
+│ 1. vm_map_lookup()                                          │
+│    - Find vm_map_entry for faulting address                 │
+│    - Handle COW setup (shadow object creation)              │
+│    - Return backing chain and protection                    │
+└─────────────────────────┬───────────────────────────────────┘
+                          │
+          ┌───────────────┴───────────────┐
+          │                               │
+          v                               v
+┌───────────────────────┐     ┌───────────────────────┐
+│ 2a. vm_fault_bypass() │     │ 2b. vm_fault_object() │
+│   (FAST PATH)         │     │   (SLOW PATH)         │
+│                       │     │                       │
+│ - Page in hash cache  │     │ - Walk backing chain  │
+│ - Already valid/dirty │     │ - Call pager if needed│
+│ - No locks needed     │     │ - Handle COW copy     │
+│ - Soft-busy only      │     │ - Zero-fill if new    │
+└───────────┬───────────┘     └───────────┬───────────┘
+            │                             │
+            └──────────────┬──────────────┘
+                           │
+                           v
+┌─────────────────────────────────────────────────────────────┐
+│ 3. pmap_enter() - Install PTE for virtual→physical mapping  │
+└─────────────────────────────────────────────────────────────┘
+```
+
+---
+
 ## Overview
 
 When a process accesses unmapped or protected memory, the hardware generates a page fault. The fault handler must:
