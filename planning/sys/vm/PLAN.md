@@ -162,13 +162,13 @@ Next phase
 | 1 (Headers) | ✅ | ✅ | ✅ | `3108069` |
 | 2 (vm_page.c) | ✅ | ✅ | ✅ | `cbd8cf1` |
 | 3 (vm_object.c) | ✅ | ✅ | ✅ | `8f1191d` |
-| 4 (vm_map.c) | ✅ | ✅ | ✅ | - |
-| 5 (vm_fault.c) | Pending | Pending | Pending | - |
+| 4 (vm_map.c) | ✅ | ✅ | ✅ | `9c6de88` |
+| 5 (vm_fault.c) | ✅ | ✅ | ✅ | - |
 | 6 (pageout/swap) | Pending | Pending | Pending | - |
 | 7 (pagers/mmap) | Pending | Pending | Pending | - |
 
 ### Next Action
-**Phase 5 → Read `vm_fault.c` in chunks**, take notes, then write `docs/sys/vm/vm_fault.md`.
+**Phase 6 → Read `vm_pageout.c` and `swap_pager.c` in chunks**, take notes, then write pageout/swap documentation.
 
 ---
 
@@ -2181,7 +2181,286 @@ Core fault lookup function:
 
 ### Phase 5: Page Fault Handling
 
-*(To be filled as we read vm_fault.c)*
+**vm_fault.c** (~3,243 lines) - Page fault handling, COW, prefaulting
+
+#### 5.1 Data Structures and Tunables (lines 0-210)
+
+**struct faultstate** (line 135):
+Internal state for fault processing:
+```c
+struct faultstate {
+    vm_page_t mary[VM_FAULT_MAX_QUICK];  /* Burst pages (max 16) */
+    vm_map_backing_t ba;                  /* Current backing during iteration */
+    vm_prot_t prot;                       /* Final protection for pmap */
+    vm_page_t first_m;                    /* Allocated page for COW target */
+    vm_map_backing_t first_ba;            /* Top-level backing */
+    vm_prot_t first_prot;                 /* Protection from map lookup */
+    vm_map_t map;                         /* Map being faulted */
+    vm_map_entry_t entry;                 /* Entry being faulted */
+    int lookup_still_valid;               /* 0=inv 1=valid/rel -1=valid/atomic */
+    int hardfault;                        /* I/O required flag */
+    int fault_flags;                      /* VM_FAULT_* flags */
+    int shared;                           /* Using shared object lock */
+    int msoftonly;                        /* Pages are soft-busied only */
+    int first_shared;                     /* First object shared lock */
+    int wflags;                           /* FW_* flags from lookup */
+    int first_ba_held;                    /* 0=unlocked 1=locked/rel -1=lock/atomic */
+    struct vnode *vp;                     /* Locked vnode for vnode pager */
+};
+```
+
+**Sysctls:**
+| Sysctl | Default | Description |
+|--------|---------|-------------|
+| `vm.debug_fault` | 0 | Debug fault output |
+| `vm.debug_cluster` | 0 | Debug cluster I/O |
+| `vm.shared_fault` | 1 | Allow shared object token |
+| `vm.fault_bypass` | 1 | Fast lockless fault shortcut |
+| `vm.prefault_pages` | 8 | Pages to prefault (half each direction) |
+| `vm.fast_fault` | 1 | Burst fault zero-fill regions |
+
+**TRYPAGER macro** (line 366):
+Determines if pager might have the page:
+- Object type is not OBJT_DEFAULT
+- Not a wiring fault OR entry is wired
+
+#### 5.2 Helper Functions (lines 207-283)
+
+**release_page(fs)** (line 208):
+- Deactivates and wakes fs->mary[0]
+
+**unlock_map(fs)** (line 215):
+- Drops ba->object if ba != first_ba
+- Drops first_ba->object if first_ba_held == 1
+- Calls vm_map_lookup_done() if lookup_still_valid == 1
+
+**cleanup_fault(fs)** (line 242):
+- Handles allocated COW page that wasn't used
+- Frees first_m if not fully valid
+- Resets fs->ba to first_ba
+
+**unlock_things(fs)** (line 274):
+- Calls cleanup_fault() + unlock_map()
+- Puts vnode if held
+
+#### 5.3 vm_fault() Main Entry Point (lines 387-842)
+
+**`vm_fault(map, vaddr, fault_type, fault_flags)`** (line 387):
+
+Main page fault handler called from trap code.
+
+**Entry:**
+1. Set LWP_PAGING flag on current lwp
+2. Initialize faultstate (shared=vm_shared_fault)
+
+**RetryFault loop:**
+1. Call `vm_map_lookup()` to find entry and first_ba
+   - May trigger COW shadow creation
+   - May partition large entries
+   - Returns first_pindex, first_count, first_prot, wflags
+
+2. Handle lookup failures:
+   - KERN_INVALID_ADDRESS + growstack: try `vm_map_growstack()`
+   - KERN_PROTECTION_FAILURE + USER_WIRE: retry with OVERRIDE_WRITE
+
+3. Special cases:
+   - NOFAULT entry: panic
+   - KSTACK guard page: panic
+   - UKSMAP: create fake page, call uksmap callback, pmap_enter, done
+
+4. TDF_NOFAULT check: fail if would require I/O (vnode/swap/backing)
+
+5. **Fast path** (`vm_fault_bypass`):
+   - Try lockless fault via page hash lookup
+   - If successful, pages are soft-busied only
+   - Skip to success path
+
+6. **Slow path:**
+   - Hold first_ba->object (shared or exclusive based on heuristics)
+   - Lock vnode if needed via `vnode_pager_lock()`
+   - Call `vm_fault_object()` to resolve page
+
+7. On KERN_TRY_AGAIN: increment retry, goto RetryFault
+
+**Success path:**
+1. Set PG_REFERENCED on page
+2. Call `pmap_enter()` for each page in burst
+3. Handle page placement:
+   - Soft-busy: drop sbusy
+   - Wire: vm_page_wire() or vm_page_unwire()
+   - Normal: vm_page_activate() + wakeup
+
+4. **Prefaulting** (if VM_FAULT_BURST):
+   - Exclusive locks: `vm_prefault()` (can allocate)
+   - Shared locks: `vm_prefault_quick()` (existing pages only)
+
+5. Update statistics (v_vm_faults, ru_majflt/ru_minflt)
+
+6. **RSS limit check:**
+   - If user fault and RSS > limit: `vm_pageout_map_deactivate_pages()`
+
+#### 5.4 vm_fault_bypass() Fast Path (lines 844-980)
+
+**`vm_fault_bypass(fs, first_pindex, first_count, mextcountp, fault_type)`**:
+
+Lockless fault shortcut for hot pages:
+
+**Requirements:**
+- No wire operation
+- Page exists in hash
+- Object not dead
+- Page fully valid, on PQ_ACTIVE, not PG_SWAPPED
+- For writes: object OBJ_WRITEABLE|OBJ_MIGHTBEDIRTY, page fully dirty
+
+**Algorithm:**
+1. Get page via `vm_page_hash_get()` (soft-busy)
+2. Validate page state
+3. For writes: verify object/page already writable/dirty
+4. Call `vm_page_soft_activate()` (passive queue move)
+5. **Burst extension:** try to get additional consecutive pages
+6. Return KERN_SUCCESS with soft-busied pages in fs->mary[]
+
+This path avoids object locks entirely for heavily accessed pages.
+
+#### 5.5 vm_fault_page() Variants (lines 982-1533)
+
+**`vm_fault_page_quick(va, fault_type, errorp, busyp)`** (line 989):
+- Convenience wrapper using current process vmspace
+
+**`vm_fault_page(map, vaddr, fault_type, fault_flags, errorp, busyp)`** (line 1024):
+- Returns held (and optionally busied) page without pmap update
+- First tries `pmap_fault_page_quick()` for fast lookup
+- Falls back to full vm_fault_object() path
+- Used by vkernel, ptrace, etc.
+
+**`vm_fault_object_page(object, offset, fault_type, fault_flags, sharedp, errorp)`** (line 1389):
+- Faults page directly from object (no map)
+- Creates fake vm_map_entry
+- Used internally
+
+#### 5.6 vm_fault_object() Core Logic (lines 1535-2279)
+
+**`vm_fault_object(fs, first_pindex, fault_type, allow_nofault)`**:
+
+Core fault resolution - walks backing chain to find/create page.
+
+**Protection upgrade:**
+- Read faults try to also enable write if mapping allows
+- Downgrade for A/M bit emulation (vkernel)
+
+**Main loop (backing chain walk):**
+
+1. **Check object dead:** Return KERN_PROTECTION_FAILURE
+
+2. **Lookup page:** `vm_page_lookup_busy_try()`
+   - If busy: sleep, return KERN_TRY_AGAIN
+   - If found and valid: break to PAGE FOUND
+   - If found but PQ_CACHE and paging_severe: wait, retry
+   - If found but invalid or PG_RAM: goto readrest
+
+3. **Page not resident:**
+   - If TRYPAGER or first_ba:
+     - For OBJT_SWAP: check `swap_pager_haspage_locked()`
+     - Require exclusive lock for allocation
+     - Check pindex < object->size
+     - Allocate page via `vm_page_alloc()` (skip for MGTDEVICE)
+     - If allocation fails: wait, retry
+
+4. **readrest - Page I/O:**
+   - Require exclusive lock
+   - Call `vm_pager_get_page()` with seqaccess hint
+   - VM_PAGER_OK: hardfault++, re-lookup page, retry
+   - VM_PAGER_FAIL: continue to next backing object
+   - VM_PAGER_ERROR/BAD: return failure
+
+5. **next - Continue chain:**
+   - Save first_m if at first_ba
+   - Get next_ba = ba->backing_ba
+   - If NULL: zero-fill first_m, break
+   - Hold next object, adjust pindex through offset
+   - Drop current ba if not first, set ba = next_ba
+
+**PAGE FOUND:**
+
+6. **COW handling** (ba != first_ba):
+   - Write fault: copy page from backing to first_m
+     - `vm_page_copy(fs->mary[0], fs->first_m)`
+     - Release backing page, drop backing object
+     - Switch to first_m
+   - Read fault: mask out VM_PROT_WRITE
+
+7. **Finalization:**
+   - Activate page
+   - For writes: set object writeable/dirty, handle PG_SWAPPED
+   - Return KERN_SUCCESS with busied page in fs->mary[0]
+
+#### 5.7 vm_fault_wire/unwire (lines 2281-2398)
+
+**`vm_fault_wire(map, entry, user_wire, kmflags)`** (line 2290):
+- Wires range by simulating faults
+- Entry must be marked IN_TRANSITION
+- Unlocks map during faults
+- On failure: unwinds by unwiring already-wired pages
+
+**`vm_fault_unwire(map, entry)`** (line 2367):
+- Unwires range via `pmap_unwire()` + `vm_page_unwire()`
+- Skips first page for KSTACK (guard page)
+
+#### 5.8 vm_fault_collapse (lines 2400-2471)
+
+**`vm_fault_collapse(map, entry)`**:
+- Collapses shadow chain by faulting all pages into head object
+- Used during fork when backing_count >= limit
+- For each pindex not in head object:
+  - Call `vm_fault_object()` with WRITE+OVERRIDE
+  - Activates and wakes page
+- If any pages were copied: `pmap_remove()` entire range
+
+#### 5.9 vm_fault_copy_entry (lines 2473-2559)
+
+**`vm_fault_copy_entry(dst_map, src_map, dst_entry, src_entry)`**:
+- Physically copies pages between entries (for wired COW)
+- Allocates page in dst_object
+- Looks up page in src_object (must exist, wired)
+- `vm_page_copy()` + `pmap_enter()`
+- Used when COW not possible due to wiring
+
+#### 5.10 Prefaulting (lines 2711-3243)
+
+**`vm_prefault(pmap, addra, entry, prot, fault_flags)`** (line 2767):
+
+Full prefault with allocation capability (requires exclusive lock):
+
+1. Scan ±vm_prefault_pages around fault address
+2. For each address:
+   - Check `pmap_prefault_ok()` - skip if already mapped
+   - Walk backing chain looking for page
+   - If not found and vm_fast_fault: allocate zero-fill page
+   - Enter page into pmap
+
+**`vm_prefault_quick(pmap, addra, entry, prot, fault_flags)`** (line 3061):
+
+Lightweight prefault for shared locks:
+
+1. Only works on terminal objects (no backing_ba)
+2. For read faults: use `vm_page_lookup_sbusy_try()` (soft-busy)
+3. For write faults: use `vm_page_lookup_busy_try()` (hard-busy)
+4. Only maps existing valid pages, no allocation
+
+**`vm_set_nosync(m, entry)`** (line 2756):
+- Sets PG_NOSYNC if entry has NOSYNC flag and page not dirty
+- Clears PG_NOSYNC if entry doesn't have NOSYNC flag
+
+#### Key DragonFly-Specific Features
+
+1. **vm_fault_bypass()** - Lockless fast path using page hash and soft-busy
+2. **Shared object tokens** - vm_shared_fault allows concurrent read faults
+3. **VM_MAP_BACK_EXCL_HEUR** - Heuristic for when to use exclusive lock
+4. **Soft-busy pages** - Can map without full page lock
+5. **Burst faulting** - mary[] array holds multiple pages
+6. **Two-level prefaulting** - vm_prefault (full) vs vm_prefault_quick (limited)
+7. **RSS enforcement** - Deactivate pages on user fault if over limit
+8. **MGTDEVICE handling** - Pages not in object, directly entered in pmap
 
 ---
 
