@@ -138,19 +138,17 @@ The `vfs_sync.c` file implements per-filesystem syncer daemons that periodically
 
 Each mounted filesystem with `MNTK_THR_SYNC` gets its own syncer thread:
 
-```
-                    ┌─────────────────┐
-                    │  syncer_thread  │
-                    │   (per mount)   │
-                    └────────┬────────┘
-                             │
-        ┌────────────────────┼────────────────────┐
-        │                    │                    │
-        v                    v                    v
-┌──────────────┐    ┌──────────────┐    ┌──────────────┐
-│ workitem[0]  │    │ workitem[1]  │    │ workitem[N]  │
-│  (sync now)  │    │ (sync +1s)   │    │ (sync +Ns)   │
-└──────────────┘    └──────────────┘    └──────────────┘
+```mermaid
+flowchart TB
+    SYNCER["syncer_thread<br/>(per mount)"]
+    
+    W0["workitem[0]<br/>(sync now)"]
+    W1["workitem[1]<br/>(sync +1s)"]
+    WN["workitem[N]<br/>(sync +Ns)"]
+    
+    SYNCER --> W0
+    SYNCER --> W1
+    SYNCER --> WN
 ```
 
 ### Syncer Context Structure

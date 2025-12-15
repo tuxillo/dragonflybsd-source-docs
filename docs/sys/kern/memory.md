@@ -291,19 +291,16 @@ Each malloc type maintains per-CPU state in `struct kmalloc_use`:
 
 **Slab Structure** (128KB each):
 
-```
-┌─────────────────────────────────────────────────────────────┐
-│ kmalloc_slab (header)                                       │
-├─────────────────────────────────────────────────────────────┤
-│ fobjs[4096] - Circular buffer of free object pointers      │
-│   - findex: next free index                                 │
-│   - nindex: next allocation index                           │
-│   - maxobjs: total capacity                                 │
-├─────────────────────────────────────────────────────────────┤
-│ Objects (allocated from end of slab)                        │
-│                                                             │
-│   [ obj 1 ][ obj 2 ][ obj 3 ] ... [ obj N ]                │
-└─────────────────────────────────────────────────────────────┘
+```mermaid
+flowchart TB
+    subgraph SLAB["kmalloc_slab (128KB)"]
+        HEADER["kmalloc_slab (header)"]
+        FOBJS["fobjs[4096] - Circular buffer of free object pointers<br/>• findex: next free index<br/>• nindex: next allocation index<br/>• maxobjs: total capacity"]
+        OBJECTS["Objects (allocated from end of slab)<br/>[ obj 1 ][ obj 2 ][ obj 3 ] ... [ obj N ]"]
+    end
+    
+    HEADER --- FOBJS
+    FOBJS --- OBJECTS
 ```
 
 **Slab States**:
@@ -605,48 +602,35 @@ The object cache system (`kern_objcache.c`) provides a high-level caching layer 
 
 ### Architecture
 
-```
-                Per-CPU Layer (lock-free)
-┌──────────────────────────────────────────────────────────┐
-│  CPU 0                CPU 1                CPU N          │
-│ ┌─────────────┐     ┌─────────────┐     ┌─────────────┐ │
-│ │  loaded     │     │  loaded     │     │  loaded     │ │
-│ │  magazine   │     │  magazine   │     │  magazine   │ │
-│ │ ┌─────────┐ │     │ ┌─────────┐ │     │ ┌─────────┐ │ │
-│ │ │ obj obj │ │     │ │ obj obj │ │     │ │ obj obj │ │ │
-│ │ │ obj obj │ │     │ │ obj obj │ │     │ │ obj obj │ │ │
-│ │ └─────────┘ │     │ └─────────┘ │     │ └─────────┘ │ │
-│ │             │     │             │     │             │ │
-│ │  previous   │     │  previous   │     │  previous   │ │
-│ │  magazine   │     │  magazine   │     │  magazine   │ │
-│ │ ┌─────────┐ │     │ ┌─────────┐ │     │ ┌─────────┐ │ │
-│ │ │ obj     │ │     │ │         │ │     │ │ obj obj │ │ │
-│ │ │         │ │     │ │         │ │     │ │ obj     │ │ │
-│ │ └─────────┘ │     │ └─────────┘ │     │ └─────────┘ │ │
-│ └─────────────┘     └─────────────┘     └─────────────┘ │
-└───────────────────────────┬──────────────────────────────┘
-                            │
-                    Depot Layer (locked)
-┌───────────────────────────▼──────────────────────────────┐
-│  Cluster 0 Depot (spinlock protected)                    │
-│ ┌──────────────────┐  ┌──────────────────┐              │
-│ │ Full Magazines   │  │ Empty Magazines  │              │
-│ │ ┌──────────────┐ │  │ ┌──────────────┐ │              │
-│ │ │full mag      │ │  │ │empty mag     │ │              │
-│ │ │full mag      │ │  │ │empty mag     │ │              │
-│ │ │full mag      │ │  │ │empty mag     │ │              │
-│ │ └──────────────┘ │  │ └──────────────┘ │              │
-│ └──────────────────┘  └──────────────────┘              │
-│                                                          │
-│  unallocated_objects: 1024                              │
-│  cluster_limit: 2048                                    │
-└──────────────────────────┬───────────────────────────────┘
-                           │
-                  Backend Allocator
-┌──────────────────────────▼───────────────────────────────┐
-│  objcache_malloc_alloc() / objcache_malloc_free()        │
-│  (or custom allocator)                                   │
-└──────────────────────────────────────────────────────────┘
+```mermaid
+flowchart TB
+    subgraph PERCPU["Per-CPU Layer (lock-free)"]
+        subgraph CPU0["CPU 0"]
+            L0["loaded<br/>magazine"]
+            P0["previous<br/>magazine"]
+        end
+        subgraph CPU1["CPU 1"]
+            L1["loaded<br/>magazine"]
+            P1["previous<br/>magazine"]
+        end
+        subgraph CPUN["CPU N"]
+            LN["loaded<br/>magazine"]
+            PN["previous<br/>magazine"]
+        end
+    end
+    
+    subgraph DEPOT["Depot Layer (locked)<br/>Cluster 0 Depot (spinlock protected)"]
+        FULL["Full Magazines"]
+        EMPTY["Empty Magazines"]
+        STATS["unallocated_objects: 1024<br/>cluster_limit: 2048"]
+    end
+    
+    subgraph BACKEND["Backend Allocator"]
+        ALLOC["objcache_malloc_alloc() / objcache_malloc_free()<br/>(or custom allocator)"]
+    end
+    
+    PERCPU --> DEPOT
+    DEPOT --> BACKEND
 ```
 
 ### Key Data Structures
@@ -1013,27 +997,15 @@ Malloc pipes provide **pre-allocated object pools** with automatic growth and ca
 
 ### Architecture
 
-```
-┌─────────────────────────────────────┐
-│         Malloc Pipe (mpipe)         │
-├─────────────────────────────────────┤
-│  Free list (LIFO, cache-hot)        │
-│  ├─ obj1 → obj2 → obj3 → ...        │
-│                                      │
-│  Allocation token (atomic)          │
-│  ├─ Lock-free fast path             │
-│                                      │
-│  Callback mechanism                  │
-│  ├─ MPF_CALLBACK flag                │
-│  ├─ Support thread (mpipe_thread)   │
-│  ├─ Pending request queue            │
-│                                      │
-│  Constructor/deconstructor           │
-│  ├─ Called on alloc/free             │
-│                                      │
-│  Statistics                          │
-│  ├─ total, free, array size          │
-└─────────────────────────────────────┘
+```mermaid
+flowchart TB
+    subgraph MPIPE["Malloc Pipe (mpipe)"]
+        FREE["Free list (LIFO, cache-hot)<br/>obj1 → obj2 → obj3 → ..."]
+        TOKEN["Allocation token (atomic)<br/>Lock-free fast path"]
+        CALLBACK["Callback mechanism<br/>• MPF_CALLBACK flag<br/>• Support thread (mpipe_thread)<br/>• Pending request queue"]
+        CTOR["Constructor/deconstructor<br/>Called on alloc/free"]
+        STATS["Statistics<br/>total, free, array size"]
+    end
 ```
 
 ### Key Features
@@ -1171,30 +1143,20 @@ void mpipe_done(malloc_pipe_t mpipe);
 
 When `MPF_CALLBACK` is set, the malloc pipe can handle allocation requests when the pool is exhausted:
 
-```
-Allocation when pool empty and nmax reached:
-┌─────────────────────────────────────┐
-│  1. mpipe_alloc_waitok() called     │
-│                                      │
-│  2. Pool empty, nmax reached         │
-│                                      │
-│  3. Add to pending list              │
-│     (mpipe->pending_list)            │
-│                                      │
-│  4. tsleep() on mpipe                │
-│                                      │
-│  ... waiting ...                     │
-│                                      │
-│  5. Another thread calls mpipe_free()│
-│                                      │
-│  6. mpipe_thread woken               │
-│                                      │
-│  7. Process pending requests         │
-│                                      │
-│  8. Original thread woken            │
-│                                      │
-│  9. Allocation completes             │
-└─────────────────────────────────────┘
+```mermaid
+flowchart TB
+    A["1. mpipe_alloc_waitok() called"]
+    B["2. Pool empty, nmax reached"]
+    C["3. Add to pending list<br/>(mpipe->pending_list)"]
+    D["4. tsleep() on mpipe"]
+    E["... waiting ..."]
+    F["5. Another thread calls mpipe_free()"]
+    G["6. mpipe_thread woken"]
+    H["7. Process pending requests"]
+    I["8. Original thread woken"]
+    J["9. Allocation completes"]
+    
+    A --> B --> C --> D --> E --> F --> G --> H --> I --> J
 ```
 
 **mpipe_thread** (`kern_mpipe.c:277`):
@@ -2256,34 +2218,18 @@ With hysteresis:
 
 **Decision tree**:
 
-```
-┌─────────────────────────────────────┐
-│ What are you allocating?            │
-└────────────┬────────────────────────┘
-             │
-             ├─ Variable sizes, infrequent
-             │  → Use kmalloc/kfree
-             │
-             ├─ Same-size, high frequency, no ctor/dtor
-             │  → Use kmalloc_obj/kfree_obj
-             │
-             ├─ Same-size, high frequency, need ctor/dtor
-             │  → Use objcache
-             │
-             ├─ Pre-allocated pool, guaranteed allocation
-             │  → Use mpipe
-             │
-             ├─ Power-of-2 ranges, alignment critical
-             │  → Use alist
-             │
-             ├─ General ranges (e.g., swap blocks)
-             │  → Use blist
-             │
-             ├─ Building strings dynamically
-             │  → Use sbuf
-             │
-             └─ DMA scatter-gather lists
-                → Use sglist
+```mermaid
+flowchart TB
+    Q["What are you allocating?"]
+    
+    Q --> VAR["Variable sizes, infrequent<br/>→ Use kmalloc/kfree"]
+    Q --> SAME["Same-size, high frequency, no ctor/dtor<br/>→ Use kmalloc_obj/kfree_obj"]
+    Q --> CTOR["Same-size, high frequency, need ctor/dtor<br/>→ Use objcache"]
+    Q --> PRE["Pre-allocated pool, guaranteed allocation<br/>→ Use mpipe"]
+    Q --> POW["Power-of-2 ranges, alignment critical<br/>→ Use alist"]
+    Q --> GEN["General ranges (e.g., swap blocks)<br/>→ Use blist"]
+    Q --> STR["Building strings dynamically<br/>→ Use sbuf"]
+    Q --> DMA["DMA scatter-gather lists<br/>→ Use sglist"]
 ```
 
 **Detailed guidelines**:
