@@ -164,8 +164,8 @@ Next phase
 | 3 (vm_object.c) | ✅ | ✅ | ✅ | `8f1191d` |
 | 4 (vm_map.c) | ✅ | ✅ | ✅ | `9c6de88` |
 | 5 (vm_fault.c) | ✅ | ✅ | ✅ | `1a02811` |
-| 6 (pageout/swap) | ✅ | ✅ | ✅ | - |
-| 7 (pagers/mmap) | Pending | Pending | Pending | - |
+| 6 (pageout/swap) | ✅ | ✅ | ✅ | `c863e39` |
+| 7 (pagers/mmap) | ✅ | ✅ | ✅ | `22f93cf` |
 
 ### Next Action
 **Phase 7 → Read `vnode_pager.c` and `vm_mmap.c`**, take notes, then write pagers/mmap documentation.
