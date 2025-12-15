@@ -1,0 +1,3025 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Comprehensive documentation for the DragonFly BSD kernel source code">
+      
+      
+        <meta name="author" content="DragonFly BSD Community">
+      
+      
+      
+        <link rel="prev" href="../protocol-dispatch/">
+      
+      
+        <link rel="next" href="../../devices/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.0">
+    
+    
+      
+        <title>Pipes - DragonFly BSD Kernel Documentation</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../../assets/stylesheets/main.618322db.min.css">
+      
+        
+        <link rel="stylesheet" href="../../../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#pipes" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../../../.." title="DragonFly BSD Kernel Documentation" class="md-header__button md-logo" aria-label="DragonFly BSD Kernel Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            DragonFly BSD Kernel Documentation
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Pipes
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/tuxillo/dragonflybsd-source-docs" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    tuxillo/dragonflybsd-source-docs
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../.." class="md-tabs__link">
+        
+  
+  
+    
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../../getting-started/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Getting Started
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+    
+  
+  
+    
+    
+      <li class="md-tabs__item md-tabs__item--active">
+        <a href="../../../" class="md-tabs__link">
+          
+  
+  
+  Kernel Subsystems
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../../.." title="DragonFly BSD Kernel Documentation" class="md-nav__button md-logo" aria-label="DragonFly BSD Kernel Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    DragonFly BSD Kernel Documentation
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/tuxillo/dragonflybsd-source-docs" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    tuxillo/dragonflybsd-source-docs
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../getting-started/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Getting Started
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Kernel Subsystems
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Kernel Subsystems
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+          
+          
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_2" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_3_2" id="__nav_3_2_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    kern/
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_2_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_3_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    kern/
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../lwkt/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    LWKT Threading
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../synchronization/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Synchronization
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../time/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Time & Timers
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../memory/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Memory Management
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../initialization/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Initialization & Bootstrap
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../processes/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Processes & Threads
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../resources/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Process Resources & Credentials
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../signals/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Signals
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../scheduling/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Scheduling
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_3_2_11" >
+        
+          
+          <label class="md-nav__link" for="__nav_3_2_11" id="__nav_3_2_11_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Virtual Filesystem
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_3_2_11_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_2_11">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Virtual Filesystem
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../vfs/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../vfs/namecache/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Name Lookup & Caching
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../vfs/mounting/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Mounting & Unmounting
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../vfs/buffer-cache/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Buffer Cache & I/O
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../vfs/vfs-operations/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    VFS Operations Framework
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../vfs/journaling/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Journaling System
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../vfs/vfs-locking/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Vnode Locking & Lifecycle
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../vfs/vfs-extensions/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    VFS Extensions & Helpers
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_2_12" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_3_2_12" id="__nav_3_2_12_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    IPC & Sockets
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_3_2_12_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_3_2_12">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    IPC & Sockets
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../mbufs/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Mbufs
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../sockets/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Sockets
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../unix-sockets/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Unix Domain Sockets
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../protocol-dispatch/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Protocol Dispatch
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Pipes
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Pipes
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#data-structures" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Data Structures
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Data Structures">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#pipe-buffer" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Pipe Buffer
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pipe-structure" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Pipe Structure
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#state-flags" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        State Flags
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#system-calls" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        System Calls
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="System Calls">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#pipe-and-pipe2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        pipe() and pipe2()
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#kern_pipe" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        kern_pipe()
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#vm-backed-buffers" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        VM-Backed Buffers
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="VM-Backed Buffers">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#buffer-allocation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Buffer Allocation
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#per-cpu-pipe-cache" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Per-CPU Pipe Cache
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Per-CPU Pipe Cache">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#cache-design" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Cache Design
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#cache-initialization" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Cache Initialization
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#allocation-from-cache" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Allocation from Cache
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#return-to-cache" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Return to Cache
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#read-operation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Read Operation
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Read Operation">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#pipe_read" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        pipe_read()
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#busy-wait-optimization" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Busy-Wait Optimization
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#write-operation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Write Operation
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Write Operation">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#pipe_write" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        pipe_write()
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#synchronization" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Synchronization
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Synchronization">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#token-based-locking" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Token-Based Locking
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#uio-serialization" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        UIO Serialization
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#signal-and-wakeup" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Signal and Wakeup
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#shutdown-and-close" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Shutdown and Close
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Shutdown and Close">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#pipe_shutdown" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        pipe_shutdown()
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pipeclose" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        pipeclose()
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#file-operations" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        File Operations
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="File Operations">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#supported-ioctls" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Supported ioctls
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#kqueue-support" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        kqueue Support
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#sysctl-tunables" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Sysctl Tunables
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#source-reference" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Source Reference
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../devices/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Devices & Drivers
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../syscalls/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    System Calls
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+          
+          
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_3_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3_3" id="__nav_3_3_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    vm/
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    vm/
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../vm/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+          
+          
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_3_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_3_4" id="__nav_3_4_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    cpu/x86_64/
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    cpu/x86_64/
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../cpu/x86_64/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#data-structures" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Data Structures
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Data Structures">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#pipe-buffer" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Pipe Buffer
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pipe-structure" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Pipe Structure
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#state-flags" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        State Flags
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#system-calls" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        System Calls
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="System Calls">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#pipe-and-pipe2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        pipe() and pipe2()
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#kern_pipe" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        kern_pipe()
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#vm-backed-buffers" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        VM-Backed Buffers
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="VM-Backed Buffers">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#buffer-allocation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Buffer Allocation
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#per-cpu-pipe-cache" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Per-CPU Pipe Cache
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Per-CPU Pipe Cache">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#cache-design" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Cache Design
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#cache-initialization" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Cache Initialization
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#allocation-from-cache" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Allocation from Cache
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#return-to-cache" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Return to Cache
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#read-operation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Read Operation
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Read Operation">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#pipe_read" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        pipe_read()
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#busy-wait-optimization" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Busy-Wait Optimization
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#write-operation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Write Operation
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Write Operation">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#pipe_write" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        pipe_write()
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#synchronization" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Synchronization
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Synchronization">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#token-based-locking" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Token-Based Locking
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#uio-serialization" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        UIO Serialization
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#signal-and-wakeup" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Signal and Wakeup
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#shutdown-and-close" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Shutdown and Close
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Shutdown and Close">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#pipe_shutdown" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        pipe_shutdown()
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pipeclose" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        pipeclose()
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#file-operations" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        File Operations
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="File Operations">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#supported-ioctls" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Supported ioctls
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#kqueue-support" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        kqueue Support
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#sysctl-tunables" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Sysctl Tunables
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#source-reference" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Source Reference
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="pipes">Pipes<a class="headerlink" href="#pipes" title="Permanent link">&para;</a></h1>
+<p>Pipes provide unidirectional byte streams for inter-process communication. DragonFly's implementation (<code>sys/kern/sys_pipe.c</code>) replaces the traditional socket-based approach with a high-performance VM-backed design featuring per-CPU caching and busy-wait optimization.</p>
+<h2 id="data-structures">Data Structures<a class="headerlink" href="#data-structures" title="Permanent link">&para;</a></h2>
+<h3 id="pipe-buffer">Pipe Buffer<a class="headerlink" href="#pipe-buffer" title="Permanent link">&para;</a></h3>
+<p>Each direction of a pipe uses a <code>struct pipebuf</code> (<code>sys/sys/pipe.h:53</code>):</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="k">struct</span><span class="w"> </span><span class="nc">pipebuf</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="w">    </span><span class="k">struct</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="w">        </span><span class="k">struct</span><span class="w"> </span><span class="nc">lwkt_token</span><span class="w"> </span><span class="n">rlock</span><span class="p">;</span>
+<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="w">        </span><span class="kt">size_t</span><span class="w">      </span><span class="n">rindex</span><span class="p">;</span><span class="w">     </span><span class="cm">/* current read index (FIFO) */</span>
+<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a><span class="w">        </span><span class="kt">int32_t</span><span class="w">     </span><span class="n">rip</span><span class="p">;</span><span class="w">        </span><span class="cm">/* read-in-progress flag */</span>
+<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a><span class="w">        </span><span class="k">struct</span><span class="w"> </span><span class="nc">timespec</span><span class="w"> </span><span class="n">atime</span><span class="p">;</span><span class="w">  </span><span class="cm">/* time of last access */</span>
+<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a><span class="w">    </span><span class="p">}</span><span class="w"> </span><span class="n">__cachealign</span><span class="p">;</span>
+<a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a><span class="w">    </span><span class="k">struct</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a><span class="w">        </span><span class="k">struct</span><span class="w"> </span><span class="nc">lwkt_token</span><span class="w"> </span><span class="n">wlock</span><span class="p">;</span>
+<a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a><span class="w">        </span><span class="kt">size_t</span><span class="w">      </span><span class="n">windex</span><span class="p">;</span><span class="w">     </span><span class="cm">/* current write index (FIFO) */</span>
+<a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a><span class="w">        </span><span class="kt">int32_t</span><span class="w">     </span><span class="n">wip</span><span class="p">;</span><span class="w">        </span><span class="cm">/* write-in-progress flag */</span>
+<a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a><span class="w">        </span><span class="k">struct</span><span class="w"> </span><span class="nc">timespec</span><span class="w"> </span><span class="n">mtime</span><span class="p">;</span><span class="w">  </span><span class="cm">/* time of last modify */</span>
+<a id="__codelineno-0-13" name="__codelineno-0-13" href="#__codelineno-0-13"></a><span class="w">    </span><span class="p">}</span><span class="w"> </span><span class="n">__cachealign</span><span class="p">;</span>
+<a id="__codelineno-0-14" name="__codelineno-0-14" href="#__codelineno-0-14"></a><span class="w">    </span><span class="kt">size_t</span><span class="w">      </span><span class="n">size</span><span class="p">;</span><span class="w">           </span><span class="cm">/* size of buffer */</span>
+<a id="__codelineno-0-15" name="__codelineno-0-15" href="#__codelineno-0-15"></a><span class="w">    </span><span class="n">caddr_t</span><span class="w">     </span><span class="n">buffer</span><span class="p">;</span><span class="w">         </span><span class="cm">/* kva of buffer */</span>
+<a id="__codelineno-0-16" name="__codelineno-0-16" href="#__codelineno-0-16"></a><span class="w">    </span><span class="k">struct</span><span class="w"> </span><span class="nc">vm_object</span><span class="w"> </span><span class="o">*</span><span class="n">object</span><span class="p">;</span><span class="w">   </span><span class="cm">/* VM object containing buffer */</span>
+<a id="__codelineno-0-17" name="__codelineno-0-17" href="#__codelineno-0-17"></a><span class="w">    </span><span class="k">struct</span><span class="w"> </span><span class="nc">kqinfo</span><span class="w">   </span><span class="n">kq</span><span class="p">;</span><span class="w">         </span><span class="cm">/* for select/poll/kq */</span>
+<a id="__codelineno-0-18" name="__codelineno-0-18" href="#__codelineno-0-18"></a><span class="w">    </span><span class="k">struct</span><span class="w"> </span><span class="nc">sigio</span><span class="w">    </span><span class="o">*</span><span class="n">sigio</span><span class="p">;</span><span class="w">     </span><span class="cm">/* async I/O info */</span>
+<a id="__codelineno-0-19" name="__codelineno-0-19" href="#__codelineno-0-19"></a><span class="w">    </span><span class="kt">uint32_t</span><span class="w">    </span><span class="n">state</span><span class="p">;</span><span class="w">          </span><span class="cm">/* pipe status flags */</span>
+<a id="__codelineno-0-20" name="__codelineno-0-20" href="#__codelineno-0-20"></a><span class="w">    </span><span class="kt">int</span><span class="w">         </span><span class="n">lticks</span><span class="p">;</span><span class="w">         </span><span class="cm">/* timestamp optimization */</span>
+<a id="__codelineno-0-21" name="__codelineno-0-21" href="#__codelineno-0-21"></a><span class="p">}</span><span class="w"> </span><span class="n">__cachealign</span><span class="p">;</span>
+</code></pre></div>
+<p>The structure uses <code>__cachealign</code> to separate read and write fields onto different cache lines, reducing false sharing between reader and writer.</p>
+<h3 id="pipe-structure">Pipe Structure<a class="headerlink" href="#pipe-structure" title="Permanent link">&para;</a></h3>
+<p>The main <code>struct pipe</code> (<code>sys/sys/pipe.h:91</code>) contains two buffers for full-duplex communication:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="k">struct</span><span class="w"> </span><span class="nc">pipe</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="w">    </span><span class="k">struct</span><span class="w"> </span><span class="nc">pipebuf</span><span class="w">  </span><span class="n">bufferA</span><span class="p">;</span><span class="w">    </span><span class="cm">/* data storage */</span>
+<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="w">    </span><span class="k">struct</span><span class="w"> </span><span class="nc">pipebuf</span><span class="w">  </span><span class="n">bufferB</span><span class="p">;</span><span class="w">    </span><span class="cm">/* data storage */</span>
+<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a><span class="w">    </span><span class="k">struct</span><span class="w"> </span><span class="nc">timespec</span><span class="w"> </span><span class="n">ctime</span><span class="p">;</span><span class="w">      </span><span class="cm">/* creation time */</span>
+<a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a><span class="w">    </span><span class="k">struct</span><span class="w"> </span><span class="nc">pipe</span><span class="w">     </span><span class="o">*</span><span class="n">next</span><span class="p">;</span><span class="w">      </span><span class="cm">/* per-CPU cache linkage */</span>
+<a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a><span class="w">    </span><span class="kt">uint32_t</span><span class="w">        </span><span class="n">open_count</span><span class="p">;</span><span class="w"> </span><span class="cm">/* reference count */</span>
+<a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a><span class="w">    </span><span class="kt">uint64_t</span><span class="w">        </span><span class="n">inum</span><span class="p">;</span><span class="w">       </span><span class="cm">/* inode number */</span>
+<a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a><span class="p">}</span><span class="w"> </span><span class="n">__cachealign</span><span class="p">;</span>
+</code></pre></div>
+<p>Each file descriptor identifies which buffer it reads from using the low bit of <code>fp-&gt;f_data</code>: bit 0 clear reads from <code>bufferA</code>, bit 1 set reads from <code>bufferB</code>.</p>
+<h3 id="state-flags">State Flags<a class="headerlink" href="#state-flags" title="Permanent link">&para;</a></h3>
+<p>Buffer state tracked in <code>pipebuf.state</code> (<code>sys/sys/pipe.h:80-85</code>):</p>
+<table>
+<thead>
+<tr>
+<th>Flag</th>
+<th>Value</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>PIPE_ASYNC</code></td>
+<td>0x0004</td>
+<td>Async I/O enabled (SIGIO)</td>
+</tr>
+<tr>
+<td><code>PIPE_WANTR</code></td>
+<td>0x0008</td>
+<td>Reader is sleeping</td>
+</tr>
+<tr>
+<td><code>PIPE_WANTW</code></td>
+<td>0x0010</td>
+<td>Writer is sleeping</td>
+</tr>
+<tr>
+<td><code>PIPE_REOF</code></td>
+<td>0x0040</td>
+<td>Read EOF (peer closed write)</td>
+</tr>
+<tr>
+<td><code>PIPE_WEOF</code></td>
+<td>0x0080</td>
+<td>Write EOF (shutdown)</td>
+</tr>
+<tr>
+<td><code>PIPE_CLOSED</code></td>
+<td>0x1000</td>
+<td>This side fully closed</td>
+</tr>
+</tbody>
+</table>
+<h2 id="system-calls">System Calls<a class="headerlink" href="#system-calls" title="Permanent link">&para;</a></h2>
+<h3 id="pipe-and-pipe2">pipe() and pipe2()<a class="headerlink" href="#pipe-and-pipe2" title="Permanent link">&para;</a></h3>
+<p><code>sys_pipe()</code> and <code>sys_pipe2()</code> (<code>sys_pipe.c:262-274</code>) create a pipe pair:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="kt">int</span><span class="w"> </span><span class="nf">sys_pipe</span><span class="p">(</span><span class="k">struct</span><span class="w"> </span><span class="nc">sysmsg</span><span class="w"> </span><span class="o">*</span><span class="n">sysmsg</span><span class="p">,</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="k">struct</span><span class="w"> </span><span class="nc">pipe_args</span><span class="w"> </span><span class="o">*</span><span class="n">uap</span><span class="p">)</span>
+<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="p">{</span>
+<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">kern_pipe</span><span class="p">(</span><span class="n">sysmsg</span><span class="o">-&gt;</span><span class="n">sysmsg_fds</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">);</span>
+<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a><span class="p">}</span>
+<a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a>
+<a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a><span class="kt">int</span><span class="w"> </span><span class="nf">sys_pipe2</span><span class="p">(</span><span class="k">struct</span><span class="w"> </span><span class="nc">sysmsg</span><span class="w"> </span><span class="o">*</span><span class="n">sysmsg</span><span class="p">,</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="k">struct</span><span class="w"> </span><span class="nc">pipe2_args</span><span class="w"> </span><span class="o">*</span><span class="n">uap</span><span class="p">)</span>
+<a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a><span class="p">{</span>
+<a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a><span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">((</span><span class="n">uap</span><span class="o">-&gt;</span><span class="n">flags</span><span class="w"> </span><span class="o">&amp;</span><span class="w"> </span><span class="o">~</span><span class="p">(</span><span class="n">O_CLOEXEC</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">O_CLOFORK</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">O_NONBLOCK</span><span class="p">))</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span>
+<a id="__codelineno-2-9" name="__codelineno-2-9" href="#__codelineno-2-9"></a><span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="p">(</span><span class="n">EINVAL</span><span class="p">);</span>
+<a id="__codelineno-2-10" name="__codelineno-2-10" href="#__codelineno-2-10"></a><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">kern_pipe</span><span class="p">(</span><span class="n">sysmsg</span><span class="o">-&gt;</span><span class="n">sysmsg_fds</span><span class="p">,</span><span class="w"> </span><span class="n">uap</span><span class="o">-&gt;</span><span class="n">flags</span><span class="p">);</span>
+<a id="__codelineno-2-11" name="__codelineno-2-11" href="#__codelineno-2-11"></a><span class="p">}</span>
+</code></pre></div>
+<p><code>pipe2()</code> accepts flags: <code>O_CLOEXEC</code> (close on exec), <code>O_CLOFORK</code> (close on fork), and <code>O_NONBLOCK</code>.</p>
+<h3 id="kern_pipe">kern_pipe()<a class="headerlink" href="#kern_pipe" title="Permanent link">&para;</a></h3>
+<p>The core creation logic (<code>sys_pipe.c:276-349</code>):</p>
+<ol>
+<li>Allocates a <code>struct pipe</code> via <code>pipe_create()</code></li>
+<li>Allocates two file descriptors with <code>falloc()</code></li>
+<li>Configures read-side fd (bit 0 = 0) and write-side fd (bit 0 = 1)</li>
+<li>Sets <code>f_ops</code> to <code>pipeops</code> for both</li>
+<li>Activates descriptors with <code>fsetfd()</code></li>
+</ol>
+<p>Both file descriptors have <code>FREAD | FWRITE</code> flags set, though traditionally one is the read end and one is the write end.</p>
+<h2 id="vm-backed-buffers">VM-Backed Buffers<a class="headerlink" href="#vm-backed-buffers" title="Permanent link">&para;</a></h2>
+<h3 id="buffer-allocation">Buffer Allocation<a class="headerlink" href="#buffer-allocation" title="Permanent link">&para;</a></h3>
+<p><code>pipespace()</code> (<code>sys_pipe.c:359-405</code>) allocates kernel virtual address space backed by a VM object:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="k">static</span><span class="w"> </span><span class="kt">int</span>
+<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="nf">pipespace</span><span class="p">(</span><span class="k">struct</span><span class="w"> </span><span class="nc">pipe</span><span class="w"> </span><span class="o">*</span><span class="n">pipe</span><span class="p">,</span><span class="w"> </span><span class="k">struct</span><span class="w"> </span><span class="nc">pipebuf</span><span class="w"> </span><span class="o">*</span><span class="n">pb</span><span class="p">,</span><span class="w"> </span><span class="kt">size_t</span><span class="w"> </span><span class="n">size</span><span class="p">)</span>
+<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a><span class="p">{</span>
+<a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a><span class="w">    </span><span class="n">size</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="n">size</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">PAGE_MASK</span><span class="p">)</span><span class="w"> </span><span class="o">&amp;</span><span class="w"> </span><span class="o">~</span><span class="p">(</span><span class="kt">size_t</span><span class="p">)</span><span class="n">PAGE_MASK</span><span class="p">;</span>
+<a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a><span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">size</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="mi">16384</span><span class="p">)</span>
+<a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a><span class="w">        </span><span class="n">size</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">16384</span><span class="p">;</span>
+<a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a><span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">size</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mi">1024</span><span class="o">*</span><span class="mi">1024</span><span class="p">)</span>
+<a id="__codelineno-3-8" name="__codelineno-3-8" href="#__codelineno-3-8"></a><span class="w">        </span><span class="n">size</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1024</span><span class="o">*</span><span class="mi">1024</span><span class="p">;</span>
+<a id="__codelineno-3-9" name="__codelineno-3-9" href="#__codelineno-3-9"></a>
+<a id="__codelineno-3-10" name="__codelineno-3-10" href="#__codelineno-3-10"></a><span class="w">    </span><span class="n">npages</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">round_page</span><span class="p">(</span><span class="n">size</span><span class="p">)</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="n">PAGE_SIZE</span><span class="p">;</span>
+<a id="__codelineno-3-11" name="__codelineno-3-11" href="#__codelineno-3-11"></a>
+<a id="__codelineno-3-12" name="__codelineno-3-12" href="#__codelineno-3-12"></a><span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">object</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="nb">NULL</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="n">object</span><span class="o">-&gt;</span><span class="n">size</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="n">npages</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-3-13" name="__codelineno-3-13" href="#__codelineno-3-13"></a><span class="w">        </span><span class="n">object</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">vm_object_allocate</span><span class="p">(</span><span class="n">OBJT_DEFAULT</span><span class="p">,</span><span class="w"> </span><span class="n">npages</span><span class="p">);</span>
+<a id="__codelineno-3-14" name="__codelineno-3-14" href="#__codelineno-3-14"></a><span class="w">        </span><span class="n">buffer</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="n">caddr_t</span><span class="p">)</span><span class="n">vm_map_min</span><span class="p">(</span><span class="n">kernel_map</span><span class="p">);</span>
+<a id="__codelineno-3-15" name="__codelineno-3-15" href="#__codelineno-3-15"></a>
+<a id="__codelineno-3-16" name="__codelineno-3-16" href="#__codelineno-3-16"></a><span class="w">        </span><span class="n">error</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">vm_map_find</span><span class="p">(</span><span class="n">kernel_map</span><span class="p">,</span><span class="w"> </span><span class="n">object</span><span class="p">,</span><span class="w"> </span><span class="nb">NULL</span><span class="p">,</span>
+<a id="__codelineno-3-17" name="__codelineno-3-17" href="#__codelineno-3-17"></a><span class="w">                </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="p">(</span><span class="n">vm_offset_t</span><span class="w"> </span><span class="o">*</span><span class="p">)</span><span class="o">&amp;</span><span class="n">buffer</span><span class="p">,</span><span class="w"> </span><span class="n">size</span><span class="p">,</span>
+<a id="__codelineno-3-18" name="__codelineno-3-18" href="#__codelineno-3-18"></a><span class="w">                </span><span class="n">PAGE_SIZE</span><span class="p">,</span><span class="w"> </span><span class="n">TRUE</span><span class="p">,</span>
+<a id="__codelineno-3-19" name="__codelineno-3-19" href="#__codelineno-3-19"></a><span class="w">                </span><span class="n">VM_MAPTYPE_NORMAL</span><span class="p">,</span><span class="w"> </span><span class="n">VM_SUBSYS_PIPE</span><span class="p">,</span>
+<a id="__codelineno-3-20" name="__codelineno-3-20" href="#__codelineno-3-20"></a><span class="w">                </span><span class="n">VM_PROT_ALL</span><span class="p">,</span><span class="w"> </span><span class="n">VM_PROT_ALL</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">);</span>
+<a id="__codelineno-3-21" name="__codelineno-3-21" href="#__codelineno-3-21"></a><span class="w">        </span><span class="cm">/* ... */</span>
+<a id="__codelineno-3-22" name="__codelineno-3-22" href="#__codelineno-3-22"></a><span class="w">    </span><span class="p">}</span>
+<a id="__codelineno-3-23" name="__codelineno-3-23" href="#__codelineno-3-23"></a><span class="w">    </span><span class="n">pb</span><span class="o">-&gt;</span><span class="n">rindex</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+<a id="__codelineno-3-24" name="__codelineno-3-24" href="#__codelineno-3-24"></a><span class="w">    </span><span class="n">pb</span><span class="o">-&gt;</span><span class="n">windex</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+<a id="__codelineno-3-25" name="__codelineno-3-25" href="#__codelineno-3-25"></a><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="p">(</span><span class="mi">0</span><span class="p">);</span>
+<a id="__codelineno-3-26" name="__codelineno-3-26" href="#__codelineno-3-26"></a><span class="p">}</span>
+</code></pre></div>
+<p>Key points:
+- Buffer size clamped between 16KB and 1MB
+- Uses <code>OBJT_DEFAULT</code> VM objects (pageable, swap-backed)
+- Each buffer has an independent <code>vm_object</code> for performance
+- Default size controlled by sysctl <code>kern.pipe.size</code> (32KB)</p>
+<h2 id="per-cpu-pipe-cache">Per-CPU Pipe Cache<a class="headerlink" href="#per-cpu-pipe-cache" title="Permanent link">&para;</a></h2>
+<h3 id="cache-design">Cache Design<a class="headerlink" href="#cache-design" title="Permanent link">&para;</a></h3>
+<p>To reduce allocation overhead, pipes are cached per-CPU (<code>sys_pipe.c:111-118</code>):</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="cp">#define PIPEQ_MAX_CACHE 16      </span><span class="cm">/* per-cpu pipe structure cache */</span>
+<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>
+<a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a><span class="k">static</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">pipe_maxcache</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">PIPEQ_MAX_CACHE</span><span class="p">;</span>
+<a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a><span class="k">static</span><span class="w"> </span><span class="k">struct</span><span class="w"> </span><span class="nc">pipegdlock</span><span class="w"> </span><span class="o">*</span><span class="n">pipe_gdlocks</span><span class="p">;</span>
+</code></pre></div>
+<p>The cache lives in <code>globaldata_t</code>:
+- <code>gd-&gt;gd_pipeq</code> - linked list of cached pipes
+- <code>gd-&gt;gd_pipeqcount</code> - number of cached pipes</p>
+<h3 id="cache-initialization">Cache Initialization<a class="headerlink" href="#cache-initialization" title="Permanent link">&para;</a></h3>
+<p><code>pipeinit()</code> (<code>sys_pipe.c:148-177</code>) scales the cache based on system memory:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="k">static</span><span class="w"> </span><span class="kt">void</span>
+<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a><span class="nf">pipeinit</span><span class="p">(</span><span class="kt">void</span><span class="w"> </span><span class="o">*</span><span class="n">dummy</span><span class="p">)</span>
+<a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a><span class="p">{</span>
+<a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a><span class="w">    </span><span class="kt">size_t</span><span class="w"> </span><span class="n">mbytes</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">kmem_lim_size</span><span class="p">();</span>
+<a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a>
+<a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a><span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">pipe_maxcache</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">PIPEQ_MAX_CACHE</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-5-7" name="__codelineno-5-7" href="#__codelineno-5-7"></a><span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">mbytes</span><span class="w"> </span><span class="o">&gt;=</span><span class="w"> </span><span class="mi">7</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mi">1024</span><span class="p">)</span>
+<a id="__codelineno-5-8" name="__codelineno-5-8" href="#__codelineno-5-8"></a><span class="w">            </span><span class="n">pipe_maxcache</span><span class="w"> </span><span class="o">*=</span><span class="w"> </span><span class="mi">2</span><span class="p">;</span>
+<a id="__codelineno-5-9" name="__codelineno-5-9" href="#__codelineno-5-9"></a><span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">mbytes</span><span class="w"> </span><span class="o">&gt;=</span><span class="w"> </span><span class="mi">15</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mi">1024</span><span class="p">)</span>
+<a id="__codelineno-5-10" name="__codelineno-5-10" href="#__codelineno-5-10"></a><span class="w">            </span><span class="n">pipe_maxcache</span><span class="w"> </span><span class="o">*=</span><span class="w"> </span><span class="mi">2</span><span class="p">;</span>
+<a id="__codelineno-5-11" name="__codelineno-5-11" href="#__codelineno-5-11"></a><span class="w">    </span><span class="p">}</span>
+<a id="__codelineno-5-12" name="__codelineno-5-12" href="#__codelineno-5-12"></a>
+<a id="__codelineno-5-13" name="__codelineno-5-13" href="#__codelineno-5-13"></a><span class="w">    </span><span class="cm">/* Reduce cache on systems with many CPUs */</span>
+<a id="__codelineno-5-14" name="__codelineno-5-14" href="#__codelineno-5-14"></a><span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">ncpus</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mi">64</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-5-15" name="__codelineno-5-15" href="#__codelineno-5-15"></a><span class="w">        </span><span class="n">pipe_maxcache</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">pipe_maxcache</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mi">64</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="n">ncpus</span><span class="p">;</span>
+<a id="__codelineno-5-16" name="__codelineno-5-16" href="#__codelineno-5-16"></a><span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">pipe_maxcache</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">PIPEQ_MAX_CACHE</span><span class="p">)</span>
+<a id="__codelineno-5-17" name="__codelineno-5-17" href="#__codelineno-5-17"></a><span class="w">            </span><span class="n">pipe_maxcache</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">PIPEQ_MAX_CACHE</span><span class="p">;</span>
+<a id="__codelineno-5-18" name="__codelineno-5-18" href="#__codelineno-5-18"></a><span class="w">    </span><span class="p">}</span>
+<a id="__codelineno-5-19" name="__codelineno-5-19" href="#__codelineno-5-19"></a><span class="w">    </span><span class="cm">/* ... */</span>
+<a id="__codelineno-5-20" name="__codelineno-5-20" href="#__codelineno-5-20"></a><span class="p">}</span>
+</code></pre></div>
+<h3 id="allocation-from-cache">Allocation from Cache<a class="headerlink" href="#allocation-from-cache" title="Permanent link">&para;</a></h3>
+<p><code>pipe_create()</code> (<code>sys_pipe.c:414-448</code>) checks the per-CPU cache first:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="k">static</span><span class="w"> </span><span class="kt">int</span>
+<a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a><span class="nf">pipe_create</span><span class="p">(</span><span class="k">struct</span><span class="w"> </span><span class="nc">pipe</span><span class="w"> </span><span class="o">**</span><span class="n">pipep</span><span class="p">)</span>
+<a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a><span class="p">{</span>
+<a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a><span class="w">    </span><span class="n">globaldata_t</span><span class="w"> </span><span class="n">gd</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">mycpu</span><span class="p">;</span>
+<a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a><span class="w">    </span><span class="k">struct</span><span class="w"> </span><span class="nc">pipe</span><span class="w"> </span><span class="o">*</span><span class="n">pipe</span><span class="p">;</span>
+<a id="__codelineno-6-6" name="__codelineno-6-6" href="#__codelineno-6-6"></a>
+<a id="__codelineno-6-7" name="__codelineno-6-7" href="#__codelineno-6-7"></a><span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">((</span><span class="n">pipe</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">gd</span><span class="o">-&gt;</span><span class="n">gd_pipeq</span><span class="p">)</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="nb">NULL</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-6-8" name="__codelineno-6-8" href="#__codelineno-6-8"></a><span class="w">        </span><span class="n">gd</span><span class="o">-&gt;</span><span class="n">gd_pipeq</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">pipe</span><span class="o">-&gt;</span><span class="n">next</span><span class="p">;</span>
+<a id="__codelineno-6-9" name="__codelineno-6-9" href="#__codelineno-6-9"></a><span class="w">        </span><span class="o">--</span><span class="n">gd</span><span class="o">-&gt;</span><span class="n">gd_pipeqcount</span><span class="p">;</span>
+<a id="__codelineno-6-10" name="__codelineno-6-10" href="#__codelineno-6-10"></a><span class="w">        </span><span class="n">pipe</span><span class="o">-&gt;</span><span class="n">next</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">NULL</span><span class="p">;</span>
+<a id="__codelineno-6-11" name="__codelineno-6-11" href="#__codelineno-6-11"></a><span class="w">    </span><span class="p">}</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-6-12" name="__codelineno-6-12" href="#__codelineno-6-12"></a><span class="w">        </span><span class="n">pipe</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">kmalloc</span><span class="p">(</span><span class="k">sizeof</span><span class="p">(</span><span class="o">*</span><span class="n">pipe</span><span class="p">),</span><span class="w"> </span><span class="n">M_PIPE</span><span class="p">,</span><span class="w"> </span><span class="n">M_WAITOK</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">M_ZERO</span><span class="p">);</span>
+<a id="__codelineno-6-13" name="__codelineno-6-13" href="#__codelineno-6-13"></a><span class="w">        </span><span class="n">pipe</span><span class="o">-&gt;</span><span class="n">inum</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">gd</span><span class="o">-&gt;</span><span class="n">gd_anoninum</span><span class="o">++</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">ncpus</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">gd</span><span class="o">-&gt;</span><span class="n">gd_cpuid</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">2</span><span class="p">;</span>
+<a id="__codelineno-6-14" name="__codelineno-6-14" href="#__codelineno-6-14"></a><span class="w">        </span><span class="n">lwkt_token_init</span><span class="p">(</span><span class="o">&amp;</span><span class="n">pipe</span><span class="o">-&gt;</span><span class="n">bufferA</span><span class="p">.</span><span class="n">rlock</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;piper&quot;</span><span class="p">);</span>
+<a id="__codelineno-6-15" name="__codelineno-6-15" href="#__codelineno-6-15"></a><span class="w">        </span><span class="n">lwkt_token_init</span><span class="p">(</span><span class="o">&amp;</span><span class="n">pipe</span><span class="o">-&gt;</span><span class="n">bufferA</span><span class="p">.</span><span class="n">wlock</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;pipew&quot;</span><span class="p">);</span>
+<a id="__codelineno-6-16" name="__codelineno-6-16" href="#__codelineno-6-16"></a><span class="w">        </span><span class="n">lwkt_token_init</span><span class="p">(</span><span class="o">&amp;</span><span class="n">pipe</span><span class="o">-&gt;</span><span class="n">bufferB</span><span class="p">.</span><span class="n">rlock</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;piper&quot;</span><span class="p">);</span>
+<a id="__codelineno-6-17" name="__codelineno-6-17" href="#__codelineno-6-17"></a><span class="w">        </span><span class="n">lwkt_token_init</span><span class="p">(</span><span class="o">&amp;</span><span class="n">pipe</span><span class="o">-&gt;</span><span class="n">bufferB</span><span class="p">.</span><span class="n">wlock</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;pipew&quot;</span><span class="p">);</span>
+<a id="__codelineno-6-18" name="__codelineno-6-18" href="#__codelineno-6-18"></a><span class="w">    </span><span class="p">}</span>
+<a id="__codelineno-6-19" name="__codelineno-6-19" href="#__codelineno-6-19"></a><span class="w">    </span><span class="cm">/* ... allocate buffer space ... */</span>
+<a id="__codelineno-6-20" name="__codelineno-6-20" href="#__codelineno-6-20"></a><span class="p">}</span>
+</code></pre></div>
+<p>The inode number generation (<code>gd-&gt;gd_anoninum++ * ncpus + gd-&gt;gd_cpuid + 2</code>) ensures unique inums across CPUs without synchronization.</p>
+<h3 id="return-to-cache">Return to Cache<a class="headerlink" href="#return-to-cache" title="Permanent link">&para;</a></h3>
+<p>When both ends close, <code>pipeclose()</code> (<code>sys_pipe.c:1272-1287</code>) returns the pipe to the cache:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">atomic_fetchadd_int</span><span class="p">(</span><span class="o">&amp;</span><span class="n">pipe</span><span class="o">-&gt;</span><span class="n">open_count</span><span class="p">,</span><span class="w"> </span><span class="mi">-1</span><span class="p">)</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a><span class="w">    </span><span class="n">gd</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">mycpu</span><span class="p">;</span>
+<a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a><span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">gd</span><span class="o">-&gt;</span><span class="n">gd_pipeqcount</span><span class="w"> </span><span class="o">&gt;=</span><span class="w"> </span><span class="n">pipe_maxcache</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-7-4" name="__codelineno-7-4" href="#__codelineno-7-4"></a><span class="w">        </span><span class="n">mtx_lock</span><span class="p">(</span><span class="o">&amp;</span><span class="n">pipe_gdlocks</span><span class="p">[</span><span class="n">gd</span><span class="o">-&gt;</span><span class="n">gd_cpuid</span><span class="p">].</span><span class="n">mtx</span><span class="p">);</span>
+<a id="__codelineno-7-5" name="__codelineno-7-5" href="#__codelineno-7-5"></a><span class="w">        </span><span class="n">pipe_free_kmem</span><span class="p">(</span><span class="n">rpb</span><span class="p">);</span>
+<a id="__codelineno-7-6" name="__codelineno-7-6" href="#__codelineno-7-6"></a><span class="w">        </span><span class="n">pipe_free_kmem</span><span class="p">(</span><span class="n">wpb</span><span class="p">);</span>
+<a id="__codelineno-7-7" name="__codelineno-7-7" href="#__codelineno-7-7"></a><span class="w">        </span><span class="n">mtx_unlock</span><span class="p">(</span><span class="o">&amp;</span><span class="n">pipe_gdlocks</span><span class="p">[</span><span class="n">gd</span><span class="o">-&gt;</span><span class="n">gd_cpuid</span><span class="p">].</span><span class="n">mtx</span><span class="p">);</span>
+<a id="__codelineno-7-8" name="__codelineno-7-8" href="#__codelineno-7-8"></a><span class="w">        </span><span class="n">kfree</span><span class="p">(</span><span class="n">pipe</span><span class="p">,</span><span class="w"> </span><span class="n">M_PIPE</span><span class="p">);</span>
+<a id="__codelineno-7-9" name="__codelineno-7-9" href="#__codelineno-7-9"></a><span class="w">    </span><span class="p">}</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-7-10" name="__codelineno-7-10" href="#__codelineno-7-10"></a><span class="w">        </span><span class="n">rpb</span><span class="o">-&gt;</span><span class="n">state</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+<a id="__codelineno-7-11" name="__codelineno-7-11" href="#__codelineno-7-11"></a><span class="w">        </span><span class="n">wpb</span><span class="o">-&gt;</span><span class="n">state</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+<a id="__codelineno-7-12" name="__codelineno-7-12" href="#__codelineno-7-12"></a><span class="w">        </span><span class="n">pipe</span><span class="o">-&gt;</span><span class="n">next</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">gd</span><span class="o">-&gt;</span><span class="n">gd_pipeq</span><span class="p">;</span>
+<a id="__codelineno-7-13" name="__codelineno-7-13" href="#__codelineno-7-13"></a><span class="w">        </span><span class="n">gd</span><span class="o">-&gt;</span><span class="n">gd_pipeq</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">pipe</span><span class="p">;</span>
+<a id="__codelineno-7-14" name="__codelineno-7-14" href="#__codelineno-7-14"></a><span class="w">        </span><span class="o">++</span><span class="n">gd</span><span class="o">-&gt;</span><span class="n">gd_pipeqcount</span><span class="p">;</span>
+<a id="__codelineno-7-15" name="__codelineno-7-15" href="#__codelineno-7-15"></a><span class="w">    </span><span class="p">}</span>
+<a id="__codelineno-7-16" name="__codelineno-7-16" href="#__codelineno-7-16"></a><span class="p">}</span>
+</code></pre></div>
+<p>The per-CPU mutex (<code>pipe_gdlocks</code>) serializes access to <code>kernel_map</code> during bulk teardown scenarios (e.g., mass process termination).</p>
+<h2 id="read-operation">Read Operation<a class="headerlink" href="#read-operation" title="Permanent link">&para;</a></h2>
+<h3 id="pipe_read">pipe_read()<a class="headerlink" href="#pipe_read" title="Permanent link">&para;</a></h3>
+<p><code>pipe_read()</code> (<code>sys_pipe.c:453-698</code>) implements reading:</p>
+<ol>
+<li><strong>Buffer selection</strong>: Determines read buffer based on <code>fp-&gt;f_data</code> bit 0</li>
+<li><strong>Quick NBIO check</strong>: Returns <code>EAGAIN</code> early if non-blocking and buffer empty</li>
+<li><strong>Serialization</strong>: Acquires <code>rlock</code> token and calls <code>pipe_start_uio()</code> to serialize against other readers</li>
+<li><strong>Copy loop</strong>: Reads available data via <code>uiomove()</code></li>
+</ol>
+<p>Key features of the read loop:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a><span class="k">while</span><span class="w"> </span><span class="p">(</span><span class="n">uio</span><span class="o">-&gt;</span><span class="n">uio_resid</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a><span class="w">    </span><span class="n">size</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">rpb</span><span class="o">-&gt;</span><span class="n">windex</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">rpb</span><span class="o">-&gt;</span><span class="n">rindex</span><span class="p">;</span>
+<a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a><span class="w">    </span><span class="n">cpu_lfence</span><span class="p">();</span><span class="w">  </span><span class="cm">/* memory barrier before reading buffer */</span>
+<a id="__codelineno-8-4" name="__codelineno-8-4" href="#__codelineno-8-4"></a>
+<a id="__codelineno-8-5" name="__codelineno-8-5" href="#__codelineno-8-5"></a><span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">size</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-8-6" name="__codelineno-8-6" href="#__codelineno-8-6"></a><span class="w">        </span><span class="n">rindex</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">rpb</span><span class="o">-&gt;</span><span class="n">rindex</span><span class="w"> </span><span class="o">&amp;</span><span class="w"> </span><span class="p">(</span><span class="n">rpb</span><span class="o">-&gt;</span><span class="n">size</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mi">1</span><span class="p">);</span>
+<a id="__codelineno-8-7" name="__codelineno-8-7" href="#__codelineno-8-7"></a><span class="w">        </span><span class="n">nsize</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">szmin</span><span class="p">(</span><span class="n">size</span><span class="p">,</span><span class="w"> </span><span class="n">uio</span><span class="o">-&gt;</span><span class="n">uio_resid</span><span class="p">);</span>
+<a id="__codelineno-8-8" name="__codelineno-8-8" href="#__codelineno-8-8"></a>
+<a id="__codelineno-8-9" name="__codelineno-8-9" href="#__codelineno-8-9"></a><span class="w">        </span><span class="cm">/* Limit to half buffer to avoid ping-pong */</span>
+<a id="__codelineno-8-10" name="__codelineno-8-10" href="#__codelineno-8-10"></a><span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">nsize</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="p">(</span><span class="n">rpb</span><span class="o">-&gt;</span><span class="n">size</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="mi">1</span><span class="p">))</span>
+<a id="__codelineno-8-11" name="__codelineno-8-11" href="#__codelineno-8-11"></a><span class="w">            </span><span class="n">nsize</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">rpb</span><span class="o">-&gt;</span><span class="n">size</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span>
+<a id="__codelineno-8-12" name="__codelineno-8-12" href="#__codelineno-8-12"></a>
+<a id="__codelineno-8-13" name="__codelineno-8-13" href="#__codelineno-8-13"></a><span class="w">        </span><span class="n">error</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">uiomove</span><span class="p">(</span><span class="o">&amp;</span><span class="n">rpb</span><span class="o">-&gt;</span><span class="n">buffer</span><span class="p">[</span><span class="n">rindex</span><span class="p">],</span><span class="w"> </span><span class="n">nsize</span><span class="p">,</span><span class="w"> </span><span class="n">uio</span><span class="p">);</span>
+<a id="__codelineno-8-14" name="__codelineno-8-14" href="#__codelineno-8-14"></a><span class="w">        </span><span class="n">rpb</span><span class="o">-&gt;</span><span class="n">rindex</span><span class="w"> </span><span class="o">+=</span><span class="w"> </span><span class="n">nsize</span><span class="p">;</span>
+<a id="__codelineno-8-15" name="__codelineno-8-15" href="#__codelineno-8-15"></a>
+<a id="__codelineno-8-16" name="__codelineno-8-16" href="#__codelineno-8-16"></a><span class="w">        </span><span class="cm">/* Wake writer if buffer less than half full */</span>
+<a id="__codelineno-8-17" name="__codelineno-8-17" href="#__codelineno-8-17"></a><span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">size</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">nsize</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="p">(</span><span class="n">rpb</span><span class="o">-&gt;</span><span class="n">size</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="mi">1</span><span class="p">))</span>
+<a id="__codelineno-8-18" name="__codelineno-8-18" href="#__codelineno-8-18"></a><span class="w">            </span><span class="n">pipesignal</span><span class="p">(</span><span class="n">rpb</span><span class="p">,</span><span class="w"> </span><span class="n">PIPE_WANTW</span><span class="p">);</span>
+<a id="__codelineno-8-19" name="__codelineno-8-19" href="#__codelineno-8-19"></a><span class="w">        </span><span class="k">continue</span><span class="p">;</span>
+<a id="__codelineno-8-20" name="__codelineno-8-20" href="#__codelineno-8-20"></a><span class="w">    </span><span class="p">}</span>
+<a id="__codelineno-8-21" name="__codelineno-8-21" href="#__codelineno-8-21"></a><span class="w">    </span><span class="cm">/* ... blocking logic ... */</span>
+<a id="__codelineno-8-22" name="__codelineno-8-22" href="#__codelineno-8-22"></a><span class="p">}</span>
+</code></pre></div>
+<p>The buffer uses power-of-2 sizing, so <code>rindex &amp; (size - 1)</code> computes the circular buffer offset efficiently.</p>
+<h3 id="busy-wait-optimization">Busy-Wait Optimization<a class="headerlink" href="#busy-wait-optimization" title="Permanent link">&para;</a></h3>
+<p>Before sleeping, the reader busy-waits for a configurable period (<code>sys_pipe.c:599-615</code>):</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a><span class="cp">#ifdef _RDTSC_SUPPORTED_</span>
+<a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">pipe_delay</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-9-3" name="__codelineno-9-3" href="#__codelineno-9-3"></a><span class="w">    </span><span class="kt">int64_t</span><span class="w"> </span><span class="n">tsc_target</span><span class="p">;</span>
+<a id="__codelineno-9-4" name="__codelineno-9-4" href="#__codelineno-9-4"></a><span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="n">good</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+<a id="__codelineno-9-5" name="__codelineno-9-5" href="#__codelineno-9-5"></a>
+<a id="__codelineno-9-6" name="__codelineno-9-6" href="#__codelineno-9-6"></a><span class="w">    </span><span class="n">tsc_target</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">tsc_get_target</span><span class="p">(</span><span class="n">pipe_delay</span><span class="p">);</span>
+<a id="__codelineno-9-7" name="__codelineno-9-7" href="#__codelineno-9-7"></a><span class="w">    </span><span class="k">while</span><span class="w"> </span><span class="p">(</span><span class="n">tsc_test_target</span><span class="p">(</span><span class="n">tsc_target</span><span class="p">)</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-9-8" name="__codelineno-9-8" href="#__codelineno-9-8"></a><span class="w">        </span><span class="n">cpu_lfence</span><span class="p">();</span>
+<a id="__codelineno-9-9" name="__codelineno-9-9" href="#__codelineno-9-9"></a><span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">rpb</span><span class="o">-&gt;</span><span class="n">windex</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="n">rpb</span><span class="o">-&gt;</span><span class="n">rindex</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-9-10" name="__codelineno-9-10" href="#__codelineno-9-10"></a><span class="w">            </span><span class="n">good</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span>
+<a id="__codelineno-9-11" name="__codelineno-9-11" href="#__codelineno-9-11"></a><span class="w">            </span><span class="k">break</span><span class="p">;</span>
+<a id="__codelineno-9-12" name="__codelineno-9-12" href="#__codelineno-9-12"></a><span class="w">        </span><span class="p">}</span>
+<a id="__codelineno-9-13" name="__codelineno-9-13" href="#__codelineno-9-13"></a><span class="w">        </span><span class="n">cpu_pause</span><span class="p">();</span>
+<a id="__codelineno-9-14" name="__codelineno-9-14" href="#__codelineno-9-14"></a><span class="w">    </span><span class="p">}</span>
+<a id="__codelineno-9-15" name="__codelineno-9-15" href="#__codelineno-9-15"></a><span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">good</span><span class="p">)</span>
+<a id="__codelineno-9-16" name="__codelineno-9-16" href="#__codelineno-9-16"></a><span class="w">        </span><span class="k">continue</span><span class="p">;</span>
+<a id="__codelineno-9-17" name="__codelineno-9-17" href="#__codelineno-9-17"></a><span class="p">}</span>
+<a id="__codelineno-9-18" name="__codelineno-9-18" href="#__codelineno-9-18"></a><span class="cp">#endif</span>
+</code></pre></div>
+<p>The <code>pipe_delay</code> sysctl (default 4000ns = 4us) trades CPU cycles for reduced IPI/wakeup latency. This is effective for synchronous producer-consumer patterns.</p>
+<h2 id="write-operation">Write Operation<a class="headerlink" href="#write-operation" title="Permanent link">&para;</a></h2>
+<h3 id="pipe_write">pipe_write()<a class="headerlink" href="#pipe_write" title="Permanent link">&para;</a></h3>
+<p><code>pipe_write()</code> (<code>sys_pipe.c:700-987</code>) mirrors the read path:</p>
+<ol>
+<li><strong>Buffer selection</strong>: Writes to the peer's read buffer</li>
+<li><strong>EOF check</strong>: Returns <code>EPIPE</code> if <code>PIPE_WEOF</code> is set</li>
+<li><strong>Atomicity</strong>: Writes &lt;= <code>PIPE_BUF</code> (512 bytes) are atomic</li>
+</ol>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a><span class="k">while</span><span class="w"> </span><span class="p">(</span><span class="n">uio</span><span class="o">-&gt;</span><span class="n">uio_resid</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a><span class="w">    </span><span class="n">space</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">wpb</span><span class="o">-&gt;</span><span class="n">size</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="p">(</span><span class="n">wpb</span><span class="o">-&gt;</span><span class="n">windex</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">wpb</span><span class="o">-&gt;</span><span class="n">rindex</span><span class="p">);</span>
+<a id="__codelineno-10-3" name="__codelineno-10-3" href="#__codelineno-10-3"></a>
+<a id="__codelineno-10-4" name="__codelineno-10-4" href="#__codelineno-10-4"></a><span class="w">    </span><span class="cm">/* Writes &lt;= PIPE_BUF must be atomic */</span>
+<a id="__codelineno-10-5" name="__codelineno-10-5" href="#__codelineno-10-5"></a><span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">((</span><span class="n">space</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">uio</span><span class="o">-&gt;</span><span class="n">uio_resid</span><span class="p">)</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="p">(</span><span class="n">orig_resid</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="n">PIPE_BUF</span><span class="p">))</span>
+<a id="__codelineno-10-6" name="__codelineno-10-6" href="#__codelineno-10-6"></a><span class="w">        </span><span class="n">space</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+<a id="__codelineno-10-7" name="__codelineno-10-7" href="#__codelineno-10-7"></a>
+<a id="__codelineno-10-8" name="__codelineno-10-8" href="#__codelineno-10-8"></a><span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">space</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-10-9" name="__codelineno-10-9" href="#__codelineno-10-9"></a><span class="w">        </span><span class="cm">/* Limit to half buffer for pipelining */</span>
+<a id="__codelineno-10-10" name="__codelineno-10-10" href="#__codelineno-10-10"></a><span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">space</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="p">(</span><span class="n">wpb</span><span class="o">-&gt;</span><span class="n">size</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="mi">1</span><span class="p">))</span>
+<a id="__codelineno-10-11" name="__codelineno-10-11" href="#__codelineno-10-11"></a><span class="w">            </span><span class="n">space</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="n">wpb</span><span class="o">-&gt;</span><span class="n">size</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="mi">1</span><span class="p">);</span>
+<a id="__codelineno-10-12" name="__codelineno-10-12" href="#__codelineno-10-12"></a>
+<a id="__codelineno-10-13" name="__codelineno-10-13" href="#__codelineno-10-13"></a><span class="w">        </span><span class="cm">/* Handle wraparound */</span>
+<a id="__codelineno-10-14" name="__codelineno-10-14" href="#__codelineno-10-14"></a><span class="w">        </span><span class="n">windex</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">wpb</span><span class="o">-&gt;</span><span class="n">windex</span><span class="w"> </span><span class="o">&amp;</span><span class="w"> </span><span class="p">(</span><span class="n">wpb</span><span class="o">-&gt;</span><span class="n">size</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mi">1</span><span class="p">);</span>
+<a id="__codelineno-10-15" name="__codelineno-10-15" href="#__codelineno-10-15"></a><span class="w">        </span><span class="n">segsize</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">wpb</span><span class="o">-&gt;</span><span class="n">size</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">windex</span><span class="p">;</span>
+<a id="__codelineno-10-16" name="__codelineno-10-16" href="#__codelineno-10-16"></a><span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">segsize</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="n">space</span><span class="p">)</span>
+<a id="__codelineno-10-17" name="__codelineno-10-17" href="#__codelineno-10-17"></a><span class="w">            </span><span class="n">segsize</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">space</span><span class="p">;</span>
+<a id="__codelineno-10-18" name="__codelineno-10-18" href="#__codelineno-10-18"></a>
+<a id="__codelineno-10-19" name="__codelineno-10-19" href="#__codelineno-10-19"></a><span class="w">        </span><span class="n">error</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">uiomove</span><span class="p">(</span><span class="o">&amp;</span><span class="n">wpb</span><span class="o">-&gt;</span><span class="n">buffer</span><span class="p">[</span><span class="n">windex</span><span class="p">],</span><span class="w"> </span><span class="n">segsize</span><span class="p">,</span><span class="w"> </span><span class="n">uio</span><span class="p">);</span>
+<a id="__codelineno-10-20" name="__codelineno-10-20" href="#__codelineno-10-20"></a><span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">error</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">segsize</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">space</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-10-21" name="__codelineno-10-21" href="#__codelineno-10-21"></a><span class="w">            </span><span class="n">segsize</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">space</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">segsize</span><span class="p">;</span>
+<a id="__codelineno-10-22" name="__codelineno-10-22" href="#__codelineno-10-22"></a><span class="w">            </span><span class="n">error</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">uiomove</span><span class="p">(</span><span class="o">&amp;</span><span class="n">wpb</span><span class="o">-&gt;</span><span class="n">buffer</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span><span class="w"> </span><span class="n">segsize</span><span class="p">,</span><span class="w"> </span><span class="n">uio</span><span class="p">);</span>
+<a id="__codelineno-10-23" name="__codelineno-10-23" href="#__codelineno-10-23"></a><span class="w">        </span><span class="p">}</span>
+<a id="__codelineno-10-24" name="__codelineno-10-24" href="#__codelineno-10-24"></a>
+<a id="__codelineno-10-25" name="__codelineno-10-25" href="#__codelineno-10-25"></a><span class="w">        </span><span class="n">cpu_sfence</span><span class="p">();</span><span class="w">  </span><span class="cm">/* ensure data visible before windex update */</span>
+<a id="__codelineno-10-26" name="__codelineno-10-26" href="#__codelineno-10-26"></a><span class="w">        </span><span class="n">wpb</span><span class="o">-&gt;</span><span class="n">windex</span><span class="w"> </span><span class="o">+=</span><span class="w"> </span><span class="n">space</span><span class="p">;</span>
+<a id="__codelineno-10-27" name="__codelineno-10-27" href="#__codelineno-10-27"></a><span class="w">        </span><span class="n">pipesignal</span><span class="p">(</span><span class="n">wpb</span><span class="p">,</span><span class="w"> </span><span class="n">PIPE_WANTR</span><span class="p">);</span>
+<a id="__codelineno-10-28" name="__codelineno-10-28" href="#__codelineno-10-28"></a><span class="w">        </span><span class="k">continue</span><span class="p">;</span>
+<a id="__codelineno-10-29" name="__codelineno-10-29" href="#__codelineno-10-29"></a><span class="w">    </span><span class="p">}</span>
+<a id="__codelineno-10-30" name="__codelineno-10-30" href="#__codelineno-10-30"></a><span class="w">    </span><span class="cm">/* ... blocking logic with busy-wait ... */</span>
+<a id="__codelineno-10-31" name="__codelineno-10-31" href="#__codelineno-10-31"></a><span class="p">}</span>
+</code></pre></div>
+<p>The store fence (<code>cpu_sfence()</code>) ensures buffer contents are visible to readers before <code>windex</code> is updated.</p>
+<h2 id="synchronization">Synchronization<a class="headerlink" href="#synchronization" title="Permanent link">&para;</a></h2>
+<h3 id="token-based-locking">Token-Based Locking<a class="headerlink" href="#token-based-locking" title="Permanent link">&para;</a></h3>
+<p>Each buffer has separate read and write tokens:
+- <code>rlock</code> - held during reads, protects <code>rindex</code>
+- <code>wlock</code> - held during writes, protects <code>windex</code></p>
+<p>This allows concurrent read and write operations on the same buffer.</p>
+<h3 id="uio-serialization">UIO Serialization<a class="headerlink" href="#uio-serialization" title="Permanent link">&para;</a></h3>
+<p>The <code>rip</code> and <code>wip</code> fields serialize multiple concurrent reads or writes (<code>sys_pipe.c:228-253</code>):</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a><span class="k">static</span><span class="w"> </span><span class="kr">__inline</span><span class="w"> </span><span class="kt">int</span>
+<a id="__codelineno-11-2" name="__codelineno-11-2" href="#__codelineno-11-2"></a><span class="nf">pipe_start_uio</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="o">*</span><span class="n">ipp</span><span class="p">)</span>
+<a id="__codelineno-11-3" name="__codelineno-11-3" href="#__codelineno-11-3"></a><span class="p">{</span>
+<a id="__codelineno-11-4" name="__codelineno-11-4" href="#__codelineno-11-4"></a><span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="n">error</span><span class="p">;</span>
+<a id="__codelineno-11-5" name="__codelineno-11-5" href="#__codelineno-11-5"></a><span class="w">    </span><span class="k">while</span><span class="w"> </span><span class="p">(</span><span class="o">*</span><span class="n">ipp</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-11-6" name="__codelineno-11-6" href="#__codelineno-11-6"></a><span class="w">        </span><span class="o">*</span><span class="n">ipp</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">-1</span><span class="p">;</span><span class="w">  </span><span class="cm">/* mark as contended */</span>
+<a id="__codelineno-11-7" name="__codelineno-11-7" href="#__codelineno-11-7"></a><span class="w">        </span><span class="n">error</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">tsleep</span><span class="p">(</span><span class="n">ipp</span><span class="p">,</span><span class="w"> </span><span class="n">PCATCH</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;pipexx&quot;</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">);</span>
+<a id="__codelineno-11-8" name="__codelineno-11-8" href="#__codelineno-11-8"></a><span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">error</span><span class="p">)</span>
+<a id="__codelineno-11-9" name="__codelineno-11-9" href="#__codelineno-11-9"></a><span class="w">            </span><span class="k">return</span><span class="w"> </span><span class="p">(</span><span class="n">error</span><span class="p">);</span>
+<a id="__codelineno-11-10" name="__codelineno-11-10" href="#__codelineno-11-10"></a><span class="w">    </span><span class="p">}</span>
+<a id="__codelineno-11-11" name="__codelineno-11-11" href="#__codelineno-11-11"></a><span class="w">    </span><span class="o">*</span><span class="n">ipp</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span><span class="w">  </span><span class="cm">/* mark as in-progress */</span>
+<a id="__codelineno-11-12" name="__codelineno-11-12" href="#__codelineno-11-12"></a><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="p">(</span><span class="mi">0</span><span class="p">);</span>
+<a id="__codelineno-11-13" name="__codelineno-11-13" href="#__codelineno-11-13"></a><span class="p">}</span>
+<a id="__codelineno-11-14" name="__codelineno-11-14" href="#__codelineno-11-14"></a>
+<a id="__codelineno-11-15" name="__codelineno-11-15" href="#__codelineno-11-15"></a><span class="k">static</span><span class="w"> </span><span class="kr">__inline</span><span class="w"> </span><span class="kt">void</span>
+<a id="__codelineno-11-16" name="__codelineno-11-16" href="#__codelineno-11-16"></a><span class="nf">pipe_end_uio</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="o">*</span><span class="n">ipp</span><span class="p">)</span>
+<a id="__codelineno-11-17" name="__codelineno-11-17" href="#__codelineno-11-17"></a><span class="p">{</span>
+<a id="__codelineno-11-18" name="__codelineno-11-18" href="#__codelineno-11-18"></a><span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">*</span><span class="n">ipp</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-11-19" name="__codelineno-11-19" href="#__codelineno-11-19"></a><span class="w">        </span><span class="o">*</span><span class="n">ipp</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+<a id="__codelineno-11-20" name="__codelineno-11-20" href="#__codelineno-11-20"></a><span class="w">        </span><span class="n">wakeup</span><span class="p">(</span><span class="n">ipp</span><span class="p">);</span><span class="w">  </span><span class="cm">/* wake contending thread */</span>
+<a id="__codelineno-11-21" name="__codelineno-11-21" href="#__codelineno-11-21"></a><span class="w">    </span><span class="p">}</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-11-22" name="__codelineno-11-22" href="#__codelineno-11-22"></a><span class="w">        </span><span class="o">*</span><span class="n">ipp</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+<a id="__codelineno-11-23" name="__codelineno-11-23" href="#__codelineno-11-23"></a><span class="w">    </span><span class="p">}</span>
+<a id="__codelineno-11-24" name="__codelineno-11-24" href="#__codelineno-11-24"></a><span class="p">}</span>
+</code></pre></div>
+<h3 id="signal-and-wakeup">Signal and Wakeup<a class="headerlink" href="#signal-and-wakeup" title="Permanent link">&para;</a></h3>
+<p><code>pipesignal()</code> (<code>sys_pipe.c:188-203</code>) atomically clears wait flags and wakes sleepers:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a><span class="k">static</span><span class="w"> </span><span class="kr">__inline</span><span class="w"> </span><span class="kt">void</span>
+<a id="__codelineno-12-2" name="__codelineno-12-2" href="#__codelineno-12-2"></a><span class="nf">pipesignal</span><span class="p">(</span><span class="k">struct</span><span class="w"> </span><span class="nc">pipebuf</span><span class="w"> </span><span class="o">*</span><span class="n">pb</span><span class="p">,</span><span class="w"> </span><span class="kt">uint32_t</span><span class="w"> </span><span class="n">flags</span><span class="p">)</span>
+<a id="__codelineno-12-3" name="__codelineno-12-3" href="#__codelineno-12-3"></a><span class="p">{</span>
+<a id="__codelineno-12-4" name="__codelineno-12-4" href="#__codelineno-12-4"></a><span class="w">    </span><span class="kt">uint32_t</span><span class="w"> </span><span class="n">oflags</span><span class="p">,</span><span class="w"> </span><span class="n">nflags</span><span class="p">;</span>
+<a id="__codelineno-12-5" name="__codelineno-12-5" href="#__codelineno-12-5"></a>
+<a id="__codelineno-12-6" name="__codelineno-12-6" href="#__codelineno-12-6"></a><span class="w">    </span><span class="k">for</span><span class="w"> </span><span class="p">(;;)</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-12-7" name="__codelineno-12-7" href="#__codelineno-12-7"></a><span class="w">        </span><span class="n">oflags</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">pb</span><span class="o">-&gt;</span><span class="n">state</span><span class="p">;</span>
+<a id="__codelineno-12-8" name="__codelineno-12-8" href="#__codelineno-12-8"></a><span class="w">        </span><span class="n">cpu_ccfence</span><span class="p">();</span>
+<a id="__codelineno-12-9" name="__codelineno-12-9" href="#__codelineno-12-9"></a><span class="w">        </span><span class="n">nflags</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">oflags</span><span class="w"> </span><span class="o">&amp;</span><span class="w"> </span><span class="o">~</span><span class="n">flags</span><span class="p">;</span>
+<a id="__codelineno-12-10" name="__codelineno-12-10" href="#__codelineno-12-10"></a><span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">atomic_cmpset_int</span><span class="p">(</span><span class="o">&amp;</span><span class="n">pb</span><span class="o">-&gt;</span><span class="n">state</span><span class="p">,</span><span class="w"> </span><span class="n">oflags</span><span class="p">,</span><span class="w"> </span><span class="n">nflags</span><span class="p">))</span>
+<a id="__codelineno-12-11" name="__codelineno-12-11" href="#__codelineno-12-11"></a><span class="w">            </span><span class="k">break</span><span class="p">;</span>
+<a id="__codelineno-12-12" name="__codelineno-12-12" href="#__codelineno-12-12"></a><span class="w">    </span><span class="p">}</span>
+<a id="__codelineno-12-13" name="__codelineno-12-13" href="#__codelineno-12-13"></a><span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">oflags</span><span class="w"> </span><span class="o">&amp;</span><span class="w"> </span><span class="n">flags</span><span class="p">)</span>
+<a id="__codelineno-12-14" name="__codelineno-12-14" href="#__codelineno-12-14"></a><span class="w">        </span><span class="n">wakeup</span><span class="p">(</span><span class="n">pb</span><span class="p">);</span>
+<a id="__codelineno-12-15" name="__codelineno-12-15" href="#__codelineno-12-15"></a><span class="p">}</span>
+</code></pre></div>
+<h2 id="shutdown-and-close">Shutdown and Close<a class="headerlink" href="#shutdown-and-close" title="Permanent link">&para;</a></h2>
+<h3 id="pipe_shutdown">pipe_shutdown()<a class="headerlink" href="#pipe_shutdown" title="Permanent link">&para;</a></h3>
+<p><code>pipe_shutdown()</code> (<code>sys_pipe.c:1113-1183</code>) implements partial close semantics:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a><span class="k">switch</span><span class="p">(</span><span class="n">how</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-13-2" name="__codelineno-13-2" href="#__codelineno-13-2"></a><span class="k">case</span><span class="w"> </span><span class="no">SHUT_RDWR</span><span class="p">:</span>
+<a id="__codelineno-13-3" name="__codelineno-13-3" href="#__codelineno-13-3"></a><span class="k">case</span><span class="w"> </span><span class="no">SHUT_RD</span><span class="p">:</span>
+<a id="__codelineno-13-4" name="__codelineno-13-4" href="#__codelineno-13-4"></a><span class="w">    </span><span class="n">atomic_set_int</span><span class="p">(</span><span class="o">&amp;</span><span class="n">rpb</span><span class="o">-&gt;</span><span class="n">state</span><span class="p">,</span><span class="w"> </span><span class="n">PIPE_REOF</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">PIPE_WEOF</span><span class="p">);</span>
+<a id="__codelineno-13-5" name="__codelineno-13-5" href="#__codelineno-13-5"></a><span class="w">    </span><span class="cm">/* wake waiters */</span>
+<a id="__codelineno-13-6" name="__codelineno-13-6" href="#__codelineno-13-6"></a><span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">how</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">SHUT_RD</span><span class="p">)</span>
+<a id="__codelineno-13-7" name="__codelineno-13-7" href="#__codelineno-13-7"></a><span class="w">        </span><span class="k">break</span><span class="p">;</span>
+<a id="__codelineno-13-8" name="__codelineno-13-8" href="#__codelineno-13-8"></a><span class="w">    </span><span class="cm">/* fall through */</span>
+<a id="__codelineno-13-9" name="__codelineno-13-9" href="#__codelineno-13-9"></a><span class="k">case</span><span class="w"> </span><span class="no">SHUT_WR</span><span class="p">:</span>
+<a id="__codelineno-13-10" name="__codelineno-13-10" href="#__codelineno-13-10"></a><span class="w">    </span><span class="n">atomic_set_int</span><span class="p">(</span><span class="o">&amp;</span><span class="n">wpb</span><span class="o">-&gt;</span><span class="n">state</span><span class="p">,</span><span class="w"> </span><span class="n">PIPE_REOF</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">PIPE_WEOF</span><span class="p">);</span>
+<a id="__codelineno-13-11" name="__codelineno-13-11" href="#__codelineno-13-11"></a><span class="w">    </span><span class="cm">/* wake waiters */</span>
+<a id="__codelineno-13-12" name="__codelineno-13-12" href="#__codelineno-13-12"></a><span class="w">    </span><span class="k">break</span><span class="p">;</span>
+<a id="__codelineno-13-13" name="__codelineno-13-13" href="#__codelineno-13-13"></a><span class="p">}</span>
+</code></pre></div>
+<p>This requires all four tokens (both rlock and wlock for both buffers) since it modifies state on both sides.</p>
+<h3 id="pipeclose">pipeclose()<a class="headerlink" href="#pipeclose" title="Permanent link">&para;</a></h3>
+<p><code>pipeclose()</code> (<code>sys_pipe.c:1203-1288</code>) handles final cleanup:</p>
+<ol>
+<li>Sets <code>PIPE_CLOSED | PIPE_REOF | PIPE_WEOF</code> on own buffer</li>
+<li>Sets <code>PIPE_REOF | PIPE_WEOF</code> on peer buffer</li>
+<li>Wakes all waiters on both sides</li>
+<li>When <code>open_count</code> reaches 0, returns to cache or frees</li>
+</ol>
+<h2 id="file-operations">File Operations<a class="headerlink" href="#file-operations" title="Permanent link">&para;</a></h2>
+<p>The <code>pipeops</code> structure (<code>sys_pipe.c:89-98</code>):</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-14-1" name="__codelineno-14-1" href="#__codelineno-14-1"></a><span class="k">static</span><span class="w"> </span><span class="k">struct</span><span class="w"> </span><span class="nc">fileops</span><span class="w"> </span><span class="n">pipeops</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-14-2" name="__codelineno-14-2" href="#__codelineno-14-2"></a><span class="w">    </span><span class="p">.</span><span class="n">fo_read</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">pipe_read</span><span class="p">,</span><span class="w"> </span>
+<a id="__codelineno-14-3" name="__codelineno-14-3" href="#__codelineno-14-3"></a><span class="w">    </span><span class="p">.</span><span class="n">fo_write</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">pipe_write</span><span class="p">,</span>
+<a id="__codelineno-14-4" name="__codelineno-14-4" href="#__codelineno-14-4"></a><span class="w">    </span><span class="p">.</span><span class="n">fo_ioctl</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">pipe_ioctl</span><span class="p">,</span>
+<a id="__codelineno-14-5" name="__codelineno-14-5" href="#__codelineno-14-5"></a><span class="w">    </span><span class="p">.</span><span class="n">fo_kqfilter</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">pipe_kqfilter</span><span class="p">,</span>
+<a id="__codelineno-14-6" name="__codelineno-14-6" href="#__codelineno-14-6"></a><span class="w">    </span><span class="p">.</span><span class="n">fo_stat</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">pipe_stat</span><span class="p">,</span>
+<a id="__codelineno-14-7" name="__codelineno-14-7" href="#__codelineno-14-7"></a><span class="w">    </span><span class="p">.</span><span class="n">fo_close</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">pipe_close</span><span class="p">,</span>
+<a id="__codelineno-14-8" name="__codelineno-14-8" href="#__codelineno-14-8"></a><span class="w">    </span><span class="p">.</span><span class="n">fo_shutdown</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">pipe_shutdown</span><span class="p">,</span>
+<a id="__codelineno-14-9" name="__codelineno-14-9" href="#__codelineno-14-9"></a><span class="w">    </span><span class="p">.</span><span class="n">fo_seek</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">badfo_seek</span>
+<a id="__codelineno-14-10" name="__codelineno-14-10" href="#__codelineno-14-10"></a><span class="p">};</span>
+</code></pre></div>
+<h3 id="supported-ioctls">Supported ioctls<a class="headerlink" href="#supported-ioctls" title="Permanent link">&para;</a></h3>
+<p><code>pipe_ioctl()</code> (<code>sys_pipe.c:992-1048</code>) supports:</p>
+<table>
+<thead>
+<tr>
+<th>ioctl</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>FIOASYNC</code></td>
+<td>Enable/disable async I/O (SIGIO)</td>
+</tr>
+<tr>
+<td><code>FIONREAD</code></td>
+<td>Return bytes available for read</td>
+</tr>
+<tr>
+<td><code>FIOSETOWN</code></td>
+<td>Set owner for SIGIO</td>
+</tr>
+<tr>
+<td><code>FIOGETOWN</code></td>
+<td>Get owner for SIGIO</td>
+</tr>
+<tr>
+<td><code>TIOCSPGRP</code></td>
+<td>Set process group (deprecated)</td>
+</tr>
+<tr>
+<td><code>TIOCGPGRP</code></td>
+<td>Get process group (deprecated)</td>
+</tr>
+</tbody>
+</table>
+<h3 id="kqueue-support">kqueue Support<a class="headerlink" href="#kqueue-support" title="Permanent link">&para;</a></h3>
+<p><code>pipe_kqfilter()</code> (<code>sys_pipe.c:1290-1325</code>) supports <code>EVFILT_READ</code> and <code>EVFILT_WRITE</code>:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-15-1" name="__codelineno-15-1" href="#__codelineno-15-1"></a><span class="k">switch</span><span class="w"> </span><span class="p">(</span><span class="n">kn</span><span class="o">-&gt;</span><span class="n">kn_filter</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-15-2" name="__codelineno-15-2" href="#__codelineno-15-2"></a><span class="k">case</span><span class="w"> </span><span class="no">EVFILT_READ</span><span class="p">:</span>
+<a id="__codelineno-15-3" name="__codelineno-15-3" href="#__codelineno-15-3"></a><span class="w">    </span><span class="n">kn</span><span class="o">-&gt;</span><span class="n">kn_fop</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="o">&amp;</span><span class="n">pipe_rfiltops</span><span class="p">;</span>
+<a id="__codelineno-15-4" name="__codelineno-15-4" href="#__codelineno-15-4"></a><span class="w">    </span><span class="k">break</span><span class="p">;</span>
+<a id="__codelineno-15-5" name="__codelineno-15-5" href="#__codelineno-15-5"></a><span class="k">case</span><span class="w"> </span><span class="no">EVFILT_WRITE</span><span class="p">:</span>
+<a id="__codelineno-15-6" name="__codelineno-15-6" href="#__codelineno-15-6"></a><span class="w">    </span><span class="n">kn</span><span class="o">-&gt;</span><span class="n">kn_fop</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="o">&amp;</span><span class="n">pipe_wfiltops</span><span class="p">;</span>
+<a id="__codelineno-15-7" name="__codelineno-15-7" href="#__codelineno-15-7"></a><span class="w">    </span><span class="k">break</span><span class="p">;</span>
+<a id="__codelineno-15-8" name="__codelineno-15-8" href="#__codelineno-15-8"></a><span class="p">}</span>
+<a id="__codelineno-15-9" name="__codelineno-15-9" href="#__codelineno-15-9"></a><span class="n">knote_insert</span><span class="p">(</span><span class="o">&amp;</span><span class="n">rpb</span><span class="o">-&gt;</span><span class="n">kq</span><span class="p">.</span><span class="n">ki_note</span><span class="p">,</span><span class="w"> </span><span class="n">kn</span><span class="p">);</span>
+</code></pre></div>
+<p>The filter operations are marked <code>FILTEROP_MPSAFE</code> and rely on the knote's <code>KN_PROCESSING</code> flag for synchronization rather than pipe tokens.</p>
+<h2 id="sysctl-tunables">Sysctl Tunables<a class="headerlink" href="#sysctl-tunables" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Sysctl</th>
+<th>Default</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>kern.pipe.size</code></td>
+<td>32768</td>
+<td>Default buffer size for new pipes</td>
+</tr>
+<tr>
+<td><code>kern.pipe.maxcache</code></td>
+<td>16-64</td>
+<td>Per-CPU cache size (scaled by memory)</td>
+</tr>
+<tr>
+<td><code>kern.pipe.delay</code></td>
+<td>4000</td>
+<td>Busy-wait time in nanoseconds</td>
+</tr>
+</tbody>
+</table>
+<h2 id="source-reference">Source Reference<a class="headerlink" href="#source-reference" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>File</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>sys/kern/sys_pipe.c</code></td>
+<td>Pipe implementation</td>
+</tr>
+<tr>
+<td><code>sys/sys/pipe.h</code></td>
+<td>Pipe structures and flags</td>
+</tr>
+</tbody>
+</table>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../../../..", "features": ["navigation.tabs", "navigation.sections", "navigation.expand", "navigation.top", "search.suggest", "search.highlight", "content.code.copy"], "search": "../../../../assets/javascripts/workers/search.7a47a382.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../../../assets/javascripts/bundle.e71a0d61.min.js"></script>
+      
+    
+  </body>
+</html>
