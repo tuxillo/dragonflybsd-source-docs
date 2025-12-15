@@ -2,6 +2,45 @@
 
 This plan organizes the DragonFly BSD VM subsystem (`sys/vm/`) into logical reading phases. The VM subsystem manages virtual memory, including physical page management, VM objects, address spaces, page faults, and paging.
 
+---
+
+## Hybrid Approach (5 Steps)
+
+**IMPORTANT: Follow this workflow for each phase to avoid token exhaustion and ensure incremental progress.**
+
+### Step 1: Read in Bounded Chunks
+- Read 1000-1500 lines at a time from source files
+- Never try to hold entire large files in context simultaneously
+
+### Step 2: Take Notes in PLAN.md
+- After reading each chunk, record key findings in the "Consolidated Notes" sections below
+- Document: data structures, key functions, DragonFly-specific details, cross-references
+
+### Step 3: Transform Notes to Documentation
+- Once a logical section is fully read and noted, write a polished documentation file in `docs/sys/vm/`
+- Use the accumulated notes - do NOT re-read source files
+
+### Step 4: Commit Frequently
+- Commit each documentation file immediately after completion
+- This establishes checkpoints and prevents losing work
+
+### Step 5: Use PLAN.md as Working Memory
+- This file persists across sessions
+- If approaching token limits, stop and commit progress
+- Next session can resume from where notes left off
+
+### Workflow per Phase
+```
+Read chunk 1 → Note in PLAN.md → 
+Read chunk 2 → Note in PLAN.md → 
+... →
+Write docs/sys/vm/X.md from notes → 
+Commit → 
+Next phase
+```
+
+---
+
 ## Overview of Target Files
 
 | File | Lines | Purpose |
@@ -26,7 +65,7 @@ This plan organizes the DragonFly BSD VM subsystem (`sys/vm/`) into logical read
 
 ## Reading Phases
 
-### Phase 1: Core Data Structures (Headers)
+### Phase 1: Core Data Structures (Headers) ✅ COMPLETE
 **Goal:** Understand fundamental VM data structures before implementations.
 
 | Step | File(s) | Lines | Focus |
@@ -36,7 +75,7 @@ This plan organizes the DragonFly BSD VM subsystem (`sys/vm/`) into logical read
 | 1.3 | `vm_object.h` | ~388 | `struct vm_object`, object types |
 | 1.4 | `vm_map.h` | ~654 | `struct vm_map`, `vm_map_entry`, `vm_map_backing` |
 
-**Output:** Core data structures section in this PLAN.md
+**Output:** `docs/sys/vm/index.md` - VM architecture overview (from header notes)
 
 ---
 
@@ -49,7 +88,7 @@ This plan organizes the DragonFly BSD VM subsystem (`sys/vm/`) into logical read
 | 2.2 | 1500-3000 | Page state transitions, busy handling |
 | 2.3 | 3000-4241 | Remaining functions |
 
-**Output:** Physical page management section in this PLAN.md
+**Output:** `docs/sys/vm/vm_page.md` - Physical page management
 
 ---
 
@@ -61,7 +100,7 @@ This plan organizes the DragonFly BSD VM subsystem (`sys/vm/`) into logical read
 | 3.1 | 0-1000 | Object creation, reference counting |
 | 3.2 | 1000-2034 | Shadow objects, collapse, paging |
 
-**Output:** VM objects section in this PLAN.md
+**Output:** `docs/sys/vm/vm_object.md` - VM objects
 
 ---
 
@@ -74,7 +113,7 @@ This plan organizes the DragonFly BSD VM subsystem (`sys/vm/`) into logical read
 | 4.2 | 1500-3000 | Lookups, clipping, entry operations |
 | 4.3 | 3000-4781 | COW, forking, protection |
 
-**Output:** Address space management section in this PLAN.md
+**Output:** `docs/sys/vm/vm_map.md` - Address space management
 
 ---
 
@@ -86,7 +125,7 @@ This plan organizes the DragonFly BSD VM subsystem (`sys/vm/`) into logical read
 | 5.1 | 0-1500 | Fault state, main entry points |
 | 5.2 | 1500-3243 | Core fault logic, COW handling |
 
-**Output:** Page fault handling section in this PLAN.md
+**Output:** `docs/sys/vm/vm_fault.md` - Page fault handling
 
 ---
 
@@ -100,7 +139,7 @@ This plan organizes the DragonFly BSD VM subsystem (`sys/vm/`) into logical read
 | 6.3 | `swap_pager.c` | 0-1300 | Swap allocation, metadata |
 | 6.4 | `swap_pager.c` | 1300-2600 | Swap I/O |
 
-**Output:** Pageout and swap section in this PLAN.md
+**Output:** `docs/sys/vm/vm_pageout.md` - Pageout daemon and swap
 
 ---
 
@@ -112,39 +151,24 @@ This plan organizes the DragonFly BSD VM subsystem (`sys/vm/`) into logical read
 | 7.1 | `vnode_pager.c` | 0-832 | File-backed page I/O |
 | 7.2 | `vm_mmap.c` | 0-1530 | mmap/munmap/mprotect |
 
-**Output:** Pagers and mmap section in this PLAN.md
-
----
-
-### Phase 8: Final Documentation
-**Goal:** Transform PLAN.md notes into polished documentation.
-
-**Output files:**
-- `docs/sys/vm/index.md` - VM subsystem overview
-- `docs/sys/vm/vm-page.md` - Physical page management
-- `docs/sys/vm/vm-object.md` - VM objects
-- `docs/sys/vm/vm-map.md` - Address space management
-- `docs/sys/vm/vm-fault.md` - Page fault handling
-- `docs/sys/vm/pageout-swap.md` - Pageout daemon and swap
-- `docs/sys/vm/pagers-mmap.md` - Pagers and memory mapping
+**Output:** `docs/sys/vm/vm_mmap.md` - Pagers and memory mapping
 
 ---
 
 ## Progress Tracking
 
-| Phase | Status | Notes |
-|-------|--------|-------|
-| 1.1 | **Done** | vm.h, vm_param.h |
-| 1.2 | **Done** | vm_page.h, vm_page2.h |
-| 1.3 | **Done** | vm_object.h |
-| 1.4 | **Done** | vm_map.h |
-| 2.1-2.3 | Pending | vm_page.c |
-| 3.1-3.2 | Pending | vm_object.c |
-| 4.1-4.3 | Pending | vm_map.c |
-| 5.1-5.2 | Pending | vm_fault.c |
-| 6.1-6.4 | Pending | vm_pageout.c, swap_pager.c |
-| 7.1-7.2 | Pending | vnode_pager.c, vm_mmap.c |
-| 8 | Pending | Final documentation |
+| Phase | Read | Notes | Doc Written | Commit |
+|-------|------|-------|-------------|--------|
+| 1 (Headers) | ✅ | ✅ | Pending | `c5fde7c` |
+| 2 (vm_page.c) | Pending | Pending | Pending | - |
+| 3 (vm_object.c) | Pending | Pending | Pending | - |
+| 4 (vm_map.c) | Pending | Pending | Pending | - |
+| 5 (vm_fault.c) | Pending | Pending | Pending | - |
+| 6 (pageout/swap) | Pending | Pending | Pending | - |
+| 7 (pagers/mmap) | Pending | Pending | Pending | - |
+
+### Next Action
+**Phase 1 → Write `docs/sys/vm/index.md`** from header notes, then commit.
 
 ---
 
