@@ -1,0 +1,3908 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Comprehensive documentation for the DragonFly BSD kernel source code">
+      
+      
+        <meta name="author" content="DragonFly BSD Community">
+      
+      
+      
+        <link rel="prev" href="../devices/">
+      
+      
+        <link rel="next" href="../bus-resources/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.0">
+    
+    
+      
+        <title>NewBus Framework - DragonFly BSD Kernel Documentation</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.618322db.min.css">
+      
+        
+        <link rel="stylesheet" href="../../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#newbus-framework" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../../.." title="DragonFly BSD Kernel Documentation" class="md-header__button md-logo" aria-label="DragonFly BSD Kernel Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            DragonFly BSD Kernel Documentation
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              NewBus Framework
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/tuxillo/dragonflybsd-source-docs" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    tuxillo/dragonflybsd-source-docs
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../.." class="md-tabs__link">
+        
+  
+  
+    
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../getting-started/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Getting Started
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+    
+  
+  
+    
+    
+      <li class="md-tabs__item md-tabs__item--active">
+        <a href="../../" class="md-tabs__link">
+          
+  
+  
+  Kernel Subsystems
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../.." title="DragonFly BSD Kernel Documentation" class="md-nav__button md-logo" aria-label="DragonFly BSD Kernel Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    DragonFly BSD Kernel Documentation
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/tuxillo/dragonflybsd-source-docs" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    tuxillo/dragonflybsd-source-docs
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../getting-started/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Getting Started
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Kernel Subsystems
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Kernel Subsystems
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+          
+          
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_2" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_3_2" id="__nav_3_2_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    kern/
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_2_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_3_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    kern/
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../lwkt/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    LWKT Threading
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../synchronization/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Synchronization
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../time/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Time & Timers
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../memory/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Memory Management
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../initialization/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Initialization & Bootstrap
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../processes/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Processes & Threads
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../resources/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Process Resources & Credentials
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../signals/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Signals
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../scheduling/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Scheduling
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_3_2_11" >
+        
+          
+          <label class="md-nav__link" for="__nav_3_2_11" id="__nav_3_2_11_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Virtual Filesystem
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_3_2_11_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_2_11">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Virtual Filesystem
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../vfs/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../vfs/namecache/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Name Lookup & Caching
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../vfs/mounting/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Mounting & Unmounting
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../vfs/buffer-cache/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Buffer Cache & I/O
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../vfs/vfs-operations/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    VFS Operations Framework
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../vfs/journaling/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Journaling System
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../vfs/vfs-locking/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Vnode Locking & Lifecycle
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../vfs/vfs-extensions/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    VFS Extensions & Helpers
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_3_2_12" >
+        
+          
+          <label class="md-nav__link" for="__nav_3_2_12" id="__nav_3_2_12_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    IPC & Sockets
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_3_2_12_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_2_12">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    IPC & Sockets
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ipc/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ipc/mbufs/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Mbufs
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ipc/sockets/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Sockets
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ipc/unix-sockets/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Unix Domain Sockets
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ipc/protocol-dispatch/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Protocol Dispatch
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ipc/pipes/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Pipes
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ipc/mqueue/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    POSIX Message Queues
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ipc/sysv-msg/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    System V Message Queues
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ipc/sysv-sem/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    System V Semaphores
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ipc/sysv-shm/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    System V Shared Memory
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../devices/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Devices & Drivers
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    NewBus Framework
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    NewBus Framework
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#overview" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Overview
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#data-structures" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Data Structures
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Data Structures">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#device_t-struct-bsd_device" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        device_t (struct bsd_device)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#device-flags" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Device Flags
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#device_state_t" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        device_state_t
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#devclass_t-struct-devclass" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        devclass_t (struct devclass)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#driver_t-kobj_class_t" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        driver_t (kobj_class_t)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#struct-resource" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        struct resource
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#resource-types" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Resource Types
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#struct-resource_list_entry" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        struct resource_list_entry
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#device-interface-methods" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Device Interface Methods
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Device Interface Methods">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#probe-return-values" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Probe Return Values
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#bus-interface-methods" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Bus Interface Methods
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#device-lifecycle" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Device Lifecycle
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Device Lifecycle">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#device-creation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Device Creation
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#probe-and-attach-flow" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Probe and Attach Flow
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#asynchronous-attachment-dragonfly-extension" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Asynchronous Attachment (DragonFly Extension)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#detach" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Detach
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#resource-allocation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Resource Allocation
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Resource Allocation">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#allocating-resources" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Allocating Resources
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#activating-resources" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Activating Resources
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#releasing-resources" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Releasing Resources
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#resource-list-management" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Resource List Management
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#interrupt-handling" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Interrupt Handling
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Interrupt Handling">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#interrupt-flags" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Interrupt Flags
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#interrupt-trigger-and-polarity" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Interrupt Trigger and Polarity
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#setting-up-interrupts" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Setting Up Interrupts
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tearing-down-interrupts" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Tearing Down Interrupts
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#enablingdisabling-interrupts" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Enabling/Disabling Interrupts
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#devclass-management" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Devclass Management
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Devclass Management">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#findingcreating-devclasses" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Finding/Creating Devclasses
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#driver-registration" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Driver Registration
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#generic-bus-methods" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Generic Bus Methods
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#configuration-resource-hints" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Configuration Resource Hints
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#auto-configuration-hooks" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Auto-Configuration Hooks
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Auto-Configuration Hooks">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#struct-intr_config_hook" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        struct intr_config_hook
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#api-functions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        API Functions
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#root-bus" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Root Bus
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#devctl-device" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        devctl Device
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#sysctl-interface" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Sysctl Interface
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#driver-definition-macros" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Driver Definition Macros
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#bus-space-access" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Bus Space Access
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#example-simple-pci-driver" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Example: Simple PCI Driver
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#cross-references" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Cross-References
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../bus-resources/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Bus Resources & DMA
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../syscalls/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    System Calls
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+          
+          
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_3_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3_3" id="__nav_3_3_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    vm/
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    vm/
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../vm/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+          
+          
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_3_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_3_4" id="__nav_3_4_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    cpu/x86_64/
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    cpu/x86_64/
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../cpu/x86_64/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#overview" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Overview
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#data-structures" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Data Structures
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Data Structures">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#device_t-struct-bsd_device" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        device_t (struct bsd_device)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#device-flags" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Device Flags
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#device_state_t" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        device_state_t
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#devclass_t-struct-devclass" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        devclass_t (struct devclass)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#driver_t-kobj_class_t" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        driver_t (kobj_class_t)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#struct-resource" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        struct resource
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#resource-types" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Resource Types
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#struct-resource_list_entry" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        struct resource_list_entry
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#device-interface-methods" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Device Interface Methods
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Device Interface Methods">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#probe-return-values" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Probe Return Values
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#bus-interface-methods" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Bus Interface Methods
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#device-lifecycle" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Device Lifecycle
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Device Lifecycle">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#device-creation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Device Creation
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#probe-and-attach-flow" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Probe and Attach Flow
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#asynchronous-attachment-dragonfly-extension" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Asynchronous Attachment (DragonFly Extension)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#detach" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Detach
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#resource-allocation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Resource Allocation
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Resource Allocation">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#allocating-resources" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Allocating Resources
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#activating-resources" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Activating Resources
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#releasing-resources" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Releasing Resources
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#resource-list-management" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Resource List Management
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#interrupt-handling" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Interrupt Handling
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Interrupt Handling">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#interrupt-flags" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Interrupt Flags
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#interrupt-trigger-and-polarity" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Interrupt Trigger and Polarity
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#setting-up-interrupts" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Setting Up Interrupts
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tearing-down-interrupts" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Tearing Down Interrupts
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#enablingdisabling-interrupts" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Enabling/Disabling Interrupts
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#devclass-management" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Devclass Management
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Devclass Management">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#findingcreating-devclasses" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Finding/Creating Devclasses
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#driver-registration" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Driver Registration
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#generic-bus-methods" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Generic Bus Methods
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#configuration-resource-hints" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Configuration Resource Hints
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#auto-configuration-hooks" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Auto-Configuration Hooks
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Auto-Configuration Hooks">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#struct-intr_config_hook" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        struct intr_config_hook
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#api-functions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        API Functions
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#root-bus" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Root Bus
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#devctl-device" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        devctl Device
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#sysctl-interface" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Sysctl Interface
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#driver-definition-macros" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Driver Definition Macros
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#bus-space-access" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Bus Space Access
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#example-simple-pci-driver" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Example: Simple PCI Driver
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#cross-references" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Cross-References
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="newbus-framework">NewBus Framework<a class="headerlink" href="#newbus-framework" title="Permanent link">&para;</a></h1>
+<p>The NewBus framework is DragonFly BSD's device driver infrastructure, providing
+a unified, object-oriented approach to device management. It handles device
+enumeration, driver binding, resource allocation, and interrupt management.</p>
+<p><strong>Source files:</strong>
+- <code>sys/kern/subr_bus.c</code> - Core NewBus implementation (~3,900 lines)
+- <code>sys/kern/subr_autoconf.c</code> - Auto-configuration hooks
+- <code>sys/kern/device_if.m</code> - Device interface methods
+- <code>sys/kern/bus_if.m</code> - Bus interface methods
+- <code>sys/sys/bus.h</code> - Public data structures and macros
+- <code>sys/sys/bus_private.h</code> - Internal structures
+- <code>sys/sys/kobj.h</code> - Kernel object system (method dispatch)</p>
+<h2 id="overview">Overview<a class="headerlink" href="#overview" title="Permanent link">&para;</a></h2>
+<p>NewBus derives from FreeBSD's NewBus but includes several DragonFly-specific
+extensions:</p>
+<ol>
+<li><strong>CPU Affinity</strong> - Interrupt resources include CPU binding</li>
+<li><strong>Asynchronous Probing</strong> - Devices can probe/attach in parallel threads</li>
+<li><strong>Global Probe Priority</strong> - Fine-grained control over probe ordering</li>
+<li><strong>LWKT Integration</strong> - Uses LWKT threads for async operations</li>
+<li><strong>Serializer Support</strong> - Interrupt handlers can use LWKT serializers</li>
+<li><strong>Threaded Interrupts Only</strong> - No fast interrupts; all are threaded</li>
+</ol>
+<h2 id="data-structures">Data Structures<a class="headerlink" href="#data-structures" title="Permanent link">&para;</a></h2>
+<h3 id="device_t-struct-bsd_device">device_t (struct bsd_device)<a class="headerlink" href="#device_t-struct-bsd_device" title="Permanent link">&para;</a></h3>
+<p>The fundamental device representation:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="k">struct</span><span class="w"> </span><span class="nc">bsd_device</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="w">    </span><span class="n">KOBJ_FIELDS</span><span class="p">;</span><span class="w">                        </span><span class="cm">/* kobj ops table */</span>
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>
+<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="w">    </span><span class="cm">/* Device hierarchy */</span>
+<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a><span class="w">    </span><span class="n">TAILQ_ENTRY</span><span class="p">(</span><span class="n">bsd_device</span><span class="p">)</span><span class="w"> </span><span class="n">link</span><span class="p">;</span><span class="w">       </span><span class="cm">/* list of devices in parent */</span>
+<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a><span class="w">    </span><span class="n">TAILQ_ENTRY</span><span class="p">(</span><span class="n">bsd_device</span><span class="p">)</span><span class="w"> </span><span class="n">devlink</span><span class="p">;</span><span class="w">    </span><span class="cm">/* global device list */</span>
+<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a><span class="w">    </span><span class="n">device_t</span><span class="w">        </span><span class="n">parent</span><span class="p">;</span>
+<a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a><span class="w">    </span><span class="n">device_list_t</span><span class="w">   </span><span class="n">children</span><span class="p">;</span><span class="w">           </span><span class="cm">/* subordinate devices */</span>
+<a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a>
+<a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a><span class="w">    </span><span class="cm">/* Device details */</span>
+<a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a><span class="w">    </span><span class="n">driver_t</span><span class="w">       </span><span class="o">*</span><span class="n">driver</span><span class="p">;</span>
+<a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a><span class="w">    </span><span class="n">devclass_t</span><span class="w">      </span><span class="n">devclass</span><span class="p">;</span>
+<a id="__codelineno-0-13" name="__codelineno-0-13" href="#__codelineno-0-13"></a><span class="w">    </span><span class="kt">int</span><span class="w">             </span><span class="n">unit</span><span class="p">;</span>
+<a id="__codelineno-0-14" name="__codelineno-0-14" href="#__codelineno-0-14"></a><span class="w">    </span><span class="kt">char</span><span class="w">           </span><span class="o">*</span><span class="n">nameunit</span><span class="p">;</span><span class="w">           </span><span class="cm">/* e.g., &quot;em0&quot; */</span>
+<a id="__codelineno-0-15" name="__codelineno-0-15" href="#__codelineno-0-15"></a><span class="w">    </span><span class="kt">char</span><span class="w">           </span><span class="o">*</span><span class="n">desc</span><span class="p">;</span><span class="w">               </span><span class="cm">/* driver description */</span>
+<a id="__codelineno-0-16" name="__codelineno-0-16" href="#__codelineno-0-16"></a><span class="w">    </span><span class="kt">int</span><span class="w">             </span><span class="n">busy</span><span class="p">;</span><span class="w">               </span><span class="cm">/* device_busy() count */</span>
+<a id="__codelineno-0-17" name="__codelineno-0-17" href="#__codelineno-0-17"></a><span class="w">    </span><span class="n">device_state_t</span><span class="w">  </span><span class="n">state</span><span class="p">;</span>
+<a id="__codelineno-0-18" name="__codelineno-0-18" href="#__codelineno-0-18"></a><span class="w">    </span><span class="kt">uint32_t</span><span class="w">        </span><span class="n">devflags</span><span class="p">;</span><span class="w">           </span><span class="cm">/* API-level flags */</span>
+<a id="__codelineno-0-19" name="__codelineno-0-19" href="#__codelineno-0-19"></a><span class="w">    </span><span class="n">u_short</span><span class="w">         </span><span class="n">flags</span><span class="p">;</span><span class="w">              </span><span class="cm">/* internal flags */</span>
+<a id="__codelineno-0-20" name="__codelineno-0-20" href="#__codelineno-0-20"></a><span class="w">    </span><span class="n">u_char</span><span class="w">          </span><span class="n">order</span><span class="p">;</span><span class="w">              </span><span class="cm">/* attachment order */</span>
+<a id="__codelineno-0-21" name="__codelineno-0-21" href="#__codelineno-0-21"></a><span class="w">    </span><span class="kt">void</span><span class="w">           </span><span class="o">*</span><span class="n">ivars</span><span class="p">;</span><span class="w">              </span><span class="cm">/* bus-specific instance vars */</span>
+<a id="__codelineno-0-22" name="__codelineno-0-22" href="#__codelineno-0-22"></a><span class="w">    </span><span class="kt">void</span><span class="w">           </span><span class="o">*</span><span class="n">softc</span><span class="p">;</span><span class="w">              </span><span class="cm">/* driver-specific data */</span>
+<a id="__codelineno-0-23" name="__codelineno-0-23" href="#__codelineno-0-23"></a>
+<a id="__codelineno-0-24" name="__codelineno-0-24" href="#__codelineno-0-24"></a><span class="w">    </span><span class="k">struct</span><span class="w"> </span><span class="nc">sysctl_ctx_list</span><span class="w"> </span><span class="n">sysctl_ctx</span><span class="p">;</span>
+<a id="__codelineno-0-25" name="__codelineno-0-25" href="#__codelineno-0-25"></a><span class="w">    </span><span class="k">struct</span><span class="w"> </span><span class="nc">sysctl_oid</span><span class="w"> </span><span class="o">*</span><span class="n">sysctl_tree</span><span class="p">;</span>
+<a id="__codelineno-0-26" name="__codelineno-0-26" href="#__codelineno-0-26"></a><span class="p">};</span>
+</code></pre></div>
+<p>Defined in <code>sys/sys/bus_private.h:97-139</code>.</p>
+<h3 id="device-flags">Device Flags<a class="headerlink" href="#device-flags" title="Permanent link">&para;</a></h3>
+<p>Internal flags (<code>flags</code> field):</p>
+<table>
+<thead>
+<tr>
+<th>Flag</th>
+<th>Value</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>DF_ENABLED</code></td>
+<td>0x0001</td>
+<td>Device should be probed/attached</td>
+</tr>
+<tr>
+<td><code>DF_FIXEDCLASS</code></td>
+<td>0x0002</td>
+<td>Devclass specified at creation</td>
+</tr>
+<tr>
+<td><code>DF_WILDCARD</code></td>
+<td>0x0004</td>
+<td>Unit originally wildcard (-1)</td>
+</tr>
+<tr>
+<td><code>DF_DESCMALLOCED</code></td>
+<td>0x0008</td>
+<td>Description was allocated</td>
+</tr>
+<tr>
+<td><code>DF_QUIET</code></td>
+<td>0x0010</td>
+<td>Don't print verbose attach message</td>
+</tr>
+<tr>
+<td><code>DF_DONENOMATCH</code></td>
+<td>0x0020</td>
+<td>DEVICE_NOMATCH already called</td>
+</tr>
+<tr>
+<td><code>DF_EXTERNALSOFTC</code></td>
+<td>0x0040</td>
+<td>softc not allocated by bus</td>
+</tr>
+<tr>
+<td><code>DF_ASYNCPROBE</code></td>
+<td>0x0080</td>
+<td>Can probe with its own thread</td>
+</tr>
+</tbody>
+</table>
+<p>Defined in <code>sys/sys/bus_private.h:124-131</code>.</p>
+<h3 id="device_state_t">device_state_t<a class="headerlink" href="#device_state_t" title="Permanent link">&para;</a></h3>
+<p>Device lifecycle states:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="k">typedef</span><span class="w"> </span><span class="k">enum</span><span class="w"> </span><span class="n">device_state</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="w">    </span><span class="n">DS_NOTPRESENT</span><span class="p">,</span><span class="w">    </span><span class="cm">/* not probed or probe failed */</span>
+<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="w">    </span><span class="n">DS_ALIVE</span><span class="p">,</span><span class="w">         </span><span class="cm">/* probe succeeded */</span>
+<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a><span class="w">    </span><span class="n">DS_INPROGRESS</span><span class="p">,</span><span class="w">    </span><span class="cm">/* attach in progress (async) */</span>
+<a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a><span class="w">    </span><span class="n">DS_ATTACHED</span><span class="p">,</span><span class="w">      </span><span class="cm">/* attach method called */</span>
+<a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a><span class="w">    </span><span class="n">DS_BUSY</span><span class="w">           </span><span class="cm">/* device is open */</span>
+<a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a><span class="p">}</span><span class="w"> </span><span class="n">device_state_t</span><span class="p">;</span>
+</code></pre></div>
+<p>Defined in <code>sys/sys/bus.h:76-82</code>.</p>
+<h3 id="devclass_t-struct-devclass">devclass_t (struct devclass)<a class="headerlink" href="#devclass_t-struct-devclass" title="Permanent link">&para;</a></h3>
+<p>Groups devices by type (e.g., "pci", "em", "ahci"):</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="k">struct</span><span class="w"> </span><span class="nc">devclass</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="w">    </span><span class="n">TAILQ_ENTRY</span><span class="p">(</span><span class="n">devclass</span><span class="p">)</span><span class="w"> </span><span class="n">link</span><span class="p">;</span>
+<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="w">    </span><span class="n">devclass_t</span><span class="w">      </span><span class="n">parent</span><span class="p">;</span><span class="w">         </span><span class="cm">/* parent devclass hierarchy */</span>
+<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a><span class="w">    </span><span class="n">driver_list_t</span><span class="w">   </span><span class="n">drivers</span><span class="p">;</span><span class="w">        </span><span class="cm">/* drivers for this bus type */</span>
+<a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a><span class="w">    </span><span class="kt">char</span><span class="w">           </span><span class="o">*</span><span class="n">name</span><span class="p">;</span>
+<a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a><span class="w">    </span><span class="n">device_t</span><span class="w">       </span><span class="o">*</span><span class="n">devices</span><span class="p">;</span><span class="w">        </span><span class="cm">/* array indexed by unit */</span>
+<a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a><span class="w">    </span><span class="kt">int</span><span class="w">             </span><span class="n">maxunit</span><span class="p">;</span><span class="w">        </span><span class="cm">/* devices array size */</span>
+<a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a>
+<a id="__codelineno-2-9" name="__codelineno-2-9" href="#__codelineno-2-9"></a><span class="w">    </span><span class="k">struct</span><span class="w"> </span><span class="nc">sysctl_ctx_list</span><span class="w"> </span><span class="n">sysctl_ctx</span><span class="p">;</span>
+<a id="__codelineno-2-10" name="__codelineno-2-10" href="#__codelineno-2-10"></a><span class="w">    </span><span class="k">struct</span><span class="w"> </span><span class="nc">sysctl_oid</span><span class="w"> </span><span class="o">*</span><span class="n">sysctl_tree</span><span class="p">;</span>
+<a id="__codelineno-2-11" name="__codelineno-2-11" href="#__codelineno-2-11"></a><span class="p">};</span>
+</code></pre></div>
+<p>Defined in <code>sys/sys/bus_private.h:58-68</code>.</p>
+<h3 id="driver_t-kobj_class_t">driver_t (kobj_class_t)<a class="headerlink" href="#driver_t-kobj_class_t" title="Permanent link">&para;</a></h3>
+<p>Driver definition using the kobj class system:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="k">struct</span><span class="w"> </span><span class="nc">kobj_class</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="w">    </span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="w">     </span><span class="o">*</span><span class="n">name</span><span class="p">;</span><span class="w">       </span><span class="cm">/* driver name */</span>
+<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a><span class="w">    </span><span class="n">kobj_method_t</span><span class="w">  </span><span class="o">*</span><span class="n">methods</span><span class="p">;</span><span class="w">    </span><span class="cm">/* method table */</span>
+<a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a><span class="w">    </span><span class="kt">size_t</span><span class="w">          </span><span class="n">size</span><span class="p">;</span><span class="w">       </span><span class="cm">/* softc size */</span>
+<a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a><span class="w">    </span><span class="n">kobj_class_t</span><span class="w">   </span><span class="o">*</span><span class="n">baseclasses</span><span class="p">;</span><span class="cm">/* inheritance */</span>
+<a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a><span class="w">    </span><span class="n">u_int</span><span class="w">           </span><span class="n">refs</span><span class="p">;</span><span class="w">       </span><span class="cm">/* reference count */</span>
+<a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a><span class="w">    </span><span class="n">kobj_ops_t</span><span class="w">      </span><span class="n">ops</span><span class="p">;</span><span class="w">        </span><span class="cm">/* compiled methods */</span>
+<a id="__codelineno-3-8" name="__codelineno-3-8" href="#__codelineno-3-8"></a><span class="w">    </span><span class="n">u_int</span><span class="w">           </span><span class="n">gpri</span><span class="p">;</span><span class="w">       </span><span class="cm">/* global probe priority */</span>
+<a id="__codelineno-3-9" name="__codelineno-3-9" href="#__codelineno-3-9"></a><span class="p">};</span>
+</code></pre></div>
+<p><strong>Global Probe Priorities</strong> (<code>sys/sys/kobj.h:89-91</code>):</p>
+<table>
+<thead>
+<tr>
+<th>Priority</th>
+<th>Value</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>KOBJ_GPRI_ACPI</code></td>
+<td>0x00FF</td>
+<td>ACPI drivers probe first</td>
+</tr>
+<tr>
+<td><code>KOBJ_GPRI_DEFAULT</code></td>
+<td>0x0000</td>
+<td>Default priority</td>
+</tr>
+<tr>
+<td><code>KOBJ_GPRI_LAST</code></td>
+<td>0x0000</td>
+<td>Same as default</td>
+</tr>
+</tbody>
+</table>
+<p>Defined in <code>sys/sys/kobj.h:62-73</code>.</p>
+<h3 id="struct-resource">struct resource<a class="headerlink" href="#struct-resource" title="Permanent link">&para;</a></h3>
+<p>Represents allocated system resources:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="k">struct</span><span class="w"> </span><span class="nc">resource</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a><span class="w">    </span><span class="n">TAILQ_ENTRY</span><span class="p">(</span><span class="n">resource</span><span class="p">)</span><span class="w"> </span><span class="n">r_link</span><span class="p">;</span>
+<a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a><span class="w">    </span><span class="n">LIST_ENTRY</span><span class="p">(</span><span class="n">resource</span><span class="p">)</span><span class="w">  </span><span class="n">r_sharelink</span><span class="p">;</span>
+<a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a><span class="w">    </span><span class="n">LIST_HEAD</span><span class="p">(,</span><span class="w"> </span><span class="n">resource</span><span class="p">)</span><span class="w"> </span><span class="o">*</span><span class="n">r_sharehead</span><span class="p">;</span>
+<a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a><span class="w">    </span><span class="n">u_long</span><span class="w">          </span><span class="n">r_start</span><span class="p">;</span><span class="w">        </span><span class="cm">/* first index */</span>
+<a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a><span class="w">    </span><span class="n">u_long</span><span class="w">          </span><span class="n">r_end</span><span class="p">;</span><span class="w">          </span><span class="cm">/* last index (inclusive) */</span>
+<a id="__codelineno-4-7" name="__codelineno-4-7" href="#__codelineno-4-7"></a><span class="w">    </span><span class="n">u_int</span><span class="w">           </span><span class="n">r_flags</span><span class="p">;</span>
+<a id="__codelineno-4-8" name="__codelineno-4-8" href="#__codelineno-4-8"></a><span class="w">    </span><span class="kt">void</span><span class="w">           </span><span class="o">*</span><span class="n">r_virtual</span><span class="p">;</span><span class="w">      </span><span class="cm">/* virtual address */</span>
+<a id="__codelineno-4-9" name="__codelineno-4-9" href="#__codelineno-4-9"></a><span class="w">    </span><span class="n">bus_space_tag_t</span><span class="w"> </span><span class="n">r_bustag</span><span class="p">;</span>
+<a id="__codelineno-4-10" name="__codelineno-4-10" href="#__codelineno-4-10"></a><span class="w">    </span><span class="n">bus_space_handle_t</span><span class="w"> </span><span class="n">r_bushandle</span><span class="p">;</span>
+<a id="__codelineno-4-11" name="__codelineno-4-11" href="#__codelineno-4-11"></a><span class="w">    </span><span class="n">device_t</span><span class="w">        </span><span class="n">r_dev</span><span class="p">;</span><span class="w">          </span><span class="cm">/* owning device */</span>
+<a id="__codelineno-4-12" name="__codelineno-4-12" href="#__codelineno-4-12"></a><span class="w">    </span><span class="k">struct</span><span class="w"> </span><span class="nc">rman</span><span class="w">    </span><span class="o">*</span><span class="n">r_rm</span><span class="p">;</span><span class="w">           </span><span class="cm">/* resource manager */</span>
+<a id="__codelineno-4-13" name="__codelineno-4-13" href="#__codelineno-4-13"></a><span class="w">    </span><span class="kt">int</span><span class="w">             </span><span class="n">r_rid</span><span class="p">;</span><span class="w">          </span><span class="cm">/* resource ID */</span>
+<a id="__codelineno-4-14" name="__codelineno-4-14" href="#__codelineno-4-14"></a><span class="p">};</span>
+</code></pre></div>
+<p><strong>Resource Flags</strong> (<code>sys/sys/rman.h:45-52</code>):</p>
+<table>
+<thead>
+<tr>
+<th>Flag</th>
+<th>Value</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>RF_ALLOCATED</code></td>
+<td>0x0001</td>
+<td>Resource reserved</td>
+</tr>
+<tr>
+<td><code>RF_ACTIVE</code></td>
+<td>0x0002</td>
+<td>Resource activated</td>
+</tr>
+<tr>
+<td><code>RF_SHAREABLE</code></td>
+<td>0x0004</td>
+<td>Permits sharing</td>
+</tr>
+<tr>
+<td><code>RF_TIMESHARE</code></td>
+<td>0x0008</td>
+<td>Permits time-division sharing</td>
+</tr>
+<tr>
+<td><code>RF_WANTED</code></td>
+<td>0x0010</td>
+<td>Someone waiting</td>
+</tr>
+<tr>
+<td><code>RF_FIRSTSHARE</code></td>
+<td>0x0020</td>
+<td>First in sharing list</td>
+</tr>
+<tr>
+<td><code>RF_PREFETCHABLE</code></td>
+<td>0x0040</td>
+<td>Memory is prefetchable</td>
+</tr>
+<tr>
+<td><code>RF_OPTIONAL</code></td>
+<td>0x0080</td>
+<td>For bus_alloc_resources()</td>
+</tr>
+</tbody>
+</table>
+<p>Defined in <code>sys/sys/rman.h:98-111</code>.</p>
+<h3 id="resource-types">Resource Types<a class="headerlink" href="#resource-types" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="cp">#define SYS_RES_IRQ     1   </span><span class="cm">/* interrupt lines */</span>
+<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a><span class="cp">#define SYS_RES_DRQ     2   </span><span class="cm">/* ISA DMA lines */</span>
+<a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a><span class="cp">#define SYS_RES_MEMORY  3   </span><span class="cm">/* I/O memory */</span>
+<a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a><span class="cp">#define SYS_RES_IOPORT  4   </span><span class="cm">/* I/O ports */</span>
+</code></pre></div>
+<p>Defined in <code>sys/sys/bus_resource.h:41-44</code>.</p>
+<h3 id="struct-resource_list_entry">struct resource_list_entry<a class="headerlink" href="#struct-resource_list_entry" title="Permanent link">&para;</a></h3>
+<p>Bus-specific resource tracking:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="k">struct</span><span class="w"> </span><span class="nc">resource_list_entry</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a><span class="w">    </span><span class="n">SLIST_ENTRY</span><span class="p">(</span><span class="n">resource_list_entry</span><span class="p">)</span><span class="w"> </span><span class="n">link</span><span class="p">;</span>
+<a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a><span class="w">    </span><span class="kt">int</span><span class="w">             </span><span class="n">type</span><span class="p">;</span><span class="w">       </span><span class="cm">/* SYS_RES_* */</span>
+<a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a><span class="w">    </span><span class="kt">int</span><span class="w">             </span><span class="n">rid</span><span class="p">;</span><span class="w">        </span><span class="cm">/* resource identifier */</span>
+<a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a><span class="w">    </span><span class="k">struct</span><span class="w"> </span><span class="nc">resource</span><span class="w"> </span><span class="o">*</span><span class="n">res</span><span class="p">;</span><span class="w">       </span><span class="cm">/* actual resource */</span>
+<a id="__codelineno-6-6" name="__codelineno-6-6" href="#__codelineno-6-6"></a><span class="w">    </span><span class="n">u_long</span><span class="w">          </span><span class="n">start</span><span class="p">;</span>
+<a id="__codelineno-6-7" name="__codelineno-6-7" href="#__codelineno-6-7"></a><span class="w">    </span><span class="n">u_long</span><span class="w">          </span><span class="n">end</span><span class="p">;</span>
+<a id="__codelineno-6-8" name="__codelineno-6-8" href="#__codelineno-6-8"></a><span class="w">    </span><span class="n">u_long</span><span class="w">          </span><span class="n">count</span><span class="p">;</span>
+<a id="__codelineno-6-9" name="__codelineno-6-9" href="#__codelineno-6-9"></a><span class="w">    </span><span class="kt">int</span><span class="w">             </span><span class="n">cpuid</span><span class="p">;</span><span class="w">      </span><span class="cm">/* CPU affinity (DragonFly) */</span>
+<a id="__codelineno-6-10" name="__codelineno-6-10" href="#__codelineno-6-10"></a><span class="p">};</span>
+</code></pre></div>
+<p>Defined in <code>sys/sys/bus.h:136-146</code>.</p>
+<h2 id="device-interface-methods">Device Interface Methods<a class="headerlink" href="#device-interface-methods" title="Permanent link">&para;</a></h2>
+<p>Core methods that drivers implement (from <code>sys/kern/device_if.m</code>):</p>
+<table>
+<thead>
+<tr>
+<th>Method</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>DEVICE_PROBE</code></td>
+<td>Check if driver supports device; return priority</td>
+</tr>
+<tr>
+<td><code>DEVICE_IDENTIFY</code></td>
+<td>Add child devices to bus (static method)</td>
+</tr>
+<tr>
+<td><code>DEVICE_ATTACH</code></td>
+<td>Initialize hardware and allocate resources</td>
+</tr>
+<tr>
+<td><code>DEVICE_DETACH</code></td>
+<td>Remove device and free resources</td>
+</tr>
+<tr>
+<td><code>DEVICE_SHUTDOWN</code></td>
+<td>Prepare for system shutdown</td>
+</tr>
+<tr>
+<td><code>DEVICE_SUSPEND</code></td>
+<td>Save state before power management suspend</td>
+</tr>
+<tr>
+<td><code>DEVICE_RESUME</code></td>
+<td>Restore state after resume</td>
+</tr>
+<tr>
+<td><code>DEVICE_QUIESCE</code></td>
+<td>FreeBSD compat: prepare for detach</td>
+</tr>
+<tr>
+<td><code>DEVICE_REGISTER</code></td>
+<td>Return device registration data</td>
+</tr>
+</tbody>
+</table>
+<h3 id="probe-return-values">Probe Return Values<a class="headerlink" href="#probe-return-values" title="Permanent link">&para;</a></h3>
+<p>Drivers return priority values from <code>DEVICE_PROBE</code>:</p>
+<table>
+<thead>
+<tr>
+<th>Value</th>
+<th>Constant</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>0</td>
+<td><code>BUS_PROBE_SPECIFIC</code></td>
+<td>Only this driver can use device</td>
+</tr>
+<tr>
+<td>0</td>
+<td><code>BUS_PROBE_VENDOR</code></td>
+<td>Vendor-supplied driver</td>
+</tr>
+<tr>
+<td>0</td>
+<td><code>BUS_PROBE_DEFAULT</code></td>
+<td>Standard driver</td>
+</tr>
+<tr>
+<td>0</td>
+<td><code>BUS_PROBE_LOW_PRIORITY</code></td>
+<td>Lower priority match</td>
+</tr>
+<tr>
+<td>0</td>
+<td><code>BUS_PROBE_GENERIC</code></td>
+<td>Generic fallback</td>
+</tr>
+<tr>
+<td>0</td>
+<td><code>BUS_PROBE_HOOVER</code></td>
+<td>Catch-all device</td>
+</tr>
+</tbody>
+</table>
+<p>Note: In DragonFly, these are all defined as 0. Use <code>gpri</code> for priority
+ordering instead.</p>
+<p>See <code>sys/sys/bus.h:476-489</code>.</p>
+<h2 id="bus-interface-methods">Bus Interface Methods<a class="headerlink" href="#bus-interface-methods" title="Permanent link">&para;</a></h2>
+<p>Methods for bus drivers to manage children (from <code>sys/kern/bus_if.m</code>):</p>
+<table>
+<thead>
+<tr>
+<th>Method</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>BUS_PRINT_CHILD</code></td>
+<td>Print device attachment info</td>
+</tr>
+<tr>
+<td><code>BUS_PROBE_NOMATCH</code></td>
+<td>Called when no driver matches</td>
+</tr>
+<tr>
+<td><code>BUS_READ_IVAR</code> / <code>BUS_WRITE_IVAR</code></td>
+<td>Read/write instance variables</td>
+</tr>
+<tr>
+<td><code>BUS_CHILD_DETACHED</code></td>
+<td>Notification of child detach</td>
+</tr>
+<tr>
+<td><code>BUS_DRIVER_ADDED</code></td>
+<td>New driver added notification</td>
+</tr>
+<tr>
+<td><code>BUS_ADD_CHILD</code></td>
+<td>Create child device</td>
+</tr>
+<tr>
+<td><code>BUS_ALLOC_RESOURCE</code></td>
+<td>Allocate system resource</td>
+</tr>
+<tr>
+<td><code>BUS_ACTIVATE_RESOURCE</code></td>
+<td>Activate resource</td>
+</tr>
+<tr>
+<td><code>BUS_DEACTIVATE_RESOURCE</code></td>
+<td>Deactivate resource</td>
+</tr>
+<tr>
+<td><code>BUS_RELEASE_RESOURCE</code></td>
+<td>Free resource</td>
+</tr>
+<tr>
+<td><code>BUS_SETUP_INTR</code></td>
+<td>Set up interrupt handler</td>
+</tr>
+<tr>
+<td><code>BUS_TEARDOWN_INTR</code></td>
+<td>Remove interrupt handler</td>
+</tr>
+<tr>
+<td><code>BUS_ENABLE_INTR</code> / <code>BUS_DISABLE_INTR</code></td>
+<td>Enable/disable interrupt</td>
+</tr>
+<tr>
+<td><code>BUS_SET_RESOURCE</code></td>
+<td>Set resource range</td>
+</tr>
+<tr>
+<td><code>BUS_GET_RESOURCE</code></td>
+<td>Get resource range</td>
+</tr>
+<tr>
+<td><code>BUS_DELETE_RESOURCE</code></td>
+<td>Delete resource</td>
+</tr>
+<tr>
+<td><code>BUS_GET_RESOURCE_LIST</code></td>
+<td>Get resource list</td>
+</tr>
+<tr>
+<td><code>BUS_CHILD_PRESENT</code></td>
+<td>Check if child hardware present</td>
+</tr>
+<tr>
+<td><code>BUS_CHILD_PNPINFO_STR</code></td>
+<td>Get PnP info string</td>
+</tr>
+<tr>
+<td><code>BUS_CHILD_LOCATION_STR</code></td>
+<td>Get location string</td>
+</tr>
+<tr>
+<td><code>BUS_CONFIG_INTR</code></td>
+<td>Configure interrupt trigger/polarity</td>
+</tr>
+<tr>
+<td><code>BUS_GET_DMA_TAG</code></td>
+<td>Get DMA tag</td>
+</tr>
+</tbody>
+</table>
+<h2 id="device-lifecycle">Device Lifecycle<a class="headerlink" href="#device-lifecycle" title="Permanent link">&para;</a></h2>
+<h3 id="device-creation">Device Creation<a class="headerlink" href="#device-creation" title="Permanent link">&para;</a></h3>
+<p><strong>device_add_child()</strong> - <code>sys/kern/subr_bus.c:1240-1244</code></p>
+<p>Creates a new device as a child of an existing device:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="n">device_t</span><span class="w"> </span><span class="nf">device_add_child</span><span class="p">(</span><span class="n">device_t</span><span class="w"> </span><span class="n">dev</span><span class="p">,</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="n">name</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">unit</span><span class="p">);</span>
+</code></pre></div>
+<ul>
+<li><code>name</code> - Driver name to use (NULL for any)</li>
+<li><code>unit</code> - Unit number (-1 for auto-assignment)</li>
+</ul>
+<p><strong>device_add_child_ordered()</strong> - <code>sys/kern/subr_bus.c:1246-1281</code></p>
+<p>Creates a child with explicit attachment order:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a><span class="n">device_t</span><span class="w"> </span><span class="nf">device_add_child_ordered</span><span class="p">(</span><span class="n">device_t</span><span class="w"> </span><span class="n">dev</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">order</span><span class="p">,</span>
+<a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a><span class="w">                                  </span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="n">name</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">unit</span><span class="p">);</span>
+</code></pre></div>
+<p>Lower order values are probed first.</p>
+<p><strong>make_device()</strong> - <code>sys/kern/subr_bus.c:1174-1225</code></p>
+<p>Internal function that:
+1. Allocates <code>struct bsd_device</code>
+2. Initializes kobj with null_class
+3. Sets initial state to <code>DS_NOTPRESENT</code>
+4. Adds to global <code>bus_data_devices</code> list</p>
+<h3 id="probe-and-attach-flow">Probe and Attach Flow<a class="headerlink" href="#probe-and-attach-flow" title="Permanent link">&para;</a></h3>
+<p><strong>device_probe_and_attach()</strong> - <code>sys/kern/subr_bus.c:1961-2013</code></p>
+<p>Main entry point for device attachment:</p>
+<ol>
+<li>Check if already alive</li>
+<li>Check if enabled</li>
+<li>Call <code>device_probe_child()</code></li>
+<li>On probe failure, call <code>BUS_PROBE_NOMATCH</code></li>
+<li>Print device info if verbose</li>
+<li>Either attach async or sync</li>
+</ol>
+<p><strong>device_probe_child()</strong> - <code>sys/kern/subr_bus.c:1403-1489</code></p>
+<p>Finds the best matching driver:</p>
+<ol>
+<li>Get parent's devclass</li>
+<li>Iterate through devclass hierarchy</li>
+<li>For each driver:</li>
+<li>Set driver on device</li>
+<li>Call <code>DEVICE_PROBE()</code></li>
+<li>Track best match by priority</li>
+<li>Set device to best driver</li>
+<li>Change state to <code>DS_ALIVE</code></li>
+</ol>
+<p><strong>device_doattach()</strong> - <code>sys/kern/subr_bus.c:2098-2124</code></p>
+<p>Performs actual attachment:</p>
+<ol>
+<li>Initialize sysctl tree</li>
+<li>Call <code>DEVICE_ATTACH()</code></li>
+<li>On success: set state to <code>DS_ATTACHED</code>, notify devctl</li>
+<li>On failure: restore to <code>DS_NOTPRESENT</code></li>
+</ol>
+<h3 id="asynchronous-attachment-dragonfly-extension">Asynchronous Attachment (DragonFly Extension)<a class="headerlink" href="#asynchronous-attachment-dragonfly-extension" title="Permanent link">&para;</a></h3>
+<p>Enabled by <code>kern.do_async_attach</code> tunable.</p>
+<p><strong>device_attach_async()</strong> - <code>sys/kern/subr_bus.c:2071-2093</code></p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a><span class="k">static</span><span class="w"> </span><span class="kt">void</span>
+<a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a><span class="nf">device_attach_async</span><span class="p">(</span><span class="n">device_t</span><span class="w"> </span><span class="n">dev</span><span class="p">)</span>
+<a id="__codelineno-9-3" name="__codelineno-9-3" href="#__codelineno-9-3"></a><span class="p">{</span>
+<a id="__codelineno-9-4" name="__codelineno-9-4" href="#__codelineno-9-4"></a><span class="w">    </span><span class="n">atomic_add_int</span><span class="p">(</span><span class="o">&amp;</span><span class="n">numasyncthreads</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">);</span>
+<a id="__codelineno-9-5" name="__codelineno-9-5" href="#__codelineno-9-5"></a><span class="w">    </span><span class="n">lwkt_create</span><span class="p">(</span><span class="n">device_attach_thread</span><span class="p">,</span><span class="w"> </span><span class="n">dev</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">td</span><span class="p">,</span><span class="w"> </span><span class="nb">NULL</span><span class="p">,</span>
+<a id="__codelineno-9-6" name="__codelineno-9-6" href="#__codelineno-9-6"></a><span class="w">                </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;%s&quot;</span><span class="p">,</span><span class="w"> </span><span class="p">(</span><span class="n">dev</span><span class="o">-&gt;</span><span class="n">desc</span><span class="w"> </span><span class="o">?</span><span class="w"> </span><span class="n">dev</span><span class="o">-&gt;</span><span class="n">desc</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="s">&quot;devattach&quot;</span><span class="p">));</span>
+<a id="__codelineno-9-7" name="__codelineno-9-7" href="#__codelineno-9-7"></a><span class="p">}</span>
+</code></pre></div>
+<p>Devices must set <code>DF_ASYNCPROBE</code> flag to use async attach.</p>
+<h3 id="detach">Detach<a class="headerlink" href="#detach" title="Permanent link">&para;</a></h3>
+<p><strong>device_detach()</strong> - <code>sys/kern/subr_bus.c:2126-2152</code></p>
+<ol>
+<li>Check if busy</li>
+<li>Call <code>DEVICE_DETACH()</code></li>
+<li>Notify devctl</li>
+<li>Call <code>BUS_CHILD_DETACHED()</code></li>
+<li>Remove from devclass if not fixed</li>
+<li>Set state to <code>DS_NOTPRESENT</code></li>
+<li>Clear driver</li>
+</ol>
+<h2 id="resource-allocation">Resource Allocation<a class="headerlink" href="#resource-allocation" title="Permanent link">&para;</a></h2>
+<h3 id="allocating-resources">Allocating Resources<a class="headerlink" href="#allocating-resources" title="Permanent link">&para;</a></h3>
+<p><strong>bus_alloc_resource()</strong> - <code>sys/kern/subr_bus.c:3290-3298</code></p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a><span class="k">struct</span><span class="w"> </span><span class="nc">resource</span><span class="w"> </span><span class="o">*</span>
+<a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a><span class="n">bus_alloc_resource</span><span class="p">(</span><span class="n">device_t</span><span class="w"> </span><span class="n">dev</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">type</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="o">*</span><span class="n">rid</span><span class="p">,</span>
+<a id="__codelineno-10-3" name="__codelineno-10-3" href="#__codelineno-10-3"></a><span class="w">                   </span><span class="n">u_long</span><span class="w"> </span><span class="n">start</span><span class="p">,</span><span class="w"> </span><span class="n">u_long</span><span class="w"> </span><span class="n">end</span><span class="p">,</span><span class="w"> </span><span class="n">u_long</span><span class="w"> </span><span class="n">count</span><span class="p">,</span><span class="w"> </span><span class="n">u_int</span><span class="w"> </span><span class="n">flags</span><span class="p">);</span>
+</code></pre></div>
+<ul>
+<li><code>type</code> - <code>SYS_RES_IRQ</code>, <code>SYS_RES_MEMORY</code>, <code>SYS_RES_IOPORT</code>, <code>SYS_RES_DRQ</code></li>
+<li><code>rid</code> - Resource ID (in/out)</li>
+<li><code>start</code>, <code>end</code> - Requested range (0, ~0 for any)</li>
+<li><code>count</code> - Number of units</li>
+<li><code>flags</code> - <code>RF_*</code> flags</li>
+</ul>
+<p><strong>bus_alloc_resource_any()</strong> - <code>sys/sys/bus.h:345-349</code> (inline)</p>
+<p>Convenience wrapper:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a><span class="k">static</span><span class="w"> </span><span class="kr">__inline</span><span class="w"> </span><span class="k">struct</span><span class="w"> </span><span class="nc">resource</span><span class="w"> </span><span class="o">*</span>
+<a id="__codelineno-11-2" name="__codelineno-11-2" href="#__codelineno-11-2"></a><span class="n">bus_alloc_resource_any</span><span class="p">(</span><span class="n">device_t</span><span class="w"> </span><span class="n">dev</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">type</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="o">*</span><span class="n">rid</span><span class="p">,</span><span class="w"> </span><span class="n">u_int</span><span class="w"> </span><span class="n">flags</span><span class="p">)</span>
+<a id="__codelineno-11-3" name="__codelineno-11-3" href="#__codelineno-11-3"></a><span class="p">{</span>
+<a id="__codelineno-11-4" name="__codelineno-11-4" href="#__codelineno-11-4"></a><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="p">(</span><span class="n">bus_alloc_resource</span><span class="p">(</span><span class="n">dev</span><span class="p">,</span><span class="w"> </span><span class="n">type</span><span class="p">,</span><span class="w"> </span><span class="n">rid</span><span class="p">,</span><span class="w"> </span><span class="mi">0ul</span><span class="p">,</span><span class="w"> </span><span class="o">~</span><span class="mi">0ul</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">flags</span><span class="p">));</span>
+<a id="__codelineno-11-5" name="__codelineno-11-5" href="#__codelineno-11-5"></a><span class="p">}</span>
+</code></pre></div>
+<p><strong>bus_alloc_legacy_irq_resource()</strong> - <code>sys/kern/subr_bus.c:3300-3307</code></p>
+<p>DragonFly-specific: Allocates IRQ with CPU affinity:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a><span class="k">struct</span><span class="w"> </span><span class="nc">resource</span><span class="w"> </span><span class="o">*</span>
+<a id="__codelineno-12-2" name="__codelineno-12-2" href="#__codelineno-12-2"></a><span class="n">bus_alloc_legacy_irq_resource</span><span class="p">(</span><span class="n">device_t</span><span class="w"> </span><span class="n">dev</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="o">*</span><span class="n">rid</span><span class="p">,</span><span class="w"> </span><span class="n">u_long</span><span class="w"> </span><span class="n">irq</span><span class="p">,</span><span class="w"> </span><span class="n">u_int</span><span class="w"> </span><span class="n">flags</span><span class="p">);</span>
+</code></pre></div>
+<h3 id="activating-resources">Activating Resources<a class="headerlink" href="#activating-resources" title="Permanent link">&para;</a></h3>
+<p><strong>bus_activate_resource()</strong> - <code>sys/kern/subr_bus.c:3309-3315</code></p>
+<p>Maps the resource (for memory/I/O port) or enables it (for IRQ).</p>
+<p><strong>bus_deactivate_resource()</strong> - <code>sys/kern/subr_bus.c:3317-3323</code></p>
+<p>Unmaps or disables the resource.</p>
+<h3 id="releasing-resources">Releasing Resources<a class="headerlink" href="#releasing-resources" title="Permanent link">&para;</a></h3>
+<p><strong>bus_release_resource()</strong> - <code>sys/kern/subr_bus.c:3325-3331</code></p>
+<p>Frees a previously allocated resource.</p>
+<h3 id="resource-list-management">Resource List Management<a class="headerlink" href="#resource-list-management" title="Permanent link">&para;</a></h3>
+<p>Buses use resource lists to track child resources:</p>
+<table>
+<thead>
+<tr>
+<th>Function</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>resource_list_init()</code></td>
+<td>Initialize list</td>
+</tr>
+<tr>
+<td><code>resource_list_free()</code></td>
+<td>Free list and all entries</td>
+</tr>
+<tr>
+<td><code>resource_list_add()</code></td>
+<td>Add resource to list</td>
+</tr>
+<tr>
+<td><code>resource_list_find()</code></td>
+<td>Find resource by type/rid</td>
+</tr>
+<tr>
+<td><code>resource_list_delete()</code></td>
+<td>Remove resource from list</td>
+</tr>
+<tr>
+<td><code>resource_list_alloc()</code></td>
+<td>Allocate from list</td>
+</tr>
+<tr>
+<td><code>resource_list_release()</code></td>
+<td>Release resource</td>
+</tr>
+</tbody>
+</table>
+<p>See <code>sys/kern/subr_bus.c:2592-2746</code>.</p>
+<h2 id="interrupt-handling">Interrupt Handling<a class="headerlink" href="#interrupt-handling" title="Permanent link">&para;</a></h2>
+<h3 id="interrupt-flags">Interrupt Flags<a class="headerlink" href="#interrupt-flags" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a><span class="cp">#define INTR_HIFREQ     0x0040  </span><span class="cm">/* high frequency interrupt */</span>
+<a id="__codelineno-13-2" name="__codelineno-13-2" href="#__codelineno-13-2"></a><span class="cp">#define INTR_CLOCK      0x0080  </span><span class="cm">/* clock interrupt */</span>
+<a id="__codelineno-13-3" name="__codelineno-13-3" href="#__codelineno-13-3"></a><span class="cp">#define INTR_EXCL       0x0100  </span><span class="cm">/* exclusive, non-shared */</span>
+<a id="__codelineno-13-4" name="__codelineno-13-4" href="#__codelineno-13-4"></a><span class="cp">#define INTR_MPSAFE     0x0200  </span><span class="cm">/* handler is MP-safe */</span>
+<a id="__codelineno-13-5" name="__codelineno-13-5" href="#__codelineno-13-5"></a><span class="cp">#define INTR_NOENTROPY  0x0400  </span><span class="cm">/* don&#39;t add to entropy pool */</span>
+<a id="__codelineno-13-6" name="__codelineno-13-6" href="#__codelineno-13-6"></a><span class="cp">#define INTR_NOPOLL     0x0800  </span><span class="cm">/* cannot be polled */</span>
+</code></pre></div>
+<p>Note: <code>INTR_FAST</code> is no longer supported - all device interrupts are threaded.</p>
+<p>Defined in <code>sys/sys/bus.h:109-114</code>.</p>
+<h3 id="interrupt-trigger-and-polarity">Interrupt Trigger and Polarity<a class="headerlink" href="#interrupt-trigger-and-polarity" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-14-1" name="__codelineno-14-1" href="#__codelineno-14-1"></a><span class="k">enum</span><span class="w"> </span><span class="n">intr_trigger</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-14-2" name="__codelineno-14-2" href="#__codelineno-14-2"></a><span class="w">    </span><span class="n">INTR_TRIGGER_CONFORM</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span>
+<a id="__codelineno-14-3" name="__codelineno-14-3" href="#__codelineno-14-3"></a><span class="w">    </span><span class="n">INTR_TRIGGER_EDGE</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span>
+<a id="__codelineno-14-4" name="__codelineno-14-4" href="#__codelineno-14-4"></a><span class="w">    </span><span class="n">INTR_TRIGGER_LEVEL</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">2</span>
+<a id="__codelineno-14-5" name="__codelineno-14-5" href="#__codelineno-14-5"></a><span class="p">};</span>
+<a id="__codelineno-14-6" name="__codelineno-14-6" href="#__codelineno-14-6"></a>
+<a id="__codelineno-14-7" name="__codelineno-14-7" href="#__codelineno-14-7"></a><span class="k">enum</span><span class="w"> </span><span class="n">intr_polarity</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-14-8" name="__codelineno-14-8" href="#__codelineno-14-8"></a><span class="w">    </span><span class="n">INTR_POLARITY_CONFORM</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span>
+<a id="__codelineno-14-9" name="__codelineno-14-9" href="#__codelineno-14-9"></a><span class="w">    </span><span class="n">INTR_POLARITY_HIGH</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span>
+<a id="__codelineno-14-10" name="__codelineno-14-10" href="#__codelineno-14-10"></a><span class="w">    </span><span class="n">INTR_POLARITY_LOW</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">2</span>
+<a id="__codelineno-14-11" name="__codelineno-14-11" href="#__codelineno-14-11"></a><span class="p">};</span>
+</code></pre></div>
+<p>Defined in <code>sys/sys/bus.h:116-126</code>.</p>
+<h3 id="setting-up-interrupts">Setting Up Interrupts<a class="headerlink" href="#setting-up-interrupts" title="Permanent link">&para;</a></h3>
+<p><strong>bus_setup_intr()</strong> - <code>sys/kern/subr_bus.c:3344-3351</code></p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-15-1" name="__codelineno-15-1" href="#__codelineno-15-1"></a><span class="kt">int</span><span class="w"> </span><span class="nf">bus_setup_intr</span><span class="p">(</span><span class="n">device_t</span><span class="w"> </span><span class="n">dev</span><span class="p">,</span><span class="w"> </span><span class="k">struct</span><span class="w"> </span><span class="nc">resource</span><span class="w"> </span><span class="o">*</span><span class="n">r</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">flags</span><span class="p">,</span>
+<a id="__codelineno-15-2" name="__codelineno-15-2" href="#__codelineno-15-2"></a><span class="w">                   </span><span class="n">driver_intr_t</span><span class="w"> </span><span class="n">handler</span><span class="p">,</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="o">*</span><span class="n">arg</span><span class="p">,</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="o">**</span><span class="n">cookiep</span><span class="p">,</span>
+<a id="__codelineno-15-3" name="__codelineno-15-3" href="#__codelineno-15-3"></a><span class="w">                   </span><span class="n">lwkt_serialize_t</span><span class="w"> </span><span class="n">serializer</span><span class="p">);</span>
+</code></pre></div>
+<ul>
+<li><code>r</code> - IRQ resource from <code>bus_alloc_resource()</code></li>
+<li><code>flags</code> - <code>INTR_*</code> flags</li>
+<li><code>handler</code> - Interrupt handler function</li>
+<li><code>arg</code> - Argument passed to handler</li>
+<li><code>cookiep</code> - Returns cookie for teardown</li>
+<li><code>serializer</code> - Optional LWKT serializer (DragonFly extension)</li>
+</ul>
+<p><strong>bus_setup_intr_descr()</strong> - <code>sys/kern/subr_bus.c:3333-3342</code></p>
+<p>Same as above but with description string for debugging.</p>
+<h3 id="tearing-down-interrupts">Tearing Down Interrupts<a class="headerlink" href="#tearing-down-interrupts" title="Permanent link">&para;</a></h3>
+<p><strong>bus_teardown_intr()</strong> - <code>sys/kern/subr_bus.c:3353-3359</code></p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-16-1" name="__codelineno-16-1" href="#__codelineno-16-1"></a><span class="kt">int</span><span class="w"> </span><span class="nf">bus_teardown_intr</span><span class="p">(</span><span class="n">device_t</span><span class="w"> </span><span class="n">dev</span><span class="p">,</span><span class="w"> </span><span class="k">struct</span><span class="w"> </span><span class="nc">resource</span><span class="w"> </span><span class="o">*</span><span class="n">r</span><span class="p">,</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="o">*</span><span class="n">cookie</span><span class="p">);</span>
+</code></pre></div>
+<h3 id="enablingdisabling-interrupts">Enabling/Disabling Interrupts<a class="headerlink" href="#enablingdisabling-interrupts" title="Permanent link">&para;</a></h3>
+<p><strong>bus_enable_intr()</strong> - <code>sys/kern/subr_bus.c:3361-3366</code>
+<strong>bus_disable_intr()</strong> - <code>sys/kern/subr_bus.c:3368-3375</code></p>
+<h2 id="devclass-management">Devclass Management<a class="headerlink" href="#devclass-management" title="Permanent link">&para;</a></h2>
+<h3 id="findingcreating-devclasses">Finding/Creating Devclasses<a class="headerlink" href="#findingcreating-devclasses" title="Permanent link">&para;</a></h3>
+<p><strong>devclass_find()</strong> - <code>sys/kern/subr_bus.c:789-793</code></p>
+<p>Finds an existing devclass by name.</p>
+<p><strong>devclass_create()</strong> - <code>sys/kern/subr_bus.c:783-787</code></p>
+<p>Finds or creates a devclass.</p>
+<p><strong>devclass_find_internal()</strong> - <code>sys/kern/subr_bus.c:738-781</code></p>
+<p>Internal function that:
+1. Searches global <code>devclasses</code> list
+2. Creates if not found and <code>create</code> is true
+3. Handles parent devclass for inheritance</p>
+<h3 id="driver-registration">Driver Registration<a class="headerlink" href="#driver-registration" title="Permanent link">&para;</a></h3>
+<p><strong>devclass_add_driver()</strong> - <code>sys/kern/subr_bus.c:805-850</code></p>
+<p>Adds a driver to a devclass:</p>
+<ol>
+<li>Instantiate driver kobj class</li>
+<li>Create devclass for driver name</li>
+<li>Add to devclass driver list</li>
+<li>Call <code>BUS_DRIVER_ADDED</code> for existing buses</li>
+</ol>
+<p><strong>devclass_delete_driver()</strong> - <code>sys/kern/subr_bus.c:852-906</code></p>
+<p>Removes a driver:</p>
+<ol>
+<li>Find driver link</li>
+<li>Detach all devices using driver</li>
+<li>Remove from driver list</li>
+<li>Uninstantiate kobj class</li>
+</ol>
+<h2 id="generic-bus-methods">Generic Bus Methods<a class="headerlink" href="#generic-bus-methods" title="Permanent link">&para;</a></h2>
+<p>Standard implementations for bus drivers in <code>sys/kern/subr_bus.c</code>:</p>
+<table>
+<thead>
+<tr>
+<th>Function</th>
+<th>Line</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>bus_generic_identify</code></td>
+<td>2786</td>
+<td>Add child with driver name</td>
+</tr>
+<tr>
+<td><code>bus_generic_identify_sameunit</code></td>
+<td>2795</td>
+<td>Add child with parent's unit</td>
+</tr>
+<tr>
+<td><code>bus_generic_probe</code></td>
+<td>2807</td>
+<td>Call DEVICE_IDENTIFY for all drivers</td>
+</tr>
+<tr>
+<td><code>bus_generic_attach</code></td>
+<td>2840</td>
+<td>Probe/attach all children</td>
+</tr>
+<tr>
+<td><code>bus_generic_attach_gpri</code></td>
+<td>2852</td>
+<td>Attach with specific priority</td>
+</tr>
+<tr>
+<td><code>bus_generic_detach</code></td>
+<td>2864</td>
+<td>Detach all children</td>
+</tr>
+<tr>
+<td><code>bus_generic_shutdown</code></td>
+<td>2880</td>
+<td>Shutdown all children</td>
+</tr>
+<tr>
+<td><code>bus_generic_suspend</code></td>
+<td>2891</td>
+<td>Suspend all children (with rollback)</td>
+</tr>
+<tr>
+<td><code>bus_generic_resume</code></td>
+<td>2910</td>
+<td>Resume all children</td>
+</tr>
+<tr>
+<td><code>bus_generic_print_child</code></td>
+<td>2958</td>
+<td>Print header + footer</td>
+</tr>
+<tr>
+<td><code>bus_generic_driver_added</code></td>
+<td>3004</td>
+<td>Try attaching unprobed children</td>
+</tr>
+<tr>
+<td><code>bus_generic_setup_intr</code></td>
+<td>3016</td>
+<td>Propagate to parent</td>
+</tr>
+<tr>
+<td><code>bus_generic_teardown_intr</code></td>
+<td>3030</td>
+<td>Propagate to parent</td>
+</tr>
+<tr>
+<td><code>bus_generic_alloc_resource</code></td>
+<td>3068</td>
+<td>Propagate to parent</td>
+</tr>
+<tr>
+<td><code>bus_generic_release_resource</code></td>
+<td>3080</td>
+<td>Propagate to parent</td>
+</tr>
+</tbody>
+</table>
+<h2 id="configuration-resource-hints">Configuration Resource Hints<a class="headerlink" href="#configuration-resource-hints" title="Permanent link">&para;</a></h2>
+<p>Support for device hints from <code>/boot/loader.conf</code>:</p>
+<p><strong>resource_int_value()</strong> - <code>sys/kern/subr_bus.c:2325-2342</code>
+<strong>resource_long_value()</strong> - <code>sys/kern/subr_bus.c:2344-2362</code>
+<strong>resource_string_value()</strong> - <code>sys/kern/subr_bus.c:2364-2397</code></p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-17-1" name="__codelineno-17-1" href="#__codelineno-17-1"></a><span class="kt">int</span><span class="w"> </span><span class="nf">resource_int_value</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="n">name</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">unit</span><span class="p">,</span>
+<a id="__codelineno-17-2" name="__codelineno-17-2" href="#__codelineno-17-2"></a><span class="w">                       </span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="n">resname</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="o">*</span><span class="n">result</span><span class="p">);</span>
+</code></pre></div>
+<p><strong>resource_kenv()</strong> - <code>sys/kern/subr_bus.c:2298-2323</code></p>
+<p>Supports both DragonFly and FreeBSD hint formats:
+- DragonFly: <code>deviceN.property</code>
+- FreeBSD: <code>hint.device.N.property</code></p>
+<p><strong>resource_disabled()</strong> - <code>sys/kern/subr_bus.c:3818-3827</code></p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-18-1" name="__codelineno-18-1" href="#__codelineno-18-1"></a><span class="kt">int</span><span class="w"> </span><span class="nf">resource_disabled</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="n">name</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">unit</span><span class="p">);</span>
+</code></pre></div>
+<p>Checks if <code>deviceN.disabled=1</code> is set.</p>
+<h2 id="auto-configuration-hooks">Auto-Configuration Hooks<a class="headerlink" href="#auto-configuration-hooks" title="Permanent link">&para;</a></h2>
+<p>For drivers that need interrupt-driven configuration:</p>
+<h3 id="struct-intr_config_hook">struct intr_config_hook<a class="headerlink" href="#struct-intr_config_hook" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-19-1" name="__codelineno-19-1" href="#__codelineno-19-1"></a><span class="k">struct</span><span class="w"> </span><span class="nc">intr_config_hook</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-19-2" name="__codelineno-19-2" href="#__codelineno-19-2"></a><span class="w">    </span><span class="n">TAILQ_ENTRY</span><span class="p">(</span><span class="n">intr_config_hook</span><span class="p">)</span><span class="w"> </span><span class="n">ich_links</span><span class="p">;</span>
+<a id="__codelineno-19-3" name="__codelineno-19-3" href="#__codelineno-19-3"></a><span class="w">    </span><span class="kt">void</span><span class="w">    </span><span class="p">(</span><span class="o">*</span><span class="n">ich_func</span><span class="p">)(</span><span class="kt">void</span><span class="w"> </span><span class="o">*</span><span class="p">);</span>
+<a id="__codelineno-19-4" name="__codelineno-19-4" href="#__codelineno-19-4"></a><span class="w">    </span><span class="kt">void</span><span class="w">    </span><span class="o">*</span><span class="n">ich_arg</span><span class="p">;</span>
+<a id="__codelineno-19-5" name="__codelineno-19-5" href="#__codelineno-19-5"></a><span class="w">    </span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="n">ich_desc</span><span class="p">;</span>
+<a id="__codelineno-19-6" name="__codelineno-19-6" href="#__codelineno-19-6"></a><span class="w">    </span><span class="kt">int</span><span class="w">     </span><span class="n">ich_order</span><span class="p">;</span>
+<a id="__codelineno-19-7" name="__codelineno-19-7" href="#__codelineno-19-7"></a><span class="w">    </span><span class="kt">int</span><span class="w">     </span><span class="n">ich_ran</span><span class="p">;</span>
+<a id="__codelineno-19-8" name="__codelineno-19-8" href="#__codelineno-19-8"></a><span class="p">};</span>
+</code></pre></div>
+<p>Defined in <code>sys/sys/kernel.h:475-482</code>.</p>
+<h3 id="api-functions">API Functions<a class="headerlink" href="#api-functions" title="Permanent link">&para;</a></h3>
+<p><strong>config_intrhook_establish()</strong> - <code>sys/kern/subr_autoconf.c:136-177</code></p>
+<p>Registers hook for post-interrupt configuration:
+- Hooks ordered by <code>ich_order</code>
+- If called after boot, runs immediately</p>
+<p><strong>config_intrhook_disestablish()</strong> - <code>sys/kern/subr_autoconf.c:179-201</code></p>
+<p>Removes hook and wakes up waiters.</p>
+<p><strong>run_interrupt_driven_config_hooks()</strong> - <code>sys/kern/subr_autoconf.c:64-127</code></p>
+<p>Called at <code>SI_SUB_INT_CONFIG_HOOKS</code>:
+- Runs each hook function
+- Waits for hooks to complete (with timeout warnings)
+- USB hack: waits extra 5 seconds for USB devices</p>
+<h2 id="root-bus">Root Bus<a class="headerlink" href="#root-bus" title="Permanent link">&para;</a></h2>
+<p>The root bus is the top of the device tree:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-20-1" name="__codelineno-20-1" href="#__codelineno-20-1"></a><span class="k">static</span><span class="w"> </span><span class="n">driver_t</span><span class="w"> </span><span class="n">root_driver</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-20-2" name="__codelineno-20-2" href="#__codelineno-20-2"></a><span class="w">    </span><span class="s">&quot;root&quot;</span><span class="p">,</span>
+<a id="__codelineno-20-3" name="__codelineno-20-3" href="#__codelineno-20-3"></a><span class="w">    </span><span class="n">root_methods</span><span class="p">,</span>
+<a id="__codelineno-20-4" name="__codelineno-20-4" href="#__codelineno-20-4"></a><span class="w">    </span><span class="mi">1</span><span class="p">,</span><span class="w">  </span><span class="cm">/* no softc */</span>
+<a id="__codelineno-20-5" name="__codelineno-20-5" href="#__codelineno-20-5"></a><span class="p">};</span>
+<a id="__codelineno-20-6" name="__codelineno-20-6" href="#__codelineno-20-6"></a>
+<a id="__codelineno-20-7" name="__codelineno-20-7" href="#__codelineno-20-7"></a><span class="n">device_t</span><span class="w">    </span><span class="n">root_bus</span><span class="p">;</span>
+<a id="__codelineno-20-8" name="__codelineno-20-8" href="#__codelineno-20-8"></a><span class="n">devclass_t</span><span class="w">  </span><span class="n">root_devclass</span><span class="p">;</span>
+</code></pre></div>
+<p>Defined in <code>sys/kern/subr_bus.c:3523-3560</code>.</p>
+<p><strong>root_bus_configure()</strong> - <code>sys/kern/subr_bus.c:3562-3603</code></p>
+<p>Called during boot to:
+1. Call <code>bus_generic_probe()</code> for root bus
+2. Probe and attach children (typically nexus)
+3. Wait for async attaches</p>
+<h2 id="devctl-device">devctl Device<a class="headerlink" href="#devctl-device" title="Permanent link">&para;</a></h2>
+<p>Character device <code>/dev/devctl</code> for userland notification:</p>
+<p><strong>Events Sent:</strong>
+- <code>devadded()</code> - Device attached successfully
+- <code>devremoved()</code> - Device about to detach
+- <code>devnomatch()</code> - No driver found</p>
+<p><strong>devctl_notify()</strong> - <code>sys/kern/subr_bus.c:529-559</code></p>
+<p>Standard notification format:
+<div class="highlight"><pre><span></span><code><a id="__codelineno-21-1" name="__codelineno-21-1" href="#__codelineno-21-1"></a>!system=&lt;system&gt; subsystem=&lt;subsystem&gt; type=&lt;type&gt; [data]
+</code></pre></div></p>
+<p>See <code>sys/kern/subr_bus.c:250-721</code>.</p>
+<h2 id="sysctl-interface">Sysctl Interface<a class="headerlink" href="#sysctl-interface" title="Permanent link">&para;</a></h2>
+<p><strong>hw.bus.info</strong> - Returns bus generation count
+<strong>hw.bus.devices</strong> - Returns device tree</p>
+<p><code>struct u_device</code> (<code>sys/sys/bus.h:87-100</code>) exported to userspace.</p>
+<p>See <code>sys/kern/subr_bus.c:3843-3907</code>.</p>
+<h2 id="driver-definition-macros">Driver Definition Macros<a class="headerlink" href="#driver-definition-macros" title="Permanent link">&para;</a></h2>
+<p><strong>DRIVER_MODULE</strong> - <code>sys/sys/bus.h:518-538</code></p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-22-1" name="__codelineno-22-1" href="#__codelineno-22-1"></a><span class="cp">#define DRIVER_MODULE(name, busname, driver, devclass, evh, arg)    \</span>
+<a id="__codelineno-22-2" name="__codelineno-22-2" href="#__codelineno-22-2"></a><span class="cp">    DRIVER_MODULE_ORDERED(name, busname, driver, &amp;devclass, evh, arg,\</span>
+<a id="__codelineno-22-3" name="__codelineno-22-3" href="#__codelineno-22-3"></a><span class="cp">                          SI_ORDER_MIDDLE)</span>
+</code></pre></div>
+<p><strong>DEVMETHOD / DEVMETHOD_END</strong> - <code>sys/sys/bus.h:494-495</code></p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-23-1" name="__codelineno-23-1" href="#__codelineno-23-1"></a><span class="cp">#define DEVMETHOD       KOBJMETHOD</span>
+<a id="__codelineno-23-2" name="__codelineno-23-2" href="#__codelineno-23-2"></a><span class="cp">#define DEVMETHOD_END   KOBJMETHOD_END</span>
+</code></pre></div>
+<h2 id="bus-space-access">Bus Space Access<a class="headerlink" href="#bus-space-access" title="Permanent link">&para;</a></h2>
+<p>Shorthand macros for <code>bus_space_*</code> functions:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-24-1" name="__codelineno-24-1" href="#__codelineno-24-1"></a><span class="n">bus_read_1</span><span class="p">(</span><span class="n">r</span><span class="p">,</span><span class="w"> </span><span class="n">o</span><span class="p">)</span><span class="w">    </span><span class="cm">/* read 1 byte */</span>
+<a id="__codelineno-24-2" name="__codelineno-24-2" href="#__codelineno-24-2"></a><span class="n">bus_read_2</span><span class="p">(</span><span class="n">r</span><span class="p">,</span><span class="w"> </span><span class="n">o</span><span class="p">)</span><span class="w">    </span><span class="cm">/* read 2 bytes */</span>
+<a id="__codelineno-24-3" name="__codelineno-24-3" href="#__codelineno-24-3"></a><span class="n">bus_read_4</span><span class="p">(</span><span class="n">r</span><span class="p">,</span><span class="w"> </span><span class="n">o</span><span class="p">)</span><span class="w">    </span><span class="cm">/* read 4 bytes */</span>
+<a id="__codelineno-24-4" name="__codelineno-24-4" href="#__codelineno-24-4"></a><span class="n">bus_write_1</span><span class="p">(</span><span class="n">r</span><span class="p">,</span><span class="w"> </span><span class="n">o</span><span class="p">,</span><span class="w"> </span><span class="n">v</span><span class="p">)</span>
+<a id="__codelineno-24-5" name="__codelineno-24-5" href="#__codelineno-24-5"></a><span class="n">bus_write_2</span><span class="p">(</span><span class="n">r</span><span class="p">,</span><span class="w"> </span><span class="n">o</span><span class="p">,</span><span class="w"> </span><span class="n">v</span><span class="p">)</span>
+<a id="__codelineno-24-6" name="__codelineno-24-6" href="#__codelineno-24-6"></a><span class="n">bus_write_4</span><span class="p">(</span><span class="n">r</span><span class="p">,</span><span class="w"> </span><span class="n">o</span><span class="p">,</span><span class="w"> </span><span class="n">v</span><span class="p">)</span>
+<a id="__codelineno-24-7" name="__codelineno-24-7" href="#__codelineno-24-7"></a><span class="n">bus_read_region_N</span><span class="p">()</span>
+<a id="__codelineno-24-8" name="__codelineno-24-8" href="#__codelineno-24-8"></a><span class="n">bus_write_region_N</span><span class="p">()</span>
+<a id="__codelineno-24-9" name="__codelineno-24-9" href="#__codelineno-24-9"></a><span class="n">bus_set_region_N</span><span class="p">()</span>
+<a id="__codelineno-24-10" name="__codelineno-24-10" href="#__codelineno-24-10"></a><span class="n">bus_copy_region_N</span><span class="p">()</span>
+<a id="__codelineno-24-11" name="__codelineno-24-11" href="#__codelineno-24-11"></a><span class="n">bus_barrier</span><span class="p">()</span>
+</code></pre></div>
+<p>See <code>sys/sys/bus.h:563-692</code>.</p>
+<h2 id="example-simple-pci-driver">Example: Simple PCI Driver<a class="headerlink" href="#example-simple-pci-driver" title="Permanent link">&para;</a></h2>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-25-1" name="__codelineno-25-1" href="#__codelineno-25-1"></a><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;sys/param.h&gt;</span>
+<a id="__codelineno-25-2" name="__codelineno-25-2" href="#__codelineno-25-2"></a><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;sys/kernel.h&gt;</span>
+<a id="__codelineno-25-3" name="__codelineno-25-3" href="#__codelineno-25-3"></a><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;sys/module.h&gt;</span>
+<a id="__codelineno-25-4" name="__codelineno-25-4" href="#__codelineno-25-4"></a><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;sys/bus.h&gt;</span>
+<a id="__codelineno-25-5" name="__codelineno-25-5" href="#__codelineno-25-5"></a><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;bus/pci/pcivar.h&gt;</span>
+<a id="__codelineno-25-6" name="__codelineno-25-6" href="#__codelineno-25-6"></a>
+<a id="__codelineno-25-7" name="__codelineno-25-7" href="#__codelineno-25-7"></a><span class="k">static</span><span class="w"> </span><span class="kt">int</span>
+<a id="__codelineno-25-8" name="__codelineno-25-8" href="#__codelineno-25-8"></a><span class="nf">mydev_probe</span><span class="p">(</span><span class="n">device_t</span><span class="w"> </span><span class="n">dev</span><span class="p">)</span>
+<a id="__codelineno-25-9" name="__codelineno-25-9" href="#__codelineno-25-9"></a><span class="p">{</span>
+<a id="__codelineno-25-10" name="__codelineno-25-10" href="#__codelineno-25-10"></a><span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">pci_get_vendor</span><span class="p">(</span><span class="n">dev</span><span class="p">)</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mh">0x1234</span><span class="w"> </span><span class="o">&amp;&amp;</span>
+<a id="__codelineno-25-11" name="__codelineno-25-11" href="#__codelineno-25-11"></a><span class="w">        </span><span class="n">pci_get_device</span><span class="p">(</span><span class="n">dev</span><span class="p">)</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mh">0x5678</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-25-12" name="__codelineno-25-12" href="#__codelineno-25-12"></a><span class="w">        </span><span class="n">device_set_desc</span><span class="p">(</span><span class="n">dev</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;My Device&quot;</span><span class="p">);</span>
+<a id="__codelineno-25-13" name="__codelineno-25-13" href="#__codelineno-25-13"></a><span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">BUS_PROBE_DEFAULT</span><span class="p">;</span>
+<a id="__codelineno-25-14" name="__codelineno-25-14" href="#__codelineno-25-14"></a><span class="w">    </span><span class="p">}</span>
+<a id="__codelineno-25-15" name="__codelineno-25-15" href="#__codelineno-25-15"></a><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">ENXIO</span><span class="p">;</span>
+<a id="__codelineno-25-16" name="__codelineno-25-16" href="#__codelineno-25-16"></a><span class="p">}</span>
+<a id="__codelineno-25-17" name="__codelineno-25-17" href="#__codelineno-25-17"></a>
+<a id="__codelineno-25-18" name="__codelineno-25-18" href="#__codelineno-25-18"></a><span class="k">static</span><span class="w"> </span><span class="kt">int</span>
+<a id="__codelineno-25-19" name="__codelineno-25-19" href="#__codelineno-25-19"></a><span class="nf">mydev_attach</span><span class="p">(</span><span class="n">device_t</span><span class="w"> </span><span class="n">dev</span><span class="p">)</span>
+<a id="__codelineno-25-20" name="__codelineno-25-20" href="#__codelineno-25-20"></a><span class="p">{</span>
+<a id="__codelineno-25-21" name="__codelineno-25-21" href="#__codelineno-25-21"></a><span class="w">    </span><span class="k">struct</span><span class="w"> </span><span class="nc">mydev_softc</span><span class="w"> </span><span class="o">*</span><span class="n">sc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">device_get_softc</span><span class="p">(</span><span class="n">dev</span><span class="p">);</span>
+<a id="__codelineno-25-22" name="__codelineno-25-22" href="#__codelineno-25-22"></a><span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="n">rid</span><span class="p">;</span>
+<a id="__codelineno-25-23" name="__codelineno-25-23" href="#__codelineno-25-23"></a>
+<a id="__codelineno-25-24" name="__codelineno-25-24" href="#__codelineno-25-24"></a><span class="w">    </span><span class="cm">/* Allocate BAR0 */</span>
+<a id="__codelineno-25-25" name="__codelineno-25-25" href="#__codelineno-25-25"></a><span class="w">    </span><span class="n">rid</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">PCIR_BAR</span><span class="p">(</span><span class="mi">0</span><span class="p">);</span>
+<a id="__codelineno-25-26" name="__codelineno-25-26" href="#__codelineno-25-26"></a><span class="w">    </span><span class="n">sc</span><span class="o">-&gt;</span><span class="n">mem_res</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">bus_alloc_resource_any</span><span class="p">(</span><span class="n">dev</span><span class="p">,</span><span class="w"> </span><span class="n">SYS_RES_MEMORY</span><span class="p">,</span>
+<a id="__codelineno-25-27" name="__codelineno-25-27" href="#__codelineno-25-27"></a><span class="w">                                         </span><span class="o">&amp;</span><span class="n">rid</span><span class="p">,</span><span class="w"> </span><span class="n">RF_ACTIVE</span><span class="p">);</span>
+<a id="__codelineno-25-28" name="__codelineno-25-28" href="#__codelineno-25-28"></a><span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">sc</span><span class="o">-&gt;</span><span class="n">mem_res</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="nb">NULL</span><span class="p">)</span>
+<a id="__codelineno-25-29" name="__codelineno-25-29" href="#__codelineno-25-29"></a><span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">ENXIO</span><span class="p">;</span>
+<a id="__codelineno-25-30" name="__codelineno-25-30" href="#__codelineno-25-30"></a>
+<a id="__codelineno-25-31" name="__codelineno-25-31" href="#__codelineno-25-31"></a><span class="w">    </span><span class="cm">/* Allocate interrupt */</span>
+<a id="__codelineno-25-32" name="__codelineno-25-32" href="#__codelineno-25-32"></a><span class="w">    </span><span class="n">rid</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+<a id="__codelineno-25-33" name="__codelineno-25-33" href="#__codelineno-25-33"></a><span class="w">    </span><span class="n">sc</span><span class="o">-&gt;</span><span class="n">irq_res</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">bus_alloc_resource_any</span><span class="p">(</span><span class="n">dev</span><span class="p">,</span><span class="w"> </span><span class="n">SYS_RES_IRQ</span><span class="p">,</span>
+<a id="__codelineno-25-34" name="__codelineno-25-34" href="#__codelineno-25-34"></a><span class="w">                                         </span><span class="o">&amp;</span><span class="n">rid</span><span class="p">,</span><span class="w"> </span><span class="n">RF_ACTIVE</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">RF_SHAREABLE</span><span class="p">);</span>
+<a id="__codelineno-25-35" name="__codelineno-25-35" href="#__codelineno-25-35"></a><span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">sc</span><span class="o">-&gt;</span><span class="n">irq_res</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="nb">NULL</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-25-36" name="__codelineno-25-36" href="#__codelineno-25-36"></a><span class="w">        </span><span class="n">bus_release_resource</span><span class="p">(</span><span class="n">dev</span><span class="p">,</span><span class="w"> </span><span class="n">SYS_RES_MEMORY</span><span class="p">,</span><span class="w"> </span><span class="n">PCIR_BAR</span><span class="p">(</span><span class="mi">0</span><span class="p">),</span><span class="w"> </span><span class="n">sc</span><span class="o">-&gt;</span><span class="n">mem_res</span><span class="p">);</span>
+<a id="__codelineno-25-37" name="__codelineno-25-37" href="#__codelineno-25-37"></a><span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">ENXIO</span><span class="p">;</span>
+<a id="__codelineno-25-38" name="__codelineno-25-38" href="#__codelineno-25-38"></a><span class="w">    </span><span class="p">}</span>
+<a id="__codelineno-25-39" name="__codelineno-25-39" href="#__codelineno-25-39"></a>
+<a id="__codelineno-25-40" name="__codelineno-25-40" href="#__codelineno-25-40"></a><span class="w">    </span><span class="cm">/* Setup interrupt handler */</span>
+<a id="__codelineno-25-41" name="__codelineno-25-41" href="#__codelineno-25-41"></a><span class="w">    </span><span class="n">bus_setup_intr</span><span class="p">(</span><span class="n">dev</span><span class="p">,</span><span class="w"> </span><span class="n">sc</span><span class="o">-&gt;</span><span class="n">irq_res</span><span class="p">,</span><span class="w"> </span><span class="n">INTR_MPSAFE</span><span class="p">,</span>
+<a id="__codelineno-25-42" name="__codelineno-25-42" href="#__codelineno-25-42"></a><span class="w">                   </span><span class="n">mydev_intr</span><span class="p">,</span><span class="w"> </span><span class="n">sc</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">sc</span><span class="o">-&gt;</span><span class="n">irq_cookie</span><span class="p">,</span><span class="w"> </span><span class="nb">NULL</span><span class="p">);</span>
+<a id="__codelineno-25-43" name="__codelineno-25-43" href="#__codelineno-25-43"></a>
+<a id="__codelineno-25-44" name="__codelineno-25-44" href="#__codelineno-25-44"></a><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+<a id="__codelineno-25-45" name="__codelineno-25-45" href="#__codelineno-25-45"></a><span class="p">}</span>
+<a id="__codelineno-25-46" name="__codelineno-25-46" href="#__codelineno-25-46"></a>
+<a id="__codelineno-25-47" name="__codelineno-25-47" href="#__codelineno-25-47"></a><span class="k">static</span><span class="w"> </span><span class="kt">int</span>
+<a id="__codelineno-25-48" name="__codelineno-25-48" href="#__codelineno-25-48"></a><span class="nf">mydev_detach</span><span class="p">(</span><span class="n">device_t</span><span class="w"> </span><span class="n">dev</span><span class="p">)</span>
+<a id="__codelineno-25-49" name="__codelineno-25-49" href="#__codelineno-25-49"></a><span class="p">{</span>
+<a id="__codelineno-25-50" name="__codelineno-25-50" href="#__codelineno-25-50"></a><span class="w">    </span><span class="k">struct</span><span class="w"> </span><span class="nc">mydev_softc</span><span class="w"> </span><span class="o">*</span><span class="n">sc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">device_get_softc</span><span class="p">(</span><span class="n">dev</span><span class="p">);</span>
+<a id="__codelineno-25-51" name="__codelineno-25-51" href="#__codelineno-25-51"></a>
+<a id="__codelineno-25-52" name="__codelineno-25-52" href="#__codelineno-25-52"></a><span class="w">    </span><span class="n">bus_teardown_intr</span><span class="p">(</span><span class="n">dev</span><span class="p">,</span><span class="w"> </span><span class="n">sc</span><span class="o">-&gt;</span><span class="n">irq_res</span><span class="p">,</span><span class="w"> </span><span class="n">sc</span><span class="o">-&gt;</span><span class="n">irq_cookie</span><span class="p">);</span>
+<a id="__codelineno-25-53" name="__codelineno-25-53" href="#__codelineno-25-53"></a><span class="w">    </span><span class="n">bus_release_resource</span><span class="p">(</span><span class="n">dev</span><span class="p">,</span><span class="w"> </span><span class="n">SYS_RES_IRQ</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="n">sc</span><span class="o">-&gt;</span><span class="n">irq_res</span><span class="p">);</span>
+<a id="__codelineno-25-54" name="__codelineno-25-54" href="#__codelineno-25-54"></a><span class="w">    </span><span class="n">bus_release_resource</span><span class="p">(</span><span class="n">dev</span><span class="p">,</span><span class="w"> </span><span class="n">SYS_RES_MEMORY</span><span class="p">,</span><span class="w"> </span><span class="n">PCIR_BAR</span><span class="p">(</span><span class="mi">0</span><span class="p">),</span><span class="w"> </span><span class="n">sc</span><span class="o">-&gt;</span><span class="n">mem_res</span><span class="p">);</span>
+<a id="__codelineno-25-55" name="__codelineno-25-55" href="#__codelineno-25-55"></a>
+<a id="__codelineno-25-56" name="__codelineno-25-56" href="#__codelineno-25-56"></a><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+<a id="__codelineno-25-57" name="__codelineno-25-57" href="#__codelineno-25-57"></a><span class="p">}</span>
+<a id="__codelineno-25-58" name="__codelineno-25-58" href="#__codelineno-25-58"></a>
+<a id="__codelineno-25-59" name="__codelineno-25-59" href="#__codelineno-25-59"></a><span class="k">static</span><span class="w"> </span><span class="n">device_method_t</span><span class="w"> </span><span class="n">mydev_methods</span><span class="p">[]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-25-60" name="__codelineno-25-60" href="#__codelineno-25-60"></a><span class="w">    </span><span class="n">DEVMETHOD</span><span class="p">(</span><span class="n">device_probe</span><span class="p">,</span><span class="w">     </span><span class="n">mydev_probe</span><span class="p">),</span>
+<a id="__codelineno-25-61" name="__codelineno-25-61" href="#__codelineno-25-61"></a><span class="w">    </span><span class="n">DEVMETHOD</span><span class="p">(</span><span class="n">device_attach</span><span class="p">,</span><span class="w">    </span><span class="n">mydev_attach</span><span class="p">),</span>
+<a id="__codelineno-25-62" name="__codelineno-25-62" href="#__codelineno-25-62"></a><span class="w">    </span><span class="n">DEVMETHOD</span><span class="p">(</span><span class="n">device_detach</span><span class="p">,</span><span class="w">    </span><span class="n">mydev_detach</span><span class="p">),</span>
+<a id="__codelineno-25-63" name="__codelineno-25-63" href="#__codelineno-25-63"></a><span class="w">    </span><span class="n">DEVMETHOD_END</span>
+<a id="__codelineno-25-64" name="__codelineno-25-64" href="#__codelineno-25-64"></a><span class="p">};</span>
+<a id="__codelineno-25-65" name="__codelineno-25-65" href="#__codelineno-25-65"></a>
+<a id="__codelineno-25-66" name="__codelineno-25-66" href="#__codelineno-25-66"></a><span class="k">static</span><span class="w"> </span><span class="n">driver_t</span><span class="w"> </span><span class="n">mydev_driver</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-25-67" name="__codelineno-25-67" href="#__codelineno-25-67"></a><span class="w">    </span><span class="s">&quot;mydev&quot;</span><span class="p">,</span>
+<a id="__codelineno-25-68" name="__codelineno-25-68" href="#__codelineno-25-68"></a><span class="w">    </span><span class="n">mydev_methods</span><span class="p">,</span>
+<a id="__codelineno-25-69" name="__codelineno-25-69" href="#__codelineno-25-69"></a><span class="w">    </span><span class="k">sizeof</span><span class="p">(</span><span class="k">struct</span><span class="w"> </span><span class="nc">mydev_softc</span><span class="p">)</span>
+<a id="__codelineno-25-70" name="__codelineno-25-70" href="#__codelineno-25-70"></a><span class="p">};</span>
+<a id="__codelineno-25-71" name="__codelineno-25-71" href="#__codelineno-25-71"></a>
+<a id="__codelineno-25-72" name="__codelineno-25-72" href="#__codelineno-25-72"></a><span class="k">static</span><span class="w"> </span><span class="n">devclass_t</span><span class="w"> </span><span class="n">mydev_devclass</span><span class="p">;</span>
+<a id="__codelineno-25-73" name="__codelineno-25-73" href="#__codelineno-25-73"></a>
+<a id="__codelineno-25-74" name="__codelineno-25-74" href="#__codelineno-25-74"></a><span class="n">DRIVER_MODULE</span><span class="p">(</span><span class="n">mydev</span><span class="p">,</span><span class="w"> </span><span class="n">pci</span><span class="p">,</span><span class="w"> </span><span class="n">mydev_driver</span><span class="p">,</span><span class="w"> </span><span class="n">mydev_devclass</span><span class="p">,</span><span class="w"> </span><span class="nb">NULL</span><span class="p">,</span><span class="w"> </span><span class="nb">NULL</span><span class="p">);</span>
+</code></pre></div>
+<h2 id="cross-references">Cross-References<a class="headerlink" href="#cross-references" title="Permanent link">&para;</a></h2>
+<ul>
+<li><a href="../devices/">Device Framework</a> - Character/block device layer</li>
+<li><a href="../resources/">Resource Management</a> - rman and DMA</li>
+<li><a href="../lwkt/">LWKT</a> - Threading and serializers</li>
+<li><a href="../synchronization/">Synchronization</a> - Locking primitives</li>
+</ul>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": ["navigation.tabs", "navigation.sections", "navigation.expand", "navigation.top", "search.suggest", "search.highlight", "content.code.copy"], "search": "../../../assets/javascripts/workers/search.7a47a382.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../../assets/javascripts/bundle.e71a0d61.min.js"></script>
+      
+    
+  </body>
+</html>

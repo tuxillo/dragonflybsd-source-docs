@@ -16,7 +16,7 @@
         <link rel="prev" href="../ipc/sysv-shm/">
       
       
-        <link rel="next" href="../syscalls/">
+        <link rel="next" href="../newbus/">
       
       
         
@@ -78,7 +78,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#devices" class="md-skip">
+        <a href="#device-framework" class="md-skip">
           Skip to content
         </a>
       
@@ -1506,10 +1506,571 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#key-files" class="md-nav__link">
+  <a href="#data-structures" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Key Files
+        Data Structures
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Data Structures">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#struct-dev_ops" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        struct dev_ops
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#device-flags-headflags" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Device Flags (head.flags)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#cdev_t" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        cdev_t
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#operation-argument-structures" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Operation Argument Structures
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#device-creation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Device Creation
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Device Creation">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#make_dev" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        make_dev
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#make_dev_covering" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        make_dev_covering
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#make_only_dev" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        make_only_dev
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#make_autoclone_dev" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        make_autoclone_dev
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#device-destruction" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Device Destruction
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Device Destruction">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#destroy_dev" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        destroy_dev
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#sync_devs" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        sync_devs
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#device-aliases" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Device Aliases
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Device Aliases">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#make_dev_alias" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        make_dev_alias
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#destroy_dev_alias" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        destroy_dev_alias
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#reference-counting" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Reference Counting
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Reference Counting">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#reference_dev" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        reference_dev
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#release_dev" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        release_dev
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#device-operations-dispatch" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Device Operations Dispatch
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Device Operations Dispatch">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#mpsafe-handling" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        MPSAFE Handling
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#kvabio-handling" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KVABIO Handling
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#dev_dopen" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        dev_dopen
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#dev_dstrategy" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        dev_dstrategy
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#dev_dstrategy_chain" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        dev_dstrategy_chain
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#dev_dpsize" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        dev_dpsize
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#operation-compilation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Operation Compilation
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Operation Compilation">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#compile_dev_ops" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        compile_dev_ops
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#default_dev_ops" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        default_dev_ops
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#dead_dev_ops" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        dead_dev_ops
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#operation-interception" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Operation Interception
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Operation Interception">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#dev_ops_intercept" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        dev_ops_intercept
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#dev_ops_restore" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        dev_ops_restore
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#major-number-management" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Major Number Management
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#device-number-primitives" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Device Number Primitives
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Device Number Primitives">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#major-minor" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        major / minor
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#devid_from_dev-dev_from_devid" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        devid_from_dev / dev_from_devid
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#dev_is_good" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        dev_is_good
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#helper-functions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Helper Functions
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Helper Functions">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#devtoname" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        devtoname
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#dev_dname-dev_dflags-dev_dmaj" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        dev_dname / dev_dflags / dev_dmaj
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#dev_drefs" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        dev_drefs
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#debugging" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Debugging
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Debugging">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#debugdev_refs" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        debug.dev_refs
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#example-simple-character-device" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Example: Simple Character Device
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#cross-references" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Cross-References
       
     </span>
   </a>
@@ -1520,6 +2081,62 @@
   
 </nav>
       
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../newbus/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    NewBus Framework
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../bus-resources/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Bus Resources & DMA
+  
+
+    
+  </span>
+  
+  
+
+      </a>
     </li>
   
 
@@ -1792,10 +2409,571 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#key-files" class="md-nav__link">
+  <a href="#data-structures" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Key Files
+        Data Structures
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Data Structures">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#struct-dev_ops" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        struct dev_ops
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#device-flags-headflags" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Device Flags (head.flags)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#cdev_t" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        cdev_t
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#operation-argument-structures" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Operation Argument Structures
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#device-creation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Device Creation
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Device Creation">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#make_dev" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        make_dev
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#make_dev_covering" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        make_dev_covering
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#make_only_dev" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        make_only_dev
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#make_autoclone_dev" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        make_autoclone_dev
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#device-destruction" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Device Destruction
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Device Destruction">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#destroy_dev" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        destroy_dev
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#sync_devs" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        sync_devs
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#device-aliases" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Device Aliases
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Device Aliases">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#make_dev_alias" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        make_dev_alias
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#destroy_dev_alias" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        destroy_dev_alias
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#reference-counting" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Reference Counting
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Reference Counting">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#reference_dev" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        reference_dev
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#release_dev" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        release_dev
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#device-operations-dispatch" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Device Operations Dispatch
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Device Operations Dispatch">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#mpsafe-handling" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        MPSAFE Handling
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#kvabio-handling" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KVABIO Handling
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#dev_dopen" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        dev_dopen
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#dev_dstrategy" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        dev_dstrategy
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#dev_dstrategy_chain" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        dev_dstrategy_chain
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#dev_dpsize" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        dev_dpsize
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#operation-compilation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Operation Compilation
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Operation Compilation">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#compile_dev_ops" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        compile_dev_ops
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#default_dev_ops" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        default_dev_ops
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#dead_dev_ops" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        dead_dev_ops
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#operation-interception" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Operation Interception
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Operation Interception">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#dev_ops_intercept" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        dev_ops_intercept
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#dev_ops_restore" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        dev_ops_restore
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#major-number-management" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Major Number Management
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#device-number-primitives" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Device Number Primitives
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Device Number Primitives">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#major-minor" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        major / minor
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#devid_from_dev-dev_from_devid" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        devid_from_dev / dev_from_devid
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#dev_is_good" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        dev_is_good
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#helper-functions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Helper Functions
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Helper Functions">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#devtoname" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        devtoname
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#dev_dname-dev_dflags-dev_dmaj" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        dev_dname / dev_dflags / dev_dmaj
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#dev_drefs" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        dev_drefs
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#debugging" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Debugging
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Debugging">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#debugdev_refs" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        debug.dev_refs
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#example-simple-character-device" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Example: Simple Character Device
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#cross-references" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Cross-References
       
     </span>
   </a>
@@ -1822,12 +3000,533 @@
   
 
 
-<h1 id="devices">Devices<a class="headerlink" href="#devices" title="Permanent link">&para;</a></h1>
-<p><em>Documentation in progress. See planning/sys/kern/PLAN.md for details.</em></p>
+<h1 id="device-framework">Device Framework<a class="headerlink" href="#device-framework" title="Permanent link">&para;</a></h1>
+<p>The device framework provides the infrastructure for creating, managing, and
+operating on character and block devices in DragonFly BSD. It consists of
+two main components: device number management (<code>kern_conf.c</code>) and device
+operations dispatch (<code>kern_device.c</code>).</p>
+<p><strong>Source files:</strong>
+- <code>sys/kern/kern_conf.c</code> - Device creation, destruction, aliases
+- <code>sys/kern/kern_device.c</code> - Device operations dispatch layer
+- <code>sys/sys/device.h</code> - Data structures and prototypes
+- <code>sys/sys/conf.h</code> - Device type definitions</p>
 <h2 id="overview">Overview<a class="headerlink" href="#overview" title="Permanent link">&para;</a></h2>
-<p>To be documented.</p>
-<h2 id="key-files">Key Files<a class="headerlink" href="#key-files" title="Permanent link">&para;</a></h2>
-<p>To be listed.</p>
+<p>DragonFly's device framework evolved from traditional BSD but incorporates
+several DragonFly-specific enhancements:</p>
+<ol>
+<li><strong>DEVFS Integration</strong> - All device creation goes through devfs</li>
+<li><strong>MPSAFE Support</strong> - Per-device MPSAFE flags control locking</li>
+<li><strong>KVABIO Support</strong> - Efficient buffer handling for capable devices</li>
+<li><strong>Reference Counting</strong> - Sysref-based lifecycle management</li>
+<li><strong>Operation Interception</strong> - Console and layered device support</li>
+</ol>
+<h2 id="data-structures">Data Structures<a class="headerlink" href="#data-structures" title="Permanent link">&para;</a></h2>
+<h3 id="struct-dev_ops">struct dev_ops<a class="headerlink" href="#struct-dev_ops" title="Permanent link">&para;</a></h3>
+<p>The device operations switch table. Each device driver provides one of these
+to define how the device responds to operations.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="k">struct</span><span class="w"> </span><span class="nc">dev_ops</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="w">    </span><span class="k">struct</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="w">        </span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="w">  </span><span class="o">*</span><span class="n">name</span><span class="p">;</span><span class="w">   </span><span class="cm">/* base name, e.g. &#39;da&#39; */</span>
+<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="w">        </span><span class="kt">int</span><span class="w">          </span><span class="n">maj</span><span class="p">;</span><span class="w">    </span><span class="cm">/* major device number */</span>
+<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a><span class="w">        </span><span class="n">u_int</span><span class="w">        </span><span class="n">flags</span><span class="p">;</span><span class="w">  </span><span class="cm">/* D_XXX flags */</span>
+<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a><span class="w">        </span><span class="kt">void</span><span class="w">        </span><span class="o">*</span><span class="n">data</span><span class="p">;</span><span class="w">   </span><span class="cm">/* custom driver data */</span>
+<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a><span class="w">        </span><span class="kt">int</span><span class="w">          </span><span class="n">refs</span><span class="p">;</span><span class="w">   </span><span class="cm">/* ref count */</span>
+<a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a><span class="w">        </span><span class="kt">int</span><span class="w">          </span><span class="n">id</span><span class="p">;</span>
+<a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a><span class="w">    </span><span class="p">}</span><span class="w"> </span><span class="n">head</span><span class="p">;</span>
+<a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a>
+<a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a><span class="w">    </span><span class="n">d_default_t</span><span class="w">     </span><span class="o">*</span><span class="n">d_default</span><span class="p">;</span>
+<a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a><span class="w">    </span><span class="n">d_open_t</span><span class="w">        </span><span class="o">*</span><span class="n">d_open</span><span class="p">;</span>
+<a id="__codelineno-0-13" name="__codelineno-0-13" href="#__codelineno-0-13"></a><span class="w">    </span><span class="n">d_close_t</span><span class="w">       </span><span class="o">*</span><span class="n">d_close</span><span class="p">;</span>
+<a id="__codelineno-0-14" name="__codelineno-0-14" href="#__codelineno-0-14"></a><span class="w">    </span><span class="n">d_read_t</span><span class="w">        </span><span class="o">*</span><span class="n">d_read</span><span class="p">;</span>
+<a id="__codelineno-0-15" name="__codelineno-0-15" href="#__codelineno-0-15"></a><span class="w">    </span><span class="n">d_write_t</span><span class="w">       </span><span class="o">*</span><span class="n">d_write</span><span class="p">;</span>
+<a id="__codelineno-0-16" name="__codelineno-0-16" href="#__codelineno-0-16"></a><span class="w">    </span><span class="n">d_ioctl_t</span><span class="w">       </span><span class="o">*</span><span class="n">d_ioctl</span><span class="p">;</span>
+<a id="__codelineno-0-17" name="__codelineno-0-17" href="#__codelineno-0-17"></a><span class="w">    </span><span class="n">d_mmap_t</span><span class="w">        </span><span class="o">*</span><span class="n">d_mmap</span><span class="p">;</span>
+<a id="__codelineno-0-18" name="__codelineno-0-18" href="#__codelineno-0-18"></a><span class="w">    </span><span class="n">d_mmap_single_t</span><span class="w"> </span><span class="o">*</span><span class="n">d_mmap_single</span><span class="p">;</span>
+<a id="__codelineno-0-19" name="__codelineno-0-19" href="#__codelineno-0-19"></a><span class="w">    </span><span class="n">d_strategy_t</span><span class="w">    </span><span class="o">*</span><span class="n">d_strategy</span><span class="p">;</span>
+<a id="__codelineno-0-20" name="__codelineno-0-20" href="#__codelineno-0-20"></a><span class="w">    </span><span class="n">d_dump_t</span><span class="w">        </span><span class="o">*</span><span class="n">d_dump</span><span class="p">;</span>
+<a id="__codelineno-0-21" name="__codelineno-0-21" href="#__codelineno-0-21"></a><span class="w">    </span><span class="n">d_psize_t</span><span class="w">       </span><span class="o">*</span><span class="n">d_psize</span><span class="p">;</span>
+<a id="__codelineno-0-22" name="__codelineno-0-22" href="#__codelineno-0-22"></a><span class="w">    </span><span class="n">d_kqfilter_t</span><span class="w">    </span><span class="o">*</span><span class="n">d_kqfilter</span><span class="p">;</span>
+<a id="__codelineno-0-23" name="__codelineno-0-23" href="#__codelineno-0-23"></a><span class="w">    </span><span class="n">d_clone_t</span><span class="w">       </span><span class="o">*</span><span class="n">d_clone</span><span class="p">;</span>
+<a id="__codelineno-0-24" name="__codelineno-0-24" href="#__codelineno-0-24"></a><span class="w">    </span><span class="n">d_revoke_t</span><span class="w">      </span><span class="o">*</span><span class="n">d_revoke</span><span class="p">;</span>
+<a id="__codelineno-0-25" name="__codelineno-0-25" href="#__codelineno-0-25"></a><span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="p">(</span><span class="o">*</span><span class="n">d_uksmap</span><span class="p">)(...);</span>
+<a id="__codelineno-0-26" name="__codelineno-0-26" href="#__codelineno-0-26"></a><span class="p">};</span>
+</code></pre></div>
+<p>Defined in <code>sys/sys/device.h:229-257</code>.</p>
+<h3 id="device-flags-headflags">Device Flags (head.flags)<a class="headerlink" href="#device-flags-headflags" title="Permanent link">&para;</a></h3>
+<p><strong>Type flags</strong> (mutually exclusive):</p>
+<table>
+<thead>
+<tr>
+<th>Flag</th>
+<th>Value</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>D_TAPE</code></td>
+<td>0x0001</td>
+<td>Tape device</td>
+</tr>
+<tr>
+<td><code>D_DISK</code></td>
+<td>0x0002</td>
+<td>Disk device</td>
+</tr>
+<tr>
+<td><code>D_TTY</code></td>
+<td>0x0004</td>
+<td>Terminal device</td>
+</tr>
+<tr>
+<td><code>D_MEM</code></td>
+<td>0x0008</td>
+<td>Memory device</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Behavior flags:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Flag</th>
+<th>Value</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>D_MEMDISK</code></td>
+<td>0x00010000</td>
+<td>Memory-type disk</td>
+</tr>
+<tr>
+<td><code>D_CANFREE</code></td>
+<td>0x00040000</td>
+<td>Supports TRIM/free blocks</td>
+</tr>
+<tr>
+<td><code>D_TRACKCLOSE</code></td>
+<td>0x00080000</td>
+<td>Track all close calls</td>
+</tr>
+<tr>
+<td><code>D_MASTER</code></td>
+<td>0x00100000</td>
+<td>Used by pty/tty code</td>
+</tr>
+<tr>
+<td><code>D_NOEMERGPGR</code></td>
+<td>0x00200000</td>
+<td>Skip in emergency pager</td>
+</tr>
+<tr>
+<td><code>D_MPSAFE</code></td>
+<td>0x00400000</td>
+<td>All operations are MPSAFE</td>
+</tr>
+<tr>
+<td><code>D_KVABIO</code></td>
+<td>0x00800000</td>
+<td>Supports KVABIO API</td>
+</tr>
+<tr>
+<td><code>D_QUICK</code></td>
+<td>0x01000000</td>
+<td>No fancy open/close needed</td>
+</tr>
+</tbody>
+</table>
+<p>Defined in <code>sys/sys/device.h:263-287</code>.</p>
+<h3 id="cdev_t">cdev_t<a class="headerlink" href="#cdev_t" title="Permanent link">&para;</a></h3>
+<p>Opaque pointer to a device structure. The actual structure (<code>struct cdev</code>)
+is managed by devfs and contains:</p>
+<ul>
+<li><code>si_ops</code> - Pointer to <code>struct dev_ops</code></li>
+<li><code>si_umajor</code>, <code>si_uminor</code> - Major/minor numbers</li>
+<li><code>si_name</code> - Device name</li>
+<li><code>si_uid</code>, <code>si_gid</code>, <code>si_perms</code> - Ownership and permissions</li>
+<li><code>si_sysref</code> - Reference count</li>
+<li><code>si_track_read</code>, <code>si_track_write</code> - BIO tracking</li>
+<li><code>si_lastread</code>, <code>si_lastwrite</code> - Access timestamps</li>
+</ul>
+<h3 id="operation-argument-structures">Operation Argument Structures<a class="headerlink" href="#operation-argument-structures" title="Permanent link">&para;</a></h3>
+<p>Each device operation receives a typed argument structure derived from
+<code>struct dev_generic_args</code>:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="k">struct</span><span class="w"> </span><span class="nc">dev_generic_args</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="w">    </span><span class="k">struct</span><span class="w"> </span><span class="nc">syslink_desc</span><span class="w"> </span><span class="o">*</span><span class="n">a_desc</span><span class="p">;</span><span class="w">  </span><span class="cm">/* operation descriptor */</span>
+<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="w">    </span><span class="k">struct</span><span class="w"> </span><span class="nc">cdev</span><span class="w"> </span><span class="o">*</span><span class="n">a_dev</span><span class="p">;</span><span class="w">           </span><span class="cm">/* device pointer */</span>
+<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a><span class="p">};</span>
+</code></pre></div>
+<p><strong>Common argument structures:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Structure</th>
+<th>Operation</th>
+<th>Key Fields</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>dev_open_args</code></td>
+<td><code>d_open</code></td>
+<td><code>a_oflags</code>, <code>a_devtype</code>, <code>a_cred</code>, <code>a_fpp</code></td>
+</tr>
+<tr>
+<td><code>dev_close_args</code></td>
+<td><code>d_close</code></td>
+<td><code>a_fflag</code>, <code>a_devtype</code>, <code>a_fp</code></td>
+</tr>
+<tr>
+<td><code>dev_read_args</code></td>
+<td><code>d_read</code></td>
+<td><code>a_uio</code>, <code>a_ioflag</code>, <code>a_fp</code></td>
+</tr>
+<tr>
+<td><code>dev_write_args</code></td>
+<td><code>d_write</code></td>
+<td><code>a_uio</code>, <code>a_ioflag</code>, <code>a_fp</code></td>
+</tr>
+<tr>
+<td><code>dev_ioctl_args</code></td>
+<td><code>d_ioctl</code></td>
+<td><code>a_cmd</code>, <code>a_data</code>, <code>a_fflag</code>, <code>a_cred</code></td>
+</tr>
+<tr>
+<td><code>dev_strategy_args</code></td>
+<td><code>d_strategy</code></td>
+<td><code>a_bio</code></td>
+</tr>
+<tr>
+<td><code>dev_mmap_args</code></td>
+<td><code>d_mmap</code></td>
+<td><code>a_offset</code>, <code>a_nprot</code>, <code>a_result</code></td>
+</tr>
+<tr>
+<td><code>dev_dump_args</code></td>
+<td><code>d_dump</code></td>
+<td><code>a_virtual</code>, <code>a_physical</code>, <code>a_offset</code>, <code>a_length</code></td>
+</tr>
+<tr>
+<td><code>dev_psize_args</code></td>
+<td><code>d_psize</code></td>
+<td><code>a_result</code></td>
+</tr>
+</tbody>
+</table>
+<p>Defined in <code>sys/sys/device.h:59-204</code>.</p>
+<h2 id="device-creation">Device Creation<a class="headerlink" href="#device-creation" title="Permanent link">&para;</a></h2>
+<h3 id="make_dev">make_dev<a class="headerlink" href="#make_dev" title="Permanent link">&para;</a></h3>
+<p>Creates a device node visible in <code>/dev</code>:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="n">cdev_t</span><span class="w"> </span><span class="nf">make_dev</span><span class="p">(</span><span class="k">struct</span><span class="w"> </span><span class="nc">dev_ops</span><span class="w"> </span><span class="o">*</span><span class="n">ops</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">minor</span><span class="p">,</span>
+<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="w">                </span><span class="kt">uid_t</span><span class="w"> </span><span class="n">uid</span><span class="p">,</span><span class="w"> </span><span class="kt">gid_t</span><span class="w"> </span><span class="n">gid</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">perms</span><span class="p">,</span>
+<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="w">                </span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="n">fmt</span><span class="p">,</span><span class="w"> </span><span class="p">...);</span>
+</code></pre></div>
+<p><strong>Operation:</strong>
+1. Call <code>compile_dev_ops()</code> to fill in NULL handlers
+2. Create device via <code>devfs_new_cdev()</code>
+3. Format device name from <code>fmt</code> and varargs
+4. Create devfs entry via <code>devfs_create_dev()</code>
+5. Return unreferenced device pointer</p>
+<p>The returned <code>cdev_t</code> is an ad-hoc reference. Callers who store it
+long-term must call <code>reference_dev()</code>.</p>
+<p>See <code>sys/kern/kern_conf.c:188-211</code>.</p>
+<h3 id="make_dev_covering">make_dev_covering<a class="headerlink" href="#make_dev_covering" title="Permanent link">&para;</a></h3>
+<p>Creates a device that layers over another device:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="n">cdev_t</span><span class="w"> </span><span class="nf">make_dev_covering</span><span class="p">(</span><span class="k">struct</span><span class="w"> </span><span class="nc">dev_ops</span><span class="w"> </span><span class="o">*</span><span class="n">ops</span><span class="p">,</span><span class="w"> </span><span class="k">struct</span><span class="w"> </span><span class="nc">dev_ops</span><span class="w"> </span><span class="o">*</span><span class="n">bops</span><span class="p">,</span>
+<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="w">                         </span><span class="kt">int</span><span class="w"> </span><span class="n">minor</span><span class="p">,</span><span class="w"> </span><span class="kt">uid_t</span><span class="w"> </span><span class="n">uid</span><span class="p">,</span><span class="w"> </span><span class="kt">gid_t</span><span class="w"> </span><span class="n">gid</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">perms</span><span class="p">,</span>
+<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a><span class="w">                         </span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="n">fmt</span><span class="p">,</span><span class="w"> </span><span class="p">...);</span>
+</code></pre></div>
+<p>Used by disk label code to create partition devices that cover the
+base disk device.</p>
+<p>See <code>sys/kern/kern_conf.c:218-241</code>.</p>
+<h3 id="make_only_dev">make_only_dev<a class="headerlink" href="#make_only_dev" title="Permanent link">&para;</a></h3>
+<p>Creates a device without a devfs entry (internal use):</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="n">cdev_t</span><span class="w"> </span><span class="nf">make_only_dev</span><span class="p">(</span><span class="k">struct</span><span class="w"> </span><span class="nc">dev_ops</span><span class="w"> </span><span class="o">*</span><span class="n">ops</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">minor</span><span class="p">,</span>
+<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a><span class="w">                     </span><span class="kt">uid_t</span><span class="w"> </span><span class="n">uid</span><span class="p">,</span><span class="w"> </span><span class="kt">gid_t</span><span class="w"> </span><span class="n">gid</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">perms</span><span class="p">,</span>
+<a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a><span class="w">                     </span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="n">fmt</span><span class="p">,</span><span class="w"> </span><span class="p">...);</span>
+</code></pre></div>
+<p>Unlike <code>make_dev()</code>, this returns a referenced device.</p>
+<p>See <code>sys/kern/kern_conf.c:270-296</code>.</p>
+<h3 id="make_autoclone_dev">make_autoclone_dev<a class="headerlink" href="#make_autoclone_dev" title="Permanent link">&para;</a></h3>
+<p>Creates an auto-cloning device:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="n">cdev_t</span><span class="w"> </span><span class="nf">make_autoclone_dev</span><span class="p">(</span><span class="k">struct</span><span class="w"> </span><span class="nc">dev_ops</span><span class="w"> </span><span class="o">*</span><span class="n">ops</span><span class="p">,</span><span class="w"> </span><span class="k">struct</span><span class="w"> </span><span class="nc">devfs_bitmap</span><span class="w"> </span><span class="o">*</span><span class="n">bitmap</span><span class="p">,</span>
+<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a><span class="w">                          </span><span class="n">d_clone_t</span><span class="w"> </span><span class="o">*</span><span class="n">nhandler</span><span class="p">,</span><span class="w"> </span><span class="kt">uid_t</span><span class="w"> </span><span class="n">uid</span><span class="p">,</span><span class="w"> </span><span class="kt">gid_t</span><span class="w"> </span><span class="n">gid</span><span class="p">,</span>
+<a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a><span class="w">                          </span><span class="kt">int</span><span class="w"> </span><span class="n">perms</span><span class="p">,</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="n">fmt</span><span class="p">,</span><span class="w"> </span><span class="p">...);</span>
+</code></pre></div>
+<p><strong>Operation:</strong>
+1. Initialize clone bitmap (if provided)
+2. Register clone handler with devfs
+3. Create base device covering <code>default_dev_ops</code>
+4. Clone handler called on-demand for new instances</p>
+<p>Used for devices like <code>/dev/pty*</code> that create instances dynamically.</p>
+<p>See <code>sys/kern/kern_conf.c:407-427</code>.</p>
+<h2 id="device-destruction">Device Destruction<a class="headerlink" href="#device-destruction" title="Permanent link">&para;</a></h2>
+<h3 id="destroy_dev">destroy_dev<a class="headerlink" href="#destroy_dev" title="Permanent link">&para;</a></h3>
+<p>Destroys a device and revectors its ops to <code>dead_dev_ops</code>:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="kt">void</span><span class="w"> </span><span class="nf">destroy_dev</span><span class="p">(</span><span class="n">cdev_t</span><span class="w"> </span><span class="n">dev</span><span class="p">);</span>
+</code></pre></div>
+<p><strong>Important:</strong> The caller must hold a reference to the device. The ad-hoc
+reference from <code>make_dev()</code> is not sufficient:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="cm">/* Wrong: */</span>
+<a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a><span class="n">destroy_dev</span><span class="p">(</span><span class="n">make_dev</span><span class="p">(...));</span>
+<a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a>
+<a id="__codelineno-7-4" name="__codelineno-7-4" href="#__codelineno-7-4"></a><span class="cm">/* Correct: */</span>
+<a id="__codelineno-7-5" name="__codelineno-7-5" href="#__codelineno-7-5"></a><span class="n">cdev_t</span><span class="w"> </span><span class="n">dev</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">make_dev</span><span class="p">(...);</span>
+<a id="__codelineno-7-6" name="__codelineno-7-6" href="#__codelineno-7-6"></a><span class="n">reference_dev</span><span class="p">(</span><span class="n">dev</span><span class="p">);</span>
+<a id="__codelineno-7-7" name="__codelineno-7-7" href="#__codelineno-7-7"></a><span class="cm">/* ... use device ... */</span>
+<a id="__codelineno-7-8" name="__codelineno-7-8" href="#__codelineno-7-8"></a><span class="n">destroy_dev</span><span class="p">(</span><span class="n">dev</span><span class="p">);</span><span class="w">  </span><span class="cm">/* releases caller&#39;s reference + ad-hoc reference */</span>
+</code></pre></div>
+<p>See <code>sys/kern/kern_conf.c:345-354</code>.</p>
+<h3 id="sync_devs">sync_devs<a class="headerlink" href="#sync_devs" title="Permanent link">&para;</a></h3>
+<p>Synchronizes asynchronous disk and devfs operations:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a><span class="kt">void</span><span class="w"> </span><span class="nf">sync_devs</span><span class="p">(</span><span class="kt">void</span><span class="p">);</span>
+</code></pre></div>
+<p>Called before mountroot and on module unload to ensure all devices
+are fully probed and ops structures dereferenced.</p>
+<p>See <code>sys/kern/kern_conf.c:364-371</code>.</p>
+<h2 id="device-aliases">Device Aliases<a class="headerlink" href="#device-aliases" title="Permanent link">&para;</a></h2>
+<h3 id="make_dev_alias">make_dev_alias<a class="headerlink" href="#make_dev_alias" title="Permanent link">&para;</a></h3>
+<p>Creates a symbolic alias for an existing device:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a><span class="kt">int</span><span class="w"> </span><span class="nf">make_dev_alias</span><span class="p">(</span><span class="n">cdev_t</span><span class="w"> </span><span class="n">target</span><span class="p">,</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="n">fmt</span><span class="p">,</span><span class="w"> </span><span class="p">...);</span>
+</code></pre></div>
+<p>See <code>sys/kern/kern_conf.c:373-387</code>.</p>
+<h3 id="destroy_dev_alias">destroy_dev_alias<a class="headerlink" href="#destroy_dev_alias" title="Permanent link">&para;</a></h3>
+<p>Removes a device alias:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a><span class="kt">int</span><span class="w"> </span><span class="nf">destroy_dev_alias</span><span class="p">(</span><span class="n">cdev_t</span><span class="w"> </span><span class="n">target</span><span class="p">,</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="n">fmt</span><span class="p">,</span><span class="w"> </span><span class="p">...);</span>
+</code></pre></div>
+<p>See <code>sys/kern/kern_conf.c:389-403</code>.</p>
+<h2 id="reference-counting">Reference Counting<a class="headerlink" href="#reference-counting" title="Permanent link">&para;</a></h2>
+<p>Devices use sysref-based reference counting:</p>
+<h3 id="reference_dev">reference_dev<a class="headerlink" href="#reference_dev" title="Permanent link">&para;</a></h3>
+<p>Adds a reference to a device:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a><span class="n">cdev_t</span><span class="w"> </span><span class="nf">reference_dev</span><span class="p">(</span><span class="n">cdev_t</span><span class="w"> </span><span class="n">dev</span><span class="p">);</span>
+</code></pre></div>
+<p>Returns the device pointer for convenience. Callers storing device
+pointers long-term should call this to prevent premature destruction.</p>
+<p>See <code>sys/kern/kern_conf.c:453-467</code>.</p>
+<h3 id="release_dev">release_dev<a class="headerlink" href="#release_dev" title="Permanent link">&para;</a></h3>
+<p>Releases a device reference:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a><span class="kt">void</span><span class="w"> </span><span class="nf">release_dev</span><span class="p">(</span><span class="n">cdev_t</span><span class="w"> </span><span class="n">dev</span><span class="p">);</span>
+</code></pre></div>
+<p>The device is freed when the last reference is released.</p>
+<p>See <code>sys/kern/kern_conf.c:476-484</code>.</p>
+<h2 id="device-operations-dispatch">Device Operations Dispatch<a class="headerlink" href="#device-operations-dispatch" title="Permanent link">&para;</a></h2>
+<p>The <code>dev_d*()</code> functions in <code>kern_device.c</code> dispatch operations to
+drivers while handling MPSAFE and KVABIO requirements.</p>
+<h3 id="mpsafe-handling">MPSAFE Handling<a class="headerlink" href="#mpsafe-handling" title="Permanent link">&para;</a></h3>
+<p>Each dispatch function checks the <code>D_MPSAFE</code> flag:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a><span class="k">static</span><span class="w"> </span><span class="kr">__inline</span><span class="w"> </span><span class="kt">int</span>
+<a id="__codelineno-13-2" name="__codelineno-13-2" href="#__codelineno-13-2"></a><span class="nf">dev_needmplock</span><span class="p">(</span><span class="n">cdev_t</span><span class="w"> </span><span class="n">dev</span><span class="p">)</span>
+<a id="__codelineno-13-3" name="__codelineno-13-3" href="#__codelineno-13-3"></a><span class="p">{</span>
+<a id="__codelineno-13-4" name="__codelineno-13-4" href="#__codelineno-13-4"></a><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="p">((</span><span class="n">dev</span><span class="o">-&gt;</span><span class="n">si_ops</span><span class="o">-&gt;</span><span class="n">head</span><span class="p">.</span><span class="n">flags</span><span class="w"> </span><span class="o">&amp;</span><span class="w"> </span><span class="n">D_MPSAFE</span><span class="p">)</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">0</span><span class="p">);</span>
+<a id="__codelineno-13-5" name="__codelineno-13-5" href="#__codelineno-13-5"></a><span class="p">}</span>
+</code></pre></div>
+<p>If the device is not MPSAFE, the dispatch function acquires/releases
+the big kernel lock:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-14-1" name="__codelineno-14-1" href="#__codelineno-14-1"></a><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">needmplock</span><span class="p">)</span>
+<a id="__codelineno-14-2" name="__codelineno-14-2" href="#__codelineno-14-2"></a><span class="w">    </span><span class="n">get_mplock</span><span class="p">();</span>
+<a id="__codelineno-14-3" name="__codelineno-14-3" href="#__codelineno-14-3"></a><span class="n">error</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">dev</span><span class="o">-&gt;</span><span class="n">si_ops</span><span class="o">-&gt;</span><span class="n">d_open</span><span class="p">(</span><span class="o">&amp;</span><span class="n">ap</span><span class="p">);</span>
+<a id="__codelineno-14-4" name="__codelineno-14-4" href="#__codelineno-14-4"></a><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">needmplock</span><span class="p">)</span>
+<a id="__codelineno-14-5" name="__codelineno-14-5" href="#__codelineno-14-5"></a><span class="w">    </span><span class="n">rel_mplock</span><span class="p">();</span>
+</code></pre></div>
+<p>See <code>sys/kern/kern_device.c:117-122</code>.</p>
+<h3 id="kvabio-handling">KVABIO Handling<a class="headerlink" href="#kvabio-handling" title="Permanent link">&para;</a></h3>
+<p>For strategy operations, if the device doesn't support KVABIO but
+the buffer uses it, data is synchronized to all CPUs:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-15-1" name="__codelineno-15-1" href="#__codelineno-15-1"></a><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">dev_nokvabio</span><span class="p">(</span><span class="n">dev</span><span class="p">)</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="p">(</span><span class="n">bp</span><span class="o">-&gt;</span><span class="n">b_flags</span><span class="w"> </span><span class="o">&amp;</span><span class="w"> </span><span class="n">B_KVABIO</span><span class="p">))</span>
+<a id="__codelineno-15-2" name="__codelineno-15-2" href="#__codelineno-15-2"></a><span class="w">    </span><span class="n">bkvasync_all</span><span class="p">(</span><span class="n">bp</span><span class="p">);</span>
+</code></pre></div>
+<p>See <code>sys/kern/kern_device.c:366-367</code>.</p>
+<h3 id="dev_dopen">dev_dopen<a class="headerlink" href="#dev_dopen" title="Permanent link">&para;</a></h3>
+<p>Opens a device:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-16-1" name="__codelineno-16-1" href="#__codelineno-16-1"></a><span class="kt">int</span><span class="w"> </span><span class="nf">dev_dopen</span><span class="p">(</span><span class="n">cdev_t</span><span class="w"> </span><span class="n">dev</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">oflags</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">devtype</span><span class="p">,</span>
+<a id="__codelineno-16-2" name="__codelineno-16-2" href="#__codelineno-16-2"></a><span class="w">              </span><span class="k">struct</span><span class="w"> </span><span class="nc">ucred</span><span class="w"> </span><span class="o">*</span><span class="n">cred</span><span class="p">,</span><span class="w"> </span><span class="k">struct</span><span class="w"> </span><span class="nc">file</span><span class="w"> </span><span class="o">**</span><span class="n">fpp</span><span class="p">,</span><span class="w"> </span><span class="k">struct</span><span class="w"> </span><span class="nc">vnode</span><span class="w"> </span><span class="o">*</span><span class="n">vp</span><span class="p">);</span>
+</code></pre></div>
+<p>The <code>fpp</code> parameter allows the driver to replace the file pointer
+during open (used by some devices for per-open state).</p>
+<p>See <code>sys/kern/kern_device.c:137-168</code>.</p>
+<h3 id="dev_dstrategy">dev_dstrategy<a class="headerlink" href="#dev_dstrategy" title="Permanent link">&para;</a></h3>
+<p>Issues I/O to a device:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-17-1" name="__codelineno-17-1" href="#__codelineno-17-1"></a><span class="kt">void</span><span class="w"> </span><span class="nf">dev_dstrategy</span><span class="p">(</span><span class="n">cdev_t</span><span class="w"> </span><span class="n">dev</span><span class="p">,</span><span class="w"> </span><span class="k">struct</span><span class="w"> </span><span class="nc">bio</span><span class="w"> </span><span class="o">*</span><span class="n">bio</span><span class="p">);</span>
+</code></pre></div>
+<p><strong>Operation:</strong>
+1. Handle KVABIO synchronization if needed
+2. Select read or write tracking based on <code>bio-&gt;bio_buf-&gt;b_cmd</code>
+3. Reference the appropriate <code>bio_track</code>
+4. Call <code>dsched_buf_enter()</code> for disk scheduling
+5. Dispatch to driver's <code>d_strategy</code></p>
+<p>The BIO tracking allows <code>sync_devs()</code> to wait for outstanding I/O.</p>
+<p>See <code>sys/kern/kern_device.c:354-389</code>.</p>
+<h3 id="dev_dstrategy_chain">dev_dstrategy_chain<a class="headerlink" href="#dev_dstrategy_chain" title="Permanent link">&para;</a></h3>
+<p>Chained strategy call (reuses existing BIO setup):</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-18-1" name="__codelineno-18-1" href="#__codelineno-18-1"></a><span class="kt">void</span><span class="w"> </span><span class="nf">dev_dstrategy_chain</span><span class="p">(</span><span class="n">cdev_t</span><span class="w"> </span><span class="n">dev</span><span class="p">,</span><span class="w"> </span><span class="k">struct</span><span class="w"> </span><span class="nc">bio</span><span class="w"> </span><span class="o">*</span><span class="n">bio</span><span class="p">);</span>
+</code></pre></div>
+<p>Used when forwarding I/O through device layers. Unlike <code>dev_dstrategy()</code>,
+it doesn't add new tracking.</p>
+<p>See <code>sys/kern/kern_device.c:391-416</code>.</p>
+<h3 id="dev_dpsize">dev_dpsize<a class="headerlink" href="#dev_dpsize" title="Permanent link">&para;</a></h3>
+<p>Gets device/partition size:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-19-1" name="__codelineno-19-1" href="#__codelineno-19-1"></a><span class="kt">int64_t</span><span class="w"> </span><span class="nf">dev_dpsize</span><span class="p">(</span><span class="n">cdev_t</span><span class="w"> </span><span class="n">dev</span><span class="p">);</span>
+</code></pre></div>
+<p>Returns the size in device blocks, or -1 on error.</p>
+<p>See <code>sys/kern/kern_device.c:448-467</code>.</p>
+<h2 id="operation-compilation">Operation Compilation<a class="headerlink" href="#operation-compilation" title="Permanent link">&para;</a></h2>
+<h3 id="compile_dev_ops">compile_dev_ops<a class="headerlink" href="#compile_dev_ops" title="Permanent link">&para;</a></h3>
+<p>Fills in NULL operation pointers with defaults:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-20-1" name="__codelineno-20-1" href="#__codelineno-20-1"></a><span class="kt">void</span><span class="w"> </span><span class="nf">compile_dev_ops</span><span class="p">(</span><span class="k">struct</span><span class="w"> </span><span class="nc">dev_ops</span><span class="w"> </span><span class="o">*</span><span class="n">ops</span><span class="p">);</span>
+</code></pre></div>
+<p>For each NULL function pointer:
+- If <code>d_default</code> is set, use that
+- Otherwise, use the corresponding function from <code>default_dev_ops</code></p>
+<p>Called automatically by <code>make_dev()</code> and related functions.</p>
+<p>See <code>sys/kern/kern_device.c:588-606</code>.</p>
+<h3 id="default_dev_ops">default_dev_ops<a class="headerlink" href="#default_dev_ops" title="Permanent link">&para;</a></h3>
+<p>Default operations that return <code>ENODEV</code> for most calls:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-21-1" name="__codelineno-21-1" href="#__codelineno-21-1"></a><span class="k">struct</span><span class="w"> </span><span class="nc">dev_ops</span><span class="w"> </span><span class="n">default_dev_ops</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-21-2" name="__codelineno-21-2" href="#__codelineno-21-2"></a><span class="w">    </span><span class="p">{</span><span class="w"> </span><span class="s">&quot;null&quot;</span><span class="w"> </span><span class="p">},</span>
+<a id="__codelineno-21-3" name="__codelineno-21-3" href="#__codelineno-21-3"></a><span class="w">    </span><span class="p">.</span><span class="n">d_default</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">NULL</span><span class="p">,</span>
+<a id="__codelineno-21-4" name="__codelineno-21-4" href="#__codelineno-21-4"></a><span class="w">    </span><span class="p">.</span><span class="n">d_open</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">noopen</span><span class="p">,</span><span class="w">      </span><span class="cm">/* returns ENODEV */</span>
+<a id="__codelineno-21-5" name="__codelineno-21-5" href="#__codelineno-21-5"></a><span class="w">    </span><span class="p">.</span><span class="n">d_close</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">noclose</span><span class="p">,</span><span class="w">    </span><span class="cm">/* returns ENODEV */</span>
+<a id="__codelineno-21-6" name="__codelineno-21-6" href="#__codelineno-21-6"></a><span class="w">    </span><span class="p">.</span><span class="n">d_read</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">noread</span><span class="p">,</span><span class="w">      </span><span class="cm">/* returns ENODEV */</span>
+<a id="__codelineno-21-7" name="__codelineno-21-7" href="#__codelineno-21-7"></a><span class="w">    </span><span class="p">...</span>
+<a id="__codelineno-21-8" name="__codelineno-21-8" href="#__codelineno-21-8"></a><span class="p">};</span>
+</code></pre></div>
+<p>See <code>sys/kern/kern_device.c:99-115</code>.</p>
+<h3 id="dead_dev_ops">dead_dev_ops<a class="headerlink" href="#dead_dev_ops" title="Permanent link">&para;</a></h3>
+<p>Operations for destroyed devices. When a device is destroyed, its
+<code>si_ops</code> is revectored to point here.</p>
+<p>See <code>sys/kern/kern_device.c:83</code>.</p>
+<h2 id="operation-interception">Operation Interception<a class="headerlink" href="#operation-interception" title="Permanent link">&para;</a></h2>
+<h3 id="dev_ops_intercept">dev_ops_intercept<a class="headerlink" href="#dev_ops_intercept" title="Permanent link">&para;</a></h3>
+<p>Intercepts device operations (used by console code):</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-22-1" name="__codelineno-22-1" href="#__codelineno-22-1"></a><span class="k">struct</span><span class="w"> </span><span class="nc">dev_ops</span><span class="w"> </span><span class="o">*</span><span class="n">dev_ops_intercept</span><span class="p">(</span><span class="n">cdev_t</span><span class="w"> </span><span class="n">dev</span><span class="p">,</span><span class="w"> </span><span class="k">struct</span><span class="w"> </span><span class="nc">dev_ops</span><span class="w"> </span><span class="o">*</span><span class="n">iops</span><span class="p">);</span>
+</code></pre></div>
+<p><strong>Operation:</strong>
+1. Save original ops
+2. Copy major, data, and flags to interceptor ops
+3. Replace device's ops with interceptor
+4. Set <code>SI_INTERCEPTED</code> flag
+5. Return original ops</p>
+<p>See <code>sys/kern/kern_device.c:654-667</code>.</p>
+<h3 id="dev_ops_restore">dev_ops_restore<a class="headerlink" href="#dev_ops_restore" title="Permanent link">&para;</a></h3>
+<p>Restores original operations after interception:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-23-1" name="__codelineno-23-1" href="#__codelineno-23-1"></a><span class="kt">void</span><span class="w"> </span><span class="nf">dev_ops_restore</span><span class="p">(</span><span class="n">cdev_t</span><span class="w"> </span><span class="n">dev</span><span class="p">,</span><span class="w"> </span><span class="k">struct</span><span class="w"> </span><span class="nc">dev_ops</span><span class="w"> </span><span class="o">*</span><span class="n">oops</span><span class="p">);</span>
+</code></pre></div>
+<p>See <code>sys/kern/kern_device.c:669-679</code>.</p>
+<h2 id="major-number-management">Major Number Management<a class="headerlink" href="#major-number-management" title="Permanent link">&para;</a></h2>
+<p>Major numbers are tracked in a red-black tree for efficient lookup:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-24-1" name="__codelineno-24-1" href="#__codelineno-24-1"></a><span class="k">struct</span><span class="w"> </span><span class="nc">dev_ops_rb_tree</span><span class="w"> </span><span class="n">dev_ops_rbhead</span><span class="p">;</span>
+</code></pre></div>
+<p>The tree maps major numbers to <code>struct dev_ops_maj</code> entries, which
+link to the associated <code>dev_ops</code> structures.</p>
+<p>See <code>sys/kern/kern_device.c:638-640</code>.</p>
+<h2 id="device-number-primitives">Device Number Primitives<a class="headerlink" href="#device-number-primitives" title="Permanent link">&para;</a></h2>
+<h3 id="major-minor">major / minor<a class="headerlink" href="#major-minor" title="Permanent link">&para;</a></h3>
+<p>Extract major/minor numbers from a device:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-25-1" name="__codelineno-25-1" href="#__codelineno-25-1"></a><span class="kt">int</span><span class="w"> </span><span class="nf">major</span><span class="p">(</span><span class="n">cdev_t</span><span class="w"> </span><span class="n">dev</span><span class="p">);</span>
+<a id="__codelineno-25-2" name="__codelineno-25-2" href="#__codelineno-25-2"></a><span class="kt">int</span><span class="w"> </span><span class="nf">minor</span><span class="p">(</span><span class="n">cdev_t</span><span class="w"> </span><span class="n">dev</span><span class="p">);</span>
+</code></pre></div>
+<p>Note: Major number comes from <code>si_umajor</code>, not <code>si_ops</code>, because
+<code>si_ops</code> may be replaced when a device is destroyed.</p>
+<p>See <code>sys/kern/kern_conf.c:61-75</code>.</p>
+<h3 id="devid_from_dev-dev_from_devid">devid_from_dev / dev_from_devid<a class="headerlink" href="#devid_from_dev-dev_from_devid" title="Permanent link">&para;</a></h3>
+<p>Convert between <code>cdev_t</code> and old-style <code>dev_t</code>:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-26-1" name="__codelineno-26-1" href="#__codelineno-26-1"></a><span class="kt">dev_t</span><span class="w"> </span><span class="nf">devid_from_dev</span><span class="p">(</span><span class="n">cdev_t</span><span class="w"> </span><span class="n">dev</span><span class="p">);</span>
+<a id="__codelineno-26-2" name="__codelineno-26-2" href="#__codelineno-26-2"></a><span class="n">cdev_t</span><span class="w"> </span><span class="nf">dev_from_devid</span><span class="p">(</span><span class="kt">dev_t</span><span class="w"> </span><span class="n">x</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">b</span><span class="p">);</span>
+</code></pre></div>
+<p>The <code>dev_from_devid()</code> function looks up the device through devfs.</p>
+<p>See <code>sys/kern/kern_conf.c:99-124</code>.</p>
+<h3 id="dev_is_good">dev_is_good<a class="headerlink" href="#dev_is_good" title="Permanent link">&para;</a></h3>
+<p>Check if a device is valid (not dead):</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-27-1" name="__codelineno-27-1" href="#__codelineno-27-1"></a><span class="kt">int</span><span class="w"> </span><span class="nf">dev_is_good</span><span class="p">(</span><span class="n">cdev_t</span><span class="w"> </span><span class="n">dev</span><span class="p">);</span>
+</code></pre></div>
+<p>Returns 1 if the device exists and its ops is not <code>dead_dev_ops</code>.</p>
+<p>See <code>sys/kern/kern_conf.c:126-132</code>.</p>
+<h2 id="helper-functions">Helper Functions<a class="headerlink" href="#helper-functions" title="Permanent link">&para;</a></h2>
+<h3 id="devtoname">devtoname<a class="headerlink" href="#devtoname" title="Permanent link">&para;</a></h3>
+<p>Gets the device name:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-28-1" name="__codelineno-28-1" href="#__codelineno-28-1"></a><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="nf">devtoname</span><span class="p">(</span><span class="n">cdev_t</span><span class="w"> </span><span class="n">dev</span><span class="p">);</span>
+</code></pre></div>
+<p>Returns the device name, or constructs one from major/minor if
+no name is set.</p>
+<p>See <code>sys/kern/kern_conf.c:486-512</code>.</p>
+<h3 id="dev_dname-dev_dflags-dev_dmaj">dev_dname / dev_dflags / dev_dmaj<a class="headerlink" href="#dev_dname-dev_dflags-dev_dmaj" title="Permanent link">&para;</a></h3>
+<p>Quick accessors for device properties:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-29-1" name="__codelineno-29-1" href="#__codelineno-29-1"></a><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="nf">dev_dname</span><span class="p">(</span><span class="n">cdev_t</span><span class="w"> </span><span class="n">dev</span><span class="p">);</span><span class="w">   </span><span class="cm">/* ops-&gt;head.name */</span>
+<a id="__codelineno-29-2" name="__codelineno-29-2" href="#__codelineno-29-2"></a><span class="kt">int</span><span class="w"> </span><span class="nf">dev_dflags</span><span class="p">(</span><span class="n">cdev_t</span><span class="w"> </span><span class="n">dev</span><span class="p">);</span><span class="w">          </span><span class="cm">/* ops-&gt;head.flags */</span>
+<a id="__codelineno-29-3" name="__codelineno-29-3" href="#__codelineno-29-3"></a><span class="kt">int</span><span class="w"> </span><span class="nf">dev_dmaj</span><span class="p">(</span><span class="n">cdev_t</span><span class="w"> </span><span class="n">dev</span><span class="p">);</span><span class="w">            </span><span class="cm">/* ops-&gt;head.maj */</span>
+</code></pre></div>
+<p>See <code>sys/kern/kern_device.c:515-537</code>.</p>
+<h3 id="dev_drefs">dev_drefs<a class="headerlink" href="#dev_drefs" title="Permanent link">&para;</a></h3>
+<p>Gets the reference count:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-30-1" name="__codelineno-30-1" href="#__codelineno-30-1"></a><span class="kt">int</span><span class="w"> </span><span class="nf">dev_drefs</span><span class="p">(</span><span class="n">cdev_t</span><span class="w"> </span><span class="n">dev</span><span class="p">);</span>
+</code></pre></div>
+<p>See <code>sys/kern/kern_device.c:506-510</code>.</p>
+<h2 id="debugging">Debugging<a class="headerlink" href="#debugging" title="Permanent link">&para;</a></h2>
+<h3 id="debugdev_refs">debug.dev_refs<a class="headerlink" href="#debugdev_refs" title="Permanent link">&para;</a></h3>
+<p>Sysctl to enable device reference debugging:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-31-1" name="__codelineno-31-1" href="#__codelineno-31-1"></a>sysctl debug.dev_refs=2
+</code></pre></div>
+<p>When set to 2, prints reference/release messages with device name
+and reference count.</p>
+<p>See <code>sys/kern/kern_conf.c:52-54</code>.</p>
+<h2 id="example-simple-character-device">Example: Simple Character Device<a class="headerlink" href="#example-simple-character-device" title="Permanent link">&para;</a></h2>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-32-1" name="__codelineno-32-1" href="#__codelineno-32-1"></a><span class="k">static</span><span class="w"> </span><span class="n">d_open_t</span><span class="w">     </span><span class="n">mydev_open</span><span class="p">;</span>
+<a id="__codelineno-32-2" name="__codelineno-32-2" href="#__codelineno-32-2"></a><span class="k">static</span><span class="w"> </span><span class="n">d_close_t</span><span class="w">    </span><span class="n">mydev_close</span><span class="p">;</span>
+<a id="__codelineno-32-3" name="__codelineno-32-3" href="#__codelineno-32-3"></a><span class="k">static</span><span class="w"> </span><span class="n">d_read_t</span><span class="w">     </span><span class="n">mydev_read</span><span class="p">;</span>
+<a id="__codelineno-32-4" name="__codelineno-32-4" href="#__codelineno-32-4"></a><span class="k">static</span><span class="w"> </span><span class="n">d_write_t</span><span class="w">    </span><span class="n">mydev_write</span><span class="p">;</span>
+<a id="__codelineno-32-5" name="__codelineno-32-5" href="#__codelineno-32-5"></a>
+<a id="__codelineno-32-6" name="__codelineno-32-6" href="#__codelineno-32-6"></a><span class="k">static</span><span class="w"> </span><span class="k">struct</span><span class="w"> </span><span class="nc">dev_ops</span><span class="w"> </span><span class="n">mydev_ops</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-32-7" name="__codelineno-32-7" href="#__codelineno-32-7"></a><span class="w">    </span><span class="p">{</span><span class="w"> </span><span class="s">&quot;mydev&quot;</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="n">D_MPSAFE</span><span class="w"> </span><span class="p">},</span>
+<a id="__codelineno-32-8" name="__codelineno-32-8" href="#__codelineno-32-8"></a><span class="w">    </span><span class="p">.</span><span class="n">d_open</span><span class="w"> </span><span class="o">=</span><span class="w">   </span><span class="n">mydev_open</span><span class="p">,</span>
+<a id="__codelineno-32-9" name="__codelineno-32-9" href="#__codelineno-32-9"></a><span class="w">    </span><span class="p">.</span><span class="n">d_close</span><span class="w"> </span><span class="o">=</span><span class="w">  </span><span class="n">mydev_close</span><span class="p">,</span>
+<a id="__codelineno-32-10" name="__codelineno-32-10" href="#__codelineno-32-10"></a><span class="w">    </span><span class="p">.</span><span class="n">d_read</span><span class="w"> </span><span class="o">=</span><span class="w">   </span><span class="n">mydev_read</span><span class="p">,</span>
+<a id="__codelineno-32-11" name="__codelineno-32-11" href="#__codelineno-32-11"></a><span class="w">    </span><span class="p">.</span><span class="n">d_write</span><span class="w"> </span><span class="o">=</span><span class="w">  </span><span class="n">mydev_write</span><span class="p">,</span>
+<a id="__codelineno-32-12" name="__codelineno-32-12" href="#__codelineno-32-12"></a><span class="p">};</span>
+<a id="__codelineno-32-13" name="__codelineno-32-13" href="#__codelineno-32-13"></a>
+<a id="__codelineno-32-14" name="__codelineno-32-14" href="#__codelineno-32-14"></a><span class="k">static</span><span class="w"> </span><span class="kt">int</span>
+<a id="__codelineno-32-15" name="__codelineno-32-15" href="#__codelineno-32-15"></a><span class="nf">mydev_open</span><span class="p">(</span><span class="k">struct</span><span class="w"> </span><span class="nc">dev_open_args</span><span class="w"> </span><span class="o">*</span><span class="n">ap</span><span class="p">)</span>
+<a id="__codelineno-32-16" name="__codelineno-32-16" href="#__codelineno-32-16"></a><span class="p">{</span>
+<a id="__codelineno-32-17" name="__codelineno-32-17" href="#__codelineno-32-17"></a><span class="w">    </span><span class="cm">/* ap-&gt;a_head.a_dev is the device */</span>
+<a id="__codelineno-32-18" name="__codelineno-32-18" href="#__codelineno-32-18"></a><span class="w">    </span><span class="cm">/* ap-&gt;a_oflags has open flags */</span>
+<a id="__codelineno-32-19" name="__codelineno-32-19" href="#__codelineno-32-19"></a><span class="w">    </span><span class="cm">/* ap-&gt;a_cred has credentials */</span>
+<a id="__codelineno-32-20" name="__codelineno-32-20" href="#__codelineno-32-20"></a><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+<a id="__codelineno-32-21" name="__codelineno-32-21" href="#__codelineno-32-21"></a><span class="p">}</span>
+<a id="__codelineno-32-22" name="__codelineno-32-22" href="#__codelineno-32-22"></a>
+<a id="__codelineno-32-23" name="__codelineno-32-23" href="#__codelineno-32-23"></a><span class="k">static</span><span class="w"> </span><span class="kt">int</span>
+<a id="__codelineno-32-24" name="__codelineno-32-24" href="#__codelineno-32-24"></a><span class="nf">mydev_read</span><span class="p">(</span><span class="k">struct</span><span class="w"> </span><span class="nc">dev_read_args</span><span class="w"> </span><span class="o">*</span><span class="n">ap</span><span class="p">)</span>
+<a id="__codelineno-32-25" name="__codelineno-32-25" href="#__codelineno-32-25"></a><span class="p">{</span>
+<a id="__codelineno-32-26" name="__codelineno-32-26" href="#__codelineno-32-26"></a><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">uiomove</span><span class="p">(</span><span class="n">data</span><span class="p">,</span><span class="w"> </span><span class="n">len</span><span class="p">,</span><span class="w"> </span><span class="n">ap</span><span class="o">-&gt;</span><span class="n">a_uio</span><span class="p">);</span>
+<a id="__codelineno-32-27" name="__codelineno-32-27" href="#__codelineno-32-27"></a><span class="p">}</span>
+<a id="__codelineno-32-28" name="__codelineno-32-28" href="#__codelineno-32-28"></a>
+<a id="__codelineno-32-29" name="__codelineno-32-29" href="#__codelineno-32-29"></a><span class="cm">/* Module init */</span>
+<a id="__codelineno-32-30" name="__codelineno-32-30" href="#__codelineno-32-30"></a><span class="k">static</span><span class="w"> </span><span class="kt">int</span>
+<a id="__codelineno-32-31" name="__codelineno-32-31" href="#__codelineno-32-31"></a><span class="nf">mydev_modevent</span><span class="p">(</span><span class="n">module_t</span><span class="w"> </span><span class="n">mod</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">type</span><span class="p">,</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="o">*</span><span class="n">data</span><span class="p">)</span>
+<a id="__codelineno-32-32" name="__codelineno-32-32" href="#__codelineno-32-32"></a><span class="p">{</span>
+<a id="__codelineno-32-33" name="__codelineno-32-33" href="#__codelineno-32-33"></a><span class="w">    </span><span class="k">static</span><span class="w"> </span><span class="n">cdev_t</span><span class="w"> </span><span class="n">dev</span><span class="p">;</span>
+<a id="__codelineno-32-34" name="__codelineno-32-34" href="#__codelineno-32-34"></a>
+<a id="__codelineno-32-35" name="__codelineno-32-35" href="#__codelineno-32-35"></a><span class="w">    </span><span class="k">switch</span><span class="w"> </span><span class="p">(</span><span class="n">type</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-32-36" name="__codelineno-32-36" href="#__codelineno-32-36"></a><span class="w">    </span><span class="k">case</span><span class="w"> </span><span class="no">MOD_LOAD</span><span class="p">:</span>
+<a id="__codelineno-32-37" name="__codelineno-32-37" href="#__codelineno-32-37"></a><span class="w">        </span><span class="n">dev</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">make_dev</span><span class="p">(</span><span class="o">&amp;</span><span class="n">mydev_ops</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="n">UID_ROOT</span><span class="p">,</span><span class="w"> </span><span class="n">GID_WHEEL</span><span class="p">,</span>
+<a id="__codelineno-32-38" name="__codelineno-32-38" href="#__codelineno-32-38"></a><span class="w">                       </span><span class="mo">0600</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;mydev&quot;</span><span class="p">);</span>
+<a id="__codelineno-32-39" name="__codelineno-32-39" href="#__codelineno-32-39"></a><span class="w">        </span><span class="n">reference_dev</span><span class="p">(</span><span class="n">dev</span><span class="p">);</span>
+<a id="__codelineno-32-40" name="__codelineno-32-40" href="#__codelineno-32-40"></a><span class="w">        </span><span class="k">break</span><span class="p">;</span>
+<a id="__codelineno-32-41" name="__codelineno-32-41" href="#__codelineno-32-41"></a><span class="w">    </span><span class="k">case</span><span class="w"> </span><span class="no">MOD_UNLOAD</span><span class="p">:</span>
+<a id="__codelineno-32-42" name="__codelineno-32-42" href="#__codelineno-32-42"></a><span class="w">        </span><span class="n">destroy_dev</span><span class="p">(</span><span class="n">dev</span><span class="p">);</span>
+<a id="__codelineno-32-43" name="__codelineno-32-43" href="#__codelineno-32-43"></a><span class="w">        </span><span class="k">break</span><span class="p">;</span>
+<a id="__codelineno-32-44" name="__codelineno-32-44" href="#__codelineno-32-44"></a><span class="w">    </span><span class="p">}</span>
+<a id="__codelineno-32-45" name="__codelineno-32-45" href="#__codelineno-32-45"></a><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+<a id="__codelineno-32-46" name="__codelineno-32-46" href="#__codelineno-32-46"></a><span class="p">}</span>
+</code></pre></div>
+<h2 id="cross-references">Cross-References<a class="headerlink" href="#cross-references" title="Permanent link">&para;</a></h2>
+<ul>
+<li><a href="../newbus/">NewBus Framework</a> - Device/driver attachment model</li>
+<li><a href="disk.md">Disk Layer</a> - Block device and partition handling</li>
+<li><a href="../vfs/buffer-cache/">Buffer Cache</a> - BIO and buffer management</li>
+<li><a href="../lwkt/">LWKT</a> - Threading and MPSAFE concepts</li>
+</ul>
 
 
 

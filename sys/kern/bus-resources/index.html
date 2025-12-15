@@ -1,0 +1,3781 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Comprehensive documentation for the DragonFly BSD kernel source code">
+      
+      
+        <meta name="author" content="DragonFly BSD Community">
+      
+      
+      
+        <link rel="prev" href="../newbus/">
+      
+      
+        <link rel="next" href="../syscalls/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.0">
+    
+    
+      
+        <title>Bus Resources & DMA - DragonFly BSD Kernel Documentation</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.618322db.min.css">
+      
+        
+        <link rel="stylesheet" href="../../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#bus-resource-management-and-dma" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../../.." title="DragonFly BSD Kernel Documentation" class="md-header__button md-logo" aria-label="DragonFly BSD Kernel Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            DragonFly BSD Kernel Documentation
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Bus Resources & DMA
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/tuxillo/dragonflybsd-source-docs" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    tuxillo/dragonflybsd-source-docs
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../.." class="md-tabs__link">
+        
+  
+  
+    
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../getting-started/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Getting Started
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+    
+  
+  
+    
+    
+      <li class="md-tabs__item md-tabs__item--active">
+        <a href="../../" class="md-tabs__link">
+          
+  
+  
+  Kernel Subsystems
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../.." title="DragonFly BSD Kernel Documentation" class="md-nav__button md-logo" aria-label="DragonFly BSD Kernel Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    DragonFly BSD Kernel Documentation
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/tuxillo/dragonflybsd-source-docs" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    tuxillo/dragonflybsd-source-docs
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../getting-started/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Getting Started
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Kernel Subsystems
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Kernel Subsystems
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+          
+          
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_2" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_3_2" id="__nav_3_2_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    kern/
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_2_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_3_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    kern/
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../lwkt/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    LWKT Threading
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../synchronization/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Synchronization
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../time/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Time & Timers
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../memory/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Memory Management
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../initialization/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Initialization & Bootstrap
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../processes/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Processes & Threads
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../resources/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Process Resources & Credentials
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../signals/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Signals
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../scheduling/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Scheduling
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_3_2_11" >
+        
+          
+          <label class="md-nav__link" for="__nav_3_2_11" id="__nav_3_2_11_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Virtual Filesystem
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_3_2_11_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_2_11">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Virtual Filesystem
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../vfs/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../vfs/namecache/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Name Lookup & Caching
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../vfs/mounting/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Mounting & Unmounting
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../vfs/buffer-cache/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Buffer Cache & I/O
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../vfs/vfs-operations/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    VFS Operations Framework
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../vfs/journaling/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Journaling System
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../vfs/vfs-locking/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Vnode Locking & Lifecycle
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../vfs/vfs-extensions/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    VFS Extensions & Helpers
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_3_2_12" >
+        
+          
+          <label class="md-nav__link" for="__nav_3_2_12" id="__nav_3_2_12_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    IPC & Sockets
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_3_2_12_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_2_12">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    IPC & Sockets
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ipc/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ipc/mbufs/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Mbufs
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ipc/sockets/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Sockets
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ipc/unix-sockets/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Unix Domain Sockets
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ipc/protocol-dispatch/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Protocol Dispatch
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ipc/pipes/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Pipes
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ipc/mqueue/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    POSIX Message Queues
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ipc/sysv-msg/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    System V Message Queues
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ipc/sysv-sem/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    System V Semaphores
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ipc/sysv-shm/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    System V Shared Memory
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../devices/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Devices & Drivers
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../newbus/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    NewBus Framework
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Bus Resources & DMA
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Bus Resources & DMA
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#resource-manager-rman" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Resource Manager (rman)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Resource Manager (rman)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#data-structures" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Data Structures
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Data Structures">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#struct-resource" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        struct resource
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#struct-rman" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        struct rman
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#resource-types" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Resource Types
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#resource-flags" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Resource Flags
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#api-functions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        API Functions
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="API Functions">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#rman_init" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        rman_init
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#rman_manage_region" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        rman_manage_region
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#rman_reserve_resource" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        rman_reserve_resource
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#rman_activate_resource-rman_deactivate_resource" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        rman_activate_resource / rman_deactivate_resource
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#rman_release_resource" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        rman_release_resource
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#rman_fini" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        rman_fini
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#helper-macros" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Helper Macros
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#sysctl-interface" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Sysctl Interface
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#bus-dma-subsystem" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Bus DMA Subsystem
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Bus DMA Subsystem">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#data-structures_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Data Structures
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Data Structures">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#bus_dma_tag_t-struct-bus_dma_tag" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        bus_dma_tag_t (struct bus_dma_tag)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#bus_dmamap_t-struct-bus_dmamap" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        bus_dmamap_t (struct bus_dmamap)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#bus_dma_segment_t" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        bus_dma_segment_t
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#bus_dmamem_t" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        bus_dmamem_t
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#dma-flags" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        DMA Flags
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#sync-operations" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Sync Operations
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#api-functions_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        API Functions
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="API Functions">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#bus_dma_tag_create" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        bus_dma_tag_create
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#bus_dma_tag_destroy" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        bus_dma_tag_destroy
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#bus_dmamap_create" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        bus_dmamap_create
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#bus_dmamap_destroy" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        bus_dmamap_destroy
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#bus_dmamem_alloc" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        bus_dmamem_alloc
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#bus_dmamem_free" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        bus_dmamem_free
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#bus_dmamap_load" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        bus_dmamap_load
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#specialized-load-functions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Specialized Load Functions
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#bus_dmamap_unload" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        bus_dmamap_unload
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#bus_dmamap_sync" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        bus_dmamap_sync
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#bounce-buffer-infrastructure" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Bounce Buffer Infrastructure
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Bounce Buffer Infrastructure">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#struct-bounce_page" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        struct bounce_page
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#struct-bounce_zone" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        struct bounce_zone
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#zone-management" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Zone Management
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#deferred-operations" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Deferred Operations
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#helper-functions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Helper Functions
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Helper Functions">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#bus_dmamem_coherent" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        bus_dmamem_coherent
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#bus_dmamem_coherent_any" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        bus_dmamem_coherent_any
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#bus_dmamap_load_mbuf_defrag" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        bus_dmamap_load_mbuf_defrag
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#bus-space-operations" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Bus Space Operations
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Bus Space Operations">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#types-x86_64" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Types (x86_64)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#bus_space_map-bus_space_unmap" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        bus_space_map / bus_space_unmap
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#bus_space_barrier" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        bus_space_barrier
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#sysctl-interface_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Sysctl Interface
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#example-dma-buffer-allocation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Example: DMA Buffer Allocation
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#cross-references" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Cross-References
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../syscalls/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    System Calls
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+          
+          
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_3_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3_3" id="__nav_3_3_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    vm/
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    vm/
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../vm/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+          
+          
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_3_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_3_4" id="__nav_3_4_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    cpu/x86_64/
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    cpu/x86_64/
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../cpu/x86_64/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#resource-manager-rman" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Resource Manager (rman)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Resource Manager (rman)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#data-structures" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Data Structures
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Data Structures">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#struct-resource" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        struct resource
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#struct-rman" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        struct rman
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#resource-types" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Resource Types
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#resource-flags" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Resource Flags
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#api-functions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        API Functions
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="API Functions">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#rman_init" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        rman_init
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#rman_manage_region" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        rman_manage_region
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#rman_reserve_resource" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        rman_reserve_resource
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#rman_activate_resource-rman_deactivate_resource" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        rman_activate_resource / rman_deactivate_resource
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#rman_release_resource" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        rman_release_resource
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#rman_fini" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        rman_fini
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#helper-macros" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Helper Macros
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#sysctl-interface" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Sysctl Interface
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#bus-dma-subsystem" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Bus DMA Subsystem
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Bus DMA Subsystem">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#data-structures_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Data Structures
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Data Structures">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#bus_dma_tag_t-struct-bus_dma_tag" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        bus_dma_tag_t (struct bus_dma_tag)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#bus_dmamap_t-struct-bus_dmamap" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        bus_dmamap_t (struct bus_dmamap)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#bus_dma_segment_t" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        bus_dma_segment_t
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#bus_dmamem_t" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        bus_dmamem_t
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#dma-flags" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        DMA Flags
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#sync-operations" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Sync Operations
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#api-functions_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        API Functions
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="API Functions">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#bus_dma_tag_create" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        bus_dma_tag_create
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#bus_dma_tag_destroy" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        bus_dma_tag_destroy
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#bus_dmamap_create" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        bus_dmamap_create
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#bus_dmamap_destroy" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        bus_dmamap_destroy
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#bus_dmamem_alloc" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        bus_dmamem_alloc
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#bus_dmamem_free" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        bus_dmamem_free
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#bus_dmamap_load" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        bus_dmamap_load
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#specialized-load-functions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Specialized Load Functions
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#bus_dmamap_unload" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        bus_dmamap_unload
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#bus_dmamap_sync" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        bus_dmamap_sync
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#bounce-buffer-infrastructure" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Bounce Buffer Infrastructure
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Bounce Buffer Infrastructure">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#struct-bounce_page" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        struct bounce_page
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#struct-bounce_zone" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        struct bounce_zone
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#zone-management" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Zone Management
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#deferred-operations" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Deferred Operations
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#helper-functions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Helper Functions
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Helper Functions">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#bus_dmamem_coherent" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        bus_dmamem_coherent
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#bus_dmamem_coherent_any" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        bus_dmamem_coherent_any
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#bus_dmamap_load_mbuf_defrag" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        bus_dmamap_load_mbuf_defrag
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#bus-space-operations" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Bus Space Operations
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Bus Space Operations">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#types-x86_64" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Types (x86_64)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#bus_space_map-bus_space_unmap" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        bus_space_map / bus_space_unmap
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#bus_space_barrier" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        bus_space_barrier
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#sysctl-interface_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Sysctl Interface
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#example-dma-buffer-allocation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Example: DMA Buffer Allocation
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#cross-references" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Cross-References
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="bus-resource-management-and-dma">Bus Resource Management and DMA<a class="headerlink" href="#bus-resource-management-and-dma" title="Permanent link">&para;</a></h1>
+<p>This document covers the resource manager (rman) subsystem for managing
+hardware resources and the bus DMA subsystem for DMA memory management.</p>
+<p><strong>Source files:</strong>
+- <code>sys/kern/subr_rman.c</code> - Resource manager implementation (~735 lines)
+- <code>sys/kern/subr_busdma.c</code> - Bus DMA helper functions (~144 lines)
+- <code>sys/platform/pc64/x86_64/busdma_machdep.c</code> - x86_64 DMA implementation (~1470 lines)
+- <code>sys/sys/rman.h</code> - Resource manager data structures
+- <code>sys/sys/bus_dma.h</code> - Bus DMA interface
+- <code>sys/cpu/x86_64/include/bus_dma.h</code> - Architecture-specific types</p>
+<h2 id="resource-manager-rman">Resource Manager (rman)<a class="headerlink" href="#resource-manager-rman" title="Permanent link">&para;</a></h2>
+<p>The resource manager provides generic infrastructure for tracking and
+allocating hardware resources like IRQs, I/O ports, and memory regions.
+It is used by NewBus to manage bus resources.</p>
+<h3 id="data-structures">Data Structures<a class="headerlink" href="#data-structures" title="Permanent link">&para;</a></h3>
+<h4 id="struct-resource">struct resource<a class="headerlink" href="#struct-resource" title="Permanent link">&para;</a></h4>
+<p>Represents an allocated resource:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="k">struct</span><span class="w"> </span><span class="nc">resource</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="w">    </span><span class="n">TAILQ_ENTRY</span><span class="p">(</span><span class="n">resource</span><span class="p">)</span><span class="w">   </span><span class="n">r_link</span><span class="p">;</span><span class="w">         </span><span class="cm">/* list linkage */</span>
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="w">    </span><span class="n">LIST_ENTRY</span><span class="p">(</span><span class="n">resource</span><span class="p">)</span><span class="w">    </span><span class="n">r_sharelink</span><span class="p">;</span><span class="w">    </span><span class="cm">/* sharing list link */</span>
+<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="w">    </span><span class="n">LIST_HEAD</span><span class="p">(,</span><span class="w"> </span><span class="n">resource</span><span class="p">)</span><span class="w">   </span><span class="o">*</span><span class="n">r_sharehead</span><span class="p">;</span><span class="w">   </span><span class="cm">/* head of sharing list */</span>
+<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a><span class="w">    </span><span class="n">u_long</span><span class="w">  </span><span class="n">r_start</span><span class="p">;</span><span class="w">        </span><span class="cm">/* first index in resource */</span>
+<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a><span class="w">    </span><span class="n">u_long</span><span class="w">  </span><span class="n">r_end</span><span class="p">;</span><span class="w">          </span><span class="cm">/* last index (inclusive) */</span>
+<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a><span class="w">    </span><span class="n">u_int</span><span class="w">   </span><span class="n">r_flags</span><span class="p">;</span><span class="w">        </span><span class="cm">/* RF_* flags */</span>
+<a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a><span class="w">    </span><span class="kt">void</span><span class="w">    </span><span class="o">*</span><span class="n">r_virtual</span><span class="p">;</span><span class="w">     </span><span class="cm">/* virtual address */</span>
+<a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a><span class="w">    </span><span class="n">bus_space_tag_t</span><span class="w"> </span><span class="n">r_bustag</span><span class="p">;</span><span class="w">       </span><span class="cm">/* bus_space tag */</span>
+<a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a><span class="w">    </span><span class="n">bus_space_handle_t</span><span class="w"> </span><span class="n">r_bushandle</span><span class="p">;</span><span class="w"> </span><span class="cm">/* bus_space handle */</span>
+<a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a><span class="w">    </span><span class="n">device_t</span><span class="w"> </span><span class="n">r_dev</span><span class="p">;</span><span class="w">         </span><span class="cm">/* owning device */</span>
+<a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a><span class="w">    </span><span class="k">struct</span><span class="w">  </span><span class="nc">rman</span><span class="w"> </span><span class="o">*</span><span class="n">r_rm</span><span class="p">;</span><span class="w">     </span><span class="cm">/* owning resource manager */</span>
+<a id="__codelineno-0-13" name="__codelineno-0-13" href="#__codelineno-0-13"></a><span class="w">    </span><span class="kt">int</span><span class="w">     </span><span class="n">r_rid</span><span class="p">;</span><span class="w">          </span><span class="cm">/* resource identifier */</span>
+<a id="__codelineno-0-14" name="__codelineno-0-14" href="#__codelineno-0-14"></a><span class="p">};</span>
+</code></pre></div>
+<p>Defined in <code>sys/sys/rman.h:98-111</code>.</p>
+<h4 id="struct-rman">struct rman<a class="headerlink" href="#struct-rman" title="Permanent link">&para;</a></h4>
+<p>The resource manager:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="k">struct</span><span class="w"> </span><span class="nc">rman</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="w">    </span><span class="k">struct</span><span class="w">  </span><span class="nc">resource_head</span><span class="w">   </span><span class="n">rm_list</span><span class="p">;</span><span class="w">    </span><span class="cm">/* list of resources */</span>
+<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="w">    </span><span class="k">struct</span><span class="w">  </span><span class="nc">lwkt_token</span><span class="w">      </span><span class="o">*</span><span class="n">rm_slock</span><span class="p">;</span><span class="w">  </span><span class="cm">/* mutex for rm_list */</span>
+<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a><span class="w">    </span><span class="n">TAILQ_ENTRY</span><span class="p">(</span><span class="n">rman</span><span class="p">)</span><span class="w">       </span><span class="n">rm_link</span><span class="p">;</span><span class="w">    </span><span class="cm">/* link in global list */</span>
+<a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a><span class="w">    </span><span class="n">u_long</span><span class="w">  </span><span class="n">rm_start</span><span class="p">;</span><span class="w">       </span><span class="cm">/* globally first entry */</span>
+<a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a><span class="w">    </span><span class="n">u_long</span><span class="w">  </span><span class="n">rm_end</span><span class="p">;</span><span class="w">         </span><span class="cm">/* globally last entry */</span>
+<a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a><span class="w">    </span><span class="k">enum</span><span class="w">    </span><span class="n">rman_type</span><span class="w"> </span><span class="n">rm_type</span><span class="p">;</span><span class="w">  </span><span class="cm">/* RMAN_ARRAY or RMAN_GAUGE */</span>
+<a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a><span class="w">    </span><span class="k">const</span><span class="w">   </span><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="n">rm_descr</span><span class="p">;</span><span class="w"> </span><span class="cm">/* text description */</span>
+<a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a><span class="w">    </span><span class="kt">int</span><span class="w">     </span><span class="n">rm_cpuid</span><span class="p">;</span><span class="w">       </span><span class="cm">/* owner CPU ID */</span>
+<a id="__codelineno-1-10" name="__codelineno-1-10" href="#__codelineno-1-10"></a><span class="w">    </span><span class="kt">int</span><span class="w">     </span><span class="n">rm_hold</span><span class="p">;</span><span class="w">        </span><span class="cm">/* destruction interlock */</span>
+<a id="__codelineno-1-11" name="__codelineno-1-11" href="#__codelineno-1-11"></a><span class="p">};</span>
+</code></pre></div>
+<p>Defined in <code>sys/sys/rman.h:115-125</code>.</p>
+<h3 id="resource-types">Resource Types<a class="headerlink" href="#resource-types" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="k">enum</span><span class="w"> </span><span class="n">rman_type</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">RMAN_UNINIT</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="n">RMAN_GAUGE</span><span class="p">,</span><span class="w"> </span><span class="n">RMAN_ARRAY</span><span class="w"> </span><span class="p">};</span>
+</code></pre></div>
+<ul>
+<li><code>RMAN_ARRAY</code> - Sequential, individually-allocatable resources (common case)</li>
+<li><code>RMAN_GAUGE</code> - Fungible resources like power budgets (not currently used)</li>
+</ul>
+<p>Defined in <code>sys/sys/rman.h:60</code>.</p>
+<h3 id="resource-flags">Resource Flags<a class="headerlink" href="#resource-flags" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Flag</th>
+<th>Value</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>RF_ALLOCATED</code></td>
+<td>0x0001</td>
+<td>Resource has been reserved</td>
+</tr>
+<tr>
+<td><code>RF_ACTIVE</code></td>
+<td>0x0002</td>
+<td>Resource allocation activated</td>
+</tr>
+<tr>
+<td><code>RF_SHAREABLE</code></td>
+<td>0x0004</td>
+<td>Permits contemporaneous sharing</td>
+</tr>
+<tr>
+<td><code>RF_TIMESHARE</code></td>
+<td>0x0008</td>
+<td>Permits time-division sharing</td>
+</tr>
+<tr>
+<td><code>RF_WANTED</code></td>
+<td>0x0010</td>
+<td>Someone is waiting for resource</td>
+</tr>
+<tr>
+<td><code>RF_FIRSTSHARE</code></td>
+<td>0x0020</td>
+<td>First in sharing list</td>
+</tr>
+<tr>
+<td><code>RF_PREFETCHABLE</code></td>
+<td>0x0040</td>
+<td>Memory is prefetchable</td>
+</tr>
+<tr>
+<td><code>RF_OPTIONAL</code></td>
+<td>0x0080</td>
+<td>For bus_alloc_resources()</td>
+</tr>
+</tbody>
+</table>
+<p>Alignment can be encoded in flags using:
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="cp">#define RF_ALIGNMENT_SHIFT  10</span>
+<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="cp">#define RF_ALIGNMENT_LOG2(x) ((x) &lt;&lt; RF_ALIGNMENT_SHIFT)</span>
+<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a><span class="cp">#define RF_ALIGNMENT(x)     (((x) &amp; RF_ALIGNMENT_MASK) &gt;&gt; RF_ALIGNMENT_SHIFT)</span>
+</code></pre></div></p>
+<p>Defined in <code>sys/sys/rman.h:45-58</code>.</p>
+<h3 id="api-functions">API Functions<a class="headerlink" href="#api-functions" title="Permanent link">&para;</a></h3>
+<h4 id="rman_init">rman_init<a class="headerlink" href="#rman_init" title="Permanent link">&para;</a></h4>
+<p>Initializes a resource manager:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="kt">int</span><span class="w"> </span><span class="nf">rman_init</span><span class="p">(</span><span class="k">struct</span><span class="w"> </span><span class="nc">rman</span><span class="w"> </span><span class="o">*</span><span class="n">rm</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">cpuid</span><span class="p">);</span>
+</code></pre></div>
+<ul>
+<li>Creates a per-rman lwkt_token for locking</li>
+<li>Adds the rman to global <code>rman_head</code> list</li>
+<li>Sets <code>rm_type</code> to <code>RMAN_ARRAY</code></li>
+</ul>
+<p>See <code>sys/kern/subr_rman.c:86-116</code>.</p>
+<h4 id="rman_manage_region">rman_manage_region<a class="headerlink" href="#rman_manage_region" title="Permanent link">&para;</a></h4>
+<p>Adds a range of resources to the manager:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="kt">int</span><span class="w"> </span><span class="nf">rman_manage_region</span><span class="p">(</span><span class="k">struct</span><span class="w"> </span><span class="nc">rman</span><span class="w"> </span><span class="o">*</span><span class="n">rm</span><span class="p">,</span><span class="w"> </span><span class="n">u_long</span><span class="w"> </span><span class="n">start</span><span class="p">,</span><span class="w"> </span><span class="n">u_long</span><span class="w"> </span><span class="n">end</span><span class="p">);</span>
+</code></pre></div>
+<ul>
+<li>Maintains sorted order by start address</li>
+<li>Does NOT check for overlapping regions</li>
+<li>Caller must ensure regions don't overlap</li>
+</ul>
+<p>See <code>sys/kern/subr_rman.c:122-152</code>.</p>
+<h4 id="rman_reserve_resource">rman_reserve_resource<a class="headerlink" href="#rman_reserve_resource" title="Permanent link">&para;</a></h4>
+<p>Reserves resources from the manager:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="k">struct</span><span class="w"> </span><span class="nc">resource</span><span class="w"> </span><span class="o">*</span><span class="n">rman_reserve_resource</span><span class="p">(</span><span class="k">struct</span><span class="w"> </span><span class="nc">rman</span><span class="w"> </span><span class="o">*</span><span class="n">rm</span><span class="p">,</span><span class="w"> </span><span class="n">u_long</span><span class="w"> </span><span class="n">start</span><span class="p">,</span>
+<a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a><span class="w">                                       </span><span class="n">u_long</span><span class="w"> </span><span class="n">end</span><span class="p">,</span><span class="w"> </span><span class="n">u_long</span><span class="w"> </span><span class="n">count</span><span class="p">,</span>
+<a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a><span class="w">                                       </span><span class="n">u_int</span><span class="w"> </span><span class="n">flags</span><span class="p">,</span><span class="w"> </span><span class="n">device_t</span><span class="w"> </span><span class="n">dev</span><span class="p">);</span>
+</code></pre></div>
+<p><strong>Allocation algorithm:</strong>
+1. Search for unshared region that fits the request
+2. Split region into 1-3 parts as needed:
+   - Allocating from beginning: split into 2 parts
+   - Allocating from end: split into 2 parts
+   - Allocating from middle: split into 3 parts
+3. If <code>RF_SHAREABLE</code> or <code>RF_TIMESHARE</code>, search for exact match
+4. If <code>RF_ACTIVE</code> specified, atomically activate</p>
+<p>See <code>sys/kern/subr_rman.c:204-404</code>.</p>
+<h4 id="rman_activate_resource-rman_deactivate_resource">rman_activate_resource / rman_deactivate_resource<a class="headerlink" href="#rman_activate_resource-rman_deactivate_resource" title="Permanent link">&para;</a></h4>
+<p>Activate or deactivate a resource:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="kt">int</span><span class="w"> </span><span class="nf">rman_activate_resource</span><span class="p">(</span><span class="k">struct</span><span class="w"> </span><span class="nc">resource</span><span class="w"> </span><span class="o">*</span><span class="n">r</span><span class="p">);</span>
+<a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a><span class="kt">int</span><span class="w"> </span><span class="nf">rman_deactivate_resource</span><span class="p">(</span><span class="k">struct</span><span class="w"> </span><span class="nc">resource</span><span class="w"> </span><span class="o">*</span><span class="n">r</span><span class="p">);</span>
+</code></pre></div>
+<ul>
+<li>Activation marks resource as <code>RF_ACTIVE</code></li>
+<li>Time-shared resources: only one active at a time</li>
+<li>Deactivation wakes waiters via <code>wakeup(r-&gt;r_sharehead)</code></li>
+</ul>
+<p>See <code>sys/kern/subr_rman.c:406-515</code>.</p>
+<h4 id="rman_release_resource">rman_release_resource<a class="headerlink" href="#rman_release_resource" title="Permanent link">&para;</a></h4>
+<p>Releases a resource back to the pool:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a><span class="kt">int</span><span class="w"> </span><span class="nf">rman_release_resource</span><span class="p">(</span><span class="k">struct</span><span class="w"> </span><span class="nc">resource</span><span class="w"> </span><span class="o">*</span><span class="n">r</span><span class="p">);</span>
+</code></pre></div>
+<p><strong>Merging algorithm:</strong>
+1. If sharing list exists, update the list
+2. Try to merge with previous adjacent segment
+3. Try to merge with next adjacent segment
+4. If both neighbors are free, merge all three
+5. If neither neighbor is free, just mark as unallocated</p>
+<p>See <code>sys/kern/subr_rman.c:517-613</code>.</p>
+<h4 id="rman_fini">rman_fini<a class="headerlink" href="#rman_fini" title="Permanent link">&para;</a></h4>
+<p>Destroys a resource manager:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a><span class="kt">int</span><span class="w"> </span><span class="nf">rman_fini</span><span class="p">(</span><span class="k">struct</span><span class="w"> </span><span class="nc">rman</span><span class="w"> </span><span class="o">*</span><span class="n">rm</span><span class="p">);</span>
+</code></pre></div>
+<ul>
+<li>Fails if any resources are still allocated</li>
+<li>Waits for <code>rm_hold</code> to drop to zero before destroying</li>
+</ul>
+<p>See <code>sys/kern/subr_rman.c:154-202</code>.</p>
+<h3 id="helper-macros">Helper Macros<a class="headerlink" href="#helper-macros" title="Permanent link">&para;</a></h3>
+<p>Accessor macros for resource fields:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a><span class="cp">#define rman_get_start(r)       ((r)-&gt;r_start)</span>
+<a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a><span class="cp">#define rman_get_end(r)         ((r)-&gt;r_end)</span>
+<a id="__codelineno-10-3" name="__codelineno-10-3" href="#__codelineno-10-3"></a><span class="cp">#define rman_get_size(r)        ((r)-&gt;r_end - (r)-&gt;r_start + 1)</span>
+<a id="__codelineno-10-4" name="__codelineno-10-4" href="#__codelineno-10-4"></a><span class="cp">#define rman_get_device(r)      ((r)-&gt;r_dev)</span>
+<a id="__codelineno-10-5" name="__codelineno-10-5" href="#__codelineno-10-5"></a><span class="cp">#define rman_get_flags(r)       ((r)-&gt;r_flags)</span>
+<a id="__codelineno-10-6" name="__codelineno-10-6" href="#__codelineno-10-6"></a><span class="cp">#define rman_get_virtual(r)     ((r)-&gt;r_virtual)</span>
+<a id="__codelineno-10-7" name="__codelineno-10-7" href="#__codelineno-10-7"></a><span class="cp">#define rman_get_bustag(r)      ((r)-&gt;r_bustag)</span>
+<a id="__codelineno-10-8" name="__codelineno-10-8" href="#__codelineno-10-8"></a><span class="cp">#define rman_get_bushandle(r)   ((r)-&gt;r_bushandle)</span>
+<a id="__codelineno-10-9" name="__codelineno-10-9" href="#__codelineno-10-9"></a><span class="cp">#define rman_get_rid(r)         ((r)-&gt;r_rid)</span>
+<a id="__codelineno-10-10" name="__codelineno-10-10" href="#__codelineno-10-10"></a><span class="cp">#define rman_get_cpuid(r)       ((r)-&gt;r_rm-&gt;rm_cpuid)</span>
+</code></pre></div>
+<p>Defined in <code>sys/sys/rman.h:141-157</code>.</p>
+<h3 id="sysctl-interface">Sysctl Interface<a class="headerlink" href="#sysctl-interface" title="Permanent link">&para;</a></h3>
+<p>Resource manager information is exported via <code>hw.bus.rman</code> sysctl for
+userspace introspection. The exported structures are:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a><span class="k">struct</span><span class="w"> </span><span class="nc">u_rman</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-11-2" name="__codelineno-11-2" href="#__codelineno-11-2"></a><span class="w">    </span><span class="kt">uintptr_t</span><span class="w">      </span><span class="n">rm_handle</span><span class="p">;</span>
+<a id="__codelineno-11-3" name="__codelineno-11-3" href="#__codelineno-11-3"></a><span class="w">    </span><span class="kt">char</span><span class="w">           </span><span class="n">rm_descr</span><span class="p">[</span><span class="n">RM_TEXTLEN</span><span class="p">];</span>
+<a id="__codelineno-11-4" name="__codelineno-11-4" href="#__codelineno-11-4"></a><span class="w">    </span><span class="n">u_long</span><span class="w">         </span><span class="n">rm_start</span><span class="p">;</span>
+<a id="__codelineno-11-5" name="__codelineno-11-5" href="#__codelineno-11-5"></a><span class="w">    </span><span class="n">u_long</span><span class="w">         </span><span class="n">rm_size</span><span class="p">;</span>
+<a id="__codelineno-11-6" name="__codelineno-11-6" href="#__codelineno-11-6"></a><span class="w">    </span><span class="k">enum</span><span class="w"> </span><span class="n">rman_type</span><span class="w"> </span><span class="n">rm_type</span><span class="p">;</span>
+<a id="__codelineno-11-7" name="__codelineno-11-7" href="#__codelineno-11-7"></a><span class="p">};</span>
+<a id="__codelineno-11-8" name="__codelineno-11-8" href="#__codelineno-11-8"></a>
+<a id="__codelineno-11-9" name="__codelineno-11-9" href="#__codelineno-11-9"></a><span class="k">struct</span><span class="w"> </span><span class="nc">u_resource</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-11-10" name="__codelineno-11-10" href="#__codelineno-11-10"></a><span class="w">    </span><span class="kt">uintptr_t</span><span class="w"> </span><span class="n">r_handle</span><span class="p">;</span>
+<a id="__codelineno-11-11" name="__codelineno-11-11" href="#__codelineno-11-11"></a><span class="w">    </span><span class="kt">uintptr_t</span><span class="w"> </span><span class="n">r_parent</span><span class="p">;</span>
+<a id="__codelineno-11-12" name="__codelineno-11-12" href="#__codelineno-11-12"></a><span class="w">    </span><span class="kt">uintptr_t</span><span class="w"> </span><span class="n">r_device</span><span class="p">;</span>
+<a id="__codelineno-11-13" name="__codelineno-11-13" href="#__codelineno-11-13"></a><span class="w">    </span><span class="kt">char</span><span class="w">      </span><span class="n">r_devname</span><span class="p">[</span><span class="n">RM_TEXTLEN</span><span class="p">];</span>
+<a id="__codelineno-11-14" name="__codelineno-11-14" href="#__codelineno-11-14"></a><span class="w">    </span><span class="n">u_long</span><span class="w">    </span><span class="n">r_start</span><span class="p">;</span>
+<a id="__codelineno-11-15" name="__codelineno-11-15" href="#__codelineno-11-15"></a><span class="w">    </span><span class="n">u_long</span><span class="w">    </span><span class="n">r_size</span><span class="p">;</span>
+<a id="__codelineno-11-16" name="__codelineno-11-16" href="#__codelineno-11-16"></a><span class="w">    </span><span class="n">u_int</span><span class="w">     </span><span class="n">r_flags</span><span class="p">;</span>
+<a id="__codelineno-11-17" name="__codelineno-11-17" href="#__codelineno-11-17"></a><span class="p">};</span>
+</code></pre></div>
+<p>Defined in <code>sys/sys/rman.h:70-88</code>.</p>
+<h2 id="bus-dma-subsystem">Bus DMA Subsystem<a class="headerlink" href="#bus-dma-subsystem" title="Permanent link">&para;</a></h2>
+<p>The bus DMA subsystem provides portable DMA memory management with support
+for devices that have address limitations requiring bounce buffers.</p>
+<h3 id="data-structures_1">Data Structures<a class="headerlink" href="#data-structures_1" title="Permanent link">&para;</a></h3>
+<h4 id="bus_dma_tag_t-struct-bus_dma_tag">bus_dma_tag_t (struct bus_dma_tag)<a class="headerlink" href="#bus_dma_tag_t-struct-bus_dma_tag" title="Permanent link">&para;</a></h4>
+<p>Defines constraints for DMA operations:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a><span class="k">struct</span><span class="w"> </span><span class="nc">bus_dma_tag</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-12-2" name="__codelineno-12-2" href="#__codelineno-12-2"></a><span class="w">    </span><span class="n">bus_size_t</span><span class="w">      </span><span class="n">alignment</span><span class="p">;</span><span class="w">      </span><span class="cm">/* required alignment */</span>
+<a id="__codelineno-12-3" name="__codelineno-12-3" href="#__codelineno-12-3"></a><span class="w">    </span><span class="n">bus_size_t</span><span class="w">      </span><span class="n">boundary</span><span class="p">;</span><span class="w">       </span><span class="cm">/* boundary that segments can&#39;t cross */</span>
+<a id="__codelineno-12-4" name="__codelineno-12-4" href="#__codelineno-12-4"></a><span class="w">    </span><span class="n">bus_addr_t</span><span class="w">      </span><span class="n">lowaddr</span><span class="p">;</span><span class="w">        </span><span class="cm">/* low address constraint */</span>
+<a id="__codelineno-12-5" name="__codelineno-12-5" href="#__codelineno-12-5"></a><span class="w">    </span><span class="n">bus_addr_t</span><span class="w">      </span><span class="n">highaddr</span><span class="p">;</span><span class="w">       </span><span class="cm">/* high address constraint */</span>
+<a id="__codelineno-12-6" name="__codelineno-12-6" href="#__codelineno-12-6"></a><span class="w">    </span><span class="n">bus_size_t</span><span class="w">      </span><span class="n">maxsize</span><span class="p">;</span><span class="w">        </span><span class="cm">/* maximum mapping size */</span>
+<a id="__codelineno-12-7" name="__codelineno-12-7" href="#__codelineno-12-7"></a><span class="w">    </span><span class="n">u_int</span><span class="w">           </span><span class="n">nsegments</span><span class="p">;</span><span class="w">      </span><span class="cm">/* max number of segments */</span>
+<a id="__codelineno-12-8" name="__codelineno-12-8" href="#__codelineno-12-8"></a><span class="w">    </span><span class="n">bus_size_t</span><span class="w">      </span><span class="n">maxsegsz</span><span class="p">;</span><span class="w">       </span><span class="cm">/* max size per segment */</span>
+<a id="__codelineno-12-9" name="__codelineno-12-9" href="#__codelineno-12-9"></a><span class="w">    </span><span class="kt">int</span><span class="w">             </span><span class="n">flags</span><span class="p">;</span><span class="w">          </span><span class="cm">/* BUS_DMA_* flags */</span>
+<a id="__codelineno-12-10" name="__codelineno-12-10" href="#__codelineno-12-10"></a><span class="w">    </span><span class="kt">int</span><span class="w">             </span><span class="n">map_count</span><span class="p">;</span><span class="w">      </span><span class="cm">/* number of active maps */</span>
+<a id="__codelineno-12-11" name="__codelineno-12-11" href="#__codelineno-12-11"></a><span class="w">    </span><span class="n">bus_dma_segment_t</span><span class="w"> </span><span class="o">*</span><span class="n">segments</span><span class="p">;</span><span class="w">    </span><span class="cm">/* segment array */</span>
+<a id="__codelineno-12-12" name="__codelineno-12-12" href="#__codelineno-12-12"></a><span class="w">    </span><span class="k">struct</span><span class="w"> </span><span class="nc">bounce_zone</span><span class="w"> </span><span class="o">*</span><span class="n">bounce_zone</span><span class="p">;</span><span class="cm">/* bounce buffer zone */</span>
+<a id="__codelineno-12-13" name="__codelineno-12-13" href="#__codelineno-12-13"></a><span class="w">    </span><span class="k">struct</span><span class="w"> </span><span class="nc">spinlock</span><span class="w"> </span><span class="n">spin</span><span class="p">;</span><span class="w">           </span><span class="cm">/* lock for segment array */</span>
+<a id="__codelineno-12-14" name="__codelineno-12-14" href="#__codelineno-12-14"></a><span class="p">};</span>
+</code></pre></div>
+<p>Defined in <code>sys/platform/pc64/x86_64/busdma_machdep.c:64-77</code>.</p>
+<h4 id="bus_dmamap_t-struct-bus_dmamap">bus_dmamap_t (struct bus_dmamap)<a class="headerlink" href="#bus_dmamap_t-struct-bus_dmamap" title="Permanent link">&para;</a></h4>
+<p>Tracks a DMA mapping:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a><span class="k">struct</span><span class="w"> </span><span class="nc">bus_dmamap</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-13-2" name="__codelineno-13-2" href="#__codelineno-13-2"></a><span class="w">    </span><span class="k">struct</span><span class="w"> </span><span class="nc">bp_list</span><span class="w">  </span><span class="n">bpages</span><span class="p">;</span><span class="w">         </span><span class="cm">/* list of bounce pages */</span>
+<a id="__codelineno-13-3" name="__codelineno-13-3" href="#__codelineno-13-3"></a><span class="w">    </span><span class="kt">int</span><span class="w">             </span><span class="n">pagesneeded</span><span class="p">;</span><span class="w">    </span><span class="cm">/* pages needed for transfer */</span>
+<a id="__codelineno-13-4" name="__codelineno-13-4" href="#__codelineno-13-4"></a><span class="w">    </span><span class="kt">int</span><span class="w">             </span><span class="n">pagesreserved</span><span class="p">;</span><span class="w">  </span><span class="cm">/* pages currently reserved */</span>
+<a id="__codelineno-13-5" name="__codelineno-13-5" href="#__codelineno-13-5"></a><span class="w">    </span><span class="n">bus_dma_tag_t</span><span class="w">   </span><span class="n">dmat</span><span class="p">;</span><span class="w">           </span><span class="cm">/* associated tag */</span>
+<a id="__codelineno-13-6" name="__codelineno-13-6" href="#__codelineno-13-6"></a><span class="w">    </span><span class="kt">void</span><span class="w">            </span><span class="o">*</span><span class="n">buf</span><span class="p">;</span><span class="w">           </span><span class="cm">/* original buffer pointer */</span>
+<a id="__codelineno-13-7" name="__codelineno-13-7" href="#__codelineno-13-7"></a><span class="w">    </span><span class="n">bus_size_t</span><span class="w">      </span><span class="n">buflen</span><span class="p">;</span><span class="w">         </span><span class="cm">/* original buffer length */</span>
+<a id="__codelineno-13-8" name="__codelineno-13-8" href="#__codelineno-13-8"></a><span class="w">    </span><span class="n">bus_dmamap_callback_t</span><span class="w"> </span><span class="o">*</span><span class="n">callback</span><span class="p">;</span><span class="cm">/* completion callback */</span>
+<a id="__codelineno-13-9" name="__codelineno-13-9" href="#__codelineno-13-9"></a><span class="w">    </span><span class="kt">void</span><span class="w">            </span><span class="o">*</span><span class="n">callback_arg</span><span class="p">;</span><span class="w">  </span><span class="cm">/* callback argument */</span>
+<a id="__codelineno-13-10" name="__codelineno-13-10" href="#__codelineno-13-10"></a><span class="w">    </span><span class="n">STAILQ_ENTRY</span><span class="p">(</span><span class="n">bus_dmamap</span><span class="p">)</span><span class="w"> </span><span class="n">links</span><span class="p">;</span><span class="w"> </span><span class="cm">/* waitlist linkage */</span>
+<a id="__codelineno-13-11" name="__codelineno-13-11" href="#__codelineno-13-11"></a><span class="p">};</span>
+</code></pre></div>
+<p>Defined in <code>sys/platform/pc64/x86_64/busdma_machdep.c:140-150</code>.</p>
+<h4 id="bus_dma_segment_t">bus_dma_segment_t<a class="headerlink" href="#bus_dma_segment_t" title="Permanent link">&para;</a></h4>
+<p>Describes a DMA segment:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-14-1" name="__codelineno-14-1" href="#__codelineno-14-1"></a><span class="k">typedef</span><span class="w"> </span><span class="k">struct</span><span class="w"> </span><span class="nc">bus_dma_segment</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-14-2" name="__codelineno-14-2" href="#__codelineno-14-2"></a><span class="w">    </span><span class="n">bus_addr_t</span><span class="w">  </span><span class="n">ds_addr</span><span class="p">;</span><span class="w">    </span><span class="cm">/* DMA address */</span>
+<a id="__codelineno-14-3" name="__codelineno-14-3" href="#__codelineno-14-3"></a><span class="w">    </span><span class="n">bus_size_t</span><span class="w">  </span><span class="n">ds_len</span><span class="p">;</span><span class="w">     </span><span class="cm">/* length of transfer */</span>
+<a id="__codelineno-14-4" name="__codelineno-14-4" href="#__codelineno-14-4"></a><span class="p">}</span><span class="w"> </span><span class="n">bus_dma_segment_t</span><span class="p">;</span>
+</code></pre></div>
+<p>Defined in <code>sys/sys/bus_dma.h:146-149</code>.</p>
+<h4 id="bus_dmamem_t">bus_dmamem_t<a class="headerlink" href="#bus_dmamem_t" title="Permanent link">&para;</a></h4>
+<p>Convenience structure for coherent memory:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-15-1" name="__codelineno-15-1" href="#__codelineno-15-1"></a><span class="k">typedef</span><span class="w"> </span><span class="k">struct</span><span class="w"> </span><span class="nc">bus_dmamem</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-15-2" name="__codelineno-15-2" href="#__codelineno-15-2"></a><span class="w">    </span><span class="n">bus_dma_tag_t</span><span class="w">   </span><span class="n">dmem_tag</span><span class="p">;</span><span class="w">       </span><span class="cm">/* tag used */</span>
+<a id="__codelineno-15-3" name="__codelineno-15-3" href="#__codelineno-15-3"></a><span class="w">    </span><span class="n">bus_dmamap_t</span><span class="w">    </span><span class="n">dmem_map</span><span class="p">;</span><span class="w">       </span><span class="cm">/* map created */</span>
+<a id="__codelineno-15-4" name="__codelineno-15-4" href="#__codelineno-15-4"></a><span class="w">    </span><span class="kt">void</span><span class="w">            </span><span class="o">*</span><span class="n">dmem_addr</span><span class="p">;</span><span class="w">     </span><span class="cm">/* virtual address */</span>
+<a id="__codelineno-15-5" name="__codelineno-15-5" href="#__codelineno-15-5"></a><span class="w">    </span><span class="n">bus_addr_t</span><span class="w">      </span><span class="n">dmem_busaddr</span><span class="p">;</span><span class="w">   </span><span class="cm">/* bus address */</span>
+<a id="__codelineno-15-6" name="__codelineno-15-6" href="#__codelineno-15-6"></a><span class="p">}</span><span class="w"> </span><span class="n">bus_dmamem_t</span><span class="p">;</span>
+</code></pre></div>
+<p>Defined in <code>sys/sys/bus_dma.h:151-156</code>.</p>
+<h3 id="dma-flags">DMA Flags<a class="headerlink" href="#dma-flags" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Flag</th>
+<th>Value</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>BUS_DMA_WAITOK</code></td>
+<td>0x0000</td>
+<td>Safe to sleep (pseudo-flag)</td>
+</tr>
+<tr>
+<td><code>BUS_DMA_NOWAIT</code></td>
+<td>0x0001</td>
+<td>Not safe to sleep</td>
+</tr>
+<tr>
+<td><code>BUS_DMA_ALLOCNOW</code></td>
+<td>0x0002</td>
+<td>Perform resource allocation now</td>
+</tr>
+<tr>
+<td><code>BUS_DMA_COHERENT</code></td>
+<td>0x0004</td>
+<td>Map memory to not require sync</td>
+</tr>
+<tr>
+<td><code>BUS_DMA_ZERO</code></td>
+<td>0x0008</td>
+<td>Allocate zero'd memory</td>
+</tr>
+<tr>
+<td><code>BUS_DMA_ONEBPAGE</code></td>
+<td>0x0100</td>
+<td>Allocate one bounce page per map</td>
+</tr>
+<tr>
+<td><code>BUS_DMA_ALIGNED</code></td>
+<td>0x0200</td>
+<td>Memory is already properly aligned</td>
+</tr>
+<tr>
+<td><code>BUS_DMA_PRIVBZONE</code></td>
+<td>0x0400</td>
+<td>Need private bounce zone</td>
+</tr>
+<tr>
+<td><code>BUS_DMA_ALLOCALL</code></td>
+<td>0x0800</td>
+<td>Allocate all needed resources</td>
+</tr>
+<tr>
+<td><code>BUS_DMA_PROTECTED</code></td>
+<td>0x1000</td>
+<td>Functions are already protected</td>
+</tr>
+<tr>
+<td><code>BUS_DMA_KEEP_PG_OFFSET</code></td>
+<td>0x2000</td>
+<td>Preserve page offset in first segment</td>
+</tr>
+<tr>
+<td><code>BUS_DMA_NOCACHE</code></td>
+<td>0x4000</td>
+<td>Map memory uncached</td>
+</tr>
+</tbody>
+</table>
+<p>Defined in <code>sys/sys/bus_dma.h:83-104</code>.</p>
+<h3 id="sync-operations">Sync Operations<a class="headerlink" href="#sync-operations" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-16-1" name="__codelineno-16-1" href="#__codelineno-16-1"></a><span class="k">typedef</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">bus_dmasync_op_t</span><span class="p">;</span>
+<a id="__codelineno-16-2" name="__codelineno-16-2" href="#__codelineno-16-2"></a><span class="cp">#define BUS_DMASYNC_PREREAD     0x01  </span><span class="cm">/* before device reads from memory */</span>
+<a id="__codelineno-16-3" name="__codelineno-16-3" href="#__codelineno-16-3"></a><span class="cp">#define BUS_DMASYNC_POSTREAD    0x02  </span><span class="cm">/* after device reads from memory */</span>
+<a id="__codelineno-16-4" name="__codelineno-16-4" href="#__codelineno-16-4"></a><span class="cp">#define BUS_DMASYNC_PREWRITE    0x04  </span><span class="cm">/* before device writes to memory */</span>
+<a id="__codelineno-16-5" name="__codelineno-16-5" href="#__codelineno-16-5"></a><span class="cp">#define BUS_DMASYNC_POSTWRITE   0x08  </span><span class="cm">/* after device writes to memory */</span>
+</code></pre></div>
+<p>On x86, these operations primarily handle bounce buffer data copying:
+- <code>PREWRITE</code>: Copy data from client buffer to bounce buffer
+- <code>POSTREAD</code>: Copy data from bounce buffer to client buffer
+- <code>PREREAD</code>/<code>POSTWRITE</code>: No-ops on cache-coherent x86</p>
+<p>Defined in <code>sys/sys/bus_dma.h:116-121</code>.</p>
+<h3 id="api-functions_1">API Functions<a class="headerlink" href="#api-functions_1" title="Permanent link">&para;</a></h3>
+<h4 id="bus_dma_tag_create">bus_dma_tag_create<a class="headerlink" href="#bus_dma_tag_create" title="Permanent link">&para;</a></h4>
+<p>Creates a DMA tag with specified constraints:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-17-1" name="__codelineno-17-1" href="#__codelineno-17-1"></a><span class="kt">int</span><span class="w"> </span><span class="nf">bus_dma_tag_create</span><span class="p">(</span><span class="n">bus_dma_tag_t</span><span class="w"> </span><span class="n">parent</span><span class="p">,</span><span class="w"> </span><span class="n">bus_size_t</span><span class="w"> </span><span class="n">alignment</span><span class="p">,</span>
+<a id="__codelineno-17-2" name="__codelineno-17-2" href="#__codelineno-17-2"></a><span class="w">                       </span><span class="n">bus_size_t</span><span class="w"> </span><span class="n">boundary</span><span class="p">,</span><span class="w"> </span><span class="n">bus_addr_t</span><span class="w"> </span><span class="n">lowaddr</span><span class="p">,</span>
+<a id="__codelineno-17-3" name="__codelineno-17-3" href="#__codelineno-17-3"></a><span class="w">                       </span><span class="n">bus_addr_t</span><span class="w"> </span><span class="n">highaddr</span><span class="p">,</span><span class="w"> </span><span class="n">bus_size_t</span><span class="w"> </span><span class="n">maxsize</span><span class="p">,</span>
+<a id="__codelineno-17-4" name="__codelineno-17-4" href="#__codelineno-17-4"></a><span class="w">                       </span><span class="kt">int</span><span class="w"> </span><span class="n">nsegments</span><span class="p">,</span><span class="w"> </span><span class="n">bus_size_t</span><span class="w"> </span><span class="n">maxsegsz</span><span class="p">,</span>
+<a id="__codelineno-17-5" name="__codelineno-17-5" href="#__codelineno-17-5"></a><span class="w">                       </span><span class="kt">int</span><span class="w"> </span><span class="n">flags</span><span class="p">,</span><span class="w"> </span><span class="n">bus_dma_tag_t</span><span class="w"> </span><span class="o">*</span><span class="n">dmat</span><span class="p">);</span>
+</code></pre></div>
+<p><strong>Key behavior:</strong>
+- Validates alignment/boundary are powers of 2
+- Inherits constraints from parent tag
+- Sets bounce flags if <code>lowaddr &lt; Maxmem</code> or <code>alignment &gt; 1</code>
+- Pre-allocates bounce pages if <code>BUS_DMA_ALLOCNOW</code></p>
+<p>See <code>sys/platform/pc64/x86_64/busdma_machdep.c:222-331</code>.</p>
+<h4 id="bus_dma_tag_destroy">bus_dma_tag_destroy<a class="headerlink" href="#bus_dma_tag_destroy" title="Permanent link">&para;</a></h4>
+<p>Destroys a DMA tag:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-18-1" name="__codelineno-18-1" href="#__codelineno-18-1"></a><span class="kt">int</span><span class="w"> </span><span class="nf">bus_dma_tag_destroy</span><span class="p">(</span><span class="n">bus_dma_tag_t</span><span class="w"> </span><span class="n">dmat</span><span class="p">);</span>
+</code></pre></div>
+<ul>
+<li>Fails with <code>EBUSY</code> if maps still exist</li>
+<li>Frees bounce zone (for private zones)</li>
+<li>Frees segment array and tag</li>
+</ul>
+<p>See <code>sys/platform/pc64/x86_64/busdma_machdep.c:333-346</code>.</p>
+<h4 id="bus_dmamap_create">bus_dmamap_create<a class="headerlink" href="#bus_dmamap_create" title="Permanent link">&para;</a></h4>
+<p>Creates a DMA map:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-19-1" name="__codelineno-19-1" href="#__codelineno-19-1"></a><span class="kt">int</span><span class="w"> </span><span class="nf">bus_dmamap_create</span><span class="p">(</span><span class="n">bus_dma_tag_t</span><span class="w"> </span><span class="n">dmat</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">flags</span><span class="p">,</span><span class="w"> </span><span class="n">bus_dmamap_t</span><span class="w"> </span><span class="o">*</span><span class="n">mapp</span><span class="p">);</span>
+</code></pre></div>
+<ul>
+<li>Returns NULL map if no bouncing needed</li>
+<li>Allocates map structure and initializes bounce page list</li>
+<li>Allocates bounce pages incrementally up to <code>max_bounce_pages</code></li>
+</ul>
+<p>See <code>sys/platform/pc64/x86_64/busdma_machdep.c:358-433</code>.</p>
+<h4 id="bus_dmamap_destroy">bus_dmamap_destroy<a class="headerlink" href="#bus_dmamap_destroy" title="Permanent link">&para;</a></h4>
+<p>Destroys a DMA map:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-20-1" name="__codelineno-20-1" href="#__codelineno-20-1"></a><span class="kt">int</span><span class="w"> </span><span class="nf">bus_dmamap_destroy</span><span class="p">(</span><span class="n">bus_dma_tag_t</span><span class="w"> </span><span class="n">dmat</span><span class="p">,</span><span class="w"> </span><span class="n">bus_dmamap_t</span><span class="w"> </span><span class="n">map</span><span class="p">);</span>
+</code></pre></div>
+<ul>
+<li>Fails with <code>EBUSY</code> if bounce pages still attached</li>
+<li>Decrements <code>map_count</code> on tag</li>
+</ul>
+<p>See <code>sys/platform/pc64/x86_64/busdma_machdep.c:439-449</code>.</p>
+<h4 id="bus_dmamem_alloc">bus_dmamem_alloc<a class="headerlink" href="#bus_dmamem_alloc" title="Permanent link">&para;</a></h4>
+<p>Allocates DMA-safe memory:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-21-1" name="__codelineno-21-1" href="#__codelineno-21-1"></a><span class="kt">int</span><span class="w"> </span><span class="nf">bus_dmamem_alloc</span><span class="p">(</span><span class="n">bus_dma_tag_t</span><span class="w"> </span><span class="n">dmat</span><span class="p">,</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="o">**</span><span class="n">vaddr</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">flags</span><span class="p">,</span>
+<a id="__codelineno-21-2" name="__codelineno-21-2" href="#__codelineno-21-2"></a><span class="w">                     </span><span class="n">bus_dmamap_t</span><span class="w"> </span><span class="o">*</span><span class="n">mapp</span><span class="p">);</span>
+</code></pre></div>
+<p><strong>Allocation method selection:</strong>
+- Small allocations (<code>maxsize &lt;= PAGE_SIZE</code>, <code>lowaddr &gt;= Maxmem</code>): <code>kmalloc</code>
+- Large/constrained allocations: <code>contigmalloc</code></p>
+<p>The map pointer encodes which allocator was used for later freeing.</p>
+<p>See <code>sys/platform/pc64/x86_64/busdma_machdep.c:480-546</code>.</p>
+<h4 id="bus_dmamem_free">bus_dmamem_free<a class="headerlink" href="#bus_dmamem_free" title="Permanent link">&para;</a></h4>
+<p>Frees DMA-safe memory:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-22-1" name="__codelineno-22-1" href="#__codelineno-22-1"></a><span class="kt">void</span><span class="w"> </span><span class="nf">bus_dmamem_free</span><span class="p">(</span><span class="n">bus_dma_tag_t</span><span class="w"> </span><span class="n">dmat</span><span class="p">,</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="o">*</span><span class="n">vaddr</span><span class="p">,</span><span class="w"> </span><span class="n">bus_dmamap_t</span><span class="w"> </span><span class="n">map</span><span class="p">);</span>
+</code></pre></div>
+<ul>
+<li><code>map == NULL</code>: uses <code>kfree</code></li>
+<li><code>map == (void *)-1</code>: uses <code>contigfree</code></li>
+</ul>
+<p>See <code>sys/platform/pc64/x86_64/busdma_machdep.c:552-565</code>.</p>
+<h4 id="bus_dmamap_load">bus_dmamap_load<a class="headerlink" href="#bus_dmamap_load" title="Permanent link">&para;</a></h4>
+<p>Loads a buffer for DMA:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-23-1" name="__codelineno-23-1" href="#__codelineno-23-1"></a><span class="kt">int</span><span class="w"> </span><span class="nf">bus_dmamap_load</span><span class="p">(</span><span class="n">bus_dma_tag_t</span><span class="w"> </span><span class="n">dmat</span><span class="p">,</span><span class="w"> </span><span class="n">bus_dmamap_t</span><span class="w"> </span><span class="n">map</span><span class="p">,</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="o">*</span><span class="n">buf</span><span class="p">,</span>
+<a id="__codelineno-23-2" name="__codelineno-23-2" href="#__codelineno-23-2"></a><span class="w">                    </span><span class="n">bus_size_t</span><span class="w"> </span><span class="n">buflen</span><span class="p">,</span><span class="w"> </span><span class="n">bus_dmamap_callback_t</span><span class="w"> </span><span class="o">*</span><span class="n">callback</span><span class="p">,</span>
+<a id="__codelineno-23-3" name="__codelineno-23-3" href="#__codelineno-23-3"></a><span class="w">                    </span><span class="kt">void</span><span class="w"> </span><span class="o">*</span><span class="n">callback_arg</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">flags</span><span class="p">);</span>
+</code></pre></div>
+<p><strong>Algorithm:</strong>
+1. Count bounce pages needed
+2. Reserve bounce pages with zone lock held
+3. Per-page loop:
+   - Extract physical address
+   - If needs bouncing, substitute bounce page address
+   - Coalesce contiguous segments
+   - Handle boundary and <code>maxsegsz</code> constraints
+4. If insufficient bounce pages, return <code>EINPROGRESS</code> (deferred)
+5. Otherwise call callback immediately with segments</p>
+<p><strong>Bounce page need determination:</strong>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-24-1" name="__codelineno-24-1" href="#__codelineno-24-1"></a><span class="k">static</span><span class="w"> </span><span class="kr">__inline</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="nf">addr_needs_bounce</span><span class="p">(</span><span class="n">bus_dma_tag_t</span><span class="w"> </span><span class="n">dmat</span><span class="p">,</span><span class="w"> </span><span class="n">bus_addr_t</span><span class="w"> </span><span class="n">paddr</span><span class="p">)</span>
+<a id="__codelineno-24-2" name="__codelineno-24-2" href="#__codelineno-24-2"></a><span class="p">{</span>
+<a id="__codelineno-24-3" name="__codelineno-24-3" href="#__codelineno-24-3"></a><span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">((</span><span class="n">paddr</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="n">dmat</span><span class="o">-&gt;</span><span class="n">lowaddr</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">paddr</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="n">dmat</span><span class="o">-&gt;</span><span class="n">highaddr</span><span class="p">)</span><span class="w"> </span><span class="o">||</span>
+<a id="__codelineno-24-4" name="__codelineno-24-4" href="#__codelineno-24-4"></a><span class="w">         </span><span class="p">(</span><span class="n">bounce_alignment</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="p">(</span><span class="n">paddr</span><span class="w"> </span><span class="o">&amp;</span><span class="w"> </span><span class="p">(</span><span class="n">dmat</span><span class="o">-&gt;</span><span class="n">alignment</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mi">1</span><span class="p">))</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="mi">0</span><span class="p">))</span>
+<a id="__codelineno-24-5" name="__codelineno-24-5" href="#__codelineno-24-5"></a><span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="p">(</span><span class="mi">1</span><span class="p">);</span>
+<a id="__codelineno-24-6" name="__codelineno-24-6" href="#__codelineno-24-6"></a><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="p">(</span><span class="mi">0</span><span class="p">);</span>
+<a id="__codelineno-24-7" name="__codelineno-24-7" href="#__codelineno-24-7"></a><span class="p">}</span>
+</code></pre></div></p>
+<p>See <code>sys/platform/pc64/x86_64/busdma_machdep.c:766-807</code>.</p>
+<h4 id="specialized-load-functions">Specialized Load Functions<a class="headerlink" href="#specialized-load-functions" title="Permanent link">&para;</a></h4>
+<p><strong>bus_dmamap_load_mbuf()</strong> - Loads an mbuf chain:
+<div class="highlight"><pre><span></span><code><a id="__codelineno-25-1" name="__codelineno-25-1" href="#__codelineno-25-1"></a><span class="kt">int</span><span class="w"> </span><span class="nf">bus_dmamap_load_mbuf</span><span class="p">(</span><span class="n">bus_dma_tag_t</span><span class="w"> </span><span class="n">dmat</span><span class="p">,</span><span class="w"> </span><span class="n">bus_dmamap_t</span><span class="w"> </span><span class="n">map</span><span class="p">,</span>
+<a id="__codelineno-25-2" name="__codelineno-25-2" href="#__codelineno-25-2"></a><span class="w">                         </span><span class="k">struct</span><span class="w"> </span><span class="nc">mbuf</span><span class="w"> </span><span class="o">*</span><span class="n">m0</span><span class="p">,</span>
+<a id="__codelineno-25-3" name="__codelineno-25-3" href="#__codelineno-25-3"></a><span class="w">                         </span><span class="n">bus_dmamap_callback2_t</span><span class="w"> </span><span class="o">*</span><span class="n">callback</span><span class="p">,</span>
+<a id="__codelineno-25-4" name="__codelineno-25-4" href="#__codelineno-25-4"></a><span class="w">                         </span><span class="kt">void</span><span class="w"> </span><span class="o">*</span><span class="n">callback_arg</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">flags</span><span class="p">);</span>
+</code></pre></div>
+See <code>sys/platform/pc64/x86_64/busdma_machdep.c:836-867</code>.</p>
+<p><strong>bus_dmamap_load_mbuf_segment()</strong> - Loads mbuf with direct segment return:
+<div class="highlight"><pre><span></span><code><a id="__codelineno-26-1" name="__codelineno-26-1" href="#__codelineno-26-1"></a><span class="kt">int</span><span class="w"> </span><span class="nf">bus_dmamap_load_mbuf_segment</span><span class="p">(</span><span class="n">bus_dma_tag_t</span><span class="w"> </span><span class="n">dmat</span><span class="p">,</span><span class="w"> </span><span class="n">bus_dmamap_t</span><span class="w"> </span><span class="n">map</span><span class="p">,</span>
+<a id="__codelineno-26-2" name="__codelineno-26-2" href="#__codelineno-26-2"></a><span class="w">                                 </span><span class="k">struct</span><span class="w"> </span><span class="nc">mbuf</span><span class="w"> </span><span class="o">*</span><span class="n">m0</span><span class="p">,</span>
+<a id="__codelineno-26-3" name="__codelineno-26-3" href="#__codelineno-26-3"></a><span class="w">                                 </span><span class="n">bus_dma_segment_t</span><span class="w"> </span><span class="o">*</span><span class="n">segs</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">maxsegs</span><span class="p">,</span>
+<a id="__codelineno-26-4" name="__codelineno-26-4" href="#__codelineno-26-4"></a><span class="w">                                 </span><span class="kt">int</span><span class="w"> </span><span class="o">*</span><span class="n">nsegs</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">flags</span><span class="p">);</span>
+</code></pre></div>
+See <code>sys/platform/pc64/x86_64/busdma_machdep.c:869-923</code>.</p>
+<p><strong>bus_dmamap_load_uio()</strong> - Loads user I/O vector:
+<div class="highlight"><pre><span></span><code><a id="__codelineno-27-1" name="__codelineno-27-1" href="#__codelineno-27-1"></a><span class="kt">int</span><span class="w"> </span><span class="nf">bus_dmamap_load_uio</span><span class="p">(</span><span class="n">bus_dma_tag_t</span><span class="w"> </span><span class="n">dmat</span><span class="p">,</span><span class="w"> </span><span class="n">bus_dmamap_t</span><span class="w"> </span><span class="n">map</span><span class="p">,</span>
+<a id="__codelineno-27-2" name="__codelineno-27-2" href="#__codelineno-27-2"></a><span class="w">                        </span><span class="k">struct</span><span class="w"> </span><span class="nc">uio</span><span class="w"> </span><span class="o">*</span><span class="n">uio</span><span class="p">,</span>
+<a id="__codelineno-27-3" name="__codelineno-27-3" href="#__codelineno-27-3"></a><span class="w">                        </span><span class="n">bus_dmamap_callback2_t</span><span class="w"> </span><span class="o">*</span><span class="n">callback</span><span class="p">,</span>
+<a id="__codelineno-27-4" name="__codelineno-27-4" href="#__codelineno-27-4"></a><span class="w">                        </span><span class="kt">void</span><span class="w"> </span><span class="o">*</span><span class="n">callback_arg</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">flags</span><span class="p">);</span>
+</code></pre></div>
+See <code>sys/platform/pc64/x86_64/busdma_machdep.c:928-1017</code>.</p>
+<h4 id="bus_dmamap_unload">bus_dmamap_unload<a class="headerlink" href="#bus_dmamap_unload" title="Permanent link">&para;</a></h4>
+<p>Unloads a DMA mapping:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-28-1" name="__codelineno-28-1" href="#__codelineno-28-1"></a><span class="kt">void</span><span class="w"> </span><span class="nf">bus_dmamap_unload</span><span class="p">(</span><span class="n">bus_dma_tag_t</span><span class="w"> </span><span class="n">dmat</span><span class="p">,</span><span class="w"> </span><span class="n">bus_dmamap_t</span><span class="w"> </span><span class="n">map</span><span class="p">);</span>
+</code></pre></div>
+<ul>
+<li>Frees all bounce pages associated with map</li>
+</ul>
+<p>See <code>sys/platform/pc64/x86_64/busdma_machdep.c:1022-1031</code>.</p>
+<h4 id="bus_dmamap_sync">bus_dmamap_sync<a class="headerlink" href="#bus_dmamap_sync" title="Permanent link">&para;</a></h4>
+<p>Synchronizes DMA memory:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-29-1" name="__codelineno-29-1" href="#__codelineno-29-1"></a><span class="kt">void</span><span class="w"> </span><span class="nf">bus_dmamap_sync</span><span class="p">(</span><span class="n">bus_dma_tag_t</span><span class="w"> </span><span class="n">dmat</span><span class="p">,</span><span class="w"> </span><span class="n">bus_dmamap_t</span><span class="w"> </span><span class="n">map</span><span class="p">,</span>
+<a id="__codelineno-29-2" name="__codelineno-29-2" href="#__codelineno-29-2"></a><span class="w">                     </span><span class="n">bus_dmasync_op_t</span><span class="w"> </span><span class="n">op</span><span class="p">);</span>
+</code></pre></div>
+<p><strong>Bounce buffer handling on x86:</strong>
+- <code>PREWRITE</code>: Copy data from client to bounce buffer, then <code>cpu_sfence()</code>
+- <code>POSTREAD</code>: <code>cpu_lfence()</code>, then copy data from bounce to client buffer
+- <code>PREREAD</code>/<code>POSTWRITE</code>: No operation (cache coherent)</p>
+<p>See <code>sys/platform/pc64/x86_64/busdma_machdep.c:1033-1067</code>.</p>
+<h3 id="bounce-buffer-infrastructure">Bounce Buffer Infrastructure<a class="headerlink" href="#bounce-buffer-infrastructure" title="Permanent link">&para;</a></h3>
+<h4 id="struct-bounce_page">struct bounce_page<a class="headerlink" href="#struct-bounce_page" title="Permanent link">&para;</a></h4>
+<p>Individual bounce page:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-30-1" name="__codelineno-30-1" href="#__codelineno-30-1"></a><span class="k">struct</span><span class="w"> </span><span class="nc">bounce_page</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-30-2" name="__codelineno-30-2" href="#__codelineno-30-2"></a><span class="w">    </span><span class="n">vm_offset_t</span><span class="w"> </span><span class="n">vaddr</span><span class="p">;</span><span class="w">          </span><span class="cm">/* kva of bounce buffer */</span>
+<a id="__codelineno-30-3" name="__codelineno-30-3" href="#__codelineno-30-3"></a><span class="w">    </span><span class="n">bus_addr_t</span><span class="w">  </span><span class="n">busaddr</span><span class="p">;</span><span class="w">        </span><span class="cm">/* physical address */</span>
+<a id="__codelineno-30-4" name="__codelineno-30-4" href="#__codelineno-30-4"></a><span class="w">    </span><span class="n">vm_offset_t</span><span class="w"> </span><span class="n">datavaddr</span><span class="p">;</span><span class="w">      </span><span class="cm">/* kva of client data */</span>
+<a id="__codelineno-30-5" name="__codelineno-30-5" href="#__codelineno-30-5"></a><span class="w">    </span><span class="n">bus_size_t</span><span class="w">  </span><span class="n">datacount</span><span class="p">;</span><span class="w">      </span><span class="cm">/* client data count */</span>
+<a id="__codelineno-30-6" name="__codelineno-30-6" href="#__codelineno-30-6"></a><span class="w">    </span><span class="n">STAILQ_ENTRY</span><span class="p">(</span><span class="n">bounce_page</span><span class="p">)</span><span class="w"> </span><span class="n">links</span><span class="p">;</span>
+<a id="__codelineno-30-7" name="__codelineno-30-7" href="#__codelineno-30-7"></a><span class="p">};</span>
+</code></pre></div>
+<p>Defined in <code>sys/platform/pc64/x86_64/busdma_machdep.c:93-99</code>.</p>
+<h4 id="struct-bounce_zone">struct bounce_zone<a class="headerlink" href="#struct-bounce_zone" title="Permanent link">&para;</a></h4>
+<p>Zone managing bounce pages:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-31-1" name="__codelineno-31-1" href="#__codelineno-31-1"></a><span class="k">struct</span><span class="w"> </span><span class="nc">bounce_zone</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-31-2" name="__codelineno-31-2" href="#__codelineno-31-2"></a><span class="w">    </span><span class="n">STAILQ_ENTRY</span><span class="p">(</span><span class="n">bounce_zone</span><span class="p">)</span><span class="w"> </span><span class="n">links</span><span class="p">;</span>
+<a id="__codelineno-31-3" name="__codelineno-31-3" href="#__codelineno-31-3"></a><span class="w">    </span><span class="n">STAILQ_HEAD</span><span class="p">(</span><span class="n">bp_list</span><span class="p">,</span><span class="w"> </span><span class="n">bounce_page</span><span class="p">)</span><span class="w"> </span><span class="n">bounce_page_list</span><span class="p">;</span>
+<a id="__codelineno-31-4" name="__codelineno-31-4" href="#__codelineno-31-4"></a><span class="w">    </span><span class="n">STAILQ_HEAD</span><span class="p">(,</span><span class="w"> </span><span class="n">bus_dmamap</span><span class="p">)</span><span class="w"> </span><span class="n">bounce_map_waitinglist</span><span class="p">;</span>
+<a id="__codelineno-31-5" name="__codelineno-31-5" href="#__codelineno-31-5"></a><span class="w">    </span><span class="k">struct</span><span class="w"> </span><span class="nc">spinlock</span><span class="w"> </span><span class="n">spin</span><span class="p">;</span>
+<a id="__codelineno-31-6" name="__codelineno-31-6" href="#__codelineno-31-6"></a><span class="w">    </span><span class="kt">int</span><span class="w">             </span><span class="n">total_bpages</span><span class="p">;</span><span class="w">       </span><span class="cm">/* total bounce pages */</span>
+<a id="__codelineno-31-7" name="__codelineno-31-7" href="#__codelineno-31-7"></a><span class="w">    </span><span class="kt">int</span><span class="w">             </span><span class="n">free_bpages</span><span class="p">;</span><span class="w">        </span><span class="cm">/* free bounce pages */</span>
+<a id="__codelineno-31-8" name="__codelineno-31-8" href="#__codelineno-31-8"></a><span class="w">    </span><span class="kt">int</span><span class="w">             </span><span class="n">reserved_bpages</span><span class="p">;</span><span class="w">    </span><span class="cm">/* reserved bounce pages */</span>
+<a id="__codelineno-31-9" name="__codelineno-31-9" href="#__codelineno-31-9"></a><span class="w">    </span><span class="kt">int</span><span class="w">             </span><span class="n">active_bpages</span><span class="p">;</span><span class="w">      </span><span class="cm">/* in-use bounce pages */</span>
+<a id="__codelineno-31-10" name="__codelineno-31-10" href="#__codelineno-31-10"></a><span class="w">    </span><span class="kt">int</span><span class="w">             </span><span class="n">total_bounced</span><span class="p">;</span><span class="w">      </span><span class="cm">/* total transfers bounced */</span>
+<a id="__codelineno-31-11" name="__codelineno-31-11" href="#__codelineno-31-11"></a><span class="w">    </span><span class="kt">int</span><span class="w">             </span><span class="n">total_deferred</span><span class="p">;</span><span class="w">     </span><span class="cm">/* total deferred operations */</span>
+<a id="__codelineno-31-12" name="__codelineno-31-12" href="#__codelineno-31-12"></a><span class="w">    </span><span class="kt">int</span><span class="w">             </span><span class="n">reserve_failed</span><span class="p">;</span><span class="w">     </span><span class="cm">/* failed reservations */</span>
+<a id="__codelineno-31-13" name="__codelineno-31-13" href="#__codelineno-31-13"></a><span class="w">    </span><span class="n">bus_size_t</span><span class="w">      </span><span class="n">alignment</span><span class="p">;</span><span class="w">          </span><span class="cm">/* zone alignment */</span>
+<a id="__codelineno-31-14" name="__codelineno-31-14" href="#__codelineno-31-14"></a><span class="w">    </span><span class="n">bus_addr_t</span><span class="w">      </span><span class="n">lowaddr</span><span class="p">;</span><span class="w">            </span><span class="cm">/* zone low address limit */</span>
+<a id="__codelineno-31-15" name="__codelineno-31-15" href="#__codelineno-31-15"></a><span class="w">    </span><span class="kt">char</span><span class="w">            </span><span class="n">zoneid</span><span class="p">[</span><span class="mi">8</span><span class="p">];</span><span class="w">          </span><span class="cm">/* zone identifier */</span>
+<a id="__codelineno-31-16" name="__codelineno-31-16" href="#__codelineno-31-16"></a><span class="w">    </span><span class="kt">char</span><span class="w">            </span><span class="n">lowaddrid</span><span class="p">[</span><span class="mi">20</span><span class="p">];</span><span class="w">      </span><span class="cm">/* low address string */</span>
+<a id="__codelineno-31-17" name="__codelineno-31-17" href="#__codelineno-31-17"></a><span class="w">    </span><span class="k">struct</span><span class="w"> </span><span class="nc">sysctl_ctx_list</span><span class="w"> </span><span class="n">sysctl_ctx</span><span class="p">;</span>
+<a id="__codelineno-31-18" name="__codelineno-31-18" href="#__codelineno-31-18"></a><span class="w">    </span><span class="k">struct</span><span class="w"> </span><span class="nc">sysctl_oid</span><span class="w"> </span><span class="o">*</span><span class="n">sysctl_tree</span><span class="p">;</span>
+<a id="__codelineno-31-19" name="__codelineno-31-19" href="#__codelineno-31-19"></a><span class="p">};</span>
+</code></pre></div>
+<p>Defined in <code>sys/platform/pc64/x86_64/busdma_machdep.c:101-119</code>.</p>
+<h4 id="zone-management">Zone Management<a class="headerlink" href="#zone-management" title="Permanent link">&para;</a></h4>
+<p>Bounce zones are shared by default. Multiple tags with compatible constraints
+share a zone. Private zones can be requested with <code>BUS_DMA_PRIVBZONE</code>.</p>
+<p><strong>alloc_bounce_zone()</strong> - Creates or finds compatible zone:
+See <code>sys/platform/pc64/x86_64/busdma_machdep.c:1069-1167</code>.</p>
+<p><strong>alloc_bounce_pages()</strong> - Allocates pages using <code>contigmalloc</code>:
+See <code>sys/platform/pc64/x86_64/busdma_machdep.c:1169-1206</code>.</p>
+<p><strong>reserve_bounce_pages()</strong> - Reserves pages from free pool:
+See <code>sys/platform/pc64/x86_64/busdma_machdep.c:1262-1283</code>.</p>
+<p><strong>return_bounce_pages()</strong> - Returns pages to free pool, wakes waiters:
+See <code>sys/platform/pc64/x86_64/busdma_machdep.c:1285-1312</code>.</p>
+<h3 id="deferred-operations">Deferred Operations<a class="headerlink" href="#deferred-operations" title="Permanent link">&para;</a></h3>
+<p>When bounce pages are unavailable, <code>bus_dmamap_load()</code> returns <code>EINPROGRESS</code>
+and the map is added to a waiting list. The <code>busdma_swi()</code> software interrupt
+handler processes waiting maps when bounce pages become available.</p>
+<p>See <code>sys/platform/pc64/x86_64/busdma_machdep.c:1436-1450</code>.</p>
+<h3 id="helper-functions">Helper Functions<a class="headerlink" href="#helper-functions" title="Permanent link">&para;</a></h3>
+<h4 id="bus_dmamem_coherent">bus_dmamem_coherent<a class="headerlink" href="#bus_dmamem_coherent" title="Permanent link">&para;</a></h4>
+<p>Allocates coherent DMA memory in one call:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-32-1" name="__codelineno-32-1" href="#__codelineno-32-1"></a><span class="kt">int</span><span class="w"> </span><span class="nf">bus_dmamem_coherent</span><span class="p">(</span><span class="n">bus_dma_tag_t</span><span class="w"> </span><span class="n">parent</span><span class="p">,</span>
+<a id="__codelineno-32-2" name="__codelineno-32-2" href="#__codelineno-32-2"></a><span class="w">                        </span><span class="n">bus_size_t</span><span class="w"> </span><span class="n">alignment</span><span class="p">,</span><span class="w"> </span><span class="n">bus_size_t</span><span class="w"> </span><span class="n">boundary</span><span class="p">,</span>
+<a id="__codelineno-32-3" name="__codelineno-32-3" href="#__codelineno-32-3"></a><span class="w">                        </span><span class="n">bus_addr_t</span><span class="w"> </span><span class="n">lowaddr</span><span class="p">,</span><span class="w"> </span><span class="n">bus_addr_t</span><span class="w"> </span><span class="n">highaddr</span><span class="p">,</span>
+<a id="__codelineno-32-4" name="__codelineno-32-4" href="#__codelineno-32-4"></a><span class="w">                        </span><span class="n">bus_size_t</span><span class="w"> </span><span class="n">maxsize</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">flags</span><span class="p">,</span>
+<a id="__codelineno-32-5" name="__codelineno-32-5" href="#__codelineno-32-5"></a><span class="w">                        </span><span class="n">bus_dmamem_t</span><span class="w"> </span><span class="o">*</span><span class="n">dmem</span><span class="p">);</span>
+</code></pre></div>
+<p>Creates tag, allocates memory, and loads mapping.</p>
+<p>See <code>sys/kern/subr_busdma.c:53-95</code>.</p>
+<h4 id="bus_dmamem_coherent_any">bus_dmamem_coherent_any<a class="headerlink" href="#bus_dmamem_coherent_any" title="Permanent link">&para;</a></h4>
+<p>Simplified coherent allocation with no boundary:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-33-1" name="__codelineno-33-1" href="#__codelineno-33-1"></a><span class="kt">void</span><span class="w"> </span><span class="o">*</span><span class="nf">bus_dmamem_coherent_any</span><span class="p">(</span><span class="n">bus_dma_tag_t</span><span class="w"> </span><span class="n">parent</span><span class="p">,</span>
+<a id="__codelineno-33-2" name="__codelineno-33-2" href="#__codelineno-33-2"></a><span class="w">                              </span><span class="n">bus_size_t</span><span class="w"> </span><span class="n">alignment</span><span class="p">,</span><span class="w"> </span><span class="n">bus_size_t</span><span class="w"> </span><span class="n">size</span><span class="p">,</span>
+<a id="__codelineno-33-3" name="__codelineno-33-3" href="#__codelineno-33-3"></a><span class="w">                              </span><span class="kt">int</span><span class="w"> </span><span class="n">flags</span><span class="p">,</span>
+<a id="__codelineno-33-4" name="__codelineno-33-4" href="#__codelineno-33-4"></a><span class="w">                              </span><span class="n">bus_dma_tag_t</span><span class="w"> </span><span class="o">*</span><span class="n">dtag</span><span class="p">,</span><span class="w"> </span><span class="n">bus_dmamap_t</span><span class="w"> </span><span class="o">*</span><span class="n">dmap</span><span class="p">,</span>
+<a id="__codelineno-33-5" name="__codelineno-33-5" href="#__codelineno-33-5"></a><span class="w">                              </span><span class="n">bus_addr_t</span><span class="w"> </span><span class="o">*</span><span class="n">busaddr</span><span class="p">);</span>
+</code></pre></div>
+<p>See <code>sys/kern/subr_busdma.c:97-117</code>.</p>
+<h4 id="bus_dmamap_load_mbuf_defrag">bus_dmamap_load_mbuf_defrag<a class="headerlink" href="#bus_dmamap_load_mbuf_defrag" title="Permanent link">&para;</a></h4>
+<p>Loads mbuf with automatic defragmentation:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-34-1" name="__codelineno-34-1" href="#__codelineno-34-1"></a><span class="kt">int</span><span class="w"> </span><span class="nf">bus_dmamap_load_mbuf_defrag</span><span class="p">(</span><span class="n">bus_dma_tag_t</span><span class="w"> </span><span class="n">dmat</span><span class="p">,</span><span class="w"> </span><span class="n">bus_dmamap_t</span><span class="w"> </span><span class="n">map</span><span class="p">,</span>
+<a id="__codelineno-34-2" name="__codelineno-34-2" href="#__codelineno-34-2"></a><span class="w">                                </span><span class="k">struct</span><span class="w"> </span><span class="nc">mbuf</span><span class="w"> </span><span class="o">**</span><span class="n">m_head</span><span class="p">,</span>
+<a id="__codelineno-34-3" name="__codelineno-34-3" href="#__codelineno-34-3"></a><span class="w">                                </span><span class="n">bus_dma_segment_t</span><span class="w"> </span><span class="o">*</span><span class="n">segs</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">maxsegs</span><span class="p">,</span>
+<a id="__codelineno-34-4" name="__codelineno-34-4" href="#__codelineno-34-4"></a><span class="w">                                </span><span class="kt">int</span><span class="w"> </span><span class="o">*</span><span class="n">nsegs</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">flags</span><span class="p">);</span>
+</code></pre></div>
+<p>Tries normal load first; if <code>EFBIG</code> (too many segments), defragments
+the mbuf and retries.</p>
+<p>See <code>sys/kern/subr_busdma.c:119-143</code>.</p>
+<h3 id="bus-space-operations">Bus Space Operations<a class="headerlink" href="#bus-space-operations" title="Permanent link">&para;</a></h3>
+<h4 id="types-x86_64">Types (x86_64)<a class="headerlink" href="#types-x86_64" title="Permanent link">&para;</a></h4>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-35-1" name="__codelineno-35-1" href="#__codelineno-35-1"></a><span class="k">typedef</span><span class="w"> </span><span class="kt">uint64_t</span><span class="w"> </span><span class="n">bus_addr_t</span><span class="p">;</span>
+<a id="__codelineno-35-2" name="__codelineno-35-2" href="#__codelineno-35-2"></a><span class="k">typedef</span><span class="w"> </span><span class="kt">uint64_t</span><span class="w"> </span><span class="n">bus_size_t</span><span class="p">;</span>
+<a id="__codelineno-35-3" name="__codelineno-35-3" href="#__codelineno-35-3"></a><span class="k">typedef</span><span class="w"> </span><span class="kt">uint64_t</span><span class="w"> </span><span class="n">bus_space_tag_t</span><span class="p">;</span>
+<a id="__codelineno-35-4" name="__codelineno-35-4" href="#__codelineno-35-4"></a><span class="k">typedef</span><span class="w"> </span><span class="kt">uint64_t</span><span class="w"> </span><span class="n">bus_space_handle_t</span><span class="p">;</span>
+</code></pre></div>
+<p><strong>Bus space tags:</strong>
+- <code>X86_64_BUS_SPACE_IO</code> (0) - I/O port space
+- <code>X86_64_BUS_SPACE_MEM</code> (1) - Memory-mapped space</p>
+<p><strong>Address limits:</strong>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-36-1" name="__codelineno-36-1" href="#__codelineno-36-1"></a><span class="cp">#define BUS_SPACE_MAXADDR_24BIT 0xFFFFFFUL</span>
+<a id="__codelineno-36-2" name="__codelineno-36-2" href="#__codelineno-36-2"></a><span class="cp">#define BUS_SPACE_MAXADDR_32BIT 0xFFFFFFFFUL</span>
+<a id="__codelineno-36-3" name="__codelineno-36-3" href="#__codelineno-36-3"></a><span class="cp">#define BUS_SPACE_MAXADDR       0xFFFFFFFFFFFFFFFFUL</span>
+</code></pre></div></p>
+<p>Defined in <code>sys/cpu/x86_64/include/bus_dma.h:36-55</code>.</p>
+<h4 id="bus_space_map-bus_space_unmap">bus_space_map / bus_space_unmap<a class="headerlink" href="#bus_space_map-bus_space_unmap" title="Permanent link">&para;</a></h4>
+<p>Maps bus space to kernel virtual address:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-37-1" name="__codelineno-37-1" href="#__codelineno-37-1"></a><span class="kt">int</span><span class="w"> </span><span class="nf">bus_space_map</span><span class="p">(</span><span class="n">bus_space_tag_t</span><span class="w"> </span><span class="n">t</span><span class="p">,</span><span class="w"> </span><span class="n">bus_addr_t</span><span class="w"> </span><span class="n">addr</span><span class="p">,</span><span class="w"> </span><span class="n">bus_size_t</span><span class="w"> </span><span class="n">size</span><span class="p">,</span>
+<a id="__codelineno-37-2" name="__codelineno-37-2" href="#__codelineno-37-2"></a><span class="w">                  </span><span class="kt">int</span><span class="w"> </span><span class="n">flags</span><span class="p">,</span><span class="w"> </span><span class="n">bus_space_handle_t</span><span class="w"> </span><span class="o">*</span><span class="n">bshp</span><span class="p">);</span>
+<a id="__codelineno-37-3" name="__codelineno-37-3" href="#__codelineno-37-3"></a><span class="kt">void</span><span class="w"> </span><span class="nf">bus_space_unmap</span><span class="p">(</span><span class="n">bus_space_tag_t</span><span class="w"> </span><span class="n">t</span><span class="p">,</span><span class="w"> </span><span class="n">bus_space_handle_t</span><span class="w"> </span><span class="n">bsh</span><span class="p">,</span>
+<a id="__codelineno-37-4" name="__codelineno-37-4" href="#__codelineno-37-4"></a><span class="w">                     </span><span class="n">bus_size_t</span><span class="w"> </span><span class="n">size</span><span class="p">);</span>
+</code></pre></div>
+<ul>
+<li>Memory space: uses <code>pmap_mapdev()</code>/<code>pmap_unmapdev()</code></li>
+<li>I/O space: returns address directly (no mapping needed)</li>
+</ul>
+<p>See <code>sys/platform/pc64/x86_64/busdma_machdep.c:1452-1469</code>.</p>
+<h4 id="bus_space_barrier">bus_space_barrier<a class="headerlink" href="#bus_space_barrier" title="Permanent link">&para;</a></h4>
+<p>Memory barrier for bus operations:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-38-1" name="__codelineno-38-1" href="#__codelineno-38-1"></a><span class="k">static</span><span class="w"> </span><span class="kr">__inline</span><span class="w"> </span><span class="kt">void</span>
+<a id="__codelineno-38-2" name="__codelineno-38-2" href="#__codelineno-38-2"></a><span class="nf">bus_space_barrier</span><span class="p">(</span><span class="n">bus_space_tag_t</span><span class="w"> </span><span class="n">tag</span><span class="p">,</span><span class="w"> </span><span class="n">bus_space_handle_t</span><span class="w"> </span><span class="n">bsh</span><span class="p">,</span>
+<a id="__codelineno-38-3" name="__codelineno-38-3" href="#__codelineno-38-3"></a><span class="w">                  </span><span class="n">bus_size_t</span><span class="w"> </span><span class="n">offset</span><span class="p">,</span><span class="w"> </span><span class="n">bus_size_t</span><span class="w"> </span><span class="n">len</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">flags</span><span class="p">)</span>
+<a id="__codelineno-38-4" name="__codelineno-38-4" href="#__codelineno-38-4"></a><span class="p">{</span>
+<a id="__codelineno-38-5" name="__codelineno-38-5" href="#__codelineno-38-5"></a><span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">flags</span><span class="w"> </span><span class="o">&amp;</span><span class="w"> </span><span class="n">BUS_SPACE_BARRIER_READ</span><span class="p">)</span>
+<a id="__codelineno-38-6" name="__codelineno-38-6" href="#__codelineno-38-6"></a><span class="w">        </span><span class="kr">__asm</span><span class="w"> </span><span class="n">__volatile</span><span class="p">(</span><span class="s">&quot;lock; addl $0,0(%%rsp)&quot;</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="s">&quot;memory&quot;</span><span class="p">);</span>
+<a id="__codelineno-38-7" name="__codelineno-38-7" href="#__codelineno-38-7"></a><span class="w">    </span><span class="k">else</span>
+<a id="__codelineno-38-8" name="__codelineno-38-8" href="#__codelineno-38-8"></a><span class="w">        </span><span class="kr">__asm</span><span class="w"> </span><span class="n">__volatile</span><span class="p">(</span><span class="s">&quot;&quot;</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="s">&quot;memory&quot;</span><span class="p">);</span>
+<a id="__codelineno-38-9" name="__codelineno-38-9" href="#__codelineno-38-9"></a><span class="p">}</span>
+</code></pre></div>
+<ul>
+<li>Read barrier: uses locked instruction for MFENCE semantics</li>
+<li>Write barrier: compiler barrier only (x86 has strong ordering)</li>
+</ul>
+<p>Defined in <code>sys/cpu/x86_64/include/bus_dma.h:893-901</code>.</p>
+<h3 id="sysctl-interface_1">Sysctl Interface<a class="headerlink" href="#sysctl-interface_1" title="Permanent link">&para;</a></h3>
+<p><strong>Global tunables:</strong>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-39-1" name="__codelineno-39-1" href="#__codelineno-39-1"></a>hw.busdma.max_bpages     - Maximum bounce pages (default 1024)
+<a id="__codelineno-39-2" name="__codelineno-39-2" href="#__codelineno-39-2"></a>hw.busdma.bounce_alignment - Enable alignment bouncing (default 1)
+</code></pre></div></p>
+<p><strong>Per-zone statistics via <code>hw.busdma.zoneN.*</code>:</strong>
+- <code>total_bpages</code> - Total bounce pages in zone
+- <code>free_bpages</code> - Free bounce pages
+- <code>reserved_bpages</code> - Reserved bounce pages
+- <code>active_bpages</code> - Active (in-use) bounce pages
+- <code>total_bounced</code> - Total bounce operations
+- <code>total_deferred</code> - Total deferred operations
+- <code>reserve_failed</code> - Failed reservations
+- <code>lowaddr</code> - Zone low address constraint
+- <code>alignment</code> - Zone alignment constraint</p>
+<h2 id="example-dma-buffer-allocation">Example: DMA Buffer Allocation<a class="headerlink" href="#example-dma-buffer-allocation" title="Permanent link">&para;</a></h2>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-40-1" name="__codelineno-40-1" href="#__codelineno-40-1"></a><span class="n">bus_dma_tag_t</span><span class="w">   </span><span class="n">tag</span><span class="p">;</span>
+<a id="__codelineno-40-2" name="__codelineno-40-2" href="#__codelineno-40-2"></a><span class="n">bus_dmamap_t</span><span class="w">    </span><span class="n">map</span><span class="p">;</span>
+<a id="__codelineno-40-3" name="__codelineno-40-3" href="#__codelineno-40-3"></a><span class="kt">void</span><span class="w">            </span><span class="o">*</span><span class="n">vaddr</span><span class="p">;</span>
+<a id="__codelineno-40-4" name="__codelineno-40-4" href="#__codelineno-40-4"></a><span class="n">bus_addr_t</span><span class="w">      </span><span class="n">paddr</span><span class="p">;</span>
+<a id="__codelineno-40-5" name="__codelineno-40-5" href="#__codelineno-40-5"></a><span class="n">bus_dma_segment_t</span><span class="w"> </span><span class="n">seg</span><span class="p">;</span>
+<a id="__codelineno-40-6" name="__codelineno-40-6" href="#__codelineno-40-6"></a><span class="kt">int</span><span class="w">             </span><span class="n">nseg</span><span class="p">;</span>
+<a id="__codelineno-40-7" name="__codelineno-40-7" href="#__codelineno-40-7"></a>
+<a id="__codelineno-40-8" name="__codelineno-40-8" href="#__codelineno-40-8"></a><span class="cm">/* Create a tag for 4K-aligned, 32-bit addressable memory */</span>
+<a id="__codelineno-40-9" name="__codelineno-40-9" href="#__codelineno-40-9"></a><span class="n">error</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">bus_dma_tag_create</span><span class="p">(</span><span class="nb">NULL</span><span class="p">,</span><span class="w">            </span><span class="cm">/* parent */</span>
+<a id="__codelineno-40-10" name="__codelineno-40-10" href="#__codelineno-40-10"></a><span class="w">                           </span><span class="mi">4096</span><span class="p">,</span><span class="w">            </span><span class="cm">/* alignment */</span>
+<a id="__codelineno-40-11" name="__codelineno-40-11" href="#__codelineno-40-11"></a><span class="w">                           </span><span class="mi">0</span><span class="p">,</span><span class="w">               </span><span class="cm">/* boundary */</span>
+<a id="__codelineno-40-12" name="__codelineno-40-12" href="#__codelineno-40-12"></a><span class="w">                           </span><span class="n">BUS_SPACE_MAXADDR_32BIT</span><span class="p">,</span><span class="w">  </span><span class="cm">/* lowaddr */</span>
+<a id="__codelineno-40-13" name="__codelineno-40-13" href="#__codelineno-40-13"></a><span class="w">                           </span><span class="n">BUS_SPACE_MAXADDR</span><span class="p">,</span><span class="w">        </span><span class="cm">/* highaddr */</span>
+<a id="__codelineno-40-14" name="__codelineno-40-14" href="#__codelineno-40-14"></a><span class="w">                           </span><span class="mi">4096</span><span class="p">,</span><span class="w">            </span><span class="cm">/* maxsize */</span>
+<a id="__codelineno-40-15" name="__codelineno-40-15" href="#__codelineno-40-15"></a><span class="w">                           </span><span class="mi">1</span><span class="p">,</span><span class="w">               </span><span class="cm">/* nsegments */</span>
+<a id="__codelineno-40-16" name="__codelineno-40-16" href="#__codelineno-40-16"></a><span class="w">                           </span><span class="mi">4096</span><span class="p">,</span><span class="w">            </span><span class="cm">/* maxsegsz */</span>
+<a id="__codelineno-40-17" name="__codelineno-40-17" href="#__codelineno-40-17"></a><span class="w">                           </span><span class="mi">0</span><span class="p">,</span><span class="w">               </span><span class="cm">/* flags */</span>
+<a id="__codelineno-40-18" name="__codelineno-40-18" href="#__codelineno-40-18"></a><span class="w">                           </span><span class="o">&amp;</span><span class="n">tag</span><span class="p">);</span>
+<a id="__codelineno-40-19" name="__codelineno-40-19" href="#__codelineno-40-19"></a>
+<a id="__codelineno-40-20" name="__codelineno-40-20" href="#__codelineno-40-20"></a><span class="cm">/* Allocate DMA-safe memory */</span>
+<a id="__codelineno-40-21" name="__codelineno-40-21" href="#__codelineno-40-21"></a><span class="n">error</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">bus_dmamem_alloc</span><span class="p">(</span><span class="n">tag</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">vaddr</span><span class="p">,</span><span class="w"> </span><span class="n">BUS_DMA_WAITOK</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">BUS_DMA_ZERO</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">map</span><span class="p">);</span>
+<a id="__codelineno-40-22" name="__codelineno-40-22" href="#__codelineno-40-22"></a>
+<a id="__codelineno-40-23" name="__codelineno-40-23" href="#__codelineno-40-23"></a><span class="cm">/* Load the buffer to get physical address */</span>
+<a id="__codelineno-40-24" name="__codelineno-40-24" href="#__codelineno-40-24"></a><span class="n">error</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">bus_dmamap_load</span><span class="p">(</span><span class="n">tag</span><span class="p">,</span><span class="w"> </span><span class="n">map</span><span class="p">,</span><span class="w"> </span><span class="n">vaddr</span><span class="p">,</span><span class="w"> </span><span class="mi">4096</span><span class="p">,</span><span class="w"> </span><span class="n">callback</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">paddr</span><span class="p">,</span><span class="w"> </span><span class="n">BUS_DMA_NOWAIT</span><span class="p">);</span>
+<a id="__codelineno-40-25" name="__codelineno-40-25" href="#__codelineno-40-25"></a>
+<a id="__codelineno-40-26" name="__codelineno-40-26" href="#__codelineno-40-26"></a><span class="cm">/* Use the buffer... */</span>
+<a id="__codelineno-40-27" name="__codelineno-40-27" href="#__codelineno-40-27"></a>
+<a id="__codelineno-40-28" name="__codelineno-40-28" href="#__codelineno-40-28"></a><span class="cm">/* Before device reads: */</span>
+<a id="__codelineno-40-29" name="__codelineno-40-29" href="#__codelineno-40-29"></a><span class="n">bus_dmamap_sync</span><span class="p">(</span><span class="n">tag</span><span class="p">,</span><span class="w"> </span><span class="n">map</span><span class="p">,</span><span class="w"> </span><span class="n">BUS_DMASYNC_PREREAD</span><span class="p">);</span>
+<a id="__codelineno-40-30" name="__codelineno-40-30" href="#__codelineno-40-30"></a>
+<a id="__codelineno-40-31" name="__codelineno-40-31" href="#__codelineno-40-31"></a><span class="cm">/* After device reads: */</span>
+<a id="__codelineno-40-32" name="__codelineno-40-32" href="#__codelineno-40-32"></a><span class="n">bus_dmamap_sync</span><span class="p">(</span><span class="n">tag</span><span class="p">,</span><span class="w"> </span><span class="n">map</span><span class="p">,</span><span class="w"> </span><span class="n">BUS_DMASYNC_POSTREAD</span><span class="p">);</span>
+<a id="__codelineno-40-33" name="__codelineno-40-33" href="#__codelineno-40-33"></a>
+<a id="__codelineno-40-34" name="__codelineno-40-34" href="#__codelineno-40-34"></a><span class="cm">/* Cleanup */</span>
+<a id="__codelineno-40-35" name="__codelineno-40-35" href="#__codelineno-40-35"></a><span class="n">bus_dmamap_unload</span><span class="p">(</span><span class="n">tag</span><span class="p">,</span><span class="w"> </span><span class="n">map</span><span class="p">);</span>
+<a id="__codelineno-40-36" name="__codelineno-40-36" href="#__codelineno-40-36"></a><span class="n">bus_dmamem_free</span><span class="p">(</span><span class="n">tag</span><span class="p">,</span><span class="w"> </span><span class="n">vaddr</span><span class="p">,</span><span class="w"> </span><span class="n">map</span><span class="p">);</span>
+<a id="__codelineno-40-37" name="__codelineno-40-37" href="#__codelineno-40-37"></a><span class="n">bus_dmamap_destroy</span><span class="p">(</span><span class="n">tag</span><span class="p">,</span><span class="w"> </span><span class="n">map</span><span class="p">);</span>
+<a id="__codelineno-40-38" name="__codelineno-40-38" href="#__codelineno-40-38"></a><span class="n">bus_dma_tag_destroy</span><span class="p">(</span><span class="n">tag</span><span class="p">);</span>
+</code></pre></div>
+<h2 id="cross-references">Cross-References<a class="headerlink" href="#cross-references" title="Permanent link">&para;</a></h2>
+<ul>
+<li><a href="../newbus/">NewBus Framework</a> - Device/driver infrastructure using rman</li>
+<li><a href="../devices/">Device Framework</a> - Character device layer</li>
+<li><a href="../memory/">Memory Management</a> - Kernel memory allocation</li>
+<li><a href="../vfs/buffer-cache/">Buffer Cache</a> - BIO and buffer management</li>
+</ul>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": ["navigation.tabs", "navigation.sections", "navigation.expand", "navigation.top", "search.suggest", "search.highlight", "content.code.copy"], "search": "../../../assets/javascripts/workers/search.7a47a382.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../../assets/javascripts/bundle.e71a0d61.min.js"></script>
+      
+    
+  </body>
+</html>
