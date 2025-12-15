@@ -1124,6 +1124,40 @@ SYSINIT(disk_register, SI_SUB_PRE_DRIVERS, SI_ORDER_FIRST, disk_init, NULL);
 
 ---
 
+## I/O Scheduling (dsched)
+
+The disk subsystem includes stub entry points for I/O scheduling (`dsched`):
+
+```c
+/* sys/kern/kern_dsched.c - stubs only */
+void dsched_disk_create(struct disk *dp, const char *head_name, int unit) { }
+void dsched_disk_update(struct disk *dp, struct disk_info *info) { }
+void dsched_disk_destroy(struct disk *dp) { }
+```
+
+These functions are called from `disk_create()`, `disk_setdiskinfo()`, and
+`disk_destroy()` but do nothing. The original dsched framework was removed
+in November 2015 (commit `3573cf7bf6`) with this explanation:
+
+> After consultation, remove dsched from the kernel. The original idea is
+> still valid but the current implementation has had lingering bugs for
+> several years now and we've determined that it's just got its fingers
+> into too many structures.
+>
+> Also, the implementation was designed before SSDs, and doesn't play well
+> with SSDs.
+>
+> Leave various empty entry points in so we can revisit at some future date.
+
+The removal deleted ~5,800 lines of code including three I/O schedulers:
+- **BFQ** (Budget Fair Queueing) - ~2,100 lines
+- **FQ** (Fair Queueing) - ~900 lines  
+- **AS** (Anticipatory Scheduler) - ~290 lines
+
+The stub entry points remain to allow potential future reimplementation.
+
+---
+
 ## Sysctl Interface
 
 | Sysctl                   | Type   | Description                        |
