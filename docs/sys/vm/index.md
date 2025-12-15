@@ -4,35 +4,21 @@ The DragonFly BSD virtual memory subsystem manages virtual address spaces, physi
 
 ## Architecture Overview
 
-```
-                    +-------------------+
-                    |     vmspace       |  Per-process address space
-                    | (vm_map + pmap)   |
-                    +--------+----------+
-                             |
-                    +--------v----------+
-                    |      vm_map       |  Virtual address space
-                    |  (vm_map_entry)   |
-                    +--------+----------+
-                             |
-                    +--------v----------+
-                    |  vm_map_backing   |  Backing store chain (DragonFly)
-                    +--------+----------+
-                             |
-                    +--------v----------+
-                    |    vm_object      |  Container for pages
-                    +--------+----------+
-                             |
-              +--------------+--------------+
-              |              |              |
-       +------v------+ +-----v------+ +-----v------+
-       |   vm_page   | |  vm_page   | |  vm_page   |
-       | (resident)  | | (resident) | | (swapped)  |
-       +-------------+ +------------+ +-----+------+
-                                            |
-                                     +------v------+
-                                     | swap_pager  |
-                                     +-------------+
+```mermaid
+flowchart TB
+    subgraph Process["Per-process address space"]
+        vmspace["vmspace<br/>(vm_map + pmap)"]
+    end
+    
+    vmspace --> vm_map["vm_map<br/>(vm_map_entry)"]
+    vm_map --> vm_map_backing["vm_map_backing<br/>Backing store chain"]
+    vm_map_backing --> vm_object["vm_object<br/>Container for pages"]
+    
+    vm_object --> page1["vm_page<br/>(resident)"]
+    vm_object --> page2["vm_page<br/>(resident)"]
+    vm_object --> page3["vm_page<br/>(swapped)"]
+    
+    page3 --> swap_pager["swap_pager"]
 ```
 
 ## Reading Guide
@@ -57,47 +43,45 @@ The DragonFly BSD virtual memory subsystem manages virtual address spaces, physi
 
 ## How Operations Flow Through the VM
 
-```
-USER SPACE                          KERNEL
-──────────                          ──────
-   │
-   │ mmap(file, ...)
-   v
-┌──────────────────────────────────────────────────────────────┐
-│ vm_mmap.c: sys_mmap()                                        │
-│   - Validate parameters                                      │
-│   - Call vm_map_entry_create() to reserve address range      │
-└─────────────────────────┬────────────────────────────────────┘
-                          │
-                          v (returns to user, no pages yet)
-   │
-   │ *ptr = 42;  (first access)
-   v
-┌──────────────────────────────────────────────────────────────┐
-│ vm_fault.c: vm_fault()                                       │
-│   - Lookup vm_map_entry for faulting address                 │
-│   - Walk vm_map_backing chain to find/create vm_object       │
-│   - Call pager (vnode_pager or swap_pager) to load page      │
-└─────────────────────────┬────────────────────────────────────┘
-                          │
-                          v
-┌──────────────────────────────────────────────────────────────┐
-│ vm_page.c: vm_page_alloc()                                   │
-│   - Grab page from PQ_FREE queue                             │
-│   - Associate with vm_object at page index                   │
-│   - Mark busy while I/O in progress                          │
-└─────────────────────────┬────────────────────────────────────┘
-                          │
-                          v (page now resident)
-   │
-   │ (memory pressure)
-   v
-┌──────────────────────────────────────────────────────────────┐
-│ vm_pageout.c: vm_pageout_daemon()                            │
-│   - Scan inactive queue for victims                          │
-│   - Write dirty pages to swap/file                           │
-│   - Move clean pages to free queue                           │
-└──────────────────────────────────────────────────────────────┘
+```mermaid
+flowchart TB
+    subgraph User["USER SPACE"]
+        mmap_call["mmap(file, ...)"]
+        access["*ptr = 42<br/>(first access)"]
+        pressure["(memory pressure)"]
+    end
+    
+    subgraph Kernel["KERNEL"]
+        subgraph sys_mmap["vm_mmap.c: sys_mmap()"]
+            validate["Validate parameters"]
+            create_entry["Call vm_map_entry_create()<br/>to reserve address range"]
+        end
+        
+        subgraph vm_fault["vm_fault.c: vm_fault()"]
+            lookup["Lookup vm_map_entry<br/>for faulting address"]
+            walk["Walk vm_map_backing chain<br/>to find/create vm_object"]
+            call_pager["Call pager (vnode_pager<br/>or swap_pager) to load page"]
+        end
+        
+        subgraph vm_page_alloc["vm_page.c: vm_page_alloc()"]
+            grab["Grab page from PQ_FREE queue"]
+            associate["Associate with vm_object<br/>at page index"]
+            busy["Mark busy while I/O in progress"]
+        end
+        
+        subgraph pageout["vm_pageout.c: vm_pageout_daemon()"]
+            scan["Scan inactive queue for victims"]
+            write["Write dirty pages to swap/file"]
+            move["Move clean pages to free queue"]
+        end
+    end
+    
+    mmap_call --> sys_mmap
+    sys_mmap -->|"returns to user<br/>no pages yet"| access
+    access --> vm_fault
+    vm_fault --> vm_page_alloc
+    vm_page_alloc -->|"page now resident"| pressure
+    pressure --> pageout
 ```
 
 ## Subsystem Documentation

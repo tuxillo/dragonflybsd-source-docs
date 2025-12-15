@@ -36,6 +36,7 @@ jobs:
           pip install mkdocs
           pip install mkdocs-material
           pip install pymdown-extensions
+          pip install mkdocs-mermaid2-plugin
 
       - name: Build and deploy documentation
         run: mkdocs gh-deploy --force
