@@ -1,0 +1,3646 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Comprehensive documentation for the DragonFly BSD kernel source code">
+      
+      
+        <meta name="author" content="DragonFly BSD Community">
+      
+      
+      
+        <link rel="prev" href="../vm_fault/">
+      
+      
+        <link rel="next" href="../vm_mmap/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.0">
+    
+    
+      
+        <title>Pageout & Swap - DragonFly BSD Kernel Documentation</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.618322db.min.css">
+      
+        
+        <link rel="stylesheet" href="../../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#pageout-and-swap" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../../.." title="DragonFly BSD Kernel Documentation" class="md-header__button md-logo" aria-label="DragonFly BSD Kernel Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            DragonFly BSD Kernel Documentation
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Pageout & Swap
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/tuxillo/dragonflybsd-source-docs" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    tuxillo/dragonflybsd-source-docs
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../.." class="md-tabs__link">
+        
+  
+  
+    
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../getting-started/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Getting Started
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+    
+  
+  
+    
+    
+      <li class="md-tabs__item md-tabs__item--active">
+        <a href="../../" class="md-tabs__link">
+          
+  
+  
+  Kernel Subsystems
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../.." title="DragonFly BSD Kernel Documentation" class="md-nav__button md-logo" aria-label="DragonFly BSD Kernel Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    DragonFly BSD Kernel Documentation
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/tuxillo/dragonflybsd-source-docs" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    tuxillo/dragonflybsd-source-docs
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../getting-started/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Getting Started
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Kernel Subsystems
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Kernel Subsystems
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+          
+          
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_3_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_3_2" id="__nav_3_2_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    kern/
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    kern/
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../kern/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../kern/lwkt/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    LWKT Threading
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../kern/synchronization/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Synchronization
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../kern/time/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Time & Timers
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../kern/memory/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Memory Management
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../kern/initialization/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Initialization & Bootstrap
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../kern/processes/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Processes & Threads
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../kern/resources/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Process Resources & Credentials
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../kern/signals/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Signals
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../kern/scheduling/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Scheduling
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_3_2_11" >
+        
+          
+          <label class="md-nav__link" for="__nav_3_2_11" id="__nav_3_2_11_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Virtual Filesystem
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_3_2_11_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_2_11">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Virtual Filesystem
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../kern/vfs/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../kern/vfs/namecache/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Name Lookup & Caching
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../kern/vfs/mounting/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Mounting & Unmounting
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../kern/vfs/buffer-cache/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Buffer Cache & I/O
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../kern/vfs/vfs-operations/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    VFS Operations Framework
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../kern/vfs/journaling/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Journaling System
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../kern/vfs/vfs-locking/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Vnode Locking & Lifecycle
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../kern/vfs/vfs-extensions/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    VFS Extensions & Helpers
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_3_2_12" >
+        
+          
+          <label class="md-nav__link" for="__nav_3_2_12" id="__nav_3_2_12_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    IPC & Sockets
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_3_2_12_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_2_12">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    IPC & Sockets
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../kern/ipc/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../kern/ipc/mbufs/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Mbufs
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../kern/ipc/sockets/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Sockets
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../kern/ipc/unix-sockets/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Unix Domain Sockets
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../kern/ipc/protocol-dispatch/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Protocol Dispatch
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../kern/ipc/pipes/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Pipes
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../kern/ipc/mqueue/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    POSIX Message Queues
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../kern/ipc/sysv-msg/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    System V Message Queues
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../kern/ipc/sysv-sem/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    System V Semaphores
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../kern/ipc/sysv-shm/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    System V Shared Memory
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../kern/devices/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Devices & Drivers
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../kern/newbus/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    NewBus Framework
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../kern/bus-resources/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Bus Resources & DMA
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../kern/disk/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Disk Subsystem
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../kern/firmware/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Firmware Loading
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../kern/syscalls/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    System Calls
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+          
+          
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_3" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_3_3" id="__nav_3_3_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    vm/
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_3_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_3_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    vm/
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../vm_page/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Physical Pages
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../vm_object/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    VM Objects
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../vm_map/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Address Space
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../vm_fault/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Page Faults
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Pageout & Swap
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Pageout & Swap
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#overview" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Overview
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#pageout-daemon-vm_pageoutc" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Pageout Daemon (vm_pageout.c)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Pageout Daemon (vm_pageout.c)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#dual-pageout-threads" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Dual Pageout Threads
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#memory-thresholds" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Memory Thresholds
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#paging-states" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Paging States
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#key-sysctls" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Key Sysctls
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#queue-scanning" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Queue Scanning
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Queue Scanning">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#inactive-queue-scan" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Inactive Queue Scan
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#active-queue-scan" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Active Queue Scan
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#cache-queue-scan" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Cache Queue Scan
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#page-clustering" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Page Clustering
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#rss-enforcement" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        RSS Enforcement
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#oom-killer" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        OOM Killer
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#main-loop" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Main Loop
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#swap-pager-swap_pagerc" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Swap Pager (swap_pager.c)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Swap Pager (swap_pager.c)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#architecture" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Architecture
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#key-data-structures" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Key Data Structures
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#swap-space-allocation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Swap Space Allocation
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#swap-io-limits" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Swap I/O Limits
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#page-in-swap_pager_getpage" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Page-In (swap_pager_getpage)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#page-out-swap_pager_putpages" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Page-Out (swap_pager_putpages)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#io-completion-swp_pager_async_iodone" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        I/O Completion (swp_pager_async_iodone)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#swap-metadata-management" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Swap Metadata Management
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#swapoff-support" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Swapoff Support
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#key-sysctls_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Key Sysctls
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#dragonfly-specific-features" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        DragonFly-Specific Features
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="DragonFly-Specific Features">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#dual-pageout-threads_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Dual Pageout Threads
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#queue-distribution" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Queue Distribution
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#three-state-paging" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Three-State Paging
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#radix-bitmap-allocator" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Radix Bitmap Allocator
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#rb-tree-swap-metadata" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        RB-Tree Swap Metadata
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#kvabio-support" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KVABIO Support
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#stripe-aware-clustering" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Stripe-Aware Clustering
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#function-reference" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Function Reference
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Function Reference">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#pageout-daemon" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Pageout Daemon
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#swap-pager" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Swap Pager
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#see-also" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        See Also
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../vm_mmap/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Memory Mapping
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+          
+          
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_3_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_3_4" id="__nav_3_4_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    cpu/x86_64/
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    cpu/x86_64/
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../cpu/x86_64/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#overview" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Overview
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#pageout-daemon-vm_pageoutc" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Pageout Daemon (vm_pageout.c)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Pageout Daemon (vm_pageout.c)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#dual-pageout-threads" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Dual Pageout Threads
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#memory-thresholds" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Memory Thresholds
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#paging-states" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Paging States
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#key-sysctls" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Key Sysctls
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#queue-scanning" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Queue Scanning
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Queue Scanning">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#inactive-queue-scan" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Inactive Queue Scan
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#active-queue-scan" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Active Queue Scan
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#cache-queue-scan" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Cache Queue Scan
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#page-clustering" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Page Clustering
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#rss-enforcement" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        RSS Enforcement
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#oom-killer" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        OOM Killer
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#main-loop" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Main Loop
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#swap-pager-swap_pagerc" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Swap Pager (swap_pager.c)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Swap Pager (swap_pager.c)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#architecture" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Architecture
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#key-data-structures" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Key Data Structures
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#swap-space-allocation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Swap Space Allocation
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#swap-io-limits" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Swap I/O Limits
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#page-in-swap_pager_getpage" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Page-In (swap_pager_getpage)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#page-out-swap_pager_putpages" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Page-Out (swap_pager_putpages)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#io-completion-swp_pager_async_iodone" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        I/O Completion (swp_pager_async_iodone)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#swap-metadata-management" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Swap Metadata Management
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#swapoff-support" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Swapoff Support
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#key-sysctls_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Key Sysctls
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#dragonfly-specific-features" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        DragonFly-Specific Features
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="DragonFly-Specific Features">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#dual-pageout-threads_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Dual Pageout Threads
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#queue-distribution" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Queue Distribution
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#three-state-paging" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Three-State Paging
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#radix-bitmap-allocator" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Radix Bitmap Allocator
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#rb-tree-swap-metadata" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        RB-Tree Swap Metadata
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#kvabio-support" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KVABIO Support
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#stripe-aware-clustering" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Stripe-Aware Clustering
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#function-reference" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Function Reference
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Function Reference">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#pageout-daemon" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Pageout Daemon
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#swap-pager" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Swap Pager
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#see-also" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        See Also
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="pageout-and-swap">Pageout and Swap<a class="headerlink" href="#pageout-and-swap" title="Permanent link">&para;</a></h1>
+<p>The pageout daemon manages memory reclamation when physical memory becomes scarce, while the swap pager provides backing store for anonymous memory. DragonFly BSD features dual pageout threads for deadlock recovery, a radix bitmap swap allocator, and aggressive RSS enforcement.</p>
+<p><strong>Source files:</strong> <code>sys/vm/vm_pageout.c</code> (~2,895 lines), <code>sys/vm/swap_pager.c</code> (~2,600 lines)</p>
+<h2 id="overview">Overview<a class="headerlink" href="#overview" title="Permanent link">&para;</a></h2>
+<p>When free memory falls below critical thresholds, the pageout daemon scans page queues to:</p>
+<ol>
+<li><strong>Deactivate</strong> referenced pages from active to inactive queue</li>
+<li><strong>Launder</strong> dirty pages by writing to backing store</li>
+<li><strong>Free</strong> clean pages to replenish the free pool</li>
+<li><strong>Kill</strong> processes when swap is exhausted (OOM)</li>
+</ol>
+<p>The swap pager provides block storage for anonymous pages:</p>
+<ol>
+<li><strong>Allocate</strong> swap space using a radix bitmap allocator</li>
+<li><strong>Track</strong> swap assignments per-object in RB-tree metadata</li>
+<li><strong>Page out</strong> dirty pages with clustering and async I/O</li>
+<li><strong>Page in</strong> with burst reading for sequential access</li>
+</ol>
+<h2 id="pageout-daemon-vm_pageoutc">Pageout Daemon (vm_pageout.c)<a class="headerlink" href="#pageout-daemon-vm_pageoutc" title="Permanent link">&para;</a></h2>
+<h3 id="dual-pageout-threads">Dual Pageout Threads<a class="headerlink" href="#dual-pageout-threads" title="Permanent link">&para;</a></h3>
+<p>DragonFly runs two pageout threads for deadlock recovery:</p>
+<table>
+<thead>
+<tr>
+<th>Thread</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>pagedaemon</code></td>
+<td>Primary pageout daemon for all page types</td>
+</tr>
+<tr>
+<td><code>emergpager</code></td>
+<td>Emergency pager for swap-only pages when primary deadlocks</td>
+</tr>
+</tbody>
+</table>
+<p>The emergency pager activates when the primary daemon blocks on a vnode lock for more than 2 seconds. It only processes anonymous pages (<code>OBJT_DEFAULT</code>, <code>OBJT_SWAP</code>) to avoid the vnode deadlock.</p>
+<h3 id="memory-thresholds">Memory Thresholds<a class="headerlink" href="#memory-thresholds" title="Permanent link">&para;</a></h3>
+<p>The pageout daemon maintains several free memory thresholds, calculated from <code>v_free_min</code> in <code>vm_pageout_free_page_calc()</code>:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>v_interrupt_free_min   Low-level allocation reserve (swap structures)
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>         ↓
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>v_pageout_free_min     Pageout daemon allocation reserve
+<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>         ↓
+<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>v_free_reserved        System allocation reserve
+<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>         ↓
+<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>v_free_min             Normal allocation minimum
+<a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a>         ↓
+<a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a>v_free_target          Target free pages (2x v_free_min)
+<a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a>         ↓
+<a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a>v_paging_wait          Start blocking allocators (3x v_free_min)
+<a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a>         ↓
+<a id="__codelineno-0-13" name="__codelineno-0-13" href="#__codelineno-0-13"></a>v_paging_start         Begin paging to target1 (3.5x v_free_min)
+<a id="__codelineno-0-14" name="__codelineno-0-14" href="#__codelineno-0-14"></a>         ↓
+<a id="__codelineno-0-15" name="__codelineno-0-15" href="#__codelineno-0-15"></a>v_paging_target1       Aggressive paging target (4x v_free_min)
+<a id="__codelineno-0-16" name="__codelineno-0-16" href="#__codelineno-0-16"></a>         ↓
+<a id="__codelineno-0-17" name="__codelineno-0-17" href="#__codelineno-0-17"></a>v_paging_target2       Lazy paging target (5x v_free_min)
+</code></pre></div>
+<h3 id="paging-states">Paging States<a class="headerlink" href="#paging-states" title="Permanent link">&para;</a></h3>
+<p>The daemon operates in three states:</p>
+<table>
+<thead>
+<tr>
+<th>State</th>
+<th>Behavior</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>PAGING_IDLE</code></td>
+<td>No paging needed, daemon sleeps</td>
+</tr>
+<tr>
+<td><code>PAGING_TARGET1</code></td>
+<td>Aggressive paging toward <code>v_paging_target1</code></td>
+</tr>
+<tr>
+<td><code>PAGING_TARGET2</code></td>
+<td>Lazy paging toward <code>v_paging_target2</code></td>
+</tr>
+</tbody>
+</table>
+<p>State transitions prevent thrashing while ensuring responsiveness:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>         shortage detected
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>IDLE ───────────────────────→ TARGET1
+<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>  ↑                              │
+<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a>  │      target1 reached         ↓
+<a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a>  ←──────────────────────── TARGET2
+<a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a>        target2 reached
+</code></pre></div>
+<h3 id="key-sysctls">Key Sysctls<a class="headerlink" href="#key-sysctls" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Sysctl</th>
+<th>Default</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>vm.anonmem_decline</code></td>
+<td>ACT_DECLINE</td>
+<td>Active→inactive rate for anon pages</td>
+</tr>
+<tr>
+<td><code>vm.filemem_decline</code></td>
+<td>ACT_DECLINE*2</td>
+<td>Active→inactive rate for file pages</td>
+</tr>
+<tr>
+<td><code>vm.max_launder</code></td>
+<td>physmem/256+16</td>
+<td>Max dirty pages to flush per pass</td>
+</tr>
+<tr>
+<td><code>vm.emerg_launder</code></td>
+<td>100</td>
+<td>Emergency pager minimum launder</td>
+</tr>
+<tr>
+<td><code>vm.pageout_memuse_mode</code></td>
+<td>2</td>
+<td>RSS enforcement (0=off, 1=passive, 2=active)</td>
+</tr>
+<tr>
+<td><code>vm.pageout_allow_active</code></td>
+<td>1</td>
+<td>Allow scanning active queue</td>
+</tr>
+<tr>
+<td><code>vm.swap_enabled</code></td>
+<td>1</td>
+<td>Enable swap pageouts</td>
+</tr>
+<tr>
+<td><code>vm.defer_swapspace_pageouts</code></td>
+<td>0</td>
+<td>Prefer keeping dirty pages in memory</td>
+</tr>
+<tr>
+<td><code>vm.disable_swapspace_pageouts</code></td>
+<td>0</td>
+<td>Completely disable swap writes</td>
+</tr>
+</tbody>
+</table>
+<h3 id="queue-scanning">Queue Scanning<a class="headerlink" href="#queue-scanning" title="Permanent link">&para;</a></h3>
+<p>The daemon scans page queues in order: inactive → active → cache.</p>
+<h4 id="inactive-queue-scan">Inactive Queue Scan<a class="headerlink" href="#inactive-queue-scan" title="Permanent link">&para;</a></h4>
+<p><code>vm_pageout_scan_inactive()</code> processes candidates for reclamation:</p>
+<ol>
+<li>Scan ~1/10 of queue per pass using per-queue markers</li>
+<li>Calculate <code>max_launder</code> budget from <code>vm_max_launder</code></li>
+<li>For each page, call <code>vm_pageout_page()</code> for decision</li>
+</ol>
+<p><strong>Per-page decision in <code>vm_pageout_page()</code>:</strong></p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>Page state              Action
+<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>──────────────────────  ─────────────────────────────────
+<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>Wired                   Remove from queue
+<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a>Held                    Requeue at tail
+<a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a>Referenced (pmap/flag)  Activate with boosted act_count
+<a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a>Invalid (valid==0)      Free directly
+<a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a>Clean (dirty==0)        Cache via vm_page_cache()
+<a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a>Dirty, first pass       Set PG_WINATCFLS, requeue (double-LRU)
+<a id="__codelineno-2-9" name="__codelineno-2-9" href="#__codelineno-2-9"></a>Dirty, second pass      Attempt pageout via vm_pageout_clean_helper()
+</code></pre></div>
+<p><strong>Double-LRU for Dirty Pages:</strong></p>
+<p>Dirty pages cycle through the inactive queue twice before laundering. The <code>PG_WINATCFLS</code> ("win at cache flush") flag tracks the first pass. This reduces unnecessary I/O for pages that may be freed or become clean naturally.</p>
+<p>When <code>vm_pageout_memuse_mode &gt;= 3</code>, single-LRU mode is used instead.</p>
+<h4 id="active-queue-scan">Active Queue Scan<a class="headerlink" href="#active-queue-scan" title="Permanent link">&para;</a></h4>
+<p><code>vm_pageout_scan_active()</code> moves pages to the inactive queue:</p>
+<ol>
+<li>Scan ~1/10 of queue per iteration</li>
+<li>Check page activity via <code>pmap_ts_referenced()</code> and <code>PG_REFERENCED</code></li>
+<li>Active pages: bump <code>act_count</code>, leave in active queue</li>
+<li>Inactive pages: decrement <code>act_count</code>, deactivate when threshold reached</li>
+</ol>
+<p><strong>Activity Decline Rates:</strong></p>
+<ul>
+<li>Anonymous pages decline at <code>vm_anonmem_decline</code> per pass</li>
+<li>File-backed pages decline at <code>vm_filemem_decline</code> (2x anon by default)</li>
+</ul>
+<p>Faster file page decay implements the "scan resistance" principle—file scans shouldn't evict working set.</p>
+<h4 id="cache-queue-scan">Cache Queue Scan<a class="headerlink" href="#cache-queue-scan" title="Permanent link">&para;</a></h4>
+<p><code>vm_pageout_scan_cache()</code> frees clean cached pages:</p>
+<ul>
+<li>Uses two rovers (primary and emergency) to avoid contention</li>
+<li>Frees pages until <code>v_free_target</code> reached</li>
+<li>Stops early if target satisfied</li>
+</ul>
+<h3 id="page-clustering">Page Clustering<a class="headerlink" href="#page-clustering" title="Permanent link">&para;</a></h3>
+<p><code>vm_pageout_clean_helper()</code> clusters dirty pages for efficient I/O:</p>
+<ol>
+<li>Find clusterable neighbors (dirty, not wired/held, inactive or allowed-active)</li>
+<li>Align cluster to <code>BLIST_MAX_ALLOC</code> for swap optimization</li>
+<li>Set <code>PG_WINATCFLS</code> on cluster pages to match primary</li>
+<li>Call <code>vm_pageout_flush()</code> for actual I/O</li>
+</ol>
+<p><code>vm_pageout_flush()</code> handles the write:</p>
+<ol>
+<li>Mark pages read-only via <code>vm_page_protect()</code></li>
+<li>Clear pmap modified bits</li>
+<li>Call <code>vm_pager_put_pages()</code> for I/O</li>
+<li>Handle results and update page states</li>
+</ol>
+<h3 id="rss-enforcement">RSS Enforcement<a class="headerlink" href="#rss-enforcement" title="Permanent link">&para;</a></h3>
+<p>When <code>vm_pageout_memuse_mode &gt;= 1</code>, the daemon enforces process RSS limits:</p>
+<p><strong><code>vm_pageout_map_deactivate_pages()</code>:</strong></p>
+<ol>
+<li>Called for processes exceeding <code>RLIMIT_RSS</code></li>
+<li>Walks address space from <code>map-&gt;pgout_offset</code></li>
+<li>Scans each mapped page via <code>pmap_pgscan()</code></li>
+<li>Removes unreferenced pages from pmap</li>
+<li>Deactivates unmapped pages, optionally launders dirty ones</li>
+<li>Continues until RSS below limit</li>
+</ol>
+<p><strong>RSS enforcement modes:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Mode</th>
+<th>Behavior</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>0</td>
+<td>Disabled</td>
+</tr>
+<tr>
+<td>1</td>
+<td>Passive—enforce during memory pressure</td>
+</tr>
+<tr>
+<td>2</td>
+<td>Active—enforce proactively (default)</td>
+</tr>
+<tr>
+<td>3</td>
+<td>Active + single-LRU for dirty pages</td>
+</tr>
+</tbody>
+</table>
+<h3 id="oom-killer">OOM Killer<a class="headerlink" href="#oom-killer" title="Permanent link">&para;</a></h3>
+<p>When swap exhausts and pages cannot be reclaimed:</p>
+<ol>
+<li>Rate-limited to once per second</li>
+<li>Scan all processes via <code>allproc_scan()</code></li>
+<li>Select victim with largest memory footprint</li>
+<li>Skip: system processes, init (pid 1), low-pid processes with swap</li>
+<li>Set <code>P_LOWMEMKILL</code> flag and call <code>killproc()</code></li>
+</ol>
+<p><strong>Victim size calculation:</strong>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="n">size</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">vmspace_anonymous_count</span><span class="p">(</span><span class="n">vm</span><span class="p">)</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">vmspace_swap_count</span><span class="p">(</span><span class="n">vm</span><span class="p">)</span>
+</code></pre></div></p>
+<h3 id="main-loop">Main Loop<a class="headerlink" href="#main-loop" title="Permanent link">&para;</a></h3>
+<p><code>vm_pageout_thread()</code> main loop:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>Initialize markers, thresholds, swap pager
+<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>
+<a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a>while (TRUE) {
+<a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a>    1. Sleep until vm_pages_needed or timeout
+<a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a>    2. Calculate avail_shortage from targets
+<a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a>    3. vm_pageout_scan_inactive() - launder/free pages
+<a id="__codelineno-4-7" name="__codelineno-4-7" href="#__codelineno-4-7"></a>    4. Calculate inactive_shortage
+<a id="__codelineno-4-8" name="__codelineno-4-8" href="#__codelineno-4-8"></a>    5. vm_pageout_scan_active() - feed inactive queue
+<a id="__codelineno-4-9" name="__codelineno-4-9" href="#__codelineno-4-9"></a>    6. vm_pageout_scan_cache() - free cached pages
+<a id="__codelineno-4-10" name="__codelineno-4-10" href="#__codelineno-4-10"></a>    7. Determine next state (IDLE/TARGET1/TARGET2)
+<a id="__codelineno-4-11" name="__codelineno-4-11" href="#__codelineno-4-11"></a>    8. Wakeup memory waiters if appropriate
+<a id="__codelineno-4-12" name="__codelineno-4-12" href="#__codelineno-4-12"></a>}
+</code></pre></div>
+<p><strong>Emergency pager differences:</strong></p>
+<ul>
+<li>Sleeps on <code>&amp;vm_pagedaemon_uptime</code> instead of <code>&amp;vm_pages_needed</code></li>
+<li>Activates if primary hasn't updated uptime for 2+ seconds</li>
+<li>Only processes anonymous/swap pages</li>
+<li>Iterates queues in reverse direction</li>
+</ul>
+<h2 id="swap-pager-swap_pagerc">Swap Pager (swap_pager.c)<a class="headerlink" href="#swap-pager-swap_pagerc" title="Permanent link">&para;</a></h2>
+<h3 id="architecture">Architecture<a class="headerlink" href="#architecture" title="Permanent link">&para;</a></h3>
+<p>The swap pager provides block storage for anonymous memory:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>                     vm_object
+<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>                         │
+<a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a>                         ↓
+<a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a>              ┌──────────────────┐
+<a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a>              │   swblock_root   │  RB-tree of swap metadata
+<a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a>              │    (RB-tree)     │
+<a id="__codelineno-5-7" name="__codelineno-5-7" href="#__codelineno-5-7"></a>              └────────┬─────────┘
+<a id="__codelineno-5-8" name="__codelineno-5-8" href="#__codelineno-5-8"></a>                       │
+<a id="__codelineno-5-9" name="__codelineno-5-9" href="#__codelineno-5-9"></a>         ┌─────────────┼─────────────┐
+<a id="__codelineno-5-10" name="__codelineno-5-10" href="#__codelineno-5-10"></a>         ↓             ↓             ↓
+<a id="__codelineno-5-11" name="__codelineno-5-11" href="#__codelineno-5-11"></a>    ┌─────────┐   ┌─────────┐   ┌─────────┐
+<a id="__codelineno-5-12" name="__codelineno-5-12" href="#__codelineno-5-12"></a>    │ swblock │   │ swblock │   │ swblock │
+<a id="__codelineno-5-13" name="__codelineno-5-13" href="#__codelineno-5-13"></a>    │ (16 pgs)│   │ (16 pgs)│   │ (16 pgs)│
+<a id="__codelineno-5-14" name="__codelineno-5-14" href="#__codelineno-5-14"></a>    └────┬────┘   └────┬────┘   └────┬────┘
+<a id="__codelineno-5-15" name="__codelineno-5-15" href="#__codelineno-5-15"></a>         │             │             │
+<a id="__codelineno-5-16" name="__codelineno-5-16" href="#__codelineno-5-16"></a>         ↓             ↓             ↓
+<a id="__codelineno-5-17" name="__codelineno-5-17" href="#__codelineno-5-17"></a>    ┌─────────────────────────────────────┐
+<a id="__codelineno-5-18" name="__codelineno-5-18" href="#__codelineno-5-18"></a>    │          swapblist (blist)          │  Radix bitmap allocator
+<a id="__codelineno-5-19" name="__codelineno-5-19" href="#__codelineno-5-19"></a>    │       Swap block allocation         │
+<a id="__codelineno-5-20" name="__codelineno-5-20" href="#__codelineno-5-20"></a>    └─────────────────────────────────────┘
+<a id="__codelineno-5-21" name="__codelineno-5-21" href="#__codelineno-5-21"></a>                       │
+<a id="__codelineno-5-22" name="__codelineno-5-22" href="#__codelineno-5-22"></a>                       ↓
+<a id="__codelineno-5-23" name="__codelineno-5-23" href="#__codelineno-5-23"></a>    ┌─────────────────────────────────────┐
+<a id="__codelineno-5-24" name="__codelineno-5-24" href="#__codelineno-5-24"></a>    │         Swap devices (disks)        │
+<a id="__codelineno-5-25" name="__codelineno-5-25" href="#__codelineno-5-25"></a>    └─────────────────────────────────────┘
+</code></pre></div>
+<h3 id="key-data-structures">Key Data Structures<a class="headerlink" href="#key-data-structures" title="Permanent link">&para;</a></h3>
+<p><strong>struct swblock</strong> - Swap metadata per 16-page range:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="k">struct</span><span class="w"> </span><span class="nc">swblock</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a><span class="w">    </span><span class="n">RB_ENTRY</span><span class="p">(</span><span class="n">swblock</span><span class="p">)</span><span class="w"> </span><span class="n">swb_entry</span><span class="p">;</span><span class="w">         </span><span class="cm">/* RB-tree linkage */</span>
+<a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a><span class="w">    </span><span class="n">vm_pindex_t</span><span class="w">       </span><span class="n">swb_index</span><span class="p">;</span><span class="w">         </span><span class="cm">/* Base page index (aligned) */</span>
+<a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a><span class="w">    </span><span class="kt">int</span><span class="w">               </span><span class="n">swb_count</span><span class="p">;</span><span class="w">         </span><span class="cm">/* Valid entries */</span>
+<a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a><span class="w">    </span><span class="n">swblk_t</span><span class="w">           </span><span class="n">swb_pages</span><span class="p">[</span><span class="n">SWAP_META_PAGES</span><span class="p">];</span><span class="w">  </span><span class="cm">/* Block numbers (16) */</span>
+<a id="__codelineno-6-6" name="__codelineno-6-6" href="#__codelineno-6-6"></a><span class="p">};</span>
+</code></pre></div>
+<p><strong>Global state:</strong></p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="k">struct</span><span class="w"> </span><span class="nc">blist</span><span class="w"> </span><span class="o">*</span><span class="n">swapblist</span><span class="p">;</span><span class="w">      </span><span class="cm">/* Radix bitmap allocator */</span>
+<a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a><span class="kt">int</span><span class="w"> </span><span class="n">swap_pager_full</span><span class="p">;</span><span class="w">          </span><span class="cm">/* Swap exhausted flag (triggers OOM) */</span>
+<a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a><span class="kt">int</span><span class="w"> </span><span class="n">swap_pager_almost_full</span><span class="p">;</span><span class="w">   </span><span class="cm">/* Near exhaustion (with hysteresis) */</span>
+<a id="__codelineno-7-4" name="__codelineno-7-4" href="#__codelineno-7-4"></a><span class="n">swblk_t</span><span class="w"> </span><span class="n">vm_swap_anon_use</span><span class="p">;</span><span class="w">     </span><span class="cm">/* Swap used for anonymous pages */</span>
+<a id="__codelineno-7-5" name="__codelineno-7-5" href="#__codelineno-7-5"></a><span class="n">swblk_t</span><span class="w"> </span><span class="n">vm_swap_cache_use</span><span class="p">;</span><span class="w">    </span><span class="cm">/* Swap used for swapcache */</span>
+</code></pre></div>
+<h3 id="swap-space-allocation">Swap Space Allocation<a class="headerlink" href="#swap-space-allocation" title="Permanent link">&para;</a></h3>
+<p><strong>Radix bitmap (blist) allocator:</strong></p>
+<p>The blist provides O(log n) allocation and deallocation with efficient fragmentation handling. Swap is allocated in contiguous runs when possible.</p>
+<p><strong><code>swp_pager_getswapspace(npages, object_type)</code>:</strong></p>
+<ol>
+<li>Try <code>blist_allocat()</code> with iterator hint</li>
+<li>Fall back to start of swap if hint fails</li>
+<li>Update <code>vm_swap_anon_use</code> or <code>vm_swap_cache_use</code></li>
+<li>Set <code>swap_pager_full=2</code> on allocation failure</li>
+</ol>
+<p><strong>Hysteresis thresholds:</strong></p>
+<ul>
+<li><code>nswap_lowat</code> = 4% of total swap (minimum 128 pages)</li>
+<li><code>nswap_hiwat</code> = 6% of total swap (minimum 512 pages)</li>
+<li><code>swap_pager_almost_full</code> set when below lowat</li>
+<li>Cleared when above hiwat</li>
+</ul>
+<h3 id="swap-io-limits">Swap I/O Limits<a class="headerlink" href="#swap-io-limits" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a><span class="n">nsw_rcount</span><span class="w">         </span><span class="o">=</span><span class="w"> </span><span class="n">nswbuf_kva</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="mi">2</span><span class="w">   </span><span class="cm">/* Read buffer limit */</span>
+<a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a><span class="n">nsw_wcount_sync</span><span class="w">    </span><span class="o">=</span><span class="w"> </span><span class="n">nswbuf_kva</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="mi">4</span><span class="w">   </span><span class="cm">/* Sync write limit */</span>
+<a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a><span class="n">nsw_wcount_async</span><span class="w">   </span><span class="o">=</span><span class="w"> </span><span class="n">swap_async_max</span><span class="w">   </span><span class="cm">/* Async write limit (default 4) */</span>
+<a id="__codelineno-8-4" name="__codelineno-8-4" href="#__codelineno-8-4"></a><span class="n">nsw_cluster_max</span><span class="w">    </span><span class="o">=</span><span class="w"> </span><span class="n">MAXPHYS</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="n">PAGE_SIZE</span><span class="w">  </span><span class="cm">/* Max cluster size */</span>
+</code></pre></div>
+<h3 id="page-in-swap_pager_getpage">Page-In (swap_pager_getpage)<a class="headerlink" href="#page-in-swap_pager_getpage" title="Permanent link">&para;</a></h3>
+<p><strong>Burst reading for sequential access:</strong></p>
+<ol>
+<li>If page already valid, switch to read-ahead only mode</li>
+<li>Scan for contiguous swap blocks on same stripe</li>
+<li>Allocate pages for burst (up to <code>swap_burst_read</code>)</li>
+<li>Set <code>PG_RAM</code> on last page for pipeline continuation</li>
+<li>Issue I/O and wait for <code>PBUSY_SWAPINPROG</code> to clear</li>
+</ol>
+<p><strong>Read process:</strong></p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a>1. Verify object match
+<a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a>2. Look up swap block for requested page
+<a id="__codelineno-9-3" name="__codelineno-9-3" href="#__codelineno-9-3"></a>3. Scan for contiguous swap blocks (same stripe)
+<a id="__codelineno-9-4" name="__codelineno-9-4" href="#__codelineno-9-4"></a>4. Allocate pages for burst read
+<a id="__codelineno-9-5" name="__codelineno-9-5" href="#__codelineno-9-5"></a>5. Map pages to KVA, issue I/O
+<a id="__codelineno-9-6" name="__codelineno-9-6" href="#__codelineno-9-6"></a>6. Wait for completion
+<a id="__codelineno-9-7" name="__codelineno-9-7" href="#__codelineno-9-7"></a>7. Return VM_PAGER_OK or VM_PAGER_ERROR
+</code></pre></div>
+<h3 id="page-out-swap_pager_putpages">Page-Out (swap_pager_putpages)<a class="headerlink" href="#page-out-swap_pager_putpages" title="Permanent link">&para;</a></h3>
+<p><strong>Object conversion:</strong></p>
+<p>First pageout converts <code>OBJT_DEFAULT</code> to <code>OBJT_SWAP</code>.</p>
+<p><strong>Write process:</strong></p>
+<ol>
+<li>Allocate swap blocks (fall back to smaller chunks on failure)</li>
+<li>Validate stripe boundary, adjust if crossing</li>
+<li>Build swap metadata entries</li>
+<li>Issue I/O (async or sync based on flags)</li>
+<li>For sync: wait and call completion handler directly</li>
+</ol>
+<p><strong>Async throttling:</strong></p>
+<ul>
+<li><code>nsw_wcount_async_max</code> controlled by <code>vm.swap_async_max</code></li>
+<li>Prevents swap I/O from starving other disk I/O</li>
+<li>Non-pageout threads forced sync unless <code>swap_user_async=1</code></li>
+</ul>
+<h3 id="io-completion-swp_pager_async_iodone">I/O Completion (swp_pager_async_iodone)<a class="headerlink" href="#io-completion-swp_pager_async_iodone" title="Permanent link">&para;</a></h3>
+<p><strong>Read success:</strong></p>
+<ol>
+<li>Set <code>m-&gt;valid = VM_PAGE_BITS_ALL</code></li>
+<li>Clear dirty bits</li>
+<li>Set <code>PG_SWAPPED</code> flag</li>
+<li>Deactivate non-requested pages</li>
+</ol>
+<p><strong>Read error:</strong></p>
+<ol>
+<li>Set <code>m-&gt;valid = 0</code></li>
+<li>Deactivate non-requested pages</li>
+<li>Leave requested page busy for caller</li>
+</ol>
+<p><strong>Write success:</strong></p>
+<ol>
+<li>Clear dirty bits (OBJT_SWAP only)</li>
+<li>Set <code>PG_SWAPPED</code> flag</li>
+<li>Deactivate if <code>vm_paging_severe()</code></li>
+<li>Try to cache if <code>SWBIO_TTC</code> flag</li>
+</ol>
+<p><strong>Write error:</strong></p>
+<ol>
+<li>Remove swap assignment</li>
+<li>Re-dirty OBJT_SWAP pages (no other backing)</li>
+<li>Activate page to prevent data loss</li>
+<li>Don't dirty non-OBJT_SWAP (has vnode backing)</li>
+</ol>
+<h3 id="swap-metadata-management">Swap Metadata Management<a class="headerlink" href="#swap-metadata-management" title="Permanent link">&para;</a></h3>
+<p><strong>RB-tree operations:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Function</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>swp_pager_lookup()</code></td>
+<td>Find swblock by page index</td>
+</tr>
+<tr>
+<td><code>swp_pager_meta_build()</code></td>
+<td>Add/update swap entry</td>
+</tr>
+<tr>
+<td><code>swp_pager_meta_free()</code></td>
+<td>Free range of entries</td>
+</tr>
+<tr>
+<td><code>swp_pager_meta_free_all()</code></td>
+<td>Destroy all metadata</td>
+</tr>
+<tr>
+<td><code>swp_pager_meta_ctl()</code></td>
+<td>Control (free/pop) single entry</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Metadata control flags:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Flag</th>
+<th>Action</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>SWM_FREE</code></td>
+<td>Remove and free swap block</td>
+</tr>
+<tr>
+<td><code>SWM_POP</code></td>
+<td>Remove but keep block (for transfer)</td>
+</tr>
+</tbody>
+</table>
+<h3 id="swapoff-support">Swapoff Support<a class="headerlink" href="#swapoff-support" title="Permanent link">&para;</a></h3>
+<p><code>swap_pager_swapoff()</code> removes a device from use:</p>
+<ol>
+<li>Scan all <code>OBJT_SWAP</code> and <code>OBJT_VNODE</code> objects</li>
+<li>Skip <code>OBJ_NOPAGEIN</code> objects</li>
+<li>Page in all blocks on target device</li>
+<li>Return 1 if blocks remain (partial success)</li>
+</ol>
+<h3 id="key-sysctls_1">Key Sysctls<a class="headerlink" href="#key-sysctls_1" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Sysctl</th>
+<th>Default</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>vm.swap_async_max</code></td>
+<td>4</td>
+<td>Max concurrent async writes</td>
+</tr>
+<tr>
+<td><code>vm.swap_burst_read</code></td>
+<td>16</td>
+<td>Pages to read-ahead on swap-in</td>
+</tr>
+<tr>
+<td><code>vm.swap_user_async</code></td>
+<td>0</td>
+<td>Allow user async swap writes</td>
+</tr>
+</tbody>
+</table>
+<h2 id="dragonfly-specific-features">DragonFly-Specific Features<a class="headerlink" href="#dragonfly-specific-features" title="Permanent link">&para;</a></h2>
+<h3 id="dual-pageout-threads_1">Dual Pageout Threads<a class="headerlink" href="#dual-pageout-threads_1" title="Permanent link">&para;</a></h3>
+<p>The emergency pager (<code>emergpager</code>) provides deadlock recovery:</p>
+<ul>
+<li>Activates when primary daemon blocks on vnode for 2+ seconds</li>
+<li>Only processes anonymous pages to avoid the deadlock source</li>
+<li>Enables memory reclamation even during filesystem stalls</li>
+</ul>
+<h3 id="queue-distribution">Queue Distribution<a class="headerlink" href="#queue-distribution" title="Permanent link">&para;</a></h3>
+<p>Pageout work is distributed across 1024 sub-queues per major queue type:</p>
+<ul>
+<li>Each sub-queue has its own marker for incremental scanning</li>
+<li><code>PQAVERAGE()</code> distributes work across queues</li>
+<li>Reduces lock contention on SMP systems</li>
+</ul>
+<h3 id="three-state-paging">Three-State Paging<a class="headerlink" href="#three-state-paging" title="Permanent link">&para;</a></h3>
+<p>The IDLE → TARGET1 → TARGET2 state machine:</p>
+<ul>
+<li>Prevents thrashing between paging and normal operation</li>
+<li>TARGET1 aggressive paging ensures quick recovery</li>
+<li>TARGET2 lazy paging maintains headroom without wasting I/O</li>
+</ul>
+<h3 id="radix-bitmap-allocator">Radix Bitmap Allocator<a class="headerlink" href="#radix-bitmap-allocator" title="Permanent link">&para;</a></h3>
+<p>The blist provides:</p>
+<ul>
+<li>O(log n) allocation and deallocation</li>
+<li>Efficient handling of fragmentation</li>
+<li>Scalability to arbitrary swap sizes</li>
+<li>Per-device stripe awareness</li>
+</ul>
+<h3 id="rb-tree-swap-metadata">RB-Tree Swap Metadata<a class="headerlink" href="#rb-tree-swap-metadata" title="Permanent link">&para;</a></h3>
+<p>Per-object swap tracking via RB-tree:</p>
+<ul>
+<li>16 pages per swblock entry reduces overhead</li>
+<li>Efficient range operations for large frees</li>
+<li>Separate anon vs cache accounting</li>
+</ul>
+<h3 id="kvabio-support">KVABIO Support<a class="headerlink" href="#kvabio-support" title="Permanent link">&para;</a></h3>
+<p>Swap I/O uses KVABIO to avoid pmap synchronization:</p>
+<ul>
+<li><code>pmap_qenter_noinval()</code> for mapping</li>
+<li>Reduces IPI overhead on SMP</li>
+</ul>
+<h3 id="stripe-aware-clustering">Stripe-Aware Clustering<a class="headerlink" href="#stripe-aware-clustering" title="Permanent link">&para;</a></h3>
+<p>I/O operations respect device stripe boundaries:</p>
+<ul>
+<li><code>SWB_DMMASK</code> for boundary detection</li>
+<li>Prevents I/O from crossing stripes</li>
+<li>Optimizes disk access patterns</li>
+</ul>
+<h2 id="function-reference">Function Reference<a class="headerlink" href="#function-reference" title="Permanent link">&para;</a></h2>
+<h3 id="pageout-daemon">Pageout Daemon<a class="headerlink" href="#pageout-daemon" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Function</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>vm_pageout_thread()</code></td>
+<td>Main daemon loop</td>
+</tr>
+<tr>
+<td><code>vm_pageout_scan_inactive()</code></td>
+<td>Scan inactive queue</td>
+</tr>
+<tr>
+<td><code>vm_pageout_scan_active()</code></td>
+<td>Scan active queue</td>
+</tr>
+<tr>
+<td><code>vm_pageout_scan_cache()</code></td>
+<td>Scan cache queue</td>
+</tr>
+<tr>
+<td><code>vm_pageout_page()</code></td>
+<td>Per-page decision</td>
+</tr>
+<tr>
+<td><code>vm_pageout_clean_helper()</code></td>
+<td>Cluster and flush dirty pages</td>
+</tr>
+<tr>
+<td><code>vm_pageout_flush()</code></td>
+<td>Write pages to backing store</td>
+</tr>
+<tr>
+<td><code>vm_pageout_map_deactivate_pages()</code></td>
+<td>RSS enforcement</td>
+</tr>
+<tr>
+<td><code>pagedaemon_wakeup()</code></td>
+<td>Wake pageout daemon</td>
+</tr>
+</tbody>
+</table>
+<h3 id="swap-pager">Swap Pager<a class="headerlink" href="#swap-pager" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Function</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>swap_pager_getpage()</code></td>
+<td>Page in from swap</td>
+</tr>
+<tr>
+<td><code>swap_pager_putpages()</code></td>
+<td>Page out to swap</td>
+</tr>
+<tr>
+<td><code>swap_pager_haspage()</code></td>
+<td>Check for swap backing</td>
+</tr>
+<tr>
+<td><code>swap_pager_unswapped()</code></td>
+<td>Remove swap when dirtied</td>
+</tr>
+<tr>
+<td><code>swap_pager_freespace()</code></td>
+<td>Free swap range</td>
+</tr>
+<tr>
+<td><code>swap_pager_reserve()</code></td>
+<td>Pre-allocate swap</td>
+</tr>
+<tr>
+<td><code>swap_pager_copy()</code></td>
+<td>Transfer swap metadata</td>
+</tr>
+<tr>
+<td><code>swap_pager_swapoff()</code></td>
+<td>Remove device from use</td>
+</tr>
+<tr>
+<td><code>swp_pager_async_iodone()</code></td>
+<td>I/O completion handler</td>
+</tr>
+</tbody>
+</table>
+<h2 id="see-also">See Also<a class="headerlink" href="#see-also" title="Permanent link">&para;</a></h2>
+<ul>
+<li><a href="../vm_page/">Physical Pages</a> - Page allocation and queue management</li>
+<li><a href="../vm_object/">VM Objects</a> - Object lifecycle and page containers</li>
+<li><a href="../vm_fault/">Page Faults</a> - Fault handling and COW</li>
+<li><a href="../../kern/memory/">Memory Management</a> - kmalloc/objcache</li>
+</ul>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": ["navigation.tabs", "navigation.sections", "navigation.expand", "navigation.top", "search.suggest", "search.highlight", "content.code.copy"], "search": "../../../assets/javascripts/workers/search.7a47a382.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../../assets/javascripts/bundle.e71a0d61.min.js"></script>
+      
+    
+  </body>
+</html>
