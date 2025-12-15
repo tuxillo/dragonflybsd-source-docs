@@ -21,24 +21,19 @@ The system provides:
 
 Vnodes exist in one of four states, managed through the `v_state` field:
 
-```
-                    ┌──────────────────────────────────────┐
-                    │                                      │
-                    v                                      │
-    ┌─────────┐  vget()   ┌─────────┐  vrele()   ┌──────────┐
-    │ VS_CACHED├─────────►│VS_ACTIVE├──────────►│VS_INACTIVE│
-    └─────────┘           └─────────┘            └──────────┘
-         ▲                     │                      │
-         │                     │                      │
-         │    vget()           │ vrele()              │ reclaim
-         └─────────────────────┘                      │
-                                                      v
-                                                ┌──────────┐
-                                                │ VS_DYING │
-                                                └──────────┘
-                                                      │
-                                                      v
-                                                   kfree()
+```mermaid
+flowchart LR
+    CACHED["VS_CACHED"]
+    ACTIVE["VS_ACTIVE"]
+    INACTIVE["VS_INACTIVE"]
+    DYING["VS_DYING"]
+    FREE["kfree()"]
+    
+    CACHED -->|"vget()"| ACTIVE
+    ACTIVE -->|"vrele()"| INACTIVE
+    ACTIVE -->|"vget()"| CACHED
+    INACTIVE -->|"reclaim"| DYING
+    DYING --> FREE
 ```
 
 ### State Definitions

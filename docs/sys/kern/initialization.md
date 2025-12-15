@@ -692,36 +692,22 @@ The kernel environment provides a key-value store passed from the bootloader, si
 
 ### Architecture
 
-```
-Boot time:
-┌────────────────────────────────┐
-│ Bootloader (loader(8))         │
-│ Sets up static environment     │
-│ - kernelname=/boot/kernel      │
-│ - kern.hz=1000                 │
-│ - etc.                         │
-└────────────┬───────────────────┘
-             │
-             ↓ (kern_envp pointer)
-┌────────────────────────────────┐
-│ Static environment             │
-│ (null-terminated strings)      │
-│ "name=value\0name2=value2\0\0" │
-└────────────┬───────────────────┘
-             │
-             ↓ kenv_init() - SI_BOOT1_POST
-┌────────────────────────────────┐
-│ Dynamic environment            │
-│ (kmalloc'd array of strings)   │
-│ kenv_dynp[] = {                │
-│   "name=value",                │
-│   "name2=value2",              │
-│   NULL                         │
-│ }                              │
-│                                │
-│ + spinlock protection          │
-│ + ksetenv/kunsetenv support    │
-└────────────────────────────────┘
+```mermaid
+flowchart TB
+    subgraph BOOT["Boot time"]
+        LOADER["Bootloader (loader(8))<br/>Sets up static environment<br/>• kernelname=/boot/kernel<br/>• kern.hz=1000<br/>• etc."]
+    end
+    
+    subgraph STATIC["Static environment"]
+        SENV["(null-terminated strings)<br/>name=value\\0name2=value2\\0\\0"]
+    end
+    
+    subgraph DYNAMIC["Dynamic environment"]
+        DENV["(kmalloc'd array of strings)<br/>kenv_dynp[] = {<br/>  'name=value',<br/>  'name2=value2',<br/>  NULL<br/>}<br/><br/>+ spinlock protection<br/>+ ksetenv/kunsetenv support"]
+    end
+    
+    LOADER -->|"kern_envp pointer"| STATIC
+    STATIC -->|"kenv_init() - SI_BOOT1_POST"| DYNAMIC
 ```
 
 ### Static Environment

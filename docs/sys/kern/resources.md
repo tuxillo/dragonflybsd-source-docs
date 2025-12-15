@@ -70,13 +70,14 @@ Source: `kern_descrip.c:839-1064`
 
 File descriptor slots are organized as a binary tree for O(log n) allocation:
 
-```
-         fd_freefile (hint)
-              |
-              v
-    ┌─────────┴─────────┐
-    │                   │
- left subtree      right subtree
+```mermaid
+flowchart TB
+    HINT["fd_freefile (hint)"]
+    LEFT["left subtree"]
+    RIGHT["right subtree"]
+    
+    HINT --> LEFT
+    HINT --> RIGHT
 ```
 
 **Key functions:**

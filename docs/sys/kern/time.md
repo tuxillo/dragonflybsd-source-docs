@@ -6,44 +6,28 @@ The DragonFly BSD kernel implements a sophisticated multi-layered timekeeping ar
 
 ### Architecture Layers
 
-```
-┌─────────────────────────────────────────────────────────────┐
-│  User Applications (syscalls: gettimeofday, nanosleep, etc) │
-└─────────────────────────────────────────────────────────────┘
-                            ↓
-┌─────────────────────────────────────────────────────────────┐
-│  Time Representation (timeval, timespec, sbintime_t)        │
-└─────────────────────────────────────────────────────────────┘
-                            ↓
-┌─────────────────────────────────────────────────────────────┐
-│  Callout/Timeout Mechanism (kern_timeout.c)                 │
-│  - Wheel-based per-CPU callout queues                       │
-│  - Frontend (struct callout) / Backend (struct _callout)    │
-└─────────────────────────────────────────────────────────────┘
-                            ↓
-┌─────────────────────────────────────────────────────────────┐
-│  System Timer Infrastructure (kern_systimer.c)              │
-│  - Software timers built on hardware abstraction            │
-│  - Periodic and one-shot timer support                      │
-└─────────────────────────────────────────────────────────────┘
-                            ↓
-┌─────────────────────────────────────────────────────────────┐
-│  Clock Interrupts (kern_clock.c)                            │
-│  - hardclock() - Main system clock at hz (100Hz)            │
-│  - statclock() - Statistics clock at stathz (128Hz)         │
-│  - schedclock() - Scheduler clock at 50Hz                   │
-└─────────────────────────────────────────────────────────────┘
-                            ↓
-┌─────────────────────────────────────────────────────────────┐
-│  Hardware Timer Abstraction (kern_cputimer.c)               │
-│  - struct cputimer with count() method                      │
-│  - Registration and selection of hardware timers            │
-│  - Examples: TSC, i8254, ACPI-fast, HPET                    │
-└─────────────────────────────────────────────────────────────┘
-                            ↓
-┌─────────────────────────────────────────────────────────────┐
-│  Hardware Timers (TSC, HPET, i8254, ACPI-fast, etc)        │
-└─────────────────────────────────────────────────────────────┘
+```mermaid
+flowchart TB
+    USER["User Applications<br/>(syscalls: gettimeofday, nanosleep, etc)"]
+    
+    REPR["Time Representation<br/>(timeval, timespec, sbintime_t)"]
+    
+    CALLOUT["Callout/Timeout Mechanism (kern_timeout.c)<br/>• Wheel-based per-CPU callout queues<br/>• Frontend (struct callout) / Backend (struct _callout)"]
+    
+    SYSTIMER["System Timer Infrastructure (kern_systimer.c)<br/>• Software timers built on hardware abstraction<br/>• Periodic and one-shot timer support"]
+    
+    CLOCK["Clock Interrupts (kern_clock.c)<br/>• hardclock() - Main system clock at hz (100Hz)<br/>• statclock() - Statistics clock at stathz (128Hz)<br/>• schedclock() - Scheduler clock at 50Hz"]
+    
+    CPUTIMER["Hardware Timer Abstraction (kern_cputimer.c)<br/>• struct cputimer with count() method<br/>• Registration and selection of hardware timers<br/>• Examples: TSC, i8254, ACPI-fast, HPET"]
+    
+    HW["Hardware Timers<br/>(TSC, HPET, i8254, ACPI-fast, etc)"]
+    
+    USER --> REPR
+    REPR --> CALLOUT
+    CALLOUT --> SYSTIMER
+    SYSTIMER --> CLOCK
+    CLOCK --> CPUTIMER
+    CPUTIMER --> HW
 ```
 
 ### Key Source Files
@@ -1109,27 +1093,32 @@ hardclock() [kern_clock.c:552]
 ### Example 3: Callout Wheel Operation
 
 **Wheel Structure** (BUCKETS = 512):
+
+Current ticks = 1000, Wheel bucket index = ticks % BUCKETS = 1000 % 512 = 488
+
+```mermaid
+flowchart LR
+    subgraph WHEEL["Callout Wheel"]
+        B488["488"]
+        B489["489"]
+        B490["490"]
+        DOTS["..."]
+        B487["487"]
+    end
+    
+    CURSOR["Current<br/>cursor"] -.-> B488
 ```
-Current ticks = 1000
 
-Wheel bucket index = ticks % BUCKETS = 1000 % 512 = 488
+When `callout_reset(&c, 50, func, arg)` is called:
 
-Callout wheel layout:
-┌─────┬─────┬─────┬───────┬─────┬─────┬─────┐
-│ 488 │ 489 │ 490 │  ...  │ 487 │     │     │
-└─────┴─────┴─────┴───────┴─────┴─────┴─────┘
-  ↑                                      
-Current cursor                           
-
-When callout_reset(&c, 50, func, arg) is called:
 - Expiration tick = 1000 + 50 = 1050
 - Bucket = 1050 % 512 = 26
 - Insert callout into bucket 26
 
 When ticks reaches 1050:
+
 - Cursor advances to bucket 26
 - Callout found and executed
-```
 
 **Insertion Algorithm**:
 ```c

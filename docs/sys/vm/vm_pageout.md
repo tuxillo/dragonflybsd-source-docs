@@ -101,13 +101,11 @@ The daemon operates in three states:
 
 State transitions prevent thrashing while ensuring responsiveness:
 
-```
-         shortage detected
-IDLE ───────────────────────→ TARGET1
-  ↑                              │
-  │      target1 reached         ↓
-  ←──────────────────────── TARGET2
-        target2 reached
+```mermaid
+flowchart LR
+    IDLE -->|"shortage detected"| TARGET1
+    TARGET1 -->|"target1 reached"| TARGET2
+    TARGET2 -->|"target2 reached"| IDLE
 ```
 
 ### Key Sysctls
@@ -265,32 +263,25 @@ while (TRUE) {
 
 The swap pager provides block storage for anonymous memory:
 
-```
-                     vm_object
-                         │
-                         ↓
-              ┌──────────────────┐
-              │   swblock_root   │  RB-tree of swap metadata
-              │    (RB-tree)     │
-              └────────┬─────────┘
-                       │
-         ┌─────────────┼─────────────┐
-         ↓             ↓             ↓
-    ┌─────────┐   ┌─────────┐   ┌─────────┐
-    │ swblock │   │ swblock │   │ swblock │
-    │ (16 pgs)│   │ (16 pgs)│   │ (16 pgs)│
-    └────┬────┘   └────┬────┘   └────┬────┘
-         │             │             │
-         ↓             ↓             ↓
-    ┌─────────────────────────────────────┐
-    │          swapblist (blist)          │  Radix bitmap allocator
-    │       Swap block allocation         │
-    └─────────────────────────────────────┘
-                       │
-                       ↓
-    ┌─────────────────────────────────────┐
-    │         Swap devices (disks)        │
-    └─────────────────────────────────────┘
+```mermaid
+flowchart TB
+    OBJ["vm_object"]
+    
+    subgraph RBTREE["swblock_root (RB-tree)<br/><i>RB-tree of swap metadata</i>"]
+        SWB1["swblock<br/>(16 pgs)"]
+        SWB2["swblock<br/>(16 pgs)"]
+        SWB3["swblock<br/>(16 pgs)"]
+    end
+    
+    BLIST["swapblist (blist)<br/><i>Radix bitmap allocator</i><br/>Swap block allocation"]
+    
+    DISK["Swap devices (disks)"]
+    
+    OBJ --> RBTREE
+    SWB1 --> BLIST
+    SWB2 --> BLIST
+    SWB3 --> BLIST
+    BLIST --> DISK
 ```
 
 ### Key Data Structures

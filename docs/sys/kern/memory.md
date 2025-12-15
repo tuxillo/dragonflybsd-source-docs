@@ -22,30 +22,30 @@ The system is designed around several key principles:
 
 ## Architectural Layers
 
-```
-┌──────────────────────────────────────────────────────────────────┐
-│  Kernel Code (drivers, filesystems, network stack, etc.)        │
-└────────────────┬────────────────┬────────────────┬───────────────┘
-                 │                │                │
-       ┌─────────▼──────┐  ┌──────▼───────┐  ┌────▼─────────┐
-       │  kmalloc/kfree │  │ kmalloc_obj  │  │   objcache   │
-       │   (slab API)   │  │ (type-stable)│  │  (magazine)  │
-       └───────┬────────┘  └──────┬───────┘  └──────┬───────┘
-               │                  │                   │
-       ┌───────▼──────────────────▼───────────────────▼───────┐
-       │            Slab Allocator (kern_slaballoc.c)        │
-       │     Per-CPU zones, chunk management, IPI ops        │
-       └────────────────────────┬────────────────────────────┘
-                                │
-                        ┌───────▼───────┐
-                        │  kmem_slab_   │
-                        │  alloc/free   │
-                        └───────┬───────┘
-                                │
-                        ┌───────▼───────┐
-                        │   VM System   │
-                        │ (vm_map, etc) │
-                        └───────────────┘
+```mermaid
+flowchart TB
+    KERNEL["Kernel Code<br/>(drivers, filesystems, network stack, etc.)"]
+    
+    subgraph API["API Layer"]
+        KMALLOC["kmalloc/kfree<br/>(slab API)"]
+        KMALLOCOBJ["kmalloc_obj<br/>(type-stable)"]
+        OBJCACHE["objcache<br/>(magazine)"]
+    end
+    
+    SLAB["Slab Allocator (kern_slaballoc.c)<br/>Per-CPU zones, chunk management, IPI ops"]
+    
+    KMEM["kmem_slab_<br/>alloc/free"]
+    
+    VM["VM System<br/>(vm_map, etc)"]
+    
+    KERNEL --> KMALLOC
+    KERNEL --> KMALLOCOBJ
+    KERNEL --> OBJCACHE
+    KMALLOC --> SLAB
+    KMALLOCOBJ --> SLAB
+    OBJCACHE --> SLAB
+    SLAB --> KMEM
+    KMEM --> VM
 ```
 
 ### Layer Responsibilities

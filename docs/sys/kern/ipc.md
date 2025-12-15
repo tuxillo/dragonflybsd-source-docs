@@ -18,25 +18,22 @@ communication:
 
 ### Architecture
 
-```
-User Space
-    │
-    ▼ socket(), bind(), connect(), send(), recv()
-┌─────────────────────────────────────────────────────┐
-│                   Socket Layer                       │
-│  ┌─────────┐  ┌─────────┐  ┌─────────┐             │
-│  │ socket  │  │ sockbuf │  │ protosw │             │
-│  │ struct  │──│ (SSB)   │  │ dispatch│             │
-│  └─────────┘  └─────────┘  └────┬────┘             │
-└─────────────────────────────────┼───────────────────┘
-                                  │
-        ┌─────────────────────────┼─────────────────────────┐
-        │                         │                         │
-        ▼                         ▼                         ▼
-   ┌─────────┐              ┌──────────┐             ┌──────────┐
-   │  Unix   │              │   TCP    │             │   UDP    │
-   │ Domain  │              │   /IP    │             │   /IP    │
-   └─────────┘              └──────────┘             └──────────┘
+```mermaid
+flowchart TB
+    USER["User Space"]
+    
+    USER -->|"socket(), bind(), connect(), send(), recv()"| SOCKET
+    
+    subgraph SOCKET["Socket Layer"]
+        STRUCT["socket<br/>struct"]
+        SOCKBUF["sockbuf<br/>(SSB)"]
+        PROTOSW["protosw<br/>dispatch"]
+        STRUCT --- SOCKBUF
+    end
+    
+    PROTOSW --> UNIX["Unix<br/>Domain"]
+    PROTOSW --> TCP["TCP<br/>/IP"]
+    PROTOSW --> UDP["UDP<br/>/IP"]
 ```
 
 ---

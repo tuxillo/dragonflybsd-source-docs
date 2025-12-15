@@ -23,25 +23,25 @@ This document focuses on the user scheduler layer and the sleep/wakeup synchroni
 
 ### Two-Layer Design
 
-```
-┌─────────────────────────────────────────┐
-│     Userland Processes (LWPs)           │
-└─────────────────┬───────────────────────┘
-                  │
-┌─────────────────▼───────────────────────┐
-│   User Scheduler Layer (pluggable)      │
-│   - usched_bsd4 / usched_dfly            │
-│   - Run queues per scheduler             │
-│   - CPU affinity management              │
-│   - Priority calculations                │
-└─────────────────┬───────────────────────┘
-                  │
-┌─────────────────▼───────────────────────┐
-│   LWKT Scheduler (per-CPU)               │
-│   - All kernel threads                   │
-│   - Thread preemption                    │
-│   - Context switching                    │
-└──────────────────────────────────────────┘
+```mermaid
+flowchart TB
+    USERLAND["Userland Processes (LWPs)"]
+    
+    subgraph USCHED["User Scheduler Layer (pluggable)"]
+        U1["usched_bsd4 / usched_dfly"]
+        U2["Run queues per scheduler"]
+        U3["CPU affinity management"]
+        U4["Priority calculations"]
+    end
+    
+    subgraph LWKT["LWKT Scheduler (per-CPU)"]
+        L1["All kernel threads"]
+        L2["Thread preemption"]
+        L3["Context switching"]
+    end
+    
+    USERLAND --> USCHED
+    USCHED --> LWKT
 ```
 
 ### Pluggable User Schedulers
