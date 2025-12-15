@@ -91,6 +91,7 @@ nav:
         - System V Semaphores: sys/kern/ipc/sysv-sem.md
         - System V Shared Memory: sys/kern/ipc/sysv-shm.md
       - Devices & Drivers: sys/kern/devices.md
+      - NewBus Framework: sys/kern/newbus.md
       - System Calls: sys/kern/syscalls.md
     - vm/:
       - Overview: sys/vm/index.md
