@@ -1756,6 +1756,17 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
+  <a href="#when-you-need-this" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        When You Need This
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#overview" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2706,6 +2717,17 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
+  <a href="#when-you-need-this" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        When You Need This
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#overview" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -3395,6 +3417,49 @@
 <h1 id="physical-page-management">Physical Page Management<a class="headerlink" href="#physical-page-management" title="Permanent link">&para;</a></h1>
 <p>This document describes DragonFly BSD's physical page management subsystem, implemented in <code>sys/vm/vm_page.c</code>. The subsystem manages all physical memory pages in the system, including allocation, freeing, queue management, and state transitions.</p>
 <p><strong>Source file:</strong> <code>sys/vm/vm_page.c</code> (~4,200 lines)</p>
+<hr />
+<h2 id="when-you-need-this">When You Need This<a class="headerlink" href="#when-you-need-this" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Scenario</th>
+<th>Key Functions</th>
+<th>Section</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Allocating a page during fault handling</td>
+<td><code>vm_page_alloc()</code>, <code>vm_page_grab()</code></td>
+<td><a href="#page-allocation">Page Allocation</a></td>
+</tr>
+<tr>
+<td>Understanding why a page can't be freed</td>
+<td>Wire count, hold count, busy state</td>
+<td><a href="#wireunwire">Wire/Unwire</a>, <a href="#holdunhold">Hold</a>, <a href="#busy-state-management">Busy State</a></td>
+</tr>
+<tr>
+<td>Implementing a new pager</td>
+<td><code>vm_page_set_valid()</code>, <code>vm_page_dirty()</code></td>
+<td><a href="#validdirty-bit-management">Valid/Dirty Bits</a></td>
+</tr>
+<tr>
+<td>Debugging memory pressure issues</td>
+<td>Page queues, vmstats</td>
+<td><a href="#page-queues">Page Queues</a>, <a href="#memory-pressure-handling">Memory Pressure</a></td>
+</tr>
+<tr>
+<td>Writing DMA-capable driver code</td>
+<td><code>vm_page_alloc_contig()</code></td>
+<td><a href="#contiguous-allocation">Contiguous Allocation</a></td>
+</tr>
+<tr>
+<td>Understanding pageout victim selection</td>
+<td>Queue transitions</td>
+<td><a href="#page-state-transitions">Page State Transitions</a></td>
+</tr>
+</tbody>
+</table>
 <hr />
 <h2 id="overview">Overview<a class="headerlink" href="#overview" title="Permanent link">&para;</a></h2>
 <p>Every physical page in the system is represented by a <code>struct vm_page</code> (128 bytes). These structures are stored in a global array (<code>vm_page_array</code>) and indexed by physical page number. The VM system organizes pages into multiple queues based on their state and uses sophisticated coloring and NUMA-aware algorithms to optimize memory locality.</p>

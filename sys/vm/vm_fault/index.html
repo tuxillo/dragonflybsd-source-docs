@@ -1840,6 +1840,28 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
+  <a href="#when-this-code-runs" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        When This Code Runs
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#high-level-flow" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        High-Level Flow
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#overview" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2505,6 +2527,28 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
+  <a href="#when-this-code-runs" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        When This Code Runs
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#high-level-flow" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        High-Level Flow
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#overview" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2993,6 +3037,86 @@
 <h1 id="page-fault-handling">Page Fault Handling<a class="headerlink" href="#page-fault-handling" title="Permanent link">&para;</a></h1>
 <p>The page fault handler resolves virtual memory faults by locating or creating physical pages and establishing pmap mappings. DragonFly BSD's implementation emphasizes SMP scalability through shared locking, lockless fast paths, and burst faulting.</p>
 <p><strong>Source file:</strong> <code>sys/vm/vm_fault.c</code> (~3,243 lines)</p>
+<h2 id="when-this-code-runs">When This Code Runs<a class="headerlink" href="#when-this-code-runs" title="Permanent link">&para;</a></h2>
+<p>Page faults are <strong>triggered by hardware</strong> when a process accesses memory that:</p>
+<table>
+<thead>
+<tr>
+<th>Trigger</th>
+<th>Cause</th>
+<th>Typical Resolution</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>First access after mmap()</td>
+<td>No PTE exists</td>
+<td>Allocate page, zero-fill or load from file</td>
+</tr>
+<tr>
+<td>Exec touches new code page</td>
+<td>Demand paging</td>
+<td>Load from executable via vnode_pager</td>
+</tr>
+<tr>
+<td>Write to COW page after fork()</td>
+<td>PTE is read-only</td>
+<td>Copy page, update PTE to writable</td>
+</tr>
+<tr>
+<td>Stack growth</td>
+<td>Access below current stack</td>
+<td>Expand stack via <code>vm_map_growstack()</code></td>
+</tr>
+<tr>
+<td>Swapped-out page access</td>
+<td>Page not resident</td>
+<td>Load from swap via swap_pager</td>
+</tr>
+<tr>
+<td>MADV_DONTNEED region access</td>
+<td>Page was freed</td>
+<td>Zero-fill new page</td>
+</tr>
+</tbody>
+</table>
+<h2 id="high-level-flow">High-Level Flow<a class="headerlink" href="#high-level-flow" title="Permanent link">&para;</a></h2>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>HARDWARE TRAP
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>     │
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>     v
+<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>┌─────────────────────────────────────────────────────────────┐
+<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>│ trap() → vm_fault(map, vaddr, fault_type, fault_flags)      │
+<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>└─────────────────────────┬───────────────────────────────────┘
+<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>                          │
+<a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a>                          v
+<a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a>┌─────────────────────────────────────────────────────────────┐
+<a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a>│ 1. vm_map_lookup()                                          │
+<a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a>│    - Find vm_map_entry for faulting address                 │
+<a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a>│    - Handle COW setup (shadow object creation)              │
+<a id="__codelineno-0-13" name="__codelineno-0-13" href="#__codelineno-0-13"></a>│    - Return backing chain and protection                    │
+<a id="__codelineno-0-14" name="__codelineno-0-14" href="#__codelineno-0-14"></a>└─────────────────────────┬───────────────────────────────────┘
+<a id="__codelineno-0-15" name="__codelineno-0-15" href="#__codelineno-0-15"></a>                          │
+<a id="__codelineno-0-16" name="__codelineno-0-16" href="#__codelineno-0-16"></a>          ┌───────────────┴───────────────┐
+<a id="__codelineno-0-17" name="__codelineno-0-17" href="#__codelineno-0-17"></a>          │                               │
+<a id="__codelineno-0-18" name="__codelineno-0-18" href="#__codelineno-0-18"></a>          v                               v
+<a id="__codelineno-0-19" name="__codelineno-0-19" href="#__codelineno-0-19"></a>┌───────────────────────┐     ┌───────────────────────┐
+<a id="__codelineno-0-20" name="__codelineno-0-20" href="#__codelineno-0-20"></a>│ 2a. vm_fault_bypass() │     │ 2b. vm_fault_object() │
+<a id="__codelineno-0-21" name="__codelineno-0-21" href="#__codelineno-0-21"></a>│   (FAST PATH)         │     │   (SLOW PATH)         │
+<a id="__codelineno-0-22" name="__codelineno-0-22" href="#__codelineno-0-22"></a>│                       │     │                       │
+<a id="__codelineno-0-23" name="__codelineno-0-23" href="#__codelineno-0-23"></a>│ - Page in hash cache  │     │ - Walk backing chain  │
+<a id="__codelineno-0-24" name="__codelineno-0-24" href="#__codelineno-0-24"></a>│ - Already valid/dirty │     │ - Call pager if needed│
+<a id="__codelineno-0-25" name="__codelineno-0-25" href="#__codelineno-0-25"></a>│ - No locks needed     │     │ - Handle COW copy     │
+<a id="__codelineno-0-26" name="__codelineno-0-26" href="#__codelineno-0-26"></a>│ - Soft-busy only      │     │ - Zero-fill if new    │
+<a id="__codelineno-0-27" name="__codelineno-0-27" href="#__codelineno-0-27"></a>└───────────┬───────────┘     └───────────┬───────────┘
+<a id="__codelineno-0-28" name="__codelineno-0-28" href="#__codelineno-0-28"></a>            │                             │
+<a id="__codelineno-0-29" name="__codelineno-0-29" href="#__codelineno-0-29"></a>            └──────────────┬──────────────┘
+<a id="__codelineno-0-30" name="__codelineno-0-30" href="#__codelineno-0-30"></a>                           │
+<a id="__codelineno-0-31" name="__codelineno-0-31" href="#__codelineno-0-31"></a>                           v
+<a id="__codelineno-0-32" name="__codelineno-0-32" href="#__codelineno-0-32"></a>┌─────────────────────────────────────────────────────────────┐
+<a id="__codelineno-0-33" name="__codelineno-0-33" href="#__codelineno-0-33"></a>│ 3. pmap_enter() - Install PTE for virtual→physical mapping  │
+<a id="__codelineno-0-34" name="__codelineno-0-34" href="#__codelineno-0-34"></a>└─────────────────────────────────────────────────────────────┘
+</code></pre></div>
+<hr />
 <h2 id="overview">Overview<a class="headerlink" href="#overview" title="Permanent link">&para;</a></h2>
 <p>When a process accesses unmapped or protected memory, the hardware generates a page fault. The fault handler must:</p>
 <ol>
@@ -3010,25 +3134,25 @@
 <h2 id="data-structures">Data Structures<a class="headerlink" href="#data-structures" title="Permanent link">&para;</a></h2>
 <h3 id="struct-faultstate">struct faultstate<a class="headerlink" href="#struct-faultstate" title="Permanent link">&para;</a></h3>
 <p>Internal state maintained during fault processing:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="k">struct</span><span class="w"> </span><span class="nc">faultstate</span><span class="w"> </span><span class="p">{</span>
-<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="w">    </span><span class="n">vm_page_t</span><span class="w"> </span><span class="n">mary</span><span class="p">[</span><span class="n">VM_FAULT_MAX_QUICK</span><span class="p">];</span><span class="w">  </span><span class="cm">/* Burst pages (max 16) */</span>
-<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="w">    </span><span class="n">vm_map_backing_t</span><span class="w"> </span><span class="n">ba</span><span class="p">;</span><span class="w">            </span><span class="cm">/* Current backing during iteration */</span>
-<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="w">    </span><span class="n">vm_prot_t</span><span class="w"> </span><span class="n">prot</span><span class="p">;</span><span class="w">                 </span><span class="cm">/* Final protection for pmap */</span>
-<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a><span class="w">    </span><span class="n">vm_page_t</span><span class="w"> </span><span class="n">first_m</span><span class="p">;</span><span class="w">              </span><span class="cm">/* Allocated page for COW target */</span>
-<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a><span class="w">    </span><span class="n">vm_map_backing_t</span><span class="w"> </span><span class="n">first_ba</span><span class="p">;</span><span class="w">      </span><span class="cm">/* Top-level backing */</span>
-<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a><span class="w">    </span><span class="n">vm_prot_t</span><span class="w"> </span><span class="n">first_prot</span><span class="p">;</span><span class="w">           </span><span class="cm">/* Protection from map lookup */</span>
-<a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a><span class="w">    </span><span class="n">vm_map_t</span><span class="w"> </span><span class="n">map</span><span class="p">;</span><span class="w">                   </span><span class="cm">/* Map being faulted */</span>
-<a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a><span class="w">    </span><span class="n">vm_map_entry_t</span><span class="w"> </span><span class="n">entry</span><span class="p">;</span><span class="w">           </span><span class="cm">/* Entry being faulted */</span>
-<a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a><span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="n">lookup_still_valid</span><span class="p">;</span><span class="w">         </span><span class="cm">/* Map lock state */</span>
-<a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a><span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="n">hardfault</span><span class="p">;</span><span class="w">                  </span><span class="cm">/* I/O was required */</span>
-<a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a><span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="n">fault_flags</span><span class="p">;</span><span class="w">                </span><span class="cm">/* VM_FAULT_* flags */</span>
-<a id="__codelineno-0-13" name="__codelineno-0-13" href="#__codelineno-0-13"></a><span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="n">shared</span><span class="p">;</span><span class="w">                     </span><span class="cm">/* Using shared object lock */</span>
-<a id="__codelineno-0-14" name="__codelineno-0-14" href="#__codelineno-0-14"></a><span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="n">msoftonly</span><span class="p">;</span><span class="w">                  </span><span class="cm">/* Pages are soft-busied only */</span>
-<a id="__codelineno-0-15" name="__codelineno-0-15" href="#__codelineno-0-15"></a><span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="n">first_shared</span><span class="p">;</span><span class="w">               </span><span class="cm">/* First object has shared lock */</span>
-<a id="__codelineno-0-16" name="__codelineno-0-16" href="#__codelineno-0-16"></a><span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="n">wflags</span><span class="p">;</span><span class="w">                     </span><span class="cm">/* FW_* flags from lookup */</span>
-<a id="__codelineno-0-17" name="__codelineno-0-17" href="#__codelineno-0-17"></a><span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="n">first_ba_held</span><span class="p">;</span><span class="w">              </span><span class="cm">/* Object lock state */</span>
-<a id="__codelineno-0-18" name="__codelineno-0-18" href="#__codelineno-0-18"></a><span class="w">    </span><span class="k">struct</span><span class="w"> </span><span class="nc">vnode</span><span class="w"> </span><span class="o">*</span><span class="n">vp</span><span class="p">;</span><span class="w">               </span><span class="cm">/* Locked vnode (if any) */</span>
-<a id="__codelineno-0-19" name="__codelineno-0-19" href="#__codelineno-0-19"></a><span class="p">};</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="k">struct</span><span class="w"> </span><span class="nc">faultstate</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="w">    </span><span class="n">vm_page_t</span><span class="w"> </span><span class="n">mary</span><span class="p">[</span><span class="n">VM_FAULT_MAX_QUICK</span><span class="p">];</span><span class="w">  </span><span class="cm">/* Burst pages (max 16) */</span>
+<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="w">    </span><span class="n">vm_map_backing_t</span><span class="w"> </span><span class="n">ba</span><span class="p">;</span><span class="w">            </span><span class="cm">/* Current backing during iteration */</span>
+<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a><span class="w">    </span><span class="n">vm_prot_t</span><span class="w"> </span><span class="n">prot</span><span class="p">;</span><span class="w">                 </span><span class="cm">/* Final protection for pmap */</span>
+<a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a><span class="w">    </span><span class="n">vm_page_t</span><span class="w"> </span><span class="n">first_m</span><span class="p">;</span><span class="w">              </span><span class="cm">/* Allocated page for COW target */</span>
+<a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a><span class="w">    </span><span class="n">vm_map_backing_t</span><span class="w"> </span><span class="n">first_ba</span><span class="p">;</span><span class="w">      </span><span class="cm">/* Top-level backing */</span>
+<a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a><span class="w">    </span><span class="n">vm_prot_t</span><span class="w"> </span><span class="n">first_prot</span><span class="p">;</span><span class="w">           </span><span class="cm">/* Protection from map lookup */</span>
+<a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a><span class="w">    </span><span class="n">vm_map_t</span><span class="w"> </span><span class="n">map</span><span class="p">;</span><span class="w">                   </span><span class="cm">/* Map being faulted */</span>
+<a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a><span class="w">    </span><span class="n">vm_map_entry_t</span><span class="w"> </span><span class="n">entry</span><span class="p">;</span><span class="w">           </span><span class="cm">/* Entry being faulted */</span>
+<a id="__codelineno-1-10" name="__codelineno-1-10" href="#__codelineno-1-10"></a><span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="n">lookup_still_valid</span><span class="p">;</span><span class="w">         </span><span class="cm">/* Map lock state */</span>
+<a id="__codelineno-1-11" name="__codelineno-1-11" href="#__codelineno-1-11"></a><span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="n">hardfault</span><span class="p">;</span><span class="w">                  </span><span class="cm">/* I/O was required */</span>
+<a id="__codelineno-1-12" name="__codelineno-1-12" href="#__codelineno-1-12"></a><span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="n">fault_flags</span><span class="p">;</span><span class="w">                </span><span class="cm">/* VM_FAULT_* flags */</span>
+<a id="__codelineno-1-13" name="__codelineno-1-13" href="#__codelineno-1-13"></a><span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="n">shared</span><span class="p">;</span><span class="w">                     </span><span class="cm">/* Using shared object lock */</span>
+<a id="__codelineno-1-14" name="__codelineno-1-14" href="#__codelineno-1-14"></a><span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="n">msoftonly</span><span class="p">;</span><span class="w">                  </span><span class="cm">/* Pages are soft-busied only */</span>
+<a id="__codelineno-1-15" name="__codelineno-1-15" href="#__codelineno-1-15"></a><span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="n">first_shared</span><span class="p">;</span><span class="w">               </span><span class="cm">/* First object has shared lock */</span>
+<a id="__codelineno-1-16" name="__codelineno-1-16" href="#__codelineno-1-16"></a><span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="n">wflags</span><span class="p">;</span><span class="w">                     </span><span class="cm">/* FW_* flags from lookup */</span>
+<a id="__codelineno-1-17" name="__codelineno-1-17" href="#__codelineno-1-17"></a><span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="n">first_ba_held</span><span class="p">;</span><span class="w">              </span><span class="cm">/* Object lock state */</span>
+<a id="__codelineno-1-18" name="__codelineno-1-18" href="#__codelineno-1-18"></a><span class="w">    </span><span class="k">struct</span><span class="w"> </span><span class="nc">vnode</span><span class="w"> </span><span class="o">*</span><span class="n">vp</span><span class="p">;</span><span class="w">               </span><span class="cm">/* Locked vnode (if any) */</span>
+<a id="__codelineno-1-19" name="__codelineno-1-19" href="#__codelineno-1-19"></a><span class="p">};</span>
 </code></pre></div>
 <h3 id="fault-flags">Fault Flags<a class="headerlink" href="#fault-flags" title="Permanent link">&para;</a></h3>
 <table>
@@ -3093,8 +3217,8 @@
 </tbody>
 </table>
 <h2 id="main-entry-point">Main Entry Point<a class="headerlink" href="#main-entry-point" title="Permanent link">&para;</a></h2>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="kt">int</span><span class="w"> </span><span class="nf">vm_fault</span><span class="p">(</span><span class="n">vm_map_t</span><span class="w"> </span><span class="n">map</span><span class="p">,</span><span class="w"> </span><span class="n">vm_offset_t</span><span class="w"> </span><span class="n">vaddr</span><span class="p">,</span><span class="w"> </span>
-<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="w">             </span><span class="n">vm_prot_t</span><span class="w"> </span><span class="n">fault_type</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">fault_flags</span><span class="p">);</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="kt">int</span><span class="w"> </span><span class="nf">vm_fault</span><span class="p">(</span><span class="n">vm_map_t</span><span class="w"> </span><span class="n">map</span><span class="p">,</span><span class="w"> </span><span class="n">vm_offset_t</span><span class="w"> </span><span class="n">vaddr</span><span class="p">,</span><span class="w"> </span>
+<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="w">             </span><span class="n">vm_prot_t</span><span class="w"> </span><span class="n">fault_type</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">fault_flags</span><span class="p">);</span>
 </code></pre></div>
 <p>Called from the trap handler when a page fault occurs.</p>
 <h3 id="algorithm">Algorithm<a class="headerlink" href="#algorithm" title="Permanent link">&para;</a></h3>
@@ -3102,10 +3226,10 @@
 - Set <code>LWP_PAGING</code> flag on current LWP
 - Initialize faultstate with shared lock preference</p>
 <p><strong>2. Map Lookup (RetryFault):</strong>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="n">result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">vm_map_lookup</span><span class="p">(</span><span class="o">&amp;</span><span class="n">fs</span><span class="p">.</span><span class="n">map</span><span class="p">,</span><span class="w"> </span><span class="n">vaddr</span><span class="p">,</span><span class="w"> </span><span class="n">fault_type</span><span class="p">,</span>
-<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="w">                       </span><span class="o">&amp;</span><span class="n">fs</span><span class="p">.</span><span class="n">entry</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">fs</span><span class="p">.</span><span class="n">first_ba</span><span class="p">,</span>
-<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="w">                       </span><span class="o">&amp;</span><span class="n">first_pindex</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">first_count</span><span class="p">,</span>
-<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a><span class="w">                       </span><span class="o">&amp;</span><span class="n">fs</span><span class="p">.</span><span class="n">first_prot</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">fs</span><span class="p">.</span><span class="n">wflags</span><span class="p">);</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="n">result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">vm_map_lookup</span><span class="p">(</span><span class="o">&amp;</span><span class="n">fs</span><span class="p">.</span><span class="n">map</span><span class="p">,</span><span class="w"> </span><span class="n">vaddr</span><span class="p">,</span><span class="w"> </span><span class="n">fault_type</span><span class="p">,</span>
+<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="w">                       </span><span class="o">&amp;</span><span class="n">fs</span><span class="p">.</span><span class="n">entry</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">fs</span><span class="p">.</span><span class="n">first_ba</span><span class="p">,</span>
+<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a><span class="w">                       </span><span class="o">&amp;</span><span class="n">first_pindex</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">first_count</span><span class="p">,</span>
+<a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a><span class="w">                       </span><span class="o">&amp;</span><span class="n">fs</span><span class="p">.</span><span class="n">first_prot</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">fs</span><span class="p">.</span><span class="n">wflags</span><span class="p">);</span>
 </code></pre></div></p>
 <p>The lookup may:
 - Create a shadow object for COW
@@ -3119,11 +3243,11 @@
 - <code>MAP_ENTRY_KSTACK</code> guard page: Panic
 - <code>VM_MAPTYPE_UKSMAP</code>: Call device callback, map directly</p>
 <p><strong>5. Fast Path (vm_fault_bypass):</strong>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">vm_fault_bypass_count</span><span class="w"> </span><span class="o">&amp;&amp;</span>
-<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="w">    </span><span class="n">vm_fault_bypass</span><span class="p">(</span><span class="o">&amp;</span><span class="n">fs</span><span class="p">,</span><span class="w"> </span><span class="n">first_pindex</span><span class="p">,</span><span class="w"> </span><span class="n">first_count</span><span class="p">,</span>
-<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a><span class="w">                   </span><span class="o">&amp;</span><span class="n">mextcount</span><span class="p">,</span><span class="w"> </span><span class="n">fault_type</span><span class="p">)</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">KERN_SUCCESS</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
-<a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a><span class="w">    </span><span class="k">goto</span><span class="w"> </span><span class="n">success</span><span class="p">;</span>
-<a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a><span class="p">}</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">vm_fault_bypass_count</span><span class="w"> </span><span class="o">&amp;&amp;</span>
+<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a><span class="w">    </span><span class="n">vm_fault_bypass</span><span class="p">(</span><span class="o">&amp;</span><span class="n">fs</span><span class="p">,</span><span class="w"> </span><span class="n">first_pindex</span><span class="p">,</span><span class="w"> </span><span class="n">first_count</span><span class="p">,</span>
+<a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a><span class="w">                   </span><span class="o">&amp;</span><span class="n">mextcount</span><span class="p">,</span><span class="w"> </span><span class="n">fault_type</span><span class="p">)</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">KERN_SUCCESS</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a><span class="w">    </span><span class="k">goto</span><span class="w"> </span><span class="n">success</span><span class="p">;</span>
+<a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a><span class="p">}</span>
 </code></pre></div></p>
 <p><strong>6. Slow Path:</strong>
 - Acquire object lock (shared or exclusive)
@@ -3139,9 +3263,9 @@
 - Update <code>ru_majflt</code> (hard) or <code>ru_minflt</code> (soft)
 - Check RSS limits, deactivate pages if exceeded</p>
 <h2 id="lockless-fast-path">Lockless Fast Path<a class="headerlink" href="#lockless-fast-path" title="Permanent link">&para;</a></h2>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="k">static</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="nf">vm_fault_bypass</span><span class="p">(</span><span class="k">struct</span><span class="w"> </span><span class="nc">faultstate</span><span class="w"> </span><span class="o">*</span><span class="n">fs</span><span class="p">,</span><span class="w"> </span><span class="n">vm_pindex_t</span><span class="w"> </span><span class="n">first_pindex</span><span class="p">,</span>
-<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a><span class="w">                           </span><span class="n">vm_pindex_t</span><span class="w"> </span><span class="n">first_count</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="o">*</span><span class="n">mextcountp</span><span class="p">,</span>
-<a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a><span class="w">                           </span><span class="n">vm_prot_t</span><span class="w"> </span><span class="n">fault_type</span><span class="p">);</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="k">static</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="nf">vm_fault_bypass</span><span class="p">(</span><span class="k">struct</span><span class="w"> </span><span class="nc">faultstate</span><span class="w"> </span><span class="o">*</span><span class="n">fs</span><span class="p">,</span><span class="w"> </span><span class="n">vm_pindex_t</span><span class="w"> </span><span class="n">first_pindex</span><span class="p">,</span>
+<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a><span class="w">                           </span><span class="n">vm_pindex_t</span><span class="w"> </span><span class="n">first_count</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="o">*</span><span class="n">mextcountp</span><span class="p">,</span>
+<a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a><span class="w">                           </span><span class="n">vm_prot_t</span><span class="w"> </span><span class="n">fault_type</span><span class="p">);</span>
 </code></pre></div>
 <p>Attempts to resolve the fault without acquiring object locks:</p>
 <h3 id="requirements">Requirements<a class="headerlink" href="#requirements" title="Permanent link">&para;</a></h3>
@@ -3169,8 +3293,8 @@
 <li>Multiple pages can be mapped in single operation</li>
 </ul>
 <h2 id="core-fault-logic">Core Fault Logic<a class="headerlink" href="#core-fault-logic" title="Permanent link">&para;</a></h2>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="k">static</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="nf">vm_fault_object</span><span class="p">(</span><span class="k">struct</span><span class="w"> </span><span class="nc">faultstate</span><span class="w"> </span><span class="o">*</span><span class="n">fs</span><span class="p">,</span><span class="w"> </span><span class="n">vm_pindex_t</span><span class="w"> </span><span class="n">first_pindex</span><span class="p">,</span>
-<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a><span class="w">                           </span><span class="n">vm_prot_t</span><span class="w"> </span><span class="n">fault_type</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">allow_nofault</span><span class="p">);</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="k">static</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="nf">vm_fault_object</span><span class="p">(</span><span class="k">struct</span><span class="w"> </span><span class="nc">faultstate</span><span class="w"> </span><span class="o">*</span><span class="n">fs</span><span class="p">,</span><span class="w"> </span><span class="n">vm_pindex_t</span><span class="w"> </span><span class="n">first_pindex</span><span class="p">,</span>
+<a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a><span class="w">                           </span><span class="n">vm_prot_t</span><span class="w"> </span><span class="n">fault_type</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">allow_nofault</span><span class="p">);</span>
 </code></pre></div>
 <p>Walks the backing chain to find or create the target page.</p>
 <h3 id="protection-upgrade">Protection Upgrade<a class="headerlink" href="#protection-upgrade" title="Permanent link">&para;</a></h3>
@@ -3179,16 +3303,16 @@
 - The page is not COW
 - The pmap doesn't require A/M bit emulation (vkernel)</p>
 <h3 id="main-loop-backing-chain-walk">Main Loop (Backing Chain Walk)<a class="headerlink" href="#main-loop-backing-chain-walk" title="Permanent link">&para;</a></h3>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>for (;;) {
-<a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a>    1. Check if object is dead
-<a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a>    2. Look up page in current object
-<a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a>    3. If found and valid → break to PAGE FOUND
-<a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a>    4. If not found → try pager or allocate
-<a id="__codelineno-6-6" name="__codelineno-6-6" href="#__codelineno-6-6"></a>    5. Move to next backing object
-<a id="__codelineno-6-7" name="__codelineno-6-7" href="#__codelineno-6-7"></a>}
+<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a>for (;;) {
+<a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a>    1. Check if object is dead
+<a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a>    2. Look up page in current object
+<a id="__codelineno-7-4" name="__codelineno-7-4" href="#__codelineno-7-4"></a>    3. If found and valid → break to PAGE FOUND
+<a id="__codelineno-7-5" name="__codelineno-7-5" href="#__codelineno-7-5"></a>    4. If not found → try pager or allocate
+<a id="__codelineno-7-6" name="__codelineno-7-6" href="#__codelineno-7-6"></a>    5. Move to next backing object
+<a id="__codelineno-7-7" name="__codelineno-7-7" href="#__codelineno-7-7"></a>}
 </code></pre></div>
 <p><strong>Page Lookup:</strong>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="n">fs</span><span class="o">-&gt;</span><span class="n">mary</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">vm_page_lookup_busy_try</span><span class="p">(</span><span class="n">fs</span><span class="o">-&gt;</span><span class="n">ba</span><span class="o">-&gt;</span><span class="n">object</span><span class="p">,</span><span class="w"> </span><span class="n">pindex</span><span class="p">,</span><span class="w"> </span><span class="n">TRUE</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">error</span><span class="p">);</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a><span class="n">fs</span><span class="o">-&gt;</span><span class="n">mary</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">vm_page_lookup_busy_try</span><span class="p">(</span><span class="n">fs</span><span class="o">-&gt;</span><span class="n">ba</span><span class="o">-&gt;</span><span class="n">object</span><span class="p">,</span><span class="w"> </span><span class="n">pindex</span><span class="p">,</span><span class="w"> </span><span class="n">TRUE</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">error</span><span class="p">);</span>
 </code></pre></div></p>
 <p>If the page is busy, sleep and return <code>KERN_TRY_AGAIN</code>.</p>
 <p><strong>Page Not Resident:</strong></p>
@@ -3198,7 +3322,7 @@
 2. Check <code>pindex &lt; object-&gt;size</code>
 3. Allocate via <code>vm_page_alloc()</code></p>
 <p><strong>Pager I/O:</strong>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a><span class="n">rv</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">vm_pager_get_page</span><span class="p">(</span><span class="n">object</span><span class="p">,</span><span class="w"> </span><span class="n">pindex</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">fs</span><span class="o">-&gt;</span><span class="n">mary</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span><span class="w"> </span><span class="n">seqaccess</span><span class="p">);</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a><span class="n">rv</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">vm_pager_get_page</span><span class="p">(</span><span class="n">object</span><span class="p">,</span><span class="w"> </span><span class="n">pindex</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">fs</span><span class="o">-&gt;</span><span class="n">mary</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span><span class="w"> </span><span class="n">seqaccess</span><span class="p">);</span>
 </code></pre></div></p>
 <table>
 <thead>
@@ -3227,33 +3351,33 @@
 </tbody>
 </table>
 <p><strong>Continue to Next Object:</strong>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a><span class="n">next_ba</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">fs</span><span class="o">-&gt;</span><span class="n">ba</span><span class="o">-&gt;</span><span class="n">backing_ba</span><span class="p">;</span>
-<a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">next_ba</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="nb">NULL</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
-<a id="__codelineno-9-3" name="__codelineno-9-3" href="#__codelineno-9-3"></a><span class="w">    </span><span class="cm">/* Zero-fill the page */</span>
-<a id="__codelineno-9-4" name="__codelineno-9-4" href="#__codelineno-9-4"></a><span class="w">    </span><span class="n">vm_page_zero_fill</span><span class="p">(</span><span class="n">fs</span><span class="o">-&gt;</span><span class="n">mary</span><span class="p">[</span><span class="mi">0</span><span class="p">]);</span>
-<a id="__codelineno-9-5" name="__codelineno-9-5" href="#__codelineno-9-5"></a><span class="w">    </span><span class="k">break</span><span class="p">;</span>
-<a id="__codelineno-9-6" name="__codelineno-9-6" href="#__codelineno-9-6"></a><span class="p">}</span>
-<a id="__codelineno-9-7" name="__codelineno-9-7" href="#__codelineno-9-7"></a><span class="cm">/* Adjust pindex through offset chain */</span>
-<a id="__codelineno-9-8" name="__codelineno-9-8" href="#__codelineno-9-8"></a><span class="n">pindex</span><span class="w"> </span><span class="o">-=</span><span class="w"> </span><span class="n">OFF_TO_IDX</span><span class="p">(</span><span class="n">fs</span><span class="o">-&gt;</span><span class="n">ba</span><span class="o">-&gt;</span><span class="n">offset</span><span class="p">);</span>
-<a id="__codelineno-9-9" name="__codelineno-9-9" href="#__codelineno-9-9"></a><span class="n">pindex</span><span class="w"> </span><span class="o">+=</span><span class="w"> </span><span class="n">OFF_TO_IDX</span><span class="p">(</span><span class="n">next_ba</span><span class="o">-&gt;</span><span class="n">offset</span><span class="p">);</span>
-<a id="__codelineno-9-10" name="__codelineno-9-10" href="#__codelineno-9-10"></a><span class="n">fs</span><span class="o">-&gt;</span><span class="n">ba</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">next_ba</span><span class="p">;</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a><span class="n">next_ba</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">fs</span><span class="o">-&gt;</span><span class="n">ba</span><span class="o">-&gt;</span><span class="n">backing_ba</span><span class="p">;</span>
+<a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">next_ba</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="nb">NULL</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-10-3" name="__codelineno-10-3" href="#__codelineno-10-3"></a><span class="w">    </span><span class="cm">/* Zero-fill the page */</span>
+<a id="__codelineno-10-4" name="__codelineno-10-4" href="#__codelineno-10-4"></a><span class="w">    </span><span class="n">vm_page_zero_fill</span><span class="p">(</span><span class="n">fs</span><span class="o">-&gt;</span><span class="n">mary</span><span class="p">[</span><span class="mi">0</span><span class="p">]);</span>
+<a id="__codelineno-10-5" name="__codelineno-10-5" href="#__codelineno-10-5"></a><span class="w">    </span><span class="k">break</span><span class="p">;</span>
+<a id="__codelineno-10-6" name="__codelineno-10-6" href="#__codelineno-10-6"></a><span class="p">}</span>
+<a id="__codelineno-10-7" name="__codelineno-10-7" href="#__codelineno-10-7"></a><span class="cm">/* Adjust pindex through offset chain */</span>
+<a id="__codelineno-10-8" name="__codelineno-10-8" href="#__codelineno-10-8"></a><span class="n">pindex</span><span class="w"> </span><span class="o">-=</span><span class="w"> </span><span class="n">OFF_TO_IDX</span><span class="p">(</span><span class="n">fs</span><span class="o">-&gt;</span><span class="n">ba</span><span class="o">-&gt;</span><span class="n">offset</span><span class="p">);</span>
+<a id="__codelineno-10-9" name="__codelineno-10-9" href="#__codelineno-10-9"></a><span class="n">pindex</span><span class="w"> </span><span class="o">+=</span><span class="w"> </span><span class="n">OFF_TO_IDX</span><span class="p">(</span><span class="n">next_ba</span><span class="o">-&gt;</span><span class="n">offset</span><span class="p">);</span>
+<a id="__codelineno-10-10" name="__codelineno-10-10" href="#__codelineno-10-10"></a><span class="n">fs</span><span class="o">-&gt;</span><span class="n">ba</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">next_ba</span><span class="p">;</span>
 </code></pre></div></p>
 <h3 id="copy-on-write">Copy-On-Write<a class="headerlink" href="#copy-on-write" title="Permanent link">&para;</a></h3>
 <p>When the page is found in a backing object (<code>ba != first_ba</code>) and this is a write fault:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a><span class="cm">/* Copy from backing page to first_m */</span>
-<a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a><span class="n">vm_page_copy</span><span class="p">(</span><span class="n">fs</span><span class="o">-&gt;</span><span class="n">mary</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span><span class="w"> </span><span class="n">fs</span><span class="o">-&gt;</span><span class="n">first_m</span><span class="p">);</span>
-<a id="__codelineno-10-3" name="__codelineno-10-3" href="#__codelineno-10-3"></a>
-<a id="__codelineno-10-4" name="__codelineno-10-4" href="#__codelineno-10-4"></a><span class="cm">/* Release backing page and object */</span>
-<a id="__codelineno-10-5" name="__codelineno-10-5" href="#__codelineno-10-5"></a><span class="n">release_page</span><span class="p">(</span><span class="n">fs</span><span class="p">);</span>
-<a id="__codelineno-10-6" name="__codelineno-10-6" href="#__codelineno-10-6"></a><span class="n">vm_object_pip_wakeup</span><span class="p">(</span><span class="n">fs</span><span class="o">-&gt;</span><span class="n">ba</span><span class="o">-&gt;</span><span class="n">object</span><span class="p">);</span>
-<a id="__codelineno-10-7" name="__codelineno-10-7" href="#__codelineno-10-7"></a><span class="n">vm_object_drop</span><span class="p">(</span><span class="n">fs</span><span class="o">-&gt;</span><span class="n">ba</span><span class="o">-&gt;</span><span class="n">object</span><span class="p">);</span>
-<a id="__codelineno-10-8" name="__codelineno-10-8" href="#__codelineno-10-8"></a>
-<a id="__codelineno-10-9" name="__codelineno-10-9" href="#__codelineno-10-9"></a><span class="cm">/* Switch to the copy */</span>
-<a id="__codelineno-10-10" name="__codelineno-10-10" href="#__codelineno-10-10"></a><span class="n">fs</span><span class="o">-&gt;</span><span class="n">ba</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">fs</span><span class="o">-&gt;</span><span class="n">first_ba</span><span class="p">;</span>
-<a id="__codelineno-10-11" name="__codelineno-10-11" href="#__codelineno-10-11"></a><span class="n">fs</span><span class="o">-&gt;</span><span class="n">mary</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">fs</span><span class="o">-&gt;</span><span class="n">first_m</span><span class="p">;</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a><span class="cm">/* Copy from backing page to first_m */</span>
+<a id="__codelineno-11-2" name="__codelineno-11-2" href="#__codelineno-11-2"></a><span class="n">vm_page_copy</span><span class="p">(</span><span class="n">fs</span><span class="o">-&gt;</span><span class="n">mary</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span><span class="w"> </span><span class="n">fs</span><span class="o">-&gt;</span><span class="n">first_m</span><span class="p">);</span>
+<a id="__codelineno-11-3" name="__codelineno-11-3" href="#__codelineno-11-3"></a>
+<a id="__codelineno-11-4" name="__codelineno-11-4" href="#__codelineno-11-4"></a><span class="cm">/* Release backing page and object */</span>
+<a id="__codelineno-11-5" name="__codelineno-11-5" href="#__codelineno-11-5"></a><span class="n">release_page</span><span class="p">(</span><span class="n">fs</span><span class="p">);</span>
+<a id="__codelineno-11-6" name="__codelineno-11-6" href="#__codelineno-11-6"></a><span class="n">vm_object_pip_wakeup</span><span class="p">(</span><span class="n">fs</span><span class="o">-&gt;</span><span class="n">ba</span><span class="o">-&gt;</span><span class="n">object</span><span class="p">);</span>
+<a id="__codelineno-11-7" name="__codelineno-11-7" href="#__codelineno-11-7"></a><span class="n">vm_object_drop</span><span class="p">(</span><span class="n">fs</span><span class="o">-&gt;</span><span class="n">ba</span><span class="o">-&gt;</span><span class="n">object</span><span class="p">);</span>
+<a id="__codelineno-11-8" name="__codelineno-11-8" href="#__codelineno-11-8"></a>
+<a id="__codelineno-11-9" name="__codelineno-11-9" href="#__codelineno-11-9"></a><span class="cm">/* Switch to the copy */</span>
+<a id="__codelineno-11-10" name="__codelineno-11-10" href="#__codelineno-11-10"></a><span class="n">fs</span><span class="o">-&gt;</span><span class="n">ba</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">fs</span><span class="o">-&gt;</span><span class="n">first_ba</span><span class="p">;</span>
+<a id="__codelineno-11-11" name="__codelineno-11-11" href="#__codelineno-11-11"></a><span class="n">fs</span><span class="o">-&gt;</span><span class="n">mary</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">fs</span><span class="o">-&gt;</span><span class="n">first_m</span><span class="p">;</span>
 </code></pre></div>
 <p>For read faults on backing pages, write permission is masked:
-<div class="highlight"><pre><span></span><code><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a><span class="n">fs</span><span class="o">-&gt;</span><span class="n">prot</span><span class="w"> </span><span class="o">&amp;=</span><span class="w"> </span><span class="o">~</span><span class="n">VM_PROT_WRITE</span><span class="p">;</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a><span class="n">fs</span><span class="o">-&gt;</span><span class="n">prot</span><span class="w"> </span><span class="o">&amp;=</span><span class="w"> </span><span class="o">~</span><span class="n">VM_PROT_WRITE</span><span class="p">;</span>
 </code></pre></div></p>
 <h3 id="finalization">Finalization<a class="headerlink" href="#finalization" title="Permanent link">&para;</a></h3>
 <ol>
@@ -3265,8 +3389,8 @@
 </ol>
 <h2 id="wiring-support">Wiring Support<a class="headerlink" href="#wiring-support" title="Permanent link">&para;</a></h2>
 <h3 id="vm_fault_wire">vm_fault_wire<a class="headerlink" href="#vm_fault_wire" title="Permanent link">&para;</a></h3>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a><span class="kt">int</span><span class="w"> </span><span class="nf">vm_fault_wire</span><span class="p">(</span><span class="n">vm_map_t</span><span class="w"> </span><span class="n">map</span><span class="p">,</span><span class="w"> </span><span class="n">vm_map_entry_t</span><span class="w"> </span><span class="n">entry</span><span class="p">,</span>
-<a id="__codelineno-12-2" name="__codelineno-12-2" href="#__codelineno-12-2"></a><span class="w">                  </span><span class="n">boolean_t</span><span class="w"> </span><span class="n">user_wire</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">kmflags</span><span class="p">);</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a><span class="kt">int</span><span class="w"> </span><span class="nf">vm_fault_wire</span><span class="p">(</span><span class="n">vm_map_t</span><span class="w"> </span><span class="n">map</span><span class="p">,</span><span class="w"> </span><span class="n">vm_map_entry_t</span><span class="w"> </span><span class="n">entry</span><span class="p">,</span>
+<a id="__codelineno-13-2" name="__codelineno-13-2" href="#__codelineno-13-2"></a><span class="w">                  </span><span class="n">boolean_t</span><span class="w"> </span><span class="n">user_wire</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">kmflags</span><span class="p">);</span>
 </code></pre></div>
 <p>Wires a range by simulating faults:</p>
 <ol>
@@ -3276,14 +3400,14 @@
 <li>On failure: unwire already-wired pages</li>
 </ol>
 <h3 id="vm_fault_unwire">vm_fault_unwire<a class="headerlink" href="#vm_fault_unwire" title="Permanent link">&para;</a></h3>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a><span class="kt">void</span><span class="w"> </span><span class="nf">vm_fault_unwire</span><span class="p">(</span><span class="n">vm_map_t</span><span class="w"> </span><span class="n">map</span><span class="p">,</span><span class="w"> </span><span class="n">vm_map_entry_t</span><span class="w"> </span><span class="n">entry</span><span class="p">);</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-14-1" name="__codelineno-14-1" href="#__codelineno-14-1"></a><span class="kt">void</span><span class="w"> </span><span class="nf">vm_fault_unwire</span><span class="p">(</span><span class="n">vm_map_t</span><span class="w"> </span><span class="n">map</span><span class="p">,</span><span class="w"> </span><span class="n">vm_map_entry_t</span><span class="w"> </span><span class="n">entry</span><span class="p">);</span>
 </code></pre></div>
 <p>Unwires a range:
 - Calls <code>pmap_unwire()</code> to get page
 - Calls <code>vm_page_unwire()</code> to decrement wire count
 - Skips guard page for <code>MAP_ENTRY_KSTACK</code></p>
 <h2 id="shadow-collapse">Shadow Collapse<a class="headerlink" href="#shadow-collapse" title="Permanent link">&para;</a></h2>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-14-1" name="__codelineno-14-1" href="#__codelineno-14-1"></a><span class="kt">int</span><span class="w"> </span><span class="nf">vm_fault_collapse</span><span class="p">(</span><span class="n">vm_map_t</span><span class="w"> </span><span class="n">map</span><span class="p">,</span><span class="w"> </span><span class="n">vm_map_entry_t</span><span class="w"> </span><span class="n">entry</span><span class="p">);</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-15-1" name="__codelineno-15-1" href="#__codelineno-15-1"></a><span class="kt">int</span><span class="w"> </span><span class="nf">vm_fault_collapse</span><span class="p">(</span><span class="n">vm_map_t</span><span class="w"> </span><span class="n">map</span><span class="p">,</span><span class="w"> </span><span class="n">vm_map_entry_t</span><span class="w"> </span><span class="n">entry</span><span class="p">);</span>
 </code></pre></div>
 <p>Used during fork when the backing chain exceeds <code>vm.map_backing_limit</code>:</p>
 <ol>
@@ -3295,8 +3419,8 @@
 </ol>
 <p>This brings all pages into the head object, allowing the backing chain to be freed.</p>
 <h2 id="physical-page-copy">Physical Page Copy<a class="headerlink" href="#physical-page-copy" title="Permanent link">&para;</a></h2>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-15-1" name="__codelineno-15-1" href="#__codelineno-15-1"></a><span class="kt">void</span><span class="w"> </span><span class="nf">vm_fault_copy_entry</span><span class="p">(</span><span class="n">vm_map_t</span><span class="w"> </span><span class="n">dst_map</span><span class="p">,</span><span class="w"> </span><span class="n">vm_map_t</span><span class="w"> </span><span class="n">src_map</span><span class="p">,</span>
-<a id="__codelineno-15-2" name="__codelineno-15-2" href="#__codelineno-15-2"></a><span class="w">                         </span><span class="n">vm_map_entry_t</span><span class="w"> </span><span class="n">dst_entry</span><span class="p">,</span><span class="w"> </span><span class="n">vm_map_entry_t</span><span class="w"> </span><span class="n">src_entry</span><span class="p">);</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-16-1" name="__codelineno-16-1" href="#__codelineno-16-1"></a><span class="kt">void</span><span class="w"> </span><span class="nf">vm_fault_copy_entry</span><span class="p">(</span><span class="n">vm_map_t</span><span class="w"> </span><span class="n">dst_map</span><span class="p">,</span><span class="w"> </span><span class="n">vm_map_t</span><span class="w"> </span><span class="n">src_map</span><span class="p">,</span>
+<a id="__codelineno-16-2" name="__codelineno-16-2" href="#__codelineno-16-2"></a><span class="w">                         </span><span class="n">vm_map_entry_t</span><span class="w"> </span><span class="n">dst_entry</span><span class="p">,</span><span class="w"> </span><span class="n">vm_map_entry_t</span><span class="w"> </span><span class="n">src_entry</span><span class="p">);</span>
 </code></pre></div>
 <p>Physically copies pages between entries when COW is not possible (wired pages):</p>
 <ol>
@@ -3310,8 +3434,8 @@
 <h2 id="prefaulting">Prefaulting<a class="headerlink" href="#prefaulting" title="Permanent link">&para;</a></h2>
 <p>Prefaulting maps nearby pages after a fault to reduce future faults.</p>
 <h3 id="full-prefault">Full Prefault<a class="headerlink" href="#full-prefault" title="Permanent link">&para;</a></h3>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-16-1" name="__codelineno-16-1" href="#__codelineno-16-1"></a><span class="k">static</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="nf">vm_prefault</span><span class="p">(</span><span class="n">pmap_t</span><span class="w"> </span><span class="n">pmap</span><span class="p">,</span><span class="w"> </span><span class="n">vm_offset_t</span><span class="w"> </span><span class="n">addra</span><span class="p">,</span>
-<a id="__codelineno-16-2" name="__codelineno-16-2" href="#__codelineno-16-2"></a><span class="w">                        </span><span class="n">vm_map_entry_t</span><span class="w"> </span><span class="n">entry</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">prot</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">fault_flags</span><span class="p">);</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-17-1" name="__codelineno-17-1" href="#__codelineno-17-1"></a><span class="k">static</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="nf">vm_prefault</span><span class="p">(</span><span class="n">pmap_t</span><span class="w"> </span><span class="n">pmap</span><span class="p">,</span><span class="w"> </span><span class="n">vm_offset_t</span><span class="w"> </span><span class="n">addra</span><span class="p">,</span>
+<a id="__codelineno-17-2" name="__codelineno-17-2" href="#__codelineno-17-2"></a><span class="w">                        </span><span class="n">vm_map_entry_t</span><span class="w"> </span><span class="n">entry</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">prot</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">fault_flags</span><span class="p">);</span>
 </code></pre></div>
 <p>Used when holding exclusive object lock:</p>
 <ol>
@@ -3322,8 +3446,8 @@
 <li>Enter page into pmap</li>
 </ol>
 <h3 id="quick-prefault">Quick Prefault<a class="headerlink" href="#quick-prefault" title="Permanent link">&para;</a></h3>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-17-1" name="__codelineno-17-1" href="#__codelineno-17-1"></a><span class="k">static</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="nf">vm_prefault_quick</span><span class="p">(</span><span class="n">pmap_t</span><span class="w"> </span><span class="n">pmap</span><span class="p">,</span><span class="w"> </span><span class="n">vm_offset_t</span><span class="w"> </span><span class="n">addra</span><span class="p">,</span>
-<a id="__codelineno-17-2" name="__codelineno-17-2" href="#__codelineno-17-2"></a><span class="w">                              </span><span class="n">vm_map_entry_t</span><span class="w"> </span><span class="n">entry</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">prot</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">fault_flags</span><span class="p">);</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-18-1" name="__codelineno-18-1" href="#__codelineno-18-1"></a><span class="k">static</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="nf">vm_prefault_quick</span><span class="p">(</span><span class="n">pmap_t</span><span class="w"> </span><span class="n">pmap</span><span class="p">,</span><span class="w"> </span><span class="n">vm_offset_t</span><span class="w"> </span><span class="n">addra</span><span class="p">,</span>
+<a id="__codelineno-18-2" name="__codelineno-18-2" href="#__codelineno-18-2"></a><span class="w">                              </span><span class="n">vm_map_entry_t</span><span class="w"> </span><span class="n">entry</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">prot</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">fault_flags</span><span class="p">);</span>
 </code></pre></div>
 <p>Used when holding shared object lock:</p>
 <ul>
@@ -3333,16 +3457,16 @@
 <li>Much lower overhead than full prefault</li>
 </ul>
 <h3 id="selection">Selection<a class="headerlink" href="#selection" title="Permanent link">&para;</a></h3>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-18-1" name="__codelineno-18-1" href="#__codelineno-18-1"></a><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">fs</span><span class="p">.</span><span class="n">first_shared</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">fs</span><span class="p">.</span><span class="n">shared</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
-<a id="__codelineno-18-2" name="__codelineno-18-2" href="#__codelineno-18-2"></a><span class="w">    </span><span class="n">vm_prefault</span><span class="p">(</span><span class="n">pmap</span><span class="p">,</span><span class="w"> </span><span class="n">vaddr</span><span class="p">,</span><span class="w"> </span><span class="n">entry</span><span class="p">,</span><span class="w"> </span><span class="n">prot</span><span class="p">,</span><span class="w"> </span><span class="n">fault_flags</span><span class="p">);</span>
-<a id="__codelineno-18-3" name="__codelineno-18-3" href="#__codelineno-18-3"></a><span class="p">}</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="p">{</span>
-<a id="__codelineno-18-4" name="__codelineno-18-4" href="#__codelineno-18-4"></a><span class="w">    </span><span class="n">vm_prefault_quick</span><span class="p">(</span><span class="n">pmap</span><span class="p">,</span><span class="w"> </span><span class="n">vaddr</span><span class="p">,</span><span class="w"> </span><span class="n">entry</span><span class="p">,</span><span class="w"> </span><span class="n">prot</span><span class="p">,</span><span class="w"> </span><span class="n">fault_flags</span><span class="p">);</span>
-<a id="__codelineno-18-5" name="__codelineno-18-5" href="#__codelineno-18-5"></a><span class="p">}</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-19-1" name="__codelineno-19-1" href="#__codelineno-19-1"></a><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">fs</span><span class="p">.</span><span class="n">first_shared</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">fs</span><span class="p">.</span><span class="n">shared</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-19-2" name="__codelineno-19-2" href="#__codelineno-19-2"></a><span class="w">    </span><span class="n">vm_prefault</span><span class="p">(</span><span class="n">pmap</span><span class="p">,</span><span class="w"> </span><span class="n">vaddr</span><span class="p">,</span><span class="w"> </span><span class="n">entry</span><span class="p">,</span><span class="w"> </span><span class="n">prot</span><span class="p">,</span><span class="w"> </span><span class="n">fault_flags</span><span class="p">);</span>
+<a id="__codelineno-19-3" name="__codelineno-19-3" href="#__codelineno-19-3"></a><span class="p">}</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-19-4" name="__codelineno-19-4" href="#__codelineno-19-4"></a><span class="w">    </span><span class="n">vm_prefault_quick</span><span class="p">(</span><span class="n">pmap</span><span class="p">,</span><span class="w"> </span><span class="n">vaddr</span><span class="p">,</span><span class="w"> </span><span class="n">entry</span><span class="p">,</span><span class="w"> </span><span class="n">prot</span><span class="p">,</span><span class="w"> </span><span class="n">fault_flags</span><span class="p">);</span>
+<a id="__codelineno-19-5" name="__codelineno-19-5" href="#__codelineno-19-5"></a><span class="p">}</span>
 </code></pre></div>
 <h2 id="alternative-entry-points">Alternative Entry Points<a class="headerlink" href="#alternative-entry-points" title="Permanent link">&para;</a></h2>
 <h3 id="vm_fault_page">vm_fault_page<a class="headerlink" href="#vm_fault_page" title="Permanent link">&para;</a></h3>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-19-1" name="__codelineno-19-1" href="#__codelineno-19-1"></a><span class="n">vm_page_t</span><span class="w"> </span><span class="nf">vm_fault_page</span><span class="p">(</span><span class="n">vm_map_t</span><span class="w"> </span><span class="n">map</span><span class="p">,</span><span class="w"> </span><span class="n">vm_offset_t</span><span class="w"> </span><span class="n">vaddr</span><span class="p">,</span><span class="w"> </span><span class="n">vm_prot_t</span><span class="w"> </span><span class="n">fault_type</span><span class="p">,</span>
-<a id="__codelineno-19-2" name="__codelineno-19-2" href="#__codelineno-19-2"></a><span class="w">                        </span><span class="kt">int</span><span class="w"> </span><span class="n">fault_flags</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="o">*</span><span class="n">errorp</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="o">*</span><span class="n">busyp</span><span class="p">);</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-20-1" name="__codelineno-20-1" href="#__codelineno-20-1"></a><span class="n">vm_page_t</span><span class="w"> </span><span class="nf">vm_fault_page</span><span class="p">(</span><span class="n">vm_map_t</span><span class="w"> </span><span class="n">map</span><span class="p">,</span><span class="w"> </span><span class="n">vm_offset_t</span><span class="w"> </span><span class="n">vaddr</span><span class="p">,</span><span class="w"> </span><span class="n">vm_prot_t</span><span class="w"> </span><span class="n">fault_type</span><span class="p">,</span>
+<a id="__codelineno-20-2" name="__codelineno-20-2" href="#__codelineno-20-2"></a><span class="w">                        </span><span class="kt">int</span><span class="w"> </span><span class="n">fault_flags</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="o">*</span><span class="n">errorp</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="o">*</span><span class="n">busyp</span><span class="p">);</span>
 </code></pre></div>
 <p>Returns a held (and optionally busied) page without pmap update:</p>
 <ol>
@@ -3352,14 +3476,14 @@
 <li>Used by vkernel, ptrace, and similar</li>
 </ol>
 <h3 id="vm_fault_page_quick">vm_fault_page_quick<a class="headerlink" href="#vm_fault_page_quick" title="Permanent link">&para;</a></h3>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-20-1" name="__codelineno-20-1" href="#__codelineno-20-1"></a><span class="n">vm_page_t</span><span class="w"> </span><span class="nf">vm_fault_page_quick</span><span class="p">(</span><span class="n">vm_offset_t</span><span class="w"> </span><span class="n">va</span><span class="p">,</span><span class="w"> </span><span class="n">vm_prot_t</span><span class="w"> </span><span class="n">fault_type</span><span class="p">,</span>
-<a id="__codelineno-20-2" name="__codelineno-20-2" href="#__codelineno-20-2"></a><span class="w">                              </span><span class="kt">int</span><span class="w"> </span><span class="o">*</span><span class="n">errorp</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="o">*</span><span class="n">busyp</span><span class="p">);</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-21-1" name="__codelineno-21-1" href="#__codelineno-21-1"></a><span class="n">vm_page_t</span><span class="w"> </span><span class="nf">vm_fault_page_quick</span><span class="p">(</span><span class="n">vm_offset_t</span><span class="w"> </span><span class="n">va</span><span class="p">,</span><span class="w"> </span><span class="n">vm_prot_t</span><span class="w"> </span><span class="n">fault_type</span><span class="p">,</span>
+<a id="__codelineno-21-2" name="__codelineno-21-2" href="#__codelineno-21-2"></a><span class="w">                              </span><span class="kt">int</span><span class="w"> </span><span class="o">*</span><span class="n">errorp</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="o">*</span><span class="n">busyp</span><span class="p">);</span>
 </code></pre></div>
 <p>Convenience wrapper using current process vmspace.</p>
 <h3 id="vm_fault_object_page">vm_fault_object_page<a class="headerlink" href="#vm_fault_object_page" title="Permanent link">&para;</a></h3>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-21-1" name="__codelineno-21-1" href="#__codelineno-21-1"></a><span class="n">vm_page_t</span><span class="w"> </span><span class="nf">vm_fault_object_page</span><span class="p">(</span><span class="n">vm_object_t</span><span class="w"> </span><span class="n">object</span><span class="p">,</span><span class="w"> </span><span class="n">vm_ooffset_t</span><span class="w"> </span><span class="n">offset</span><span class="p">,</span>
-<a id="__codelineno-21-2" name="__codelineno-21-2" href="#__codelineno-21-2"></a><span class="w">                               </span><span class="n">vm_prot_t</span><span class="w"> </span><span class="n">fault_type</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">fault_flags</span><span class="p">,</span>
-<a id="__codelineno-21-3" name="__codelineno-21-3" href="#__codelineno-21-3"></a><span class="w">                               </span><span class="kt">int</span><span class="w"> </span><span class="o">*</span><span class="n">sharedp</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="o">*</span><span class="n">errorp</span><span class="p">);</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-22-1" name="__codelineno-22-1" href="#__codelineno-22-1"></a><span class="n">vm_page_t</span><span class="w"> </span><span class="nf">vm_fault_object_page</span><span class="p">(</span><span class="n">vm_object_t</span><span class="w"> </span><span class="n">object</span><span class="p">,</span><span class="w"> </span><span class="n">vm_ooffset_t</span><span class="w"> </span><span class="n">offset</span><span class="p">,</span>
+<a id="__codelineno-22-2" name="__codelineno-22-2" href="#__codelineno-22-2"></a><span class="w">                               </span><span class="n">vm_prot_t</span><span class="w"> </span><span class="n">fault_type</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">fault_flags</span><span class="p">,</span>
+<a id="__codelineno-22-3" name="__codelineno-22-3" href="#__codelineno-22-3"></a><span class="w">                               </span><span class="kt">int</span><span class="w"> </span><span class="o">*</span><span class="n">sharedp</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="o">*</span><span class="n">errorp</span><span class="p">);</span>
 </code></pre></div>
 <p>Faults a page directly from an object (no map involvement):
 - Creates fake <code>vm_map_entry</code>
@@ -3417,9 +3541,9 @@
 <p>The <code>mary[]</code> array (max 16 pages) allows multiple pages to be faulted in a single operation. Combined with prefaulting, this reduces per-page overhead.</p>
 <h3 id="rss-enforcement">RSS Enforcement<a class="headerlink" href="#rss-enforcement" title="Permanent link">&para;</a></h3>
 <p>After user faults, the code checks process RSS against <code>RLIMIT_RSS</code>:
-<div class="highlight"><pre><span></span><code><a id="__codelineno-22-1" name="__codelineno-22-1" href="#__codelineno-22-1"></a><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">size</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="n">limit</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
-<a id="__codelineno-22-2" name="__codelineno-22-2" href="#__codelineno-22-2"></a><span class="w">    </span><span class="n">vm_pageout_map_deactivate_pages</span><span class="p">(</span><span class="n">map</span><span class="p">,</span><span class="w"> </span><span class="n">limit</span><span class="p">);</span>
-<a id="__codelineno-22-3" name="__codelineno-22-3" href="#__codelineno-22-3"></a><span class="p">}</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-23-1" name="__codelineno-23-1" href="#__codelineno-23-1"></a><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">size</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="n">limit</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-23-2" name="__codelineno-23-2" href="#__codelineno-23-2"></a><span class="w">    </span><span class="n">vm_pageout_map_deactivate_pages</span><span class="p">(</span><span class="n">map</span><span class="p">,</span><span class="w"> </span><span class="n">limit</span><span class="p">);</span>
+<a id="__codelineno-23-3" name="__codelineno-23-3" href="#__codelineno-23-3"></a><span class="p">}</span>
 </code></pre></div></p>
 <h3 id="mgtdevice-support">MGTDEVICE Support<a class="headerlink" href="#mgtdevice-support" title="Permanent link">&para;</a></h3>
 <p>For managed device objects (GPU/DRM), pages are not indexed in the VM object. The pager returns pages directly for pmap entry without object insertion.</p>

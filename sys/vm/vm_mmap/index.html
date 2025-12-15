@@ -1896,6 +1896,28 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
+  <a href="#common-use-cases" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Common Use Cases
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#syscall-to-vm-layer-flow" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Syscall to VM Layer Flow
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#overview" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2393,6 +2415,28 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
+  <a href="#common-use-cases" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Common Use Cases
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#syscall-to-vm-layer-flow" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Syscall to VM Layer Flow
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#overview" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2769,35 +2813,116 @@
 <h1 id="memory-mapping-and-pagers">Memory Mapping and Pagers<a class="headerlink" href="#memory-mapping-and-pagers" title="Permanent link">&para;</a></h1>
 <p>The memory mapping subsystem provides the mmap() interface for applications to map files and anonymous memory into their address space. The vnode pager handles file-backed I/O for memory-mapped files.</p>
 <p><strong>Source files:</strong> <code>sys/vm/vm_mmap.c</code> (~1,530 lines), <code>sys/vm/vnode_pager.c</code> (~832 lines)</p>
+<h2 id="common-use-cases">Common Use Cases<a class="headerlink" href="#common-use-cases" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>What You Want</th>
+<th>Syscall</th>
+<th>Flags</th>
+<th>What Happens</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Allocate heap memory</td>
+<td><code>mmap(NULL, size, RW, MAP_ANON\|MAP_PRIVATE, -1, 0)</code></td>
+<td>Anonymous, private</td>
+<td>Creates vm_map_entry, pages zero-filled on demand</td>
+</tr>
+<tr>
+<td>Map a file read-only</td>
+<td><code>mmap(NULL, size, R, MAP_SHARED, fd, 0)</code></td>
+<td>File-backed, shared</td>
+<td>Creates entry pointing to vnode's vm_object</td>
+</tr>
+<tr>
+<td>Shared memory (IPC)</td>
+<td><code>shm_open()</code> + <code>mmap(MAP_SHARED)</code></td>
+<td>Anonymous, shared</td>
+<td>Multiple processes share same vm_object</td>
+</tr>
+<tr>
+<td>Memory-mapped I/O</td>
+<td><code>mmap(/dev/mem or device)</code></td>
+<td>Device-backed</td>
+<td>Uses dev_pager, may be uncached</td>
+</tr>
+<tr>
+<td>Copy-on-write fork</td>
+<td>(internal)</td>
+<td>Private after fork</td>
+<td>Parent/child share until write triggers COW</td>
+</tr>
+</tbody>
+</table>
+<h2 id="syscall-to-vm-layer-flow">Syscall to VM Layer Flow<a class="headerlink" href="#syscall-to-vm-layer-flow" title="Permanent link">&para;</a></h2>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>APPLICATION                         KERNEL
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>───────────                         ──────
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>
+<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>mmap(addr, len, prot, flags, fd, offset)
+<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>        │
+<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>        v
+<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>┌───────────────────────────────────────────────────────────────────┐
+<a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a>│ sys_mmap() → kern_mmap()                                          │
+<a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a>│                                                                   │
+<a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a>│   1. Validate parameters (alignment, flags combinations)          │
+<a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a>│   2. If file: get vnode, check permissions                        │
+<a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a>│   3. If anonymous: object = NULL (deferred) or new OBJT_DEFAULT   │
+<a id="__codelineno-0-13" name="__codelineno-0-13" href="#__codelineno-0-13"></a>└───────────────────────────┬───────────────────────────────────────┘
+<a id="__codelineno-0-14" name="__codelineno-0-14" href="#__codelineno-0-14"></a>                            │
+<a id="__codelineno-0-15" name="__codelineno-0-15" href="#__codelineno-0-15"></a>                            v
+<a id="__codelineno-0-16" name="__codelineno-0-16" href="#__codelineno-0-16"></a>┌───────────────────────────────────────────────────────────────────┐
+<a id="__codelineno-0-17" name="__codelineno-0-17" href="#__codelineno-0-17"></a>│ vm_mmap() → vm_map_find()                                         │
+<a id="__codelineno-0-18" name="__codelineno-0-18" href="#__codelineno-0-18"></a>│                                                                   │
+<a id="__codelineno-0-19" name="__codelineno-0-19" href="#__codelineno-0-19"></a>│   1. Find free address range (or use MAP_FIXED address)           │
+<a id="__codelineno-0-20" name="__codelineno-0-20" href="#__codelineno-0-20"></a>│   2. Create vm_map_entry with backing info                        │
+<a id="__codelineno-0-21" name="__codelineno-0-21" href="#__codelineno-0-21"></a>│   3. For files: entry points to vnode&#39;s shared vm_object          │
+<a id="__codelineno-0-22" name="__codelineno-0-22" href="#__codelineno-0-22"></a>│   4. For anon: entry has NULL object (allocated on first fault)   │
+<a id="__codelineno-0-23" name="__codelineno-0-23" href="#__codelineno-0-23"></a>└───────────────────────────┬───────────────────────────────────────┘
+<a id="__codelineno-0-24" name="__codelineno-0-24" href="#__codelineno-0-24"></a>                            │
+<a id="__codelineno-0-25" name="__codelineno-0-25" href="#__codelineno-0-25"></a>                            v
+<a id="__codelineno-0-26" name="__codelineno-0-26" href="#__codelineno-0-26"></a>                     Returns address to user
+<a id="__codelineno-0-27" name="__codelineno-0-27" href="#__codelineno-0-27"></a>                            │
+<a id="__codelineno-0-28" name="__codelineno-0-28" href="#__codelineno-0-28"></a>                            │ (later: first access)
+<a id="__codelineno-0-29" name="__codelineno-0-29" href="#__codelineno-0-29"></a>                            v
+<a id="__codelineno-0-30" name="__codelineno-0-30" href="#__codelineno-0-30"></a>┌───────────────────────────────────────────────────────────────────┐
+<a id="__codelineno-0-31" name="__codelineno-0-31" href="#__codelineno-0-31"></a>│ vm_fault()                                                        │
+<a id="__codelineno-0-32" name="__codelineno-0-32" href="#__codelineno-0-32"></a>│                                                                   │
+<a id="__codelineno-0-33" name="__codelineno-0-33" href="#__codelineno-0-33"></a>│   For files: vnode_pager_getpage() → VOP_READ()                   │
+<a id="__codelineno-0-34" name="__codelineno-0-34" href="#__codelineno-0-34"></a>│   For anon: zero-fill page, create OBJT_DEFAULT object if needed  │
+<a id="__codelineno-0-35" name="__codelineno-0-35" href="#__codelineno-0-35"></a>└───────────────────────────────────────────────────────────────────┘
+</code></pre></div>
+<hr />
 <h2 id="overview">Overview<a class="headerlink" href="#overview" title="Permanent link">&para;</a></h2>
 <p>Memory mapping connects user address space to backing store:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>User Address Space          VM Layer              Backing Store
-<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>─────────────────           ────────              ─────────────
-<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>
-<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>┌─────────────┐       ┌──────────────┐       ┌─────────────┐
-<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>│  mmap()     │ ────→ │  vm_map_find │ ────→ │  Anonymous  │
-<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>│  MAP_ANON   │       │  vm_object   │       │  (swap)     │
-<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>└─────────────┘       └──────────────┘       └─────────────┘
-<a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a>
-<a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a>┌─────────────┐       ┌──────────────┐       ┌─────────────┐
-<a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a>│  mmap()     │ ────→ │  vm_map_find │ ────→ │ vnode_pager │
-<a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a>│  file fd    │       │  vm_object   │       │  (file)     │
-<a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a>└─────────────┘       └──────────────┘       └─────────────┘
-<a id="__codelineno-0-13" name="__codelineno-0-13" href="#__codelineno-0-13"></a>
-<a id="__codelineno-0-14" name="__codelineno-0-14" href="#__codelineno-0-14"></a>┌─────────────┐       ┌──────────────┐       ┌─────────────┐
-<a id="__codelineno-0-15" name="__codelineno-0-15" href="#__codelineno-0-15"></a>│  mmap()     │ ────→ │  vm_map_find │ ────→ │  dev_pager  │
-<a id="__codelineno-0-16" name="__codelineno-0-16" href="#__codelineno-0-16"></a>│  device     │       │  vm_object   │       │  (device)   │
-<a id="__codelineno-0-17" name="__codelineno-0-17" href="#__codelineno-0-17"></a>└─────────────┘       └──────────────┘       └─────────────┘
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>User Address Space          VM Layer              Backing Store
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>─────────────────           ────────              ─────────────
+<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>
+<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a>┌─────────────┐       ┌──────────────┐       ┌─────────────┐
+<a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a>│  mmap()     │ ────→ │  vm_map_find │ ────→ │  Anonymous  │
+<a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a>│  MAP_ANON   │       │  vm_object   │       │  (swap)     │
+<a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a>└─────────────┘       └──────────────┘       └─────────────┘
+<a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a>
+<a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a>┌─────────────┐       ┌──────────────┐       ┌─────────────┐
+<a id="__codelineno-1-10" name="__codelineno-1-10" href="#__codelineno-1-10"></a>│  mmap()     │ ────→ │  vm_map_find │ ────→ │ vnode_pager │
+<a id="__codelineno-1-11" name="__codelineno-1-11" href="#__codelineno-1-11"></a>│  file fd    │       │  vm_object   │       │  (file)     │
+<a id="__codelineno-1-12" name="__codelineno-1-12" href="#__codelineno-1-12"></a>└─────────────┘       └──────────────┘       └─────────────┘
+<a id="__codelineno-1-13" name="__codelineno-1-13" href="#__codelineno-1-13"></a>
+<a id="__codelineno-1-14" name="__codelineno-1-14" href="#__codelineno-1-14"></a>┌─────────────┐       ┌──────────────┐       ┌─────────────┐
+<a id="__codelineno-1-15" name="__codelineno-1-15" href="#__codelineno-1-15"></a>│  mmap()     │ ────→ │  vm_map_find │ ────→ │  dev_pager  │
+<a id="__codelineno-1-16" name="__codelineno-1-16" href="#__codelineno-1-16"></a>│  device     │       │  vm_object   │       │  (device)   │
+<a id="__codelineno-1-17" name="__codelineno-1-17" href="#__codelineno-1-17"></a>└─────────────┘       └──────────────┘       └─────────────┘
 </code></pre></div>
 <h2 id="vnode-pager-vnode_pagerc">Vnode Pager (vnode_pager.c)<a class="headerlink" href="#vnode-pager-vnode_pagerc" title="Permanent link">&para;</a></h2>
 <p>The vnode pager provides VM object backing for regular files, allowing memory-mapped file I/O.</p>
 <h3 id="pager-operations">Pager Operations<a class="headerlink" href="#pager-operations" title="Permanent link">&para;</a></h3>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="k">struct</span><span class="w"> </span><span class="nc">pagerops</span><span class="w"> </span><span class="n">vnodepagerops</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span>
-<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="w">    </span><span class="p">.</span><span class="n">pgo_dealloc</span><span class="w">  </span><span class="o">=</span><span class="w"> </span><span class="n">vnode_pager_dealloc</span><span class="p">,</span>
-<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="w">    </span><span class="p">.</span><span class="n">pgo_getpage</span><span class="w">  </span><span class="o">=</span><span class="w"> </span><span class="n">vnode_pager_getpage</span><span class="p">,</span>
-<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a><span class="w">    </span><span class="p">.</span><span class="n">pgo_putpages</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">vnode_pager_putpages</span><span class="p">,</span>
-<a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a><span class="w">    </span><span class="p">.</span><span class="n">pgo_haspage</span><span class="w">  </span><span class="o">=</span><span class="w"> </span><span class="n">vnode_pager_haspage</span>
-<a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a><span class="p">};</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="k">struct</span><span class="w"> </span><span class="nc">pagerops</span><span class="w"> </span><span class="n">vnodepagerops</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="w">    </span><span class="p">.</span><span class="n">pgo_dealloc</span><span class="w">  </span><span class="o">=</span><span class="w"> </span><span class="n">vnode_pager_dealloc</span><span class="p">,</span>
+<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="w">    </span><span class="p">.</span><span class="n">pgo_getpage</span><span class="w">  </span><span class="o">=</span><span class="w"> </span><span class="n">vnode_pager_getpage</span><span class="p">,</span>
+<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a><span class="w">    </span><span class="p">.</span><span class="n">pgo_putpages</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">vnode_pager_putpages</span><span class="p">,</span>
+<a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a><span class="w">    </span><span class="p">.</span><span class="n">pgo_haspage</span><span class="w">  </span><span class="o">=</span><span class="w"> </span><span class="n">vnode_pager_haspage</span>
+<a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a><span class="p">};</span>
 </code></pre></div>
 <table>
 <thead>
@@ -2837,14 +2962,14 @@
 <li>Take vnode reference</li>
 </ol>
 <p><strong>Object sizing:</strong>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="cm">/* Round up to next block, then to page boundary */</span>
-<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">boff</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span>
-<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="w">    </span><span class="n">boff</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="kt">int</span><span class="p">)(</span><span class="n">length</span><span class="w"> </span><span class="o">%</span><span class="w"> </span><span class="n">blksize</span><span class="p">);</span>
-<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">boff</span><span class="p">)</span>
-<a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a><span class="w">    </span><span class="n">loffset</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">length</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="p">(</span><span class="n">blksize</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">boff</span><span class="p">);</span>
-<a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a><span class="k">else</span>
-<a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a><span class="w">    </span><span class="n">loffset</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">length</span><span class="p">;</span>
-<a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a><span class="n">lsize</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">OFF_TO_IDX</span><span class="p">(</span><span class="n">round_page64</span><span class="p">(</span><span class="n">loffset</span><span class="p">));</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="cm">/* Round up to next block, then to page boundary */</span>
+<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">boff</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span>
+<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a><span class="w">    </span><span class="n">boff</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="kt">int</span><span class="p">)(</span><span class="n">length</span><span class="w"> </span><span class="o">%</span><span class="w"> </span><span class="n">blksize</span><span class="p">);</span>
+<a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">boff</span><span class="p">)</span>
+<a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a><span class="w">    </span><span class="n">loffset</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">length</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="p">(</span><span class="n">blksize</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">boff</span><span class="p">);</span>
+<a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a><span class="k">else</span>
+<a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a><span class="w">    </span><span class="n">loffset</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">length</span><span class="p">;</span>
+<a id="__codelineno-3-8" name="__codelineno-3-8" href="#__codelineno-3-8"></a><span class="n">lsize</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">OFF_TO_IDX</span><span class="p">(</span><span class="n">round_page64</span><span class="p">(</span><span class="n">loffset</span><span class="p">));</span>
 </code></pre></div></p>
 <p>The object size includes any partial buffer cache block straddling EOF.</p>
 <p><strong><code>vnode_pager_reference(vp)</code></strong></p>
@@ -2866,18 +2991,18 @@
 <li>Requested page: validate, zero-fill partial pages</li>
 </ol>
 <p><strong>I/O flags:</strong>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="n">ioflags</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">IO_VMIO</span><span class="p">;</span>
-<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">seqaccess</span><span class="p">)</span>
-<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a><span class="w">    </span><span class="n">ioflags</span><span class="w"> </span><span class="o">|=</span><span class="w"> </span><span class="n">IO_SEQMAX</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">IO_SEQSHIFT</span><span class="p">;</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="n">ioflags</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">IO_VMIO</span><span class="p">;</span>
+<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">seqaccess</span><span class="p">)</span>
+<a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a><span class="w">    </span><span class="n">ioflags</span><span class="w"> </span><span class="o">|=</span><span class="w"> </span><span class="n">IO_SEQMAX</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">IO_SEQSHIFT</span><span class="p">;</span>
 </code></pre></div></p>
 <h3 id="page-out-vnode_pager_putpages">Page-Out (vnode_pager_putpages)<a class="headerlink" href="#page-out-vnode_pager_putpages" title="Permanent link">&para;</a></h3>
 <p><strong><code>vnode_pager_putpages(object, m, count, flags, rtvals)</code></strong></p>
 <p>Wrapper that calls <code>VOP_PUTPAGES()</code> on the vnode.</p>
 <p><strong>Low memory handling:</strong>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="k">if</span><span class="w"> </span><span class="p">((</span><span class="n">vmstats</span><span class="p">.</span><span class="n">v_free_count</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">vmstats</span><span class="p">.</span><span class="n">v_cache_count</span><span class="p">)</span><span class="w"> </span><span class="o">&lt;</span>
-<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a><span class="w">    </span><span class="n">vmstats</span><span class="p">.</span><span class="n">v_pageout_free_min</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
-<a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a><span class="w">    </span><span class="n">flags</span><span class="w"> </span><span class="o">|=</span><span class="w"> </span><span class="n">OBJPC_SYNC</span><span class="p">;</span><span class="w">  </span><span class="cm">/* Force synchronous */</span>
-<a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a><span class="p">}</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="k">if</span><span class="w"> </span><span class="p">((</span><span class="n">vmstats</span><span class="p">.</span><span class="n">v_free_count</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">vmstats</span><span class="p">.</span><span class="n">v_cache_count</span><span class="p">)</span><span class="w"> </span><span class="o">&lt;</span>
+<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a><span class="w">    </span><span class="n">vmstats</span><span class="p">.</span><span class="n">v_pageout_free_min</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a><span class="w">    </span><span class="n">flags</span><span class="w"> </span><span class="o">|=</span><span class="w"> </span><span class="n">OBJPC_SYNC</span><span class="p">;</span><span class="w">  </span><span class="cm">/* Force synchronous */</span>
+<a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a><span class="p">}</span>
 </code></pre></div></p>
 <p><strong><code>vnode_pager_generic_putpages(vp, m, bytecount, flags, rtvals)</code></strong></p>
 <p>Generic implementation:</p>
@@ -2888,12 +3013,12 @@
 <li>Mark pages clean on success</li>
 </ol>
 <p><strong>I/O clustering:</strong>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="n">ioflags</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">IO_VMIO</span><span class="p">;</span>
-<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">flags</span><span class="w"> </span><span class="o">&amp;</span><span class="w"> </span><span class="p">(</span><span class="n">OBJPC_SYNC</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">OBJPC_INVAL</span><span class="p">))</span>
-<a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a><span class="w">    </span><span class="n">ioflags</span><span class="w"> </span><span class="o">|=</span><span class="w"> </span><span class="n">IO_SYNC</span><span class="p">;</span>
-<a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a><span class="k">else</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="p">((</span><span class="n">flags</span><span class="w"> </span><span class="o">&amp;</span><span class="w"> </span><span class="n">OBJPC_CLUSTER_OK</span><span class="p">)</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span>
-<a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a><span class="w">    </span><span class="n">ioflags</span><span class="w"> </span><span class="o">|=</span><span class="w"> </span><span class="n">IO_ASYNC</span><span class="p">;</span>
-<a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a><span class="n">ioflags</span><span class="w"> </span><span class="o">|=</span><span class="w"> </span><span class="n">IO_SEQMAX</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">IO_SEQSHIFT</span><span class="p">;</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="n">ioflags</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">IO_VMIO</span><span class="p">;</span>
+<a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">flags</span><span class="w"> </span><span class="o">&amp;</span><span class="w"> </span><span class="p">(</span><span class="n">OBJPC_SYNC</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">OBJPC_INVAL</span><span class="p">))</span>
+<a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a><span class="w">    </span><span class="n">ioflags</span><span class="w"> </span><span class="o">|=</span><span class="w"> </span><span class="n">IO_SYNC</span><span class="p">;</span>
+<a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a><span class="k">else</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="p">((</span><span class="n">flags</span><span class="w"> </span><span class="o">&amp;</span><span class="w"> </span><span class="n">OBJPC_CLUSTER_OK</span><span class="p">)</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span>
+<a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a><span class="w">    </span><span class="n">ioflags</span><span class="w"> </span><span class="o">|=</span><span class="w"> </span><span class="n">IO_ASYNC</span><span class="p">;</span>
+<a id="__codelineno-6-6" name="__codelineno-6-6" href="#__codelineno-6-6"></a><span class="n">ioflags</span><span class="w"> </span><span class="o">|=</span><span class="w"> </span><span class="n">IO_SEQMAX</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">IO_SEQSHIFT</span><span class="p">;</span>
 </code></pre></div></p>
 <h3 id="file-size-changes">File Size Changes<a class="headerlink" href="#file-size-changes" title="Permanent link">&para;</a></h3>
 <p><strong><code>vnode_pager_setsize(vp, nsize)</code></strong></p>
@@ -2909,17 +3034,17 @@
 <li>Update <code>vp-&gt;v_filesize</code></li>
 </ol>
 <p><strong>Partial page handling on truncate:</strong>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">nsize</span><span class="w"> </span><span class="o">&amp;</span><span class="w"> </span><span class="n">PAGE_MASK</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
-<a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a><span class="w">    </span><span class="n">m</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">vm_page_lookup_busy_wait</span><span class="p">(</span><span class="n">object</span><span class="p">,</span><span class="w"> </span><span class="n">OFF_TO_IDX</span><span class="p">(</span><span class="n">nsize</span><span class="p">),</span><span class="w"> </span><span class="n">TRUE</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;vsetsz&quot;</span><span class="p">);</span>
-<a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a><span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">m</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">m</span><span class="o">-&gt;</span><span class="n">valid</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
-<a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a><span class="w">        </span><span class="cm">/* Zero trailing bytes */</span>
-<a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a><span class="w">        </span><span class="n">bzero</span><span class="p">((</span><span class="n">caddr_t</span><span class="p">)</span><span class="n">kva</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">base</span><span class="p">,</span><span class="w"> </span><span class="n">PAGE_SIZE</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">base</span><span class="p">);</span>
-<a id="__codelineno-6-6" name="__codelineno-6-6" href="#__codelineno-6-6"></a><span class="w">        </span><span class="cm">/* Unmap to sync all CPUs */</span>
-<a id="__codelineno-6-7" name="__codelineno-6-7" href="#__codelineno-6-7"></a><span class="w">        </span><span class="n">vm_page_protect</span><span class="p">(</span><span class="n">m</span><span class="p">,</span><span class="w"> </span><span class="n">VM_PROT_NONE</span><span class="p">);</span>
-<a id="__codelineno-6-8" name="__codelineno-6-8" href="#__codelineno-6-8"></a><span class="w">        </span><span class="cm">/* Clear partial dirty bits */</span>
-<a id="__codelineno-6-9" name="__codelineno-6-9" href="#__codelineno-6-9"></a><span class="w">        </span><span class="n">vm_page_clear_dirty_beg_nonincl</span><span class="p">(</span><span class="n">m</span><span class="p">,</span><span class="w"> </span><span class="n">base</span><span class="p">,</span><span class="w"> </span><span class="n">size</span><span class="p">);</span>
-<a id="__codelineno-6-10" name="__codelineno-6-10" href="#__codelineno-6-10"></a><span class="w">    </span><span class="p">}</span>
-<a id="__codelineno-6-11" name="__codelineno-6-11" href="#__codelineno-6-11"></a><span class="p">}</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">nsize</span><span class="w"> </span><span class="o">&amp;</span><span class="w"> </span><span class="n">PAGE_MASK</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a><span class="w">    </span><span class="n">m</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">vm_page_lookup_busy_wait</span><span class="p">(</span><span class="n">object</span><span class="p">,</span><span class="w"> </span><span class="n">OFF_TO_IDX</span><span class="p">(</span><span class="n">nsize</span><span class="p">),</span><span class="w"> </span><span class="n">TRUE</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;vsetsz&quot;</span><span class="p">);</span>
+<a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a><span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">m</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">m</span><span class="o">-&gt;</span><span class="n">valid</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-7-4" name="__codelineno-7-4" href="#__codelineno-7-4"></a><span class="w">        </span><span class="cm">/* Zero trailing bytes */</span>
+<a id="__codelineno-7-5" name="__codelineno-7-5" href="#__codelineno-7-5"></a><span class="w">        </span><span class="n">bzero</span><span class="p">((</span><span class="n">caddr_t</span><span class="p">)</span><span class="n">kva</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">base</span><span class="p">,</span><span class="w"> </span><span class="n">PAGE_SIZE</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">base</span><span class="p">);</span>
+<a id="__codelineno-7-6" name="__codelineno-7-6" href="#__codelineno-7-6"></a><span class="w">        </span><span class="cm">/* Unmap to sync all CPUs */</span>
+<a id="__codelineno-7-7" name="__codelineno-7-7" href="#__codelineno-7-7"></a><span class="w">        </span><span class="n">vm_page_protect</span><span class="p">(</span><span class="n">m</span><span class="p">,</span><span class="w"> </span><span class="n">VM_PROT_NONE</span><span class="p">);</span>
+<a id="__codelineno-7-8" name="__codelineno-7-8" href="#__codelineno-7-8"></a><span class="w">        </span><span class="cm">/* Clear partial dirty bits */</span>
+<a id="__codelineno-7-9" name="__codelineno-7-9" href="#__codelineno-7-9"></a><span class="w">        </span><span class="n">vm_page_clear_dirty_beg_nonincl</span><span class="p">(</span><span class="n">m</span><span class="p">,</span><span class="w"> </span><span class="n">base</span><span class="p">,</span><span class="w"> </span><span class="n">size</span><span class="p">);</span>
+<a id="__codelineno-7-10" name="__codelineno-7-10" href="#__codelineno-7-10"></a><span class="w">    </span><span class="p">}</span>
+<a id="__codelineno-7-11" name="__codelineno-7-11" href="#__codelineno-7-11"></a><span class="p">}</span>
 </code></pre></div></p>
 <h3 id="vnode-locking-helper">Vnode Locking Helper<a class="headerlink" href="#vnode-locking-helper" title="Permanent link">&para;</a></h3>
 <p><strong><code>vnode_pager_lock(ba)</code></strong></p>
@@ -3010,23 +3135,23 @@
 <p><strong><code>kern_mmap(vms, uaddr, ulen, uprot, uflags, fd, upos, res)</code></strong></p>
 <p>Main mmap implementation:</p>
 <p><strong>Validation:</strong>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="k">if</span><span class="w"> </span><span class="p">((</span><span class="n">flags</span><span class="w"> </span><span class="o">&amp;</span><span class="w"> </span><span class="n">MAP_ANON</span><span class="p">)</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="p">(</span><span class="n">fd</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="mi">-1</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="n">pos</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="mi">0</span><span class="p">))</span>
-<a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="p">(</span><span class="n">EINVAL</span><span class="p">);</span>
-<a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">size</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span>
-<a id="__codelineno-7-4" name="__codelineno-7-4" href="#__codelineno-7-4"></a><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="p">(</span><span class="n">EINVAL</span><span class="p">);</span>
-<a id="__codelineno-7-5" name="__codelineno-7-5" href="#__codelineno-7-5"></a><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">flags</span><span class="w"> </span><span class="o">&amp;</span><span class="w"> </span><span class="n">MAP_STACK</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
-<a id="__codelineno-7-6" name="__codelineno-7-6" href="#__codelineno-7-6"></a><span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">fd</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="mi">-1</span><span class="p">)</span>
-<a id="__codelineno-7-7" name="__codelineno-7-7" href="#__codelineno-7-7"></a><span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="p">(</span><span class="n">EINVAL</span><span class="p">);</span>
-<a id="__codelineno-7-8" name="__codelineno-7-8" href="#__codelineno-7-8"></a><span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">((</span><span class="n">prot</span><span class="w"> </span><span class="o">&amp;</span><span class="w"> </span><span class="p">(</span><span class="n">PROT_READ</span><span class="o">|</span><span class="n">PROT_WRITE</span><span class="p">))</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="p">(</span><span class="n">PROT_READ</span><span class="o">|</span><span class="n">PROT_WRITE</span><span class="p">))</span>
-<a id="__codelineno-7-9" name="__codelineno-7-9" href="#__codelineno-7-9"></a><span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="p">(</span><span class="n">EINVAL</span><span class="p">);</span>
-<a id="__codelineno-7-10" name="__codelineno-7-10" href="#__codelineno-7-10"></a><span class="w">    </span><span class="n">flags</span><span class="w"> </span><span class="o">|=</span><span class="w"> </span><span class="n">MAP_ANON</span><span class="p">;</span>
-<a id="__codelineno-7-11" name="__codelineno-7-11" href="#__codelineno-7-11"></a><span class="p">}</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a><span class="k">if</span><span class="w"> </span><span class="p">((</span><span class="n">flags</span><span class="w"> </span><span class="o">&amp;</span><span class="w"> </span><span class="n">MAP_ANON</span><span class="p">)</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="p">(</span><span class="n">fd</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="mi">-1</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="n">pos</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="mi">0</span><span class="p">))</span>
+<a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="p">(</span><span class="n">EINVAL</span><span class="p">);</span>
+<a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">size</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span>
+<a id="__codelineno-8-4" name="__codelineno-8-4" href="#__codelineno-8-4"></a><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="p">(</span><span class="n">EINVAL</span><span class="p">);</span>
+<a id="__codelineno-8-5" name="__codelineno-8-5" href="#__codelineno-8-5"></a><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">flags</span><span class="w"> </span><span class="o">&amp;</span><span class="w"> </span><span class="n">MAP_STACK</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-8-6" name="__codelineno-8-6" href="#__codelineno-8-6"></a><span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">fd</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="mi">-1</span><span class="p">)</span>
+<a id="__codelineno-8-7" name="__codelineno-8-7" href="#__codelineno-8-7"></a><span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="p">(</span><span class="n">EINVAL</span><span class="p">);</span>
+<a id="__codelineno-8-8" name="__codelineno-8-8" href="#__codelineno-8-8"></a><span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">((</span><span class="n">prot</span><span class="w"> </span><span class="o">&amp;</span><span class="w"> </span><span class="p">(</span><span class="n">PROT_READ</span><span class="o">|</span><span class="n">PROT_WRITE</span><span class="p">))</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="p">(</span><span class="n">PROT_READ</span><span class="o">|</span><span class="n">PROT_WRITE</span><span class="p">))</span>
+<a id="__codelineno-8-9" name="__codelineno-8-9" href="#__codelineno-8-9"></a><span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="p">(</span><span class="n">EINVAL</span><span class="p">);</span>
+<a id="__codelineno-8-10" name="__codelineno-8-10" href="#__codelineno-8-10"></a><span class="w">    </span><span class="n">flags</span><span class="w"> </span><span class="o">|=</span><span class="w"> </span><span class="n">MAP_ANON</span><span class="p">;</span>
+<a id="__codelineno-8-11" name="__codelineno-8-11" href="#__codelineno-8-11"></a><span class="p">}</span>
 </code></pre></div></p>
 <p><strong>Address alignment:</strong>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a><span class="n">pageoff</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="n">pos</span><span class="w"> </span><span class="o">&amp;</span><span class="w"> </span><span class="n">PAGE_MASK</span><span class="p">);</span>
-<a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a><span class="n">pos</span><span class="w"> </span><span class="o">-=</span><span class="w"> </span><span class="n">pageoff</span><span class="p">;</span>
-<a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a><span class="n">size</span><span class="w"> </span><span class="o">+=</span><span class="w"> </span><span class="n">pageoff</span><span class="p">;</span>
-<a id="__codelineno-8-4" name="__codelineno-8-4" href="#__codelineno-8-4"></a><span class="n">size</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">round_page</span><span class="p">(</span><span class="n">size</span><span class="p">);</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a><span class="n">pageoff</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="n">pos</span><span class="w"> </span><span class="o">&amp;</span><span class="w"> </span><span class="n">PAGE_MASK</span><span class="p">);</span>
+<a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a><span class="n">pos</span><span class="w"> </span><span class="o">-=</span><span class="w"> </span><span class="n">pageoff</span><span class="p">;</span>
+<a id="__codelineno-9-3" name="__codelineno-9-3" href="#__codelineno-9-3"></a><span class="n">size</span><span class="w"> </span><span class="o">+=</span><span class="w"> </span><span class="n">pageoff</span><span class="p">;</span>
+<a id="__codelineno-9-4" name="__codelineno-9-4" href="#__codelineno-9-4"></a><span class="n">size</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">round_page</span><span class="p">(</span><span class="n">size</span><span class="p">);</span>
 </code></pre></div></p>
 <p><strong>File mapping setup:</strong></p>
 <p>For <code>fd != -1</code>:
@@ -3037,15 +3162,15 @@
 5. Validate protections against file open mode
 6. Handle <code>/dev/zero</code> as anonymous</p>
 <p><strong>Protection calculation:</strong>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a><span class="n">maxprot</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">VM_PROT_EXECUTE</span><span class="p">;</span>
-<a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">fp</span><span class="o">-&gt;</span><span class="n">f_flag</span><span class="w"> </span><span class="o">&amp;</span><span class="w"> </span><span class="n">FREAD</span><span class="p">)</span>
-<a id="__codelineno-9-3" name="__codelineno-9-3" href="#__codelineno-9-3"></a><span class="w">    </span><span class="n">maxprot</span><span class="w"> </span><span class="o">|=</span><span class="w"> </span><span class="n">VM_PROT_READ</span><span class="p">;</span>
-<a id="__codelineno-9-4" name="__codelineno-9-4" href="#__codelineno-9-4"></a><span class="k">if</span><span class="w"> </span><span class="p">((</span><span class="n">flags</span><span class="w"> </span><span class="o">&amp;</span><span class="w"> </span><span class="n">MAP_SHARED</span><span class="p">)</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="p">(</span><span class="n">fp</span><span class="o">-&gt;</span><span class="n">f_flag</span><span class="w"> </span><span class="o">&amp;</span><span class="w"> </span><span class="n">FWRITE</span><span class="p">))</span>
-<a id="__codelineno-9-5" name="__codelineno-9-5" href="#__codelineno-9-5"></a><span class="w">    </span><span class="n">maxprot</span><span class="w"> </span><span class="o">|=</span><span class="w"> </span><span class="n">VM_PROT_WRITE</span><span class="p">;</span><span class="w">  </span><span class="cm">/* Check IMMUTABLE/APPEND */</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a><span class="n">maxprot</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">VM_PROT_EXECUTE</span><span class="p">;</span>
+<a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">fp</span><span class="o">-&gt;</span><span class="n">f_flag</span><span class="w"> </span><span class="o">&amp;</span><span class="w"> </span><span class="n">FREAD</span><span class="p">)</span>
+<a id="__codelineno-10-3" name="__codelineno-10-3" href="#__codelineno-10-3"></a><span class="w">    </span><span class="n">maxprot</span><span class="w"> </span><span class="o">|=</span><span class="w"> </span><span class="n">VM_PROT_READ</span><span class="p">;</span>
+<a id="__codelineno-10-4" name="__codelineno-10-4" href="#__codelineno-10-4"></a><span class="k">if</span><span class="w"> </span><span class="p">((</span><span class="n">flags</span><span class="w"> </span><span class="o">&amp;</span><span class="w"> </span><span class="n">MAP_SHARED</span><span class="p">)</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="p">(</span><span class="n">fp</span><span class="o">-&gt;</span><span class="n">f_flag</span><span class="w"> </span><span class="o">&amp;</span><span class="w"> </span><span class="n">FWRITE</span><span class="p">))</span>
+<a id="__codelineno-10-5" name="__codelineno-10-5" href="#__codelineno-10-5"></a><span class="w">    </span><span class="n">maxprot</span><span class="w"> </span><span class="o">|=</span><span class="w"> </span><span class="n">VM_PROT_WRITE</span><span class="p">;</span><span class="w">  </span><span class="cm">/* Check IMMUTABLE/APPEND */</span>
 </code></pre></div></p>
 <p><strong>Entry limit:</strong>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">max_proc_mmap</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">vms</span><span class="o">-&gt;</span><span class="n">vm_map</span><span class="p">.</span><span class="n">nentries</span><span class="w"> </span><span class="o">&gt;=</span><span class="w"> </span><span class="n">max_proc_mmap</span><span class="p">)</span>
-<a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="p">(</span><span class="n">ENOMEM</span><span class="p">);</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">max_proc_mmap</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">vms</span><span class="o">-&gt;</span><span class="n">vm_map</span><span class="p">.</span><span class="n">nentries</span><span class="w"> </span><span class="o">&gt;=</span><span class="w"> </span><span class="n">max_proc_mmap</span><span class="p">)</span>
+<a id="__codelineno-11-2" name="__codelineno-11-2" href="#__codelineno-11-2"></a><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="p">(</span><span class="n">ENOMEM</span><span class="p">);</span>
 </code></pre></div></p>
 <p><strong><code>vm_mmap(map, addr, size, prot, maxprot, flags, handle, foff, fp)</code></strong></p>
 <p>Internal mmap implementation:</p>
@@ -3058,36 +3183,36 @@
 <li>Otherwise: PAGE_SIZE align</li>
 </ol>
 <p><strong>Object lookup:</strong>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">flags</span><span class="w"> </span><span class="o">&amp;</span><span class="w"> </span><span class="n">MAP_ANON</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
-<a id="__codelineno-11-2" name="__codelineno-11-2" href="#__codelineno-11-2"></a><span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">handle</span><span class="p">)</span>
-<a id="__codelineno-11-3" name="__codelineno-11-3" href="#__codelineno-11-3"></a><span class="w">        </span><span class="n">object</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">default_pager_alloc</span><span class="p">(</span><span class="n">handle</span><span class="p">,</span><span class="w"> </span><span class="n">objsize</span><span class="p">,</span><span class="w"> </span><span class="n">prot</span><span class="p">,</span><span class="w"> </span><span class="n">foff</span><span class="p">);</span>
-<a id="__codelineno-11-4" name="__codelineno-11-4" href="#__codelineno-11-4"></a><span class="w">    </span><span class="k">else</span>
-<a id="__codelineno-11-5" name="__codelineno-11-5" href="#__codelineno-11-5"></a><span class="w">        </span><span class="n">object</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">NULL</span><span class="p">;</span><span class="w">  </span><span class="cm">/* Deferred allocation */</span>
-<a id="__codelineno-11-6" name="__codelineno-11-6" href="#__codelineno-11-6"></a><span class="p">}</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="p">{</span>
-<a id="__codelineno-11-7" name="__codelineno-11-7" href="#__codelineno-11-7"></a><span class="w">    </span><span class="n">vp</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="k">struct</span><span class="w"> </span><span class="nc">vnode</span><span class="w"> </span><span class="o">*</span><span class="p">)</span><span class="n">handle</span><span class="p">;</span>
-<a id="__codelineno-11-8" name="__codelineno-11-8" href="#__codelineno-11-8"></a><span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">vp</span><span class="o">-&gt;</span><span class="n">v_type</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">VCHR</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">vp</span><span class="o">-&gt;</span><span class="n">v_rdev</span><span class="o">-&gt;</span><span class="n">si_ops</span><span class="o">-&gt;</span><span class="n">d_uksmap</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
-<a id="__codelineno-11-9" name="__codelineno-11-9" href="#__codelineno-11-9"></a><span class="w">        </span><span class="cm">/* UKSMAP device mapping */</span>
-<a id="__codelineno-11-10" name="__codelineno-11-10" href="#__codelineno-11-10"></a><span class="w">        </span><span class="n">uksmap</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">vp</span><span class="o">-&gt;</span><span class="n">v_rdev</span><span class="o">-&gt;</span><span class="n">si_ops</span><span class="o">-&gt;</span><span class="n">d_uksmap</span><span class="p">;</span>
-<a id="__codelineno-11-11" name="__codelineno-11-11" href="#__codelineno-11-11"></a><span class="w">        </span><span class="n">object</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">NULL</span><span class="p">;</span>
-<a id="__codelineno-11-12" name="__codelineno-11-12" href="#__codelineno-11-12"></a><span class="w">    </span><span class="p">}</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">vp</span><span class="o">-&gt;</span><span class="n">v_type</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">VCHR</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
-<a id="__codelineno-11-13" name="__codelineno-11-13" href="#__codelineno-11-13"></a><span class="w">        </span><span class="cm">/* Device mapping */</span>
-<a id="__codelineno-11-14" name="__codelineno-11-14" href="#__codelineno-11-14"></a><span class="w">        </span><span class="n">object</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">dev_pager_alloc</span><span class="p">(...);</span>
-<a id="__codelineno-11-15" name="__codelineno-11-15" href="#__codelineno-11-15"></a><span class="w">    </span><span class="p">}</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="p">{</span>
-<a id="__codelineno-11-16" name="__codelineno-11-16" href="#__codelineno-11-16"></a><span class="w">        </span><span class="cm">/* Regular file */</span>
-<a id="__codelineno-11-17" name="__codelineno-11-17" href="#__codelineno-11-17"></a><span class="w">        </span><span class="n">object</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">vnode_pager_reference</span><span class="p">(</span><span class="n">vp</span><span class="p">);</span>
-<a id="__codelineno-11-18" name="__codelineno-11-18" href="#__codelineno-11-18"></a><span class="w">    </span><span class="p">}</span>
-<a id="__codelineno-11-19" name="__codelineno-11-19" href="#__codelineno-11-19"></a><span class="p">}</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">flags</span><span class="w"> </span><span class="o">&amp;</span><span class="w"> </span><span class="n">MAP_ANON</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-12-2" name="__codelineno-12-2" href="#__codelineno-12-2"></a><span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">handle</span><span class="p">)</span>
+<a id="__codelineno-12-3" name="__codelineno-12-3" href="#__codelineno-12-3"></a><span class="w">        </span><span class="n">object</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">default_pager_alloc</span><span class="p">(</span><span class="n">handle</span><span class="p">,</span><span class="w"> </span><span class="n">objsize</span><span class="p">,</span><span class="w"> </span><span class="n">prot</span><span class="p">,</span><span class="w"> </span><span class="n">foff</span><span class="p">);</span>
+<a id="__codelineno-12-4" name="__codelineno-12-4" href="#__codelineno-12-4"></a><span class="w">    </span><span class="k">else</span>
+<a id="__codelineno-12-5" name="__codelineno-12-5" href="#__codelineno-12-5"></a><span class="w">        </span><span class="n">object</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">NULL</span><span class="p">;</span><span class="w">  </span><span class="cm">/* Deferred allocation */</span>
+<a id="__codelineno-12-6" name="__codelineno-12-6" href="#__codelineno-12-6"></a><span class="p">}</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-12-7" name="__codelineno-12-7" href="#__codelineno-12-7"></a><span class="w">    </span><span class="n">vp</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="k">struct</span><span class="w"> </span><span class="nc">vnode</span><span class="w"> </span><span class="o">*</span><span class="p">)</span><span class="n">handle</span><span class="p">;</span>
+<a id="__codelineno-12-8" name="__codelineno-12-8" href="#__codelineno-12-8"></a><span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">vp</span><span class="o">-&gt;</span><span class="n">v_type</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">VCHR</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">vp</span><span class="o">-&gt;</span><span class="n">v_rdev</span><span class="o">-&gt;</span><span class="n">si_ops</span><span class="o">-&gt;</span><span class="n">d_uksmap</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-12-9" name="__codelineno-12-9" href="#__codelineno-12-9"></a><span class="w">        </span><span class="cm">/* UKSMAP device mapping */</span>
+<a id="__codelineno-12-10" name="__codelineno-12-10" href="#__codelineno-12-10"></a><span class="w">        </span><span class="n">uksmap</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">vp</span><span class="o">-&gt;</span><span class="n">v_rdev</span><span class="o">-&gt;</span><span class="n">si_ops</span><span class="o">-&gt;</span><span class="n">d_uksmap</span><span class="p">;</span>
+<a id="__codelineno-12-11" name="__codelineno-12-11" href="#__codelineno-12-11"></a><span class="w">        </span><span class="n">object</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">NULL</span><span class="p">;</span>
+<a id="__codelineno-12-12" name="__codelineno-12-12" href="#__codelineno-12-12"></a><span class="w">    </span><span class="p">}</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">vp</span><span class="o">-&gt;</span><span class="n">v_type</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">VCHR</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-12-13" name="__codelineno-12-13" href="#__codelineno-12-13"></a><span class="w">        </span><span class="cm">/* Device mapping */</span>
+<a id="__codelineno-12-14" name="__codelineno-12-14" href="#__codelineno-12-14"></a><span class="w">        </span><span class="n">object</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">dev_pager_alloc</span><span class="p">(...);</span>
+<a id="__codelineno-12-15" name="__codelineno-12-15" href="#__codelineno-12-15"></a><span class="w">    </span><span class="p">}</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-12-16" name="__codelineno-12-16" href="#__codelineno-12-16"></a><span class="w">        </span><span class="cm">/* Regular file */</span>
+<a id="__codelineno-12-17" name="__codelineno-12-17" href="#__codelineno-12-17"></a><span class="w">        </span><span class="n">object</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">vnode_pager_reference</span><span class="p">(</span><span class="n">vp</span><span class="p">);</span>
+<a id="__codelineno-12-18" name="__codelineno-12-18" href="#__codelineno-12-18"></a><span class="w">    </span><span class="p">}</span>
+<a id="__codelineno-12-19" name="__codelineno-12-19" href="#__codelineno-12-19"></a><span class="p">}</span>
 </code></pre></div></p>
 <p><strong>Map entry creation:</strong>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">uksmap</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
-<a id="__codelineno-12-2" name="__codelineno-12-2" href="#__codelineno-12-2"></a><span class="w">    </span><span class="n">rv</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">vm_map_find</span><span class="p">(</span><span class="n">map</span><span class="p">,</span><span class="w"> </span><span class="n">uksmap</span><span class="p">,</span><span class="w"> </span><span class="n">vp</span><span class="o">-&gt;</span><span class="n">v_rdev</span><span class="p">,</span><span class="w"> </span><span class="n">foff</span><span class="p">,</span><span class="w"> </span><span class="n">addr</span><span class="p">,</span><span class="w"> </span><span class="n">size</span><span class="p">,</span>
-<a id="__codelineno-12-3" name="__codelineno-12-3" href="#__codelineno-12-3"></a><span class="w">                     </span><span class="n">align</span><span class="p">,</span><span class="w"> </span><span class="n">fitit</span><span class="p">,</span><span class="w"> </span><span class="n">VM_MAPTYPE_UKSMAP</span><span class="p">,</span><span class="w"> </span><span class="p">...);</span>
-<a id="__codelineno-12-4" name="__codelineno-12-4" href="#__codelineno-12-4"></a><span class="p">}</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">flags</span><span class="w"> </span><span class="o">&amp;</span><span class="w"> </span><span class="n">MAP_STACK</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
-<a id="__codelineno-12-5" name="__codelineno-12-5" href="#__codelineno-12-5"></a><span class="w">    </span><span class="n">rv</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">vm_map_stack</span><span class="p">(</span><span class="n">map</span><span class="p">,</span><span class="w"> </span><span class="n">addr</span><span class="p">,</span><span class="w"> </span><span class="n">size</span><span class="p">,</span><span class="w"> </span><span class="n">flags</span><span class="p">,</span><span class="w"> </span><span class="n">prot</span><span class="p">,</span><span class="w"> </span><span class="n">maxprot</span><span class="p">,</span><span class="w"> </span><span class="n">docow</span><span class="p">);</span>
-<a id="__codelineno-12-6" name="__codelineno-12-6" href="#__codelineno-12-6"></a><span class="p">}</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="p">{</span>
-<a id="__codelineno-12-7" name="__codelineno-12-7" href="#__codelineno-12-7"></a><span class="w">    </span><span class="n">rv</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">vm_map_find</span><span class="p">(</span><span class="n">map</span><span class="p">,</span><span class="w"> </span><span class="n">object</span><span class="p">,</span><span class="w"> </span><span class="nb">NULL</span><span class="p">,</span><span class="w"> </span><span class="n">foff</span><span class="p">,</span><span class="w"> </span><span class="n">addr</span><span class="p">,</span><span class="w"> </span><span class="n">size</span><span class="p">,</span>
-<a id="__codelineno-12-8" name="__codelineno-12-8" href="#__codelineno-12-8"></a><span class="w">                     </span><span class="n">align</span><span class="p">,</span><span class="w"> </span><span class="n">fitit</span><span class="p">,</span><span class="w"> </span><span class="n">VM_MAPTYPE_NORMAL</span><span class="p">,</span><span class="w"> </span><span class="p">...);</span>
-<a id="__codelineno-12-9" name="__codelineno-12-9" href="#__codelineno-12-9"></a><span class="p">}</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">uksmap</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-13-2" name="__codelineno-13-2" href="#__codelineno-13-2"></a><span class="w">    </span><span class="n">rv</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">vm_map_find</span><span class="p">(</span><span class="n">map</span><span class="p">,</span><span class="w"> </span><span class="n">uksmap</span><span class="p">,</span><span class="w"> </span><span class="n">vp</span><span class="o">-&gt;</span><span class="n">v_rdev</span><span class="p">,</span><span class="w"> </span><span class="n">foff</span><span class="p">,</span><span class="w"> </span><span class="n">addr</span><span class="p">,</span><span class="w"> </span><span class="n">size</span><span class="p">,</span>
+<a id="__codelineno-13-3" name="__codelineno-13-3" href="#__codelineno-13-3"></a><span class="w">                     </span><span class="n">align</span><span class="p">,</span><span class="w"> </span><span class="n">fitit</span><span class="p">,</span><span class="w"> </span><span class="n">VM_MAPTYPE_UKSMAP</span><span class="p">,</span><span class="w"> </span><span class="p">...);</span>
+<a id="__codelineno-13-4" name="__codelineno-13-4" href="#__codelineno-13-4"></a><span class="p">}</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">flags</span><span class="w"> </span><span class="o">&amp;</span><span class="w"> </span><span class="n">MAP_STACK</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-13-5" name="__codelineno-13-5" href="#__codelineno-13-5"></a><span class="w">    </span><span class="n">rv</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">vm_map_stack</span><span class="p">(</span><span class="n">map</span><span class="p">,</span><span class="w"> </span><span class="n">addr</span><span class="p">,</span><span class="w"> </span><span class="n">size</span><span class="p">,</span><span class="w"> </span><span class="n">flags</span><span class="p">,</span><span class="w"> </span><span class="n">prot</span><span class="p">,</span><span class="w"> </span><span class="n">maxprot</span><span class="p">,</span><span class="w"> </span><span class="n">docow</span><span class="p">);</span>
+<a id="__codelineno-13-6" name="__codelineno-13-6" href="#__codelineno-13-6"></a><span class="p">}</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-13-7" name="__codelineno-13-7" href="#__codelineno-13-7"></a><span class="w">    </span><span class="n">rv</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">vm_map_find</span><span class="p">(</span><span class="n">map</span><span class="p">,</span><span class="w"> </span><span class="n">object</span><span class="p">,</span><span class="w"> </span><span class="nb">NULL</span><span class="p">,</span><span class="w"> </span><span class="n">foff</span><span class="p">,</span><span class="w"> </span><span class="n">addr</span><span class="p">,</span><span class="w"> </span><span class="n">size</span><span class="p">,</span>
+<a id="__codelineno-13-8" name="__codelineno-13-8" href="#__codelineno-13-8"></a><span class="w">                     </span><span class="n">align</span><span class="p">,</span><span class="w"> </span><span class="n">fitit</span><span class="p">,</span><span class="w"> </span><span class="n">VM_MAPTYPE_NORMAL</span><span class="p">,</span><span class="w"> </span><span class="p">...);</span>
+<a id="__codelineno-13-9" name="__codelineno-13-9" href="#__codelineno-13-9"></a><span class="p">}</span>
 </code></pre></div></p>
 <p><strong>Post-processing:</strong>
 - Set <code>VM_INHERIT_SHARE</code> for <code>MAP_SHARED</code>/<code>MAP_INHERIT</code>
@@ -3262,36 +3387,36 @@
 <h2 id="dragonfly-specific-features">DragonFly-Specific Features<a class="headerlink" href="#dragonfly-specific-features" title="Permanent link">&para;</a></h2>
 <h3 id="uksmap-device-mappings">UKSMAP Device Mappings<a class="headerlink" href="#uksmap-device-mappings" title="Permanent link">&para;</a></h3>
 <p>Devices can provide direct user-kernel shared memory via <code>d_uksmap</code>:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">vp</span><span class="o">-&gt;</span><span class="n">v_type</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">VCHR</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">vp</span><span class="o">-&gt;</span><span class="n">v_rdev</span><span class="o">-&gt;</span><span class="n">si_ops</span><span class="o">-&gt;</span><span class="n">d_uksmap</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
-<a id="__codelineno-13-2" name="__codelineno-13-2" href="#__codelineno-13-2"></a><span class="w">    </span><span class="n">uksmap</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">vp</span><span class="o">-&gt;</span><span class="n">v_rdev</span><span class="o">-&gt;</span><span class="n">si_ops</span><span class="o">-&gt;</span><span class="n">d_uksmap</span><span class="p">;</span>
-<a id="__codelineno-13-3" name="__codelineno-13-3" href="#__codelineno-13-3"></a><span class="w">    </span><span class="n">object</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">NULL</span><span class="p">;</span><span class="w">  </span><span class="cm">/* No VM object */</span>
-<a id="__codelineno-13-4" name="__codelineno-13-4" href="#__codelineno-13-4"></a><span class="w">    </span><span class="n">flags</span><span class="w"> </span><span class="o">|=</span><span class="w"> </span><span class="n">MAP_SHARED</span><span class="p">;</span>
-<a id="__codelineno-13-5" name="__codelineno-13-5" href="#__codelineno-13-5"></a><span class="p">}</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-14-1" name="__codelineno-14-1" href="#__codelineno-14-1"></a><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">vp</span><span class="o">-&gt;</span><span class="n">v_type</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">VCHR</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">vp</span><span class="o">-&gt;</span><span class="n">v_rdev</span><span class="o">-&gt;</span><span class="n">si_ops</span><span class="o">-&gt;</span><span class="n">d_uksmap</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-14-2" name="__codelineno-14-2" href="#__codelineno-14-2"></a><span class="w">    </span><span class="n">uksmap</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">vp</span><span class="o">-&gt;</span><span class="n">v_rdev</span><span class="o">-&gt;</span><span class="n">si_ops</span><span class="o">-&gt;</span><span class="n">d_uksmap</span><span class="p">;</span>
+<a id="__codelineno-14-3" name="__codelineno-14-3" href="#__codelineno-14-3"></a><span class="w">    </span><span class="n">object</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">NULL</span><span class="p">;</span><span class="w">  </span><span class="cm">/* No VM object */</span>
+<a id="__codelineno-14-4" name="__codelineno-14-4" href="#__codelineno-14-4"></a><span class="w">    </span><span class="n">flags</span><span class="w"> </span><span class="o">|=</span><span class="w"> </span><span class="n">MAP_SHARED</span><span class="p">;</span>
+<a id="__codelineno-14-5" name="__codelineno-14-5" href="#__codelineno-14-5"></a><span class="p">}</span>
 </code></pre></div>
 <p>Used for <code>/dev/upmap</code>, <code>/dev/kpmap</code>, <code>/dev/lpmap</code>.</p>
 <h3 id="map_stack-handling">MAP_STACK Handling<a class="headerlink" href="#map_stack-handling" title="Permanent link">&para;</a></h3>
 <p>User MAP_STACK is converted to MAP_ANON:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-14-1" name="__codelineno-14-1" href="#__codelineno-14-1"></a><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">flags</span><span class="w"> </span><span class="o">&amp;</span><span class="w"> </span><span class="n">MAP_STACK</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
-<a id="__codelineno-14-2" name="__codelineno-14-2" href="#__codelineno-14-2"></a><span class="w">    </span><span class="n">flags</span><span class="w"> </span><span class="o">&amp;=</span><span class="w"> </span><span class="o">~</span><span class="n">MAP_STACK</span><span class="p">;</span>
-<a id="__codelineno-14-3" name="__codelineno-14-3" href="#__codelineno-14-3"></a><span class="w">    </span><span class="n">flags</span><span class="w"> </span><span class="o">|=</span><span class="w"> </span><span class="n">MAP_ANON</span><span class="p">;</span>
-<a id="__codelineno-14-4" name="__codelineno-14-4" href="#__codelineno-14-4"></a><span class="p">}</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-15-1" name="__codelineno-15-1" href="#__codelineno-15-1"></a><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">flags</span><span class="w"> </span><span class="o">&amp;</span><span class="w"> </span><span class="n">MAP_STACK</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-15-2" name="__codelineno-15-2" href="#__codelineno-15-2"></a><span class="w">    </span><span class="n">flags</span><span class="w"> </span><span class="o">&amp;=</span><span class="w"> </span><span class="o">~</span><span class="n">MAP_STACK</span><span class="p">;</span>
+<a id="__codelineno-15-3" name="__codelineno-15-3" href="#__codelineno-15-3"></a><span class="w">    </span><span class="n">flags</span><span class="w"> </span><span class="o">|=</span><span class="w"> </span><span class="n">MAP_ANON</span><span class="p">;</span>
+<a id="__codelineno-15-4" name="__codelineno-15-4" href="#__codelineno-15-4"></a><span class="p">}</span>
 </code></pre></div>
 <p>Only the exec-created user stack uses true MAP_STACK internally.</p>
 <h3 id="alignment-optimization">Alignment Optimization<a class="headerlink" href="#alignment-optimization" title="Permanent link">&para;</a></h3>
 <p>Large mappings are aligned to SEG_SIZE for MMU optimization:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-15-1" name="__codelineno-15-1" href="#__codelineno-15-1"></a><span class="k">if</span><span class="w"> </span><span class="p">((</span><span class="n">flags</span><span class="w"> </span><span class="o">&amp;</span><span class="w"> </span><span class="n">MAP_FIXED</span><span class="p">)</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="o">&amp;&amp;</span>
-<a id="__codelineno-15-2" name="__codelineno-15-2" href="#__codelineno-15-2"></a><span class="w">    </span><span class="p">((</span><span class="n">size</span><span class="w"> </span><span class="o">&amp;</span><span class="w"> </span><span class="n">SEG_MASK</span><span class="p">)</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="n">size</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="n">SEG_SIZE</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mi">16</span><span class="p">))</span><span class="w"> </span><span class="p">{</span>
-<a id="__codelineno-15-3" name="__codelineno-15-3" href="#__codelineno-15-3"></a><span class="w">    </span><span class="n">align</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">SEG_SIZE</span><span class="p">;</span>
-<a id="__codelineno-15-4" name="__codelineno-15-4" href="#__codelineno-15-4"></a><span class="p">}</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-16-1" name="__codelineno-16-1" href="#__codelineno-16-1"></a><span class="k">if</span><span class="w"> </span><span class="p">((</span><span class="n">flags</span><span class="w"> </span><span class="o">&amp;</span><span class="w"> </span><span class="n">MAP_FIXED</span><span class="p">)</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="o">&amp;&amp;</span>
+<a id="__codelineno-16-2" name="__codelineno-16-2" href="#__codelineno-16-2"></a><span class="w">    </span><span class="p">((</span><span class="n">size</span><span class="w"> </span><span class="o">&amp;</span><span class="w"> </span><span class="n">SEG_MASK</span><span class="p">)</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="n">size</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="n">SEG_SIZE</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mi">16</span><span class="p">))</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-16-3" name="__codelineno-16-3" href="#__codelineno-16-3"></a><span class="w">    </span><span class="n">align</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">SEG_SIZE</span><span class="p">;</span>
+<a id="__codelineno-16-4" name="__codelineno-16-4" href="#__codelineno-16-4"></a><span class="p">}</span>
 </code></pre></div>
 <h3 id="address-hint">Address Hint<a class="headerlink" href="#address-hint" title="Permanent link">&para;</a></h3>
 <p>Non-fixed mappings get ASLR-randomized hint:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-16-1" name="__codelineno-16-1" href="#__codelineno-16-1"></a><span class="n">addr</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">vm_map_hint</span><span class="p">(</span><span class="n">p</span><span class="p">,</span><span class="w"> </span><span class="n">addr</span><span class="p">,</span><span class="w"> </span><span class="n">prot</span><span class="p">,</span><span class="w"> </span><span class="n">flags</span><span class="p">);</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-17-1" name="__codelineno-17-1" href="#__codelineno-17-1"></a><span class="n">addr</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">vm_map_hint</span><span class="p">(</span><span class="n">p</span><span class="p">,</span><span class="w"> </span><span class="n">addr</span><span class="p">,</span><span class="w"> </span><span class="n">prot</span><span class="p">,</span><span class="w"> </span><span class="n">flags</span><span class="p">);</span>
 </code></pre></div>
 <h3 id="posix-shared-memory">POSIX Shared Memory<a class="headerlink" href="#posix-shared-memory" title="Permanent link">&para;</a></h3>
 <p>Files opened with <code>shm_open()</code> set <code>FPOSIXSHM</code>:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-17-1" name="__codelineno-17-1" href="#__codelineno-17-1"></a><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">fp</span><span class="o">-&gt;</span><span class="n">f_flag</span><span class="w"> </span><span class="o">&amp;</span><span class="w"> </span><span class="n">FPOSIXSHM</span><span class="p">)</span>
-<a id="__codelineno-17-2" name="__codelineno-17-2" href="#__codelineno-17-2"></a><span class="w">    </span><span class="n">flags</span><span class="w"> </span><span class="o">|=</span><span class="w"> </span><span class="n">MAP_NOSYNC</span><span class="p">;</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-18-1" name="__codelineno-18-1" href="#__codelineno-18-1"></a><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">fp</span><span class="o">-&gt;</span><span class="n">f_flag</span><span class="w"> </span><span class="o">&amp;</span><span class="w"> </span><span class="n">FPOSIXSHM</span><span class="p">)</span>
+<a id="__codelineno-18-2" name="__codelineno-18-2" href="#__codelineno-18-2"></a><span class="w">    </span><span class="n">flags</span><span class="w"> </span><span class="o">|=</span><span class="w"> </span><span class="n">MAP_NOSYNC</span><span class="p">;</span>
 </code></pre></div>
 <h2 id="function-reference">Function Reference<a class="headerlink" href="#function-reference" title="Permanent link">&para;</a></h2>
 <h3 id="vnode-pager">Vnode Pager<a class="headerlink" href="#vnode-pager" title="Permanent link">&para;</a></h3>

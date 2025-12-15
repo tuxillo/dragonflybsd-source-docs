@@ -1784,6 +1784,28 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
+  <a href="#where-objects-fit-in-the-vm-hierarchy" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Where Objects Fit in the VM Hierarchy
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#common-scenarios" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Common Scenarios
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#overview" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2361,6 +2383,28 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
+  <a href="#where-objects-fit-in-the-vm-hierarchy" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Where Objects Fit in the VM Hierarchy
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#common-scenarios" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Common Scenarios
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#overview" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2705,6 +2749,65 @@
 <h1 id="vm-objects">VM Objects<a class="headerlink" href="#vm-objects" title="Permanent link">&para;</a></h1>
 <p>VM objects are the fundamental abstraction for managing virtual memory contents in DragonFly BSD. Each object represents a contiguous range of virtual memory that can be backed by files, swap space, devices, or anonymous memory.</p>
 <p><strong>Source file:</strong> <code>sys/vm/vm_object.c</code> (~2,034 lines)</p>
+<h2 id="where-objects-fit-in-the-vm-hierarchy">Where Objects Fit in the VM Hierarchy<a class="headerlink" href="#where-objects-fit-in-the-vm-hierarchy" title="Permanent link">&para;</a></h2>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>USER PROCESS                     VM SUBSYSTEM
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>─────────────                    ────────────
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>
+<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>ptr = mmap(file)                 vm_map_entry
+<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>     │                                │
+<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>     │                           vm_map_backing
+<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>     │                                │
+<a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a>     └──────────────────────────► vm_object ◄───── vnode_pager
+<a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a>                                      │
+<a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a>                               ┌──────┼──────┐
+<a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a>                               │      │      │
+<a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a>                            vm_page vm_page vm_page
+<a id="__codelineno-0-13" name="__codelineno-0-13" href="#__codelineno-0-13"></a>                              (RB tree by page index)
+</code></pre></div>
+<p><strong>Key insight:</strong> Objects are the <em>container</em> for pages. They don't manage address spaces (that's <code>vm_map</code>) or physical allocation (that's <code>vm_page</code>). They manage:</p>
+<ul>
+<li>Which pages belong together logically</li>
+<li>How to populate missing pages (via pager)</li>
+<li>Sharing between processes (file-backed)</li>
+</ul>
+<h2 id="common-scenarios">Common Scenarios<a class="headerlink" href="#common-scenarios" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Scenario</th>
+<th>Object Type</th>
+<th>What Happens</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>malloc(large)</code></td>
+<td>OBJT_DEFAULT→OBJT_SWAP</td>
+<td>Anonymous object created, pages added on fault, swapped under pressure</td>
+</tr>
+<tr>
+<td><code>mmap(file)</code></td>
+<td>OBJT_VNODE</td>
+<td>Object tied to vnode, pages loaded from file on fault</td>
+</tr>
+<tr>
+<td><code>fork()</code></td>
+<td>Parent's objects</td>
+<td>Child gets new vm_map_backing pointing to same objects (COW)</td>
+</tr>
+<tr>
+<td>GPU memory</td>
+<td>OBJT_MGTDEVICE</td>
+<td>Device manages pages, object tracks mappings</td>
+</tr>
+<tr>
+<td><code>shm_open()</code></td>
+<td>OBJT_SWAP</td>
+<td>Swap-backed object shared between processes</td>
+</tr>
+</tbody>
+</table>
+<hr />
 <h2 id="overview">Overview<a class="headerlink" href="#overview" title="Permanent link">&para;</a></h2>
 <p>A VM object maintains:</p>
 <ul>
@@ -2715,16 +2818,16 @@
 </ul>
 <p>Objects are the bridge between address space mappings (<code>vm_map_entry</code>) and physical pages (<code>vm_page</code>). A single page exists within exactly one object at any given time.</p>
 <h2 id="object-types">Object Types<a class="headerlink" href="#object-types" title="Permanent link">&para;</a></h2>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="k">enum</span><span class="w"> </span><span class="n">obj_type</span><span class="w"> </span><span class="p">{</span>
-<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="w">    </span><span class="n">OBJT_DEFAULT</span><span class="p">,</span><span class="w">    </span><span class="cm">/* Anonymous memory, initially no backing */</span>
-<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="w">    </span><span class="n">OBJT_SWAP</span><span class="p">,</span><span class="w">       </span><span class="cm">/* Backed by swap blocks */</span>
-<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="w">    </span><span class="n">OBJT_VNODE</span><span class="p">,</span><span class="w">      </span><span class="cm">/* Backed by file (vnode) */</span>
-<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a><span class="w">    </span><span class="n">OBJT_DEVICE</span><span class="p">,</span><span class="w">     </span><span class="cm">/* Device-backed pages */</span>
-<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a><span class="w">    </span><span class="n">OBJT_MGTDEVICE</span><span class="p">,</span><span class="w">  </span><span class="cm">/* Managed device pager */</span>
-<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a><span class="w">    </span><span class="n">OBJT_PHYS</span><span class="p">,</span><span class="w">       </span><span class="cm">/* Physical pages (no paging) */</span>
-<a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a><span class="w">    </span><span class="n">OBJT_DEAD</span><span class="p">,</span><span class="w">       </span><span class="cm">/* Being destroyed */</span>
-<a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a><span class="w">    </span><span class="n">OBJT_MARKER</span><span class="p">,</span><span class="w">     </span><span class="cm">/* List iteration marker */</span>
-<a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a><span class="p">};</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="k">enum</span><span class="w"> </span><span class="n">obj_type</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="w">    </span><span class="n">OBJT_DEFAULT</span><span class="p">,</span><span class="w">    </span><span class="cm">/* Anonymous memory, initially no backing */</span>
+<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="w">    </span><span class="n">OBJT_SWAP</span><span class="p">,</span><span class="w">       </span><span class="cm">/* Backed by swap blocks */</span>
+<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a><span class="w">    </span><span class="n">OBJT_VNODE</span><span class="p">,</span><span class="w">      </span><span class="cm">/* Backed by file (vnode) */</span>
+<a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a><span class="w">    </span><span class="n">OBJT_DEVICE</span><span class="p">,</span><span class="w">     </span><span class="cm">/* Device-backed pages */</span>
+<a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a><span class="w">    </span><span class="n">OBJT_MGTDEVICE</span><span class="p">,</span><span class="w">  </span><span class="cm">/* Managed device pager */</span>
+<a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a><span class="w">    </span><span class="n">OBJT_PHYS</span><span class="p">,</span><span class="w">       </span><span class="cm">/* Physical pages (no paging) */</span>
+<a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a><span class="w">    </span><span class="n">OBJT_DEAD</span><span class="p">,</span><span class="w">       </span><span class="cm">/* Being destroyed */</span>
+<a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a><span class="w">    </span><span class="n">OBJT_MARKER</span><span class="p">,</span><span class="w">     </span><span class="cm">/* List iteration marker */</span>
+<a id="__codelineno-1-10" name="__codelineno-1-10" href="#__codelineno-1-10"></a><span class="p">};</span>
 </code></pre></div>
 <h3 id="type-characteristics">Type Characteristics<a class="headerlink" href="#type-characteristics" title="Permanent link">&para;</a></h3>
 <table>
@@ -2771,30 +2874,30 @@
 </table>
 <h2 id="data-structures">Data Structures<a class="headerlink" href="#data-structures" title="Permanent link">&para;</a></h2>
 <h3 id="struct-vm_object">struct vm_object<a class="headerlink" href="#struct-vm_object" title="Permanent link">&para;</a></h3>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="k">struct</span><span class="w"> </span><span class="nc">vm_object</span><span class="w"> </span><span class="p">{</span>
-<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="w">    </span><span class="k">struct</span><span class="w"> </span><span class="nc">lwkt_token</span><span class="w"> </span><span class="n">token</span><span class="p">;</span><span class="w">           </span><span class="cm">/* Soft-lock for object */</span>
-<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="w">    </span><span class="k">struct</span><span class="w"> </span><span class="nc">lock</span><span class="w"> </span><span class="n">backing_lk</span><span class="p">;</span><span class="w">            </span><span class="cm">/* Lock for backing_list only */</span>
-<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a><span class="w">    </span><span class="k">struct</span><span class="w"> </span><span class="nc">vm_page_rb_tree</span><span class="w"> </span><span class="n">rb_memq</span><span class="p">;</span><span class="w">    </span><span class="cm">/* Resident pages (RB tree) */</span>
-<a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a><span class="w">    </span><span class="n">TAILQ_HEAD</span><span class="p">(,</span><span class="n">vm_map_backing</span><span class="p">)</span><span class="w"> </span><span class="n">backing_list</span><span class="p">;</span><span class="w">  </span><span class="cm">/* Who references us */</span>
-<a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a>
-<a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a><span class="w">    </span><span class="n">vm_pindex_t</span><span class="w"> </span><span class="n">size</span><span class="p">;</span><span class="w">                  </span><span class="cm">/* Size in pages */</span>
-<a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a><span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="n">ref_count</span><span class="p">;</span><span class="w">                     </span><span class="cm">/* Reference count */</span>
-<a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a><span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="n">hold_count</span><span class="p">;</span><span class="w">                    </span><span class="cm">/* Destruction prevention */</span>
-<a id="__codelineno-1-10" name="__codelineno-1-10" href="#__codelineno-1-10"></a><span class="w">    </span><span class="n">u_int</span><span class="w"> </span><span class="n">paging_in_progress</span><span class="p">;</span><span class="w">          </span><span class="cm">/* Active I/O operations */</span>
-<a id="__codelineno-1-11" name="__codelineno-1-11" href="#__codelineno-1-11"></a>
-<a id="__codelineno-1-12" name="__codelineno-1-12" href="#__codelineno-1-12"></a><span class="w">    </span><span class="n">objtype_t</span><span class="w"> </span><span class="n">type</span><span class="p">;</span><span class="w">                    </span><span class="cm">/* OBJT_* type */</span>
-<a id="__codelineno-1-13" name="__codelineno-1-13" href="#__codelineno-1-13"></a><span class="w">    </span><span class="n">u_short</span><span class="w"> </span><span class="n">flags</span><span class="p">;</span><span class="w">                     </span><span class="cm">/* OBJ_* flags */</span>
-<a id="__codelineno-1-14" name="__codelineno-1-14" href="#__codelineno-1-14"></a><span class="w">    </span><span class="n">vm_memattr_t</span><span class="w"> </span><span class="n">memattr</span><span class="p">;</span><span class="w">              </span><span class="cm">/* Memory attributes (PAT) */</span>
-<a id="__codelineno-1-15" name="__codelineno-1-15" href="#__codelineno-1-15"></a><span class="w">    </span><span class="n">u_short</span><span class="w"> </span><span class="n">pg_color</span><span class="p">;</span><span class="w">                  </span><span class="cm">/* Base page color */</span>
-<a id="__codelineno-1-16" name="__codelineno-1-16" href="#__codelineno-1-16"></a>
-<a id="__codelineno-1-17" name="__codelineno-1-17" href="#__codelineno-1-17"></a><span class="w">    </span><span class="kt">void</span><span class="w"> </span><span class="o">*</span><span class="n">handle</span><span class="p">;</span><span class="w">                      </span><span class="cm">/* Type-specific (vnode, dev) */</span>
-<a id="__codelineno-1-18" name="__codelineno-1-18" href="#__codelineno-1-18"></a><span class="w">    </span><span class="kt">long</span><span class="w"> </span><span class="n">resident_page_count</span><span class="p">;</span><span class="w">          </span><span class="cm">/* Cached page count */</span>
-<a id="__codelineno-1-19" name="__codelineno-1-19" href="#__codelineno-1-19"></a><span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="n">generation</span><span class="p">;</span><span class="w">                    </span><span class="cm">/* Modification counter */</span>
-<a id="__codelineno-1-20" name="__codelineno-1-20" href="#__codelineno-1-20"></a>
-<a id="__codelineno-1-21" name="__codelineno-1-21" href="#__codelineno-1-21"></a><span class="w">    </span><span class="cm">/* Swap support */</span>
-<a id="__codelineno-1-22" name="__codelineno-1-22" href="#__codelineno-1-22"></a><span class="w">    </span><span class="k">struct</span><span class="w"> </span><span class="nc">swblock_rb_tree</span><span class="w"> </span><span class="n">swblock_root</span><span class="p">;</span>
-<a id="__codelineno-1-23" name="__codelineno-1-23" href="#__codelineno-1-23"></a><span class="w">    </span><span class="kt">long</span><span class="w"> </span><span class="n">swblock_count</span><span class="p">;</span>
-<a id="__codelineno-1-24" name="__codelineno-1-24" href="#__codelineno-1-24"></a><span class="p">};</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="k">struct</span><span class="w"> </span><span class="nc">vm_object</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="w">    </span><span class="k">struct</span><span class="w"> </span><span class="nc">lwkt_token</span><span class="w"> </span><span class="n">token</span><span class="p">;</span><span class="w">           </span><span class="cm">/* Soft-lock for object */</span>
+<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="w">    </span><span class="k">struct</span><span class="w"> </span><span class="nc">lock</span><span class="w"> </span><span class="n">backing_lk</span><span class="p">;</span><span class="w">            </span><span class="cm">/* Lock for backing_list only */</span>
+<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a><span class="w">    </span><span class="k">struct</span><span class="w"> </span><span class="nc">vm_page_rb_tree</span><span class="w"> </span><span class="n">rb_memq</span><span class="p">;</span><span class="w">    </span><span class="cm">/* Resident pages (RB tree) */</span>
+<a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a><span class="w">    </span><span class="n">TAILQ_HEAD</span><span class="p">(,</span><span class="n">vm_map_backing</span><span class="p">)</span><span class="w"> </span><span class="n">backing_list</span><span class="p">;</span><span class="w">  </span><span class="cm">/* Who references us */</span>
+<a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a>
+<a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a><span class="w">    </span><span class="n">vm_pindex_t</span><span class="w"> </span><span class="n">size</span><span class="p">;</span><span class="w">                  </span><span class="cm">/* Size in pages */</span>
+<a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a><span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="n">ref_count</span><span class="p">;</span><span class="w">                     </span><span class="cm">/* Reference count */</span>
+<a id="__codelineno-2-9" name="__codelineno-2-9" href="#__codelineno-2-9"></a><span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="n">hold_count</span><span class="p">;</span><span class="w">                    </span><span class="cm">/* Destruction prevention */</span>
+<a id="__codelineno-2-10" name="__codelineno-2-10" href="#__codelineno-2-10"></a><span class="w">    </span><span class="n">u_int</span><span class="w"> </span><span class="n">paging_in_progress</span><span class="p">;</span><span class="w">          </span><span class="cm">/* Active I/O operations */</span>
+<a id="__codelineno-2-11" name="__codelineno-2-11" href="#__codelineno-2-11"></a>
+<a id="__codelineno-2-12" name="__codelineno-2-12" href="#__codelineno-2-12"></a><span class="w">    </span><span class="n">objtype_t</span><span class="w"> </span><span class="n">type</span><span class="p">;</span><span class="w">                    </span><span class="cm">/* OBJT_* type */</span>
+<a id="__codelineno-2-13" name="__codelineno-2-13" href="#__codelineno-2-13"></a><span class="w">    </span><span class="n">u_short</span><span class="w"> </span><span class="n">flags</span><span class="p">;</span><span class="w">                     </span><span class="cm">/* OBJ_* flags */</span>
+<a id="__codelineno-2-14" name="__codelineno-2-14" href="#__codelineno-2-14"></a><span class="w">    </span><span class="n">vm_memattr_t</span><span class="w"> </span><span class="n">memattr</span><span class="p">;</span><span class="w">              </span><span class="cm">/* Memory attributes (PAT) */</span>
+<a id="__codelineno-2-15" name="__codelineno-2-15" href="#__codelineno-2-15"></a><span class="w">    </span><span class="n">u_short</span><span class="w"> </span><span class="n">pg_color</span><span class="p">;</span><span class="w">                  </span><span class="cm">/* Base page color */</span>
+<a id="__codelineno-2-16" name="__codelineno-2-16" href="#__codelineno-2-16"></a>
+<a id="__codelineno-2-17" name="__codelineno-2-17" href="#__codelineno-2-17"></a><span class="w">    </span><span class="kt">void</span><span class="w"> </span><span class="o">*</span><span class="n">handle</span><span class="p">;</span><span class="w">                      </span><span class="cm">/* Type-specific (vnode, dev) */</span>
+<a id="__codelineno-2-18" name="__codelineno-2-18" href="#__codelineno-2-18"></a><span class="w">    </span><span class="kt">long</span><span class="w"> </span><span class="n">resident_page_count</span><span class="p">;</span><span class="w">          </span><span class="cm">/* Cached page count */</span>
+<a id="__codelineno-2-19" name="__codelineno-2-19" href="#__codelineno-2-19"></a><span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="n">generation</span><span class="p">;</span><span class="w">                    </span><span class="cm">/* Modification counter */</span>
+<a id="__codelineno-2-20" name="__codelineno-2-20" href="#__codelineno-2-20"></a>
+<a id="__codelineno-2-21" name="__codelineno-2-21" href="#__codelineno-2-21"></a><span class="w">    </span><span class="cm">/* Swap support */</span>
+<a id="__codelineno-2-22" name="__codelineno-2-22" href="#__codelineno-2-22"></a><span class="w">    </span><span class="k">struct</span><span class="w"> </span><span class="nc">swblock_rb_tree</span><span class="w"> </span><span class="n">swblock_root</span><span class="p">;</span>
+<a id="__codelineno-2-23" name="__codelineno-2-23" href="#__codelineno-2-23"></a><span class="w">    </span><span class="kt">long</span><span class="w"> </span><span class="n">swblock_count</span><span class="p">;</span>
+<a id="__codelineno-2-24" name="__codelineno-2-24" href="#__codelineno-2-24"></a><span class="p">};</span>
 </code></pre></div>
 <h3 id="object-flags">Object Flags<a class="headerlink" href="#object-flags" title="Permanent link">&para;</a></h3>
 <table>
@@ -2841,7 +2944,7 @@
 </table>
 <h3 id="global-hash-table">Global Hash Table<a class="headerlink" href="#global-hash-table" title="Permanent link">&para;</a></h3>
 <p>Objects are tracked in a 256-bucket hash table for global enumeration:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="k">struct</span><span class="w"> </span><span class="nc">vm_object_hash</span><span class="w"> </span><span class="n">vm_object_hash</span><span class="p">[</span><span class="n">VMOBJ_HSIZE</span><span class="p">];</span><span class="w">  </span><span class="cm">/* VMOBJ_HSIZE = 256 */</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="k">struct</span><span class="w"> </span><span class="nc">vm_object_hash</span><span class="w"> </span><span class="n">vm_object_hash</span><span class="p">[</span><span class="n">VMOBJ_HSIZE</span><span class="p">];</span><span class="w">  </span><span class="cm">/* VMOBJ_HSIZE = 256 */</span>
 </code></pre></div>
 <p>Each bucket contains a TAILQ list protected by an LWKT token. The hash function uses two large primes for distribution.</p>
 <h2 id="locking-model">Locking Model<a class="headerlink" href="#locking-model" title="Permanent link">&para;</a></h2>
@@ -2878,23 +2981,23 @@
 <li><strong>hold_count</strong>: Prevents object from being freed while working with it</li>
 </ul>
 <p>The hold/drop pattern is critical:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="cm">/* Must increment hold_count BEFORE blocking on token */</span>
-<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="n">refcount_acquire</span><span class="p">(</span><span class="o">&amp;</span><span class="n">obj</span><span class="o">-&gt;</span><span class="n">hold_count</span><span class="p">);</span><span class="w">  </span><span class="cm">/* Makes object stable */</span>
-<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a><span class="n">vm_object_lock</span><span class="p">(</span><span class="n">obj</span><span class="p">);</span><span class="w">                 </span><span class="cm">/* May block */</span>
-<a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a><span class="cm">/* ... work with object ... */</span>
-<a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a><span class="n">vm_object_unlock</span><span class="p">(</span><span class="n">obj</span><span class="p">);</span>
-<a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">refcount_release</span><span class="p">(</span><span class="o">&amp;</span><span class="n">obj</span><span class="o">-&gt;</span><span class="n">hold_count</span><span class="p">))</span><span class="w"> </span><span class="p">{</span>
-<a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a><span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">obj</span><span class="o">-&gt;</span><span class="n">ref_count</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="p">(</span><span class="n">obj</span><span class="o">-&gt;</span><span class="n">flags</span><span class="w"> </span><span class="o">&amp;</span><span class="w"> </span><span class="n">OBJ_DEAD</span><span class="p">))</span>
-<a id="__codelineno-3-8" name="__codelineno-3-8" href="#__codelineno-3-8"></a><span class="w">        </span><span class="n">kfree_obj</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span><span class="w"> </span><span class="n">M_VM_OBJECT</span><span class="p">);</span><span class="w">  </span><span class="cm">/* Final free */</span>
-<a id="__codelineno-3-9" name="__codelineno-3-9" href="#__codelineno-3-9"></a><span class="p">}</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="cm">/* Must increment hold_count BEFORE blocking on token */</span>
+<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a><span class="n">refcount_acquire</span><span class="p">(</span><span class="o">&amp;</span><span class="n">obj</span><span class="o">-&gt;</span><span class="n">hold_count</span><span class="p">);</span><span class="w">  </span><span class="cm">/* Makes object stable */</span>
+<a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a><span class="n">vm_object_lock</span><span class="p">(</span><span class="n">obj</span><span class="p">);</span><span class="w">                 </span><span class="cm">/* May block */</span>
+<a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a><span class="cm">/* ... work with object ... */</span>
+<a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a><span class="n">vm_object_unlock</span><span class="p">(</span><span class="n">obj</span><span class="p">);</span>
+<a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">refcount_release</span><span class="p">(</span><span class="o">&amp;</span><span class="n">obj</span><span class="o">-&gt;</span><span class="n">hold_count</span><span class="p">))</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-4-7" name="__codelineno-4-7" href="#__codelineno-4-7"></a><span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">obj</span><span class="o">-&gt;</span><span class="n">ref_count</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="p">(</span><span class="n">obj</span><span class="o">-&gt;</span><span class="n">flags</span><span class="w"> </span><span class="o">&amp;</span><span class="w"> </span><span class="n">OBJ_DEAD</span><span class="p">))</span>
+<a id="__codelineno-4-8" name="__codelineno-4-8" href="#__codelineno-4-8"></a><span class="w">        </span><span class="n">kfree_obj</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span><span class="w"> </span><span class="n">M_VM_OBJECT</span><span class="p">);</span><span class="w">  </span><span class="cm">/* Final free */</span>
+<a id="__codelineno-4-9" name="__codelineno-4-9" href="#__codelineno-4-9"></a><span class="p">}</span>
 </code></pre></div>
 <h2 id="object-lifecycle">Object Lifecycle<a class="headerlink" href="#object-lifecycle" title="Permanent link">&para;</a></h2>
 <h3 id="allocation">Allocation<a class="headerlink" href="#allocation" title="Permanent link">&para;</a></h3>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="cm">/* Returns unheld object */</span>
-<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a><span class="n">vm_object_t</span><span class="w"> </span><span class="nf">vm_object_allocate</span><span class="p">(</span><span class="n">objtype_t</span><span class="w"> </span><span class="n">type</span><span class="p">,</span><span class="w"> </span><span class="n">vm_pindex_t</span><span class="w"> </span><span class="n">size</span><span class="p">);</span>
-<a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a>
-<a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a><span class="cm">/* Returns held object for atomic initialization */</span>
-<a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a><span class="n">vm_object_t</span><span class="w"> </span><span class="nf">vm_object_allocate_hold</span><span class="p">(</span><span class="n">objtype_t</span><span class="w"> </span><span class="n">type</span><span class="p">,</span><span class="w"> </span><span class="n">vm_pindex_t</span><span class="w"> </span><span class="n">size</span><span class="p">);</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="cm">/* Returns unheld object */</span>
+<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a><span class="n">vm_object_t</span><span class="w"> </span><span class="nf">vm_object_allocate</span><span class="p">(</span><span class="n">objtype_t</span><span class="w"> </span><span class="n">type</span><span class="p">,</span><span class="w"> </span><span class="n">vm_pindex_t</span><span class="w"> </span><span class="n">size</span><span class="p">);</span>
+<a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a>
+<a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a><span class="cm">/* Returns held object for atomic initialization */</span>
+<a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a><span class="n">vm_object_t</span><span class="w"> </span><span class="nf">vm_object_allocate_hold</span><span class="p">(</span><span class="n">objtype_t</span><span class="w"> </span><span class="n">type</span><span class="p">,</span><span class="w"> </span><span class="n">vm_pindex_t</span><span class="w"> </span><span class="n">size</span><span class="p">);</span>
 </code></pre></div>
 <p>Initialization (<code>_vm_object_allocate()</code>) performs:</p>
 <ol>
@@ -2908,15 +3011,15 @@
 </ol>
 <h3 id="reference-counting">Reference Counting<a class="headerlink" href="#reference-counting" title="Permanent link">&para;</a></h3>
 <p><strong>Adding references:</strong></p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="cm">/* Must hold object token */</span>
-<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a><span class="kt">void</span><span class="w"> </span><span class="nf">vm_object_reference_locked</span><span class="p">(</span><span class="n">vm_object_t</span><span class="w"> </span><span class="n">object</span><span class="p">);</span>
-<a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a>
-<a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a><span class="cm">/* Safe without token when object is deterministically referenced */</span>
-<a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a><span class="kt">void</span><span class="w"> </span><span class="nf">vm_object_reference_quick</span><span class="p">(</span><span class="n">vm_object_t</span><span class="w"> </span><span class="n">object</span><span class="p">);</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="cm">/* Must hold object token */</span>
+<a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a><span class="kt">void</span><span class="w"> </span><span class="nf">vm_object_reference_locked</span><span class="p">(</span><span class="n">vm_object_t</span><span class="w"> </span><span class="n">object</span><span class="p">);</span>
+<a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a>
+<a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a><span class="cm">/* Safe without token when object is deterministically referenced */</span>
+<a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a><span class="kt">void</span><span class="w"> </span><span class="nf">vm_object_reference_quick</span><span class="p">(</span><span class="n">vm_object_t</span><span class="w"> </span><span class="n">object</span><span class="p">);</span>
 </code></pre></div>
 <p>For <code>OBJT_VNODE</code> objects, these also call <code>vref()</code> on the vnode.</p>
 <p><strong>Releasing references:</strong></p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="kt">void</span><span class="w"> </span><span class="nf">vm_object_deallocate</span><span class="p">(</span><span class="n">vm_object_t</span><span class="w"> </span><span class="n">object</span><span class="p">);</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="kt">void</span><span class="w"> </span><span class="nf">vm_object_deallocate</span><span class="p">(</span><span class="n">vm_object_t</span><span class="w"> </span><span class="n">object</span><span class="p">);</span>
 </code></pre></div>
 <p>The deallocation path optimizes for the common case:</p>
 <ul>
@@ -2941,10 +3044,10 @@
 <h2 id="page-management">Page Management<a class="headerlink" href="#page-management" title="Permanent link">&para;</a></h2>
 <h3 id="page-cleaning">Page Cleaning<a class="headerlink" href="#page-cleaning" title="Permanent link">&para;</a></h3>
 <p><code>vm_object_page_clean()</code> writes dirty pages to backing store:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="kt">void</span><span class="w"> </span><span class="nf">vm_object_page_clean</span><span class="p">(</span><span class="n">vm_object_t</span><span class="w"> </span><span class="n">object</span><span class="p">,</span><span class="w"> </span>
-<a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a><span class="w">                          </span><span class="n">vm_pindex_t</span><span class="w"> </span><span class="n">start</span><span class="p">,</span><span class="w"> </span>
-<a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a><span class="w">                          </span><span class="n">vm_pindex_t</span><span class="w"> </span><span class="n">end</span><span class="p">,</span>
-<a id="__codelineno-7-4" name="__codelineno-7-4" href="#__codelineno-7-4"></a><span class="w">                          </span><span class="kt">int</span><span class="w"> </span><span class="n">flags</span><span class="p">);</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a><span class="kt">void</span><span class="w"> </span><span class="nf">vm_object_page_clean</span><span class="p">(</span><span class="n">vm_object_t</span><span class="w"> </span><span class="n">object</span><span class="p">,</span><span class="w"> </span>
+<a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a><span class="w">                          </span><span class="n">vm_pindex_t</span><span class="w"> </span><span class="n">start</span><span class="p">,</span><span class="w"> </span>
+<a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a><span class="w">                          </span><span class="n">vm_pindex_t</span><span class="w"> </span><span class="n">end</span><span class="p">,</span>
+<a id="__codelineno-8-4" name="__codelineno-8-4" href="#__codelineno-8-4"></a><span class="w">                          </span><span class="kt">int</span><span class="w"> </span><span class="n">flags</span><span class="p">);</span>
 </code></pre></div>
 <p><strong>Flags:</strong></p>
 <table>
@@ -2988,10 +3091,10 @@
 <li>Repeats if object's generation changes</li>
 </ol>
 <h3 id="page-removal">Page Removal<a class="headerlink" href="#page-removal" title="Permanent link">&para;</a></h3>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a><span class="kt">void</span><span class="w"> </span><span class="nf">vm_object_page_remove</span><span class="p">(</span><span class="n">vm_object_t</span><span class="w"> </span><span class="n">object</span><span class="p">,</span>
-<a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a><span class="w">                           </span><span class="n">vm_pindex_t</span><span class="w"> </span><span class="n">start</span><span class="p">,</span>
-<a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a><span class="w">                           </span><span class="n">vm_pindex_t</span><span class="w"> </span><span class="n">end</span><span class="p">,</span>
-<a id="__codelineno-8-4" name="__codelineno-8-4" href="#__codelineno-8-4"></a><span class="w">                           </span><span class="n">boolean_t</span><span class="w"> </span><span class="n">clean_only</span><span class="p">);</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a><span class="kt">void</span><span class="w"> </span><span class="nf">vm_object_page_remove</span><span class="p">(</span><span class="n">vm_object_t</span><span class="w"> </span><span class="n">object</span><span class="p">,</span>
+<a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a><span class="w">                           </span><span class="n">vm_pindex_t</span><span class="w"> </span><span class="n">start</span><span class="p">,</span>
+<a id="__codelineno-9-3" name="__codelineno-9-3" href="#__codelineno-9-3"></a><span class="w">                           </span><span class="n">vm_pindex_t</span><span class="w"> </span><span class="n">end</span><span class="p">,</span>
+<a id="__codelineno-9-4" name="__codelineno-9-4" href="#__codelineno-9-4"></a><span class="w">                           </span><span class="n">boolean_t</span><span class="w"> </span><span class="n">clean_only</span><span class="p">);</span>
 </code></pre></div>
 <p>This function:</p>
 <ol>
@@ -3001,10 +3104,10 @@
 </ol>
 <p>The <code>clean_only</code> flag preserves dirty pages.</p>
 <h3 id="madvise-support">madvise Support<a class="headerlink" href="#madvise-support" title="Permanent link">&para;</a></h3>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a><span class="kt">void</span><span class="w"> </span><span class="nf">vm_object_madvise</span><span class="p">(</span><span class="n">vm_object_t</span><span class="w"> </span><span class="n">object</span><span class="p">,</span>
-<a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a><span class="w">                       </span><span class="n">vm_pindex_t</span><span class="w"> </span><span class="n">pindex</span><span class="p">,</span>
-<a id="__codelineno-9-3" name="__codelineno-9-3" href="#__codelineno-9-3"></a><span class="w">                       </span><span class="n">vm_pindex_t</span><span class="w"> </span><span class="n">count</span><span class="p">,</span>
-<a id="__codelineno-9-4" name="__codelineno-9-4" href="#__codelineno-9-4"></a><span class="w">                       </span><span class="kt">int</span><span class="w"> </span><span class="n">advise</span><span class="p">);</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a><span class="kt">void</span><span class="w"> </span><span class="nf">vm_object_madvise</span><span class="p">(</span><span class="n">vm_object_t</span><span class="w"> </span><span class="n">object</span><span class="p">,</span>
+<a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a><span class="w">                       </span><span class="n">vm_pindex_t</span><span class="w"> </span><span class="n">pindex</span><span class="p">,</span>
+<a id="__codelineno-10-3" name="__codelineno-10-3" href="#__codelineno-10-3"></a><span class="w">                       </span><span class="n">vm_pindex_t</span><span class="w"> </span><span class="n">count</span><span class="p">,</span>
+<a id="__codelineno-10-4" name="__codelineno-10-4" href="#__codelineno-10-4"></a><span class="w">                       </span><span class="kt">int</span><span class="w"> </span><span class="n">advise</span><span class="p">);</span>
 </code></pre></div>
 <table>
 <thead>
@@ -3030,10 +3133,10 @@
 </table>
 <p><code>MADV_FREE</code> is restricted to <code>OBJT_DEFAULT</code>/<code>OBJT_SWAP</code> objects with <code>OBJ_ONEMAPPING</code>.</p>
 <h2 id="object-coalescing">Object Coalescing<a class="headerlink" href="#object-coalescing" title="Permanent link">&para;</a></h2>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a><span class="n">boolean_t</span><span class="w"> </span><span class="nf">vm_object_coalesce</span><span class="p">(</span><span class="n">vm_object_t</span><span class="w"> </span><span class="n">prev_object</span><span class="p">,</span>
-<a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a><span class="w">                             </span><span class="n">vm_pindex_t</span><span class="w"> </span><span class="n">prev_pindex</span><span class="p">,</span>
-<a id="__codelineno-10-3" name="__codelineno-10-3" href="#__codelineno-10-3"></a><span class="w">                             </span><span class="n">vm_size_t</span><span class="w"> </span><span class="n">prev_size</span><span class="p">,</span>
-<a id="__codelineno-10-4" name="__codelineno-10-4" href="#__codelineno-10-4"></a><span class="w">                             </span><span class="n">vm_size_t</span><span class="w"> </span><span class="n">next_size</span><span class="p">);</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a><span class="n">boolean_t</span><span class="w"> </span><span class="nf">vm_object_coalesce</span><span class="p">(</span><span class="n">vm_object_t</span><span class="w"> </span><span class="n">prev_object</span><span class="p">,</span>
+<a id="__codelineno-11-2" name="__codelineno-11-2" href="#__codelineno-11-2"></a><span class="w">                             </span><span class="n">vm_pindex_t</span><span class="w"> </span><span class="n">prev_pindex</span><span class="p">,</span>
+<a id="__codelineno-11-3" name="__codelineno-11-3" href="#__codelineno-11-3"></a><span class="w">                             </span><span class="n">vm_size_t</span><span class="w"> </span><span class="n">prev_size</span><span class="p">,</span>
+<a id="__codelineno-11-4" name="__codelineno-11-4" href="#__codelineno-11-4"></a><span class="w">                             </span><span class="n">vm_size_t</span><span class="w"> </span><span class="n">next_size</span><span class="p">);</span>
 </code></pre></div>
 <p>Extends an object into adjacent virtual memory:</p>
 <ul>
@@ -3051,17 +3154,17 @@
 <li><strong>Page cleaning</strong>: Double <code>vinvalbuf()</code> for TMPFS compatibility</li>
 </ul>
 <p>The <code>vm_object_vndeallocate()</code> function handles the complex 1-&gt;0 transition:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a><span class="cm">/* Atomically handle ref_count with retry loop */</span>
-<a id="__codelineno-11-2" name="__codelineno-11-2" href="#__codelineno-11-2"></a><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">count</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
-<a id="__codelineno-11-3" name="__codelineno-11-3" href="#__codelineno-11-3"></a><span class="w">    </span><span class="n">vm_object_upgrade</span><span class="p">(</span><span class="n">object</span><span class="p">);</span><span class="w">      </span><span class="cm">/* Need exclusive for VTEXT */</span>
-<a id="__codelineno-11-4" name="__codelineno-11-4" href="#__codelineno-11-4"></a><span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">atomic_fcmpset_int</span><span class="p">(</span><span class="o">&amp;</span><span class="n">object</span><span class="o">-&gt;</span><span class="n">ref_count</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">count</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">))</span><span class="w"> </span><span class="p">{</span>
-<a id="__codelineno-11-5" name="__codelineno-11-5" href="#__codelineno-11-5"></a><span class="w">        </span><span class="n">vclrflags</span><span class="p">(</span><span class="n">vp</span><span class="p">,</span><span class="w"> </span><span class="n">VTEXT</span><span class="p">);</span>
-<a id="__codelineno-11-6" name="__codelineno-11-6" href="#__codelineno-11-6"></a><span class="w">        </span><span class="k">break</span><span class="p">;</span>
-<a id="__codelineno-11-7" name="__codelineno-11-7" href="#__codelineno-11-7"></a><span class="w">    </span><span class="p">}</span>
-<a id="__codelineno-11-8" name="__codelineno-11-8" href="#__codelineno-11-8"></a><span class="p">}</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a><span class="cm">/* Atomically handle ref_count with retry loop */</span>
+<a id="__codelineno-12-2" name="__codelineno-12-2" href="#__codelineno-12-2"></a><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">count</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-12-3" name="__codelineno-12-3" href="#__codelineno-12-3"></a><span class="w">    </span><span class="n">vm_object_upgrade</span><span class="p">(</span><span class="n">object</span><span class="p">);</span><span class="w">      </span><span class="cm">/* Need exclusive for VTEXT */</span>
+<a id="__codelineno-12-4" name="__codelineno-12-4" href="#__codelineno-12-4"></a><span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">atomic_fcmpset_int</span><span class="p">(</span><span class="o">&amp;</span><span class="n">object</span><span class="o">-&gt;</span><span class="n">ref_count</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">count</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">))</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-12-5" name="__codelineno-12-5" href="#__codelineno-12-5"></a><span class="w">        </span><span class="n">vclrflags</span><span class="p">(</span><span class="n">vp</span><span class="p">,</span><span class="w"> </span><span class="n">VTEXT</span><span class="p">);</span>
+<a id="__codelineno-12-6" name="__codelineno-12-6" href="#__codelineno-12-6"></a><span class="w">        </span><span class="k">break</span><span class="p">;</span>
+<a id="__codelineno-12-7" name="__codelineno-12-7" href="#__codelineno-12-7"></a><span class="w">    </span><span class="p">}</span>
+<a id="__codelineno-12-8" name="__codelineno-12-8" href="#__codelineno-12-8"></a><span class="p">}</span>
 </code></pre></div>
 <h2 id="dirty-flag-management">Dirty Flag Management<a class="headerlink" href="#dirty-flag-management" title="Permanent link">&para;</a></h2>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a><span class="kt">void</span><span class="w"> </span><span class="nf">vm_object_set_writeable_dirty</span><span class="p">(</span><span class="n">vm_object_t</span><span class="w"> </span><span class="n">object</span><span class="p">);</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a><span class="kt">void</span><span class="w"> </span><span class="nf">vm_object_set_writeable_dirty</span><span class="p">(</span><span class="n">vm_object_t</span><span class="w"> </span><span class="n">object</span><span class="p">);</span>
 </code></pre></div>
 <p>Called from the fault path when a page becomes writeable:</p>
 <ol>
@@ -3082,8 +3185,8 @@
 </ul>
 <h3 id="backing_list">backing_list<a class="headerlink" href="#backing_list" title="Permanent link">&para;</a></h3>
 <p>Each object maintains a list of <code>vm_map_backing</code> structures:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a><span class="n">TAILQ_HEAD</span><span class="p">(,</span><span class="w"> </span><span class="n">vm_map_backing</span><span class="p">)</span><span class="w"> </span><span class="n">backing_list</span><span class="p">;</span>
-<a id="__codelineno-13-2" name="__codelineno-13-2" href="#__codelineno-13-2"></a><span class="k">struct</span><span class="w"> </span><span class="nc">lock</span><span class="w"> </span><span class="n">backing_lk</span><span class="p">;</span><span class="w">  </span><span class="cm">/* Separate lock for this list */</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-14-1" name="__codelineno-14-1" href="#__codelineno-14-1"></a><span class="n">TAILQ_HEAD</span><span class="p">(,</span><span class="w"> </span><span class="n">vm_map_backing</span><span class="p">)</span><span class="w"> </span><span class="n">backing_list</span><span class="p">;</span>
+<a id="__codelineno-14-2" name="__codelineno-14-2" href="#__codelineno-14-2"></a><span class="k">struct</span><span class="w"> </span><span class="nc">lock</span><span class="w"> </span><span class="n">backing_lk</span><span class="p">;</span><span class="w">  </span><span class="cm">/* Separate lock for this list */</span>
 </code></pre></div>
 <p>This enables:</p>
 <ul>
@@ -3093,13 +3196,13 @@
 </ul>
 <h3 id="page-coloring">Page Coloring<a class="headerlink" href="#page-coloring" title="Permanent link">&para;</a></h3>
 <p><code>vm_quickcolor()</code> provides semi-random initial page colors:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-14-1" name="__codelineno-14-1" href="#__codelineno-14-1"></a><span class="kt">int</span><span class="w"> </span><span class="nf">vm_quickcolor</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
-<a id="__codelineno-14-2" name="__codelineno-14-2" href="#__codelineno-14-2"></a><span class="w">    </span><span class="n">globaldata_t</span><span class="w"> </span><span class="n">gd</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">mycpu</span><span class="p">;</span>
-<a id="__codelineno-14-3" name="__codelineno-14-3" href="#__codelineno-14-3"></a><span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="n">pg_color</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="kt">int</span><span class="p">)(</span><span class="kt">intptr_t</span><span class="p">)</span><span class="n">gd</span><span class="o">-&gt;</span><span class="n">gd_curthread</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="mi">10</span><span class="p">;</span>
-<a id="__codelineno-14-4" name="__codelineno-14-4" href="#__codelineno-14-4"></a><span class="w">    </span><span class="n">pg_color</span><span class="w"> </span><span class="o">+=</span><span class="w"> </span><span class="n">gd</span><span class="o">-&gt;</span><span class="n">gd_quick_color</span><span class="p">;</span>
-<a id="__codelineno-14-5" name="__codelineno-14-5" href="#__codelineno-14-5"></a><span class="w">    </span><span class="n">gd</span><span class="o">-&gt;</span><span class="n">gd_quick_color</span><span class="w"> </span><span class="o">+=</span><span class="w"> </span><span class="n">PQ_PRIME2</span><span class="p">;</span>
-<a id="__codelineno-14-6" name="__codelineno-14-6" href="#__codelineno-14-6"></a><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">pg_color</span><span class="p">;</span>
-<a id="__codelineno-14-7" name="__codelineno-14-7" href="#__codelineno-14-7"></a><span class="p">}</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-15-1" name="__codelineno-15-1" href="#__codelineno-15-1"></a><span class="kt">int</span><span class="w"> </span><span class="nf">vm_quickcolor</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-15-2" name="__codelineno-15-2" href="#__codelineno-15-2"></a><span class="w">    </span><span class="n">globaldata_t</span><span class="w"> </span><span class="n">gd</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">mycpu</span><span class="p">;</span>
+<a id="__codelineno-15-3" name="__codelineno-15-3" href="#__codelineno-15-3"></a><span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="n">pg_color</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="kt">int</span><span class="p">)(</span><span class="kt">intptr_t</span><span class="p">)</span><span class="n">gd</span><span class="o">-&gt;</span><span class="n">gd_curthread</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="mi">10</span><span class="p">;</span>
+<a id="__codelineno-15-4" name="__codelineno-15-4" href="#__codelineno-15-4"></a><span class="w">    </span><span class="n">pg_color</span><span class="w"> </span><span class="o">+=</span><span class="w"> </span><span class="n">gd</span><span class="o">-&gt;</span><span class="n">gd_quick_color</span><span class="p">;</span>
+<a id="__codelineno-15-5" name="__codelineno-15-5" href="#__codelineno-15-5"></a><span class="w">    </span><span class="n">gd</span><span class="o">-&gt;</span><span class="n">gd_quick_color</span><span class="w"> </span><span class="o">+=</span><span class="w"> </span><span class="n">PQ_PRIME2</span><span class="p">;</span>
+<a id="__codelineno-15-6" name="__codelineno-15-6" href="#__codelineno-15-6"></a><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">pg_color</span><span class="p">;</span>
+<a id="__codelineno-15-7" name="__codelineno-15-7" href="#__codelineno-15-7"></a><span class="p">}</span>
 </code></pre></div>
 <p>This spreads page allocations across queues for SMP scalability.</p>
 <h2 id="debugging">Debugging<a class="headerlink" href="#debugging" title="Permanent link">&para;</a></h2>

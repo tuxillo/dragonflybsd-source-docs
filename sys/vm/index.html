@@ -1739,6 +1739,28 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#reading-guide" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Reading Guide
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#how-operations-flow-through-the-vm" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        How Operations Flow Through the VM
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#subsystem-documentation" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2199,6 +2221,28 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#reading-guide" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Reading Guide
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#how-operations-flow-through-the-vm" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        How Operations Flow Through the VM
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#subsystem-documentation" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2387,6 +2431,98 @@
 <a id="__codelineno-0-26" name="__codelineno-0-26" href="#__codelineno-0-26"></a>                                     +------v------+
 <a id="__codelineno-0-27" name="__codelineno-0-27" href="#__codelineno-0-27"></a>                                     | swap_pager  |
 <a id="__codelineno-0-28" name="__codelineno-0-28" href="#__codelineno-0-28"></a>                                     +-------------+
+</code></pre></div>
+<h2 id="reading-guide">Reading Guide<a class="headerlink" href="#reading-guide" title="Permanent link">&para;</a></h2>
+<p><strong>Start here based on what you're trying to do:</strong></p>
+<table>
+<thead>
+<tr>
+<th>If you want to...</th>
+<th>Read this</th>
+<th>Why</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Understand how <code>mmap()</code> works</td>
+<td><a href="vm_mmap/">Memory Mapping</a></td>
+<td>Traces syscall to VM layer</td>
+</tr>
+<tr>
+<td>Debug a page fault or crash</td>
+<td><a href="vm_fault/">Page Faults</a></td>
+<td>Explains fault handling and COW</td>
+</tr>
+<tr>
+<td>Investigate memory pressure/OOM</td>
+<td><a href="vm_pageout/">Pageout and Swap</a></td>
+<td>Covers reclamation and OOM killer</td>
+</tr>
+<tr>
+<td>Add a new memory mapping type</td>
+<td><a href="vm_map/">Address Space</a></td>
+<td>Shows map entry creation</td>
+</tr>
+<tr>
+<td>Work with page allocation</td>
+<td><a href="vm_page/">Physical Pages</a></td>
+<td>Low-level page management</td>
+</tr>
+<tr>
+<td>Implement a new pager</td>
+<td><a href="vm_object/">VM Objects</a></td>
+<td>Object-pager relationship</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Recommended reading order for newcomers:</strong></p>
+<ol>
+<li>This overview (understand the hierarchy)</li>
+<li><a href="vm_mmap/">Memory Mapping</a> (see how userspace enters the VM)</li>
+<li><a href="vm_fault/">Page Faults</a> (see how pages get populated)</li>
+<li><a href="vm_page/">Physical Pages</a> (understand page lifecycle)</li>
+</ol>
+<h2 id="how-operations-flow-through-the-vm">How Operations Flow Through the VM<a class="headerlink" href="#how-operations-flow-through-the-vm" title="Permanent link">&para;</a></h2>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>USER SPACE                          KERNEL
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>──────────                          ──────
+<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>   │
+<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a>   │ mmap(file, ...)
+<a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a>   v
+<a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a>┌──────────────────────────────────────────────────────────────┐
+<a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a>│ vm_mmap.c: sys_mmap()                                        │
+<a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a>│   - Validate parameters                                      │
+<a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a>│   - Call vm_map_entry_create() to reserve address range      │
+<a id="__codelineno-1-10" name="__codelineno-1-10" href="#__codelineno-1-10"></a>└─────────────────────────┬────────────────────────────────────┘
+<a id="__codelineno-1-11" name="__codelineno-1-11" href="#__codelineno-1-11"></a>                          │
+<a id="__codelineno-1-12" name="__codelineno-1-12" href="#__codelineno-1-12"></a>                          v (returns to user, no pages yet)
+<a id="__codelineno-1-13" name="__codelineno-1-13" href="#__codelineno-1-13"></a>   │
+<a id="__codelineno-1-14" name="__codelineno-1-14" href="#__codelineno-1-14"></a>   │ *ptr = 42;  (first access)
+<a id="__codelineno-1-15" name="__codelineno-1-15" href="#__codelineno-1-15"></a>   v
+<a id="__codelineno-1-16" name="__codelineno-1-16" href="#__codelineno-1-16"></a>┌──────────────────────────────────────────────────────────────┐
+<a id="__codelineno-1-17" name="__codelineno-1-17" href="#__codelineno-1-17"></a>│ vm_fault.c: vm_fault()                                       │
+<a id="__codelineno-1-18" name="__codelineno-1-18" href="#__codelineno-1-18"></a>│   - Lookup vm_map_entry for faulting address                 │
+<a id="__codelineno-1-19" name="__codelineno-1-19" href="#__codelineno-1-19"></a>│   - Walk vm_map_backing chain to find/create vm_object       │
+<a id="__codelineno-1-20" name="__codelineno-1-20" href="#__codelineno-1-20"></a>│   - Call pager (vnode_pager or swap_pager) to load page      │
+<a id="__codelineno-1-21" name="__codelineno-1-21" href="#__codelineno-1-21"></a>└─────────────────────────┬────────────────────────────────────┘
+<a id="__codelineno-1-22" name="__codelineno-1-22" href="#__codelineno-1-22"></a>                          │
+<a id="__codelineno-1-23" name="__codelineno-1-23" href="#__codelineno-1-23"></a>                          v
+<a id="__codelineno-1-24" name="__codelineno-1-24" href="#__codelineno-1-24"></a>┌──────────────────────────────────────────────────────────────┐
+<a id="__codelineno-1-25" name="__codelineno-1-25" href="#__codelineno-1-25"></a>│ vm_page.c: vm_page_alloc()                                   │
+<a id="__codelineno-1-26" name="__codelineno-1-26" href="#__codelineno-1-26"></a>│   - Grab page from PQ_FREE queue                             │
+<a id="__codelineno-1-27" name="__codelineno-1-27" href="#__codelineno-1-27"></a>│   - Associate with vm_object at page index                   │
+<a id="__codelineno-1-28" name="__codelineno-1-28" href="#__codelineno-1-28"></a>│   - Mark busy while I/O in progress                          │
+<a id="__codelineno-1-29" name="__codelineno-1-29" href="#__codelineno-1-29"></a>└─────────────────────────┬────────────────────────────────────┘
+<a id="__codelineno-1-30" name="__codelineno-1-30" href="#__codelineno-1-30"></a>                          │
+<a id="__codelineno-1-31" name="__codelineno-1-31" href="#__codelineno-1-31"></a>                          v (page now resident)
+<a id="__codelineno-1-32" name="__codelineno-1-32" href="#__codelineno-1-32"></a>   │
+<a id="__codelineno-1-33" name="__codelineno-1-33" href="#__codelineno-1-33"></a>   │ (memory pressure)
+<a id="__codelineno-1-34" name="__codelineno-1-34" href="#__codelineno-1-34"></a>   v
+<a id="__codelineno-1-35" name="__codelineno-1-35" href="#__codelineno-1-35"></a>┌──────────────────────────────────────────────────────────────┐
+<a id="__codelineno-1-36" name="__codelineno-1-36" href="#__codelineno-1-36"></a>│ vm_pageout.c: vm_pageout_daemon()                            │
+<a id="__codelineno-1-37" name="__codelineno-1-37" href="#__codelineno-1-37"></a>│   - Scan inactive queue for victims                          │
+<a id="__codelineno-1-38" name="__codelineno-1-38" href="#__codelineno-1-38"></a>│   - Write dirty pages to swap/file                           │
+<a id="__codelineno-1-39" name="__codelineno-1-39" href="#__codelineno-1-39"></a>│   - Move clean pages to free queue                           │
+<a id="__codelineno-1-40" name="__codelineno-1-40" href="#__codelineno-1-40"></a>└──────────────────────────────────────────────────────────────┘
 </code></pre></div>
 <h2 id="subsystem-documentation">Subsystem Documentation<a class="headerlink" href="#subsystem-documentation" title="Permanent link">&para;</a></h2>
 <table>
