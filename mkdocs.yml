@@ -100,5 +100,6 @@ nav:
       - Overview: sys/vm/index.md
       - Physical Pages: sys/vm/vm_page.md
       - VM Objects: sys/vm/vm_object.md
+      - Address Space: sys/vm/vm_map.md
     - cpu/x86_64/:
       - Overview: sys/cpu/x86_64/index.md

@@ -162,13 +162,13 @@ Next phase
 | 1 (Headers) | ✅ | ✅ | ✅ | `3108069` |
 | 2 (vm_page.c) | ✅ | ✅ | ✅ | `cbd8cf1` |
 | 3 (vm_object.c) | ✅ | ✅ | ✅ | `8f1191d` |
-| 4 (vm_map.c) | Pending | Pending | Pending | - |
+| 4 (vm_map.c) | ✅ | ✅ | ✅ | - |
 | 5 (vm_fault.c) | Pending | Pending | Pending | - |
 | 6 (pageout/swap) | Pending | Pending | Pending | - |
 | 7 (pagers/mmap) | Pending | Pending | Pending | - |
 
 ### Next Action
-**Phase 4 → Read `vm_map.c` in chunks**, take notes, then write `docs/sys/vm/vm_map.md`.
+**Phase 5 → Read `vm_fault.c` in chunks**, take notes, then write `docs/sys/vm/vm_fault.md`.
 
 ---
 
@@ -1365,7 +1365,817 @@ Marks object as potentially dirty:
 
 ### Phase 4: Address Space Management
 
-*(To be filled as we read vm_map.c)*
+**vm_map.c** (~4,781 lines) - Address space management, vmspace lifecycle, map entries
+
+#### 4.1 Global Data Structures and Tunables (lines 0-200)
+
+**Allocators:**
+- `vmspace_cache` - objcache for `struct vmspace` allocation
+- `mapentzone` - zone allocator for `vm_map_entry` structures
+- `map_entry_init[MAX_MAPENT]` - static boot-time entry pool
+- Per-CPU caches: `cpu_map_entry_init_bsp[]`, `cpu_map_entry_init_ap[][]`
+
+**Partitioning for Concurrent Faults:**
+```c
+#define MAP_ENTRY_PARTITION_SIZE  (32 * 1024 * 1024)  // 32MB
+#define MAP_ENTRY_PARTITION_MASK  (MAP_ENTRY_PARTITION_SIZE - 1)
+```
+- Large anonymous mappings can be partitioned to improve concurrent fault performance
+- `VM_MAP_ENTRY_WITHIN_PARTITION(entry)` - tests if entry fits in single partition
+
+**Sysctls:**
+| Sysctl | Default | Purpose |
+|--------|---------|---------|
+| `vm.randomize_mmap` | 0 | Randomize mmap offsets (ASLR) |
+| `vm.map_relock_enable` | 1 | Insert pgtable optimization |
+| `vm.map_partition_enable` | 1 | Break up large vm_map_entry's |
+| `vm.map_backing_limit` | 5 | Max depth of backing_ba chain |
+| `vm.map_backing_shadow_test` | 1 | Test ba.object shadow |
+
+**MAP_BACK_* Flags:**
+- `MAP_BACK_CLIPPED` (0x0001) - Entry was clipped
+- `MAP_BACK_BASEOBJREFD` (0x0002) - Base object already referenced
+
+#### 4.2 Boot Initialization (lines 207-232)
+
+**`vm_map_startup()`** (line 207):
+- Called very early in boot
+- Initializes `mapentzone` with `zbootinit()`
+- Uses static `map_entry_init[]` array (MAX_MAPENT entries)
+- Sets `ZONE_SPECIAL` flag (required for >63 cores)
+
+**`vm_init2()`** (line 221):
+- Called before vmspace allocations
+- Creates `vmspace_cache` objcache (ncpus * 4 objects)
+- Calls `pmap_init2()` and `vm_object_init2()`
+
+#### 4.3 vmspace objcache Callbacks (lines 238-258)
+
+**`vmspace_ctor()`** (line 240):
+- Zeros vmspace structure
+- Sets `vm_refcnt = VM_REF_DELETED` (marks as not-in-use)
+
+**`vmspace_dtor()`** (line 252):
+- Asserts refcnt is VM_REF_DELETED
+- Calls `pmap_puninit()` to cleanup pmap
+
+#### 4.4 RB Tree for Map Entries (lines 265-277)
+
+**`rb_vm_map_compare()`**:
+- Comparison function for RB tree
+- Compares `a->ba.start` vs `b->ba.start`
+- Entries ordered by start address
+
+#### 4.5 vmspace Lifecycle (lines 283-536)
+
+**`vmspace_initrefs()`** (line 283):
+- Sets `vm_refcnt = 1`, `vm_holdcnt = 1`
+- Each refcnt has corresponding holdcnt
+
+**`vmspace_alloc(min, max)`** (line 300):
+1. Gets vmspace from objcache
+2. Zeros `vm_startcopy` to `vm_endcopy` region
+3. Calls `vm_map_init()` for embedded vm_map
+4. Initializes refs (refs=1, hold=1)
+5. Calls `pmap_pinit()` (some fields reused from cache)
+6. Sets `vm->vm_map.pmap = vmspace_pmap(vm)`
+7. Calls `cpu_vmspace_alloc()` for arch-specific init
+8. Returns referenced vmspace
+
+**`vmspace_getrefs()`** (line 336):
+- Returns current refcnt (0 if exiting, -1 if deleted)
+
+**`vmspace_hold()/vmspace_drop()`** (lines 348-372):
+- `hold`: Increments holdcnt, acquires map token
+- `drop`: Releases token, decrements holdcnt
+- On hold 1→0 with VM_REF_DELETED: calls `vmspace_terminate(vm, 1)`
+
+**`vmspace_ref()/vmspace_rel()`** (lines 384-421):
+- `ref`: Increments holdcnt AND refcnt atomically
+- `rel`: Decrements refcnt, on 1→0 sets VM_REF_DELETED and calls `vmspace_terminate(vm, 0)`
+- Two-stage termination: stage-1 on refs→0, stage-2 on holds→0
+
+**`vmspace_relexit()`** (line 434):
+- Called during process exit
+- Adds hold (prevents stage-2), then releases ref (triggers stage-1)
+
+**`vmspace_exitfree()`** (line 447):
+- Called during process reap
+- Sets `p->p_vmspace = NULL`
+- Drops hold (triggers stage-2 if last)
+
+**`vmspace_terminate(vm, final)`** (line 470):
+Two-stage termination:
+
+**Stage 1** (final=0, refcnt reached 0):
+- Sets `VMSPACE_EXIT1` flag
+- Calls `shmexit()` to detach SysV shared memory
+- If pmap has wired pages:
+  - `vm_map_remove()` first, then `pmap_remove_pages()`
+- If pmap has no wired pages (optimization):
+  - `pmap_remove_pages()` first, then `vm_map_remove()`
+
+**Stage 2** (final=1, holdcnt reached 0):
+- Sets `VMSPACE_EXIT2` flag
+- Calls `shmexit()` again (safety)
+- Reserves map entries, locks map
+- `cpu_vmspace_free()` for arch cleanup
+- `vm_map_delete()` removes all remaining mappings
+- `pmap_release()` releases pmap resources
+- Returns vmspace to objcache
+
+#### 4.6 vmspace Statistics (lines 546-611)
+
+**`vmspace_swap_count()`** (line 546):
+- Calculates proportional swap usage
+- Iterates map entries, sums swap from backing objects
+- Formula: `swblock_count * SWAP_META_PAGES * entry_pages / object_size + 1`
+
+**`vmspace_anonymous_count()`** (line 584):
+- Counts anonymous pages (OBJT_DEFAULT/OBJT_SWAP)
+- Sums `object->resident_page_count` for each entry
+
+#### 4.7 vm_map Initialization (lines 619-637)
+
+**`vm_map_init(map, min, max, pmap)`** (line 619):
+- `RB_INIT(&map->rb_root)` - entry tree
+- `spin_init(&map->ilock_spin)` - interlock spinlock
+- `lwkt_token_init(&map->token)` - soft serializer
+- `lockinit(&map->lock)` - hard lock with 100ms timeout
+- Zeros `freehint[]` array
+
+#### 4.8 Freehint Optimization (lines 643-701)
+
+**Purpose:** O(1) lookup for vm_map_findspace() on repeated similar requests
+
+**`vm_map_freehint_find(map, length, align)`** (line 645):
+- Searches `freehint[VM_MAP_FFCOUNT]` for matching (length, align)
+- Returns cached start address or 0 if not found
+
+**`vm_map_freehint_update(map, start, length, align)`** (line 665):
+- Called after findspace succeeds
+- Updates existing hint or creates new one (round-robin)
+- Tracks `freehint_newindex` for replacement
+
+**`vm_map_freehint_hole(map, start, length)`** (line 691):
+- Called when hole is created (e.g., unmap)
+- Updates all hints where `start < hint.start && length >= hint.length`
+
+#### 4.9 Shadow Objects for COW (lines 703-821)
+
+**`vm_map_entry_shadow(entry)`** (line 730):
+Creates fronting object for copy-on-write:
+
+1. Calculates length in pages
+2. **Optimization**: If source object is:
+   - Non-vnode type
+   - ref_count == 1
+   - No handle
+   - OBJT_DEFAULT or OBJT_SWAP
+   → Just clear NEEDS_COPY, no shadow needed
+
+3. Otherwise creates shadow chain:
+   ```
+   entry->ba.object = new_result_object
+   entry->ba.backing_ba = ba (contains old source object)
+   entry->ba.backing_count = old_count + 1
+   entry->ba.offset = 0
+   ```
+
+4. Clears `OBJ_ONEMAPPING` on source (now shared in chain)
+5. Sets `pg_color = vm_quickcolor()` on result
+6. Attaches both ba's to respective objects
+7. Clears `MAP_ENTRY_NEEDS_COPY` flag
+
+#### 4.10 Deferred Object Allocation (lines 823-857)
+
+**`vm_map_entry_allocate_object(entry)`** (line 837):
+- Called when anonymous mapping needs actual object
+- Defers allocation until map entry split/fork/fault
+- Creates OBJT_DEFAULT object sized to entry
+- Sets `ba.offset = 0` for debugging clarity
+- Calls `vm_map_backing_attach()` to link
+
+#### 4.11 Per-CPU Map Entry Cache (lines 859-1011)
+
+**Boot-time initialization:**
+- `vm_map_entry_reserve_cpu_init(gd)` (line 875)
+- BSP gets `MAPENTRYBSP_CACHE` (MAXCPU+1) entries
+- APs get `MAPENTRYAP_CACHE` (8) entries each
+- Entries linked via `gd->gd_vme_base` freelist
+
+**`vm_map_entry_reserve(count)`** (line 908):
+- Ensures `gd->gd_vme_avail >= count`
+- If needed, allocates from zone in critical section
+- Decrements `gd_vme_avail` by count
+- Returns count (for pairing with release)
+
+**`vm_map_entry_release(count)`** (line 943):
+- Increments `gd_vme_avail`
+- If `> MAP_RESERVE_SLOP`: trims back to `MAP_RESERVE_HYST`
+- Frees excess back to zone
+
+**`vm_map_entry_kreserve/krelease()`** (lines 986-1011):
+- Special versions for kernel_map
+- kreserve: Just decrements avail (can go negative)
+- krelease: Just increments avail (no cleanup)
+- Used by zalloc() to avoid recursion
+
+**`vm_map_entry_create(countp)`** (line 1021):
+- Pops entry from `gd->gd_vme_base`
+- Decrements `*countp`
+- Must be in critical section
+
+#### 4.12 Backing Store Attach/Detach (lines 1041-1101)
+
+**`vm_map_backing_attach(entry, ba)`** (line 1041):
+- For NORMAL: Locks `obj->backing_lk`, inserts into `obj->backing_list`
+- For UKSMAP: Calls `ba->uksmap(ba, UKSMAPOP_ADD, dev, NULL)`
+
+**`vm_map_backing_detach(entry, ba)`** (line 1059):
+- For NORMAL: Locks `obj->backing_lk`, removes from `obj->backing_list`
+- For UKSMAP: Calls `ba->uksmap(ba, UKSMAPOP_REM, dev, NULL)`
+
+**`vm_map_entry_dispose_ba(entry, ba)`** (line 1087):
+- Walks backing_ba chain
+- For each ba with map_object:
+  - Detaches from object
+  - Deallocates object reference
+- Frees ba structures with kfree()
+
+#### 4.13 Entry Dispose (lines 1103-1145)
+
+**`vm_map_entry_dispose(map, entry, countp)`** (line 1108):
+1. Disposes base object by maptype:
+   - NORMAL: detach + deallocate
+   - SUBMAP: nothing
+   - UKSMAP: detach only
+2. Disposes backing_ba chain via `vm_map_entry_dispose_ba()`
+3. Clears ba fields for safety
+4. Pushes entry to per-CPU freelist
+
+#### 4.14 Entry Link/Unlink (lines 1148-1177)
+
+**`vm_map_entry_link(map, entry)`** (line 1155):
+- Increments `map->nentries`
+- Inserts into RB tree, panics on duplicate
+
+**`vm_map_entry_unlink(map, entry)`** (line 1165):
+- Asserts not IN_TRANSITION
+- Removes from RB tree
+- Decrements `map->nentries`
+
+#### 4.15 Entry Lookup (lines 1179-1220)
+
+**`vm_map_lookup_entry(map, address, *entry)`** (line 1189):
+- RB tree lookup for address
+- Returns TRUE if address within an entry
+- Sets `*entry` to containing entry or closest predecessor
+- `*entry = NULL` if address before all entries
+
+#### 4.16 Map Insert (lines 1222-1437)
+
+**`vm_map_insert(map, countp, map_object, ...)`** (line 1233):
+
+**Parameters:**
+- `map_object`, `map_aux` - backing object/auxiliary data
+- `offset` - offset into object
+- `start`, `end` - address range
+- `maptype` - VM_MAPTYPE_*
+- `id` - vm_subsys_t identifier
+- `prot`, `max` - protection
+- `cow` - COWF_* flags
+
+**Algorithm:**
+1. Validate start/end against map bounds
+2. Lookup `prev_entry` for start address
+3. Check no overlap with next entry
+4. Set `protoeflags` from COWF_* flags:
+   - COWF_COPY_ON_WRITE → COW | NEEDS_COPY
+   - COWF_NOFAULT → NOFAULT (object must be NULL)
+   - COWF_DISABLE_SYNCER → NOSYNC
+   - COWF_DISABLE_COREDUMP → NOCOREDUMP
+   - COWF_IS_STACK → STACK
+   - COWF_IS_KSTACK → KSTACK
+
+5. **Coalescing optimization** (no object provided):
+   If prev_entry is compatible (same eflags, id, maptype, no backing_ba):
+   - Try `vm_object_coalesce()` to extend prev's object
+   - If object extended AND protections match: just extend prev_entry
+   - Otherwise: create new entry with ref to extended object
+
+6. Create new `vm_map_entry`:
+   - Sets ba.pmap, ba.start, ba.end, ba.offset
+   - Sets id, maptype, eflags, aux
+   - Inheritance = VM_INHERIT_DEFAULT
+   - wired_count = 0
+
+7. Call `vm_map_backing_replicated()` with MAP_BACK_BASEOBJREFD
+8. Link entry into map
+9. Update `map->size`
+
+10. **Prefaulting** (COWF_PREFAULT):
+    - Calls `pmap_object_init_pt()` to prepopulate page tables
+    - Skips UKSMAP entries
+    - Optional relock optimization for performance
+
+Returns KERN_SUCCESS or error.
+
+#### 4.17 Find Space (lines 1439-1500+)
+
+**`vm_map_findspace(map, start, length, align, flags, *addr)`** (line 1454):
+- Finds hole of `length` bytes starting at or after `start`
+- `align` should be power of 2 (handled specially if not)
+- `flags`: MAP_32BIT restricts to low 4GB
+
+**Algorithm:**
+1. Clamp start to map bounds
+2. Compute align_mask (special value -1 if not power of 2)
+3. Use freehint optimization (skip for MAP_32BIT)
+4. Lookup entry at start, advance to end if within entry
+5. Iterate entries looking for suitable gap...
+
+#### 4.18 Find Space (continued, lines 1500-1580)
+
+**`vm_map_findspace()`** Algorithm (continued):
+1. Align start address to requested alignment
+2. Compute end = start + length
+3. Check bounds (end <= max, handle MAP_32BIT for < 4GB)
+4. Find next entry, if none found → success
+5. Check if gap is sufficient (special handling for STACK entries)
+6. If gap insufficient, advance start to entry->ba.end, repeat
+
+**Stack Entry Handling:**
+- Stack entries reserve `avail_ssize` for growth
+- MAP_TRYFIXED allows intrusion into ungrown portion
+- Otherwise, gap must be >= `entry->ba.end - entry->aux.avail_ssize`
+
+**Freehint Update:**
+- On success, calls `vm_map_freehint_update(map, start, length, align)`
+
+**Kernel Map Growth:**
+- If `map == kernel_map` and `start + length > kernel_vm_end`:
+- Calls `pmap_growkernel(start, kstop)` to allocate page tables
+- Note: x86_64 kldload areas don't bump kernel_vm_end
+
+#### 4.19 vm_map_find (lines 1582-1673)
+
+**`vm_map_find(map, map_object, map_aux, offset, *addr, length, align, fitit, maptype, id, prot, max, cow)`**:
+
+High-level wrapper combining findspace + insert:
+1. Translate COWF_32BIT to MAP_32BIT flag
+2. Handle UKSMAP aux_info:
+   - minor 5 (/dev/upmap): aux_info = curproc
+   - minor 6 (/dev/kpmap): aux_info = NULL
+   - minor 7 (/dev/lpmap): aux_info = curthread->td_lwp
+3. Reserve entries, lock map
+4. If object: hold_shared
+5. If fitit: call `vm_map_findspace()`, fail if no space
+6. Call `vm_map_insert()` with found/given address
+7. Drop object, unlock map, release entries
+8. Return result
+
+#### 4.20 Entry Simplification (lines 1675-1755)
+
+**`vm_map_simplify_entry(map, entry, countp)`**:
+
+Merges entry with adjacent neighbors if compatible:
+- Skips IN_TRANSITION, SUBMAP, UKSMAP entries
+- Checks compatibility:
+  - Same maptype, object, backing_ba
+  - Contiguous addresses and offsets
+  - Same eflags, protection, max_protection, inheritance, id, wired_count
+
+**Merge with prev:**
+1. Unlink prev from RB tree
+2. Adjust entry start backward via `vm_map_backing_adjust_start()`
+3. Dispose prev entry
+
+**Merge with next:**
+1. Unlink next from RB tree
+2. Adjust entry end forward via `vm_map_backing_adjust_end()`
+3. Dispose next entry
+
+#### 4.21 Entry Clipping (lines 1757-1885)
+
+**`vm_map_clip_start(map, entry, startaddr, countp)`** (macro + \_vm_map_clip_start):
+- Splits entry at `startaddr`, creating new entry for front portion
+- Optimization: allocates object if entry has none and fits in partition
+- Steps:
+  1. Try simplify first
+  2. Allocate object if needed (partition optimization)
+  3. Create new entry, copy all fields
+  4. Set new_entry->ba.end = start
+  5. Replicate backing via `vm_map_backing_replicated(MAP_BACK_CLIPPED)`
+  6. Adjust original entry start
+  7. Link new entry
+
+**`vm_map_clip_end(map, entry, endaddr, countp)`** (macro + \_vm_map_clip_end):
+- Splits entry at `endaddr`, creating new entry for tail portion
+- Similar to clip_start but creates entry after
+- Adjusts new_entry->ba.start = end and offset accordingly
+
+**`VM_MAP_RANGE_CHECK(map, start, end)`** (macro):
+- Clamps start/end to map bounds
+
+#### 4.22 Transition Wait and Clip Checking (lines 1887-1923)
+
+**`vm_map_transition_wait(map, relock)`**:
+- Blocks when IN_TRANSITION collision occurs
+- Unlocks map, sleeps on map, relocks if requested
+
+**`CLIP_CHECK_BACK(entry, save_start)`** (macro):
+- Walks backward if entry was clipped during blocking operation
+- Used after operations that temporarily unlock map
+
+**`CLIP_CHECK_FWD(entry, save_end)`** (macro):
+- Walks forward if entry was clipped during blocking operation
+
+#### 4.23 Clip Range (lines 1926-2084)
+
+**`vm_map_clip_range(map, start, end, countp, flags)`**:
+
+Clips entries to exact range and marks IN_TRANSITION:
+1. Lookup entry at start, wait if IN_TRANSITION
+2. Clip start and end of first entry
+3. Set IN_TRANSITION on first entry
+4. Iterate through covered entries:
+   - Wait if next is IN_TRANSITION
+   - Clip end of each entry
+   - Set IN_TRANSITION
+5. If MAP_CLIP_NO_HOLES: fail if gaps detected
+6. Returns start_entry
+
+**`vm_map_unclip_range(map, start_entry, start, end, countp, flags)`**:
+
+Undoes clip_range effects:
+1. Clear IN_TRANSITION flags
+2. Wake up waiters (NEEDS_WAKEUP)
+3. Simplify entries to merge adjacent compatible entries
+
+#### 4.24 Submap (lines 2086-2130)
+
+**`vm_map_submap(map, start, end, submap)`**:
+- Marks range as handled by subordinate map
+- Clips to exact range
+- Entry must have no COW flag and no object
+- Sets `entry->ba.sub_map = submap`
+- Sets `entry->maptype = VM_MAPTYPE_SUBMAP`
+
+#### 4.25 Protection Change (lines 2132-2243)
+
+**`vm_map_protect(map, start, end, new_prot, set_max)`**:
+
+Changes protection on address range:
+
+**Pass 1 - Validation:**
+- Check no submaps in range
+- Check `new_prot` fits within `max_protection`
+- For SHARED+RW vnode mappings becoming writable: update `v_lastwrite_ts`
+
+**Pass 2 - Apply:**
+- Clip end of each entry
+- If set_max: set max_protection, mask current protection
+- Otherwise: set current protection
+- Call `pmap_protect()` if protection changed
+- COW entries mask out VM_PROT_WRITE from pmap
+
+#### 4.26 madvise Implementation (lines 2245-2468)
+
+**`vm_map_madvise(map, start, end, behav, value)`**:
+
+**Map-modifying behaviors** (exclusive lock, clips entries):
+| Behavior | Action |
+|----------|--------|
+| MADV_NORMAL | Set BEHAV_NORMAL |
+| MADV_SEQUENTIAL | Set BEHAV_SEQUENTIAL |
+| MADV_RANDOM | Set BEHAV_RANDOM |
+| MADV_NOSYNC | Set NOSYNC flag |
+| MADV_AUTOSYNC | Clear NOSYNC flag |
+| MADV_NOCORE | Set NOCOREDUMP flag |
+| MADV_CORE | Clear NOCOREDUMP flag |
+| MADV_SETMAP | Deprecated (EINVAL) |
+| MADV_INVAL | `pmap_remove()` for range |
+
+**Object-level behaviors** (read lock, no clipping):
+| Behavior | Action |
+|----------|--------|
+| MADV_INVAL | `vm_map_interlock()` + `pmap_remove()` |
+| MADV_WILLNEED | `vm_object_madvise()` + prefault via `pmap_object_init_pt()` |
+| MADV_DONTNEED | `vm_object_madvise()` |
+| MADV_FREE | `vm_object_madvise()` |
+
+#### 4.27 Inheritance Change (lines 2470-2519)
+
+**`vm_map_inherit(map, start, end, new_inheritance)`**:
+- Sets inheritance for fork behavior
+- Valid values: VM_INHERIT_NONE, VM_INHERIT_COPY, VM_INHERIT_SHARE
+- Clips and iterates entries, setting `entry->inheritance`
+
+#### 4.28 User Wiring (lines 2521-2691)
+
+**`vm_map_user_wiring(map, start, real_end, new_pageable)`**:
+
+Implements mlock/munlock semantics:
+
+**Wiring (new_pageable=0):**
+1. Clip range with MAP_CLIP_NO_HOLES
+2. For each entry:
+   - Skip if already USER_WIRED
+   - If wired_count > 0: just increment and set USER_WIRED
+   - Otherwise: shadow if COW+WRITE, allocate object if needed
+   - Increment wired_count, set USER_WIRED
+   - Call `vm_fault_wire(map, entry, TRUE, 0)`
+   - On failure: backout by clearing USER_WIRED and wired_count
+
+**Unwiring (new_pageable=1):**
+1. Verify all entries have USER_WIRED
+2. Clear USER_WIRED, decrement wired_count
+3. If wired_count becomes 0: call `vm_fault_unwire()`
+
+#### 4.29 Kernel Wiring (lines 2693-2901)
+
+**`vm_map_kernel_wiring(map, start, real_end, kmflags)`**:
+
+Similar to user wiring but for kernel:
+
+**KM_* flags:**
+- `KM_KRESERVE` - Use kreserve/krelease (for zalloc recursion avoidance)
+- `KM_PAGEABLE` - Unwire instead of wire
+
+**Wiring (Pass 1):**
+- Create shadow/zero-fill objects as needed
+- Increment wired_count
+
+**Wiring (Pass 2):**
+- Call `vm_fault_wire()` for newly wired entries (wired_count == 1)
+- On failure: backout and fall through to unwiring
+
+**Unwiring:**
+- Verify entries are wired
+- Decrement wired_count
+- Call `vm_fault_unwire()` when count reaches 0
+
+#### 4.30 Quick Wiring (lines 2903-2927)
+
+**`vm_map_set_wired_quick(map, addr, size, countp)`**:
+- Marks range as wired without faulting pages
+- Used when caller will load pages directly
+- Sets wired_count = 1 on clipped entries
+
+#### 4.31 Map Cleaning (lines 2929-3000+)
+
+**`vm_map_clean(map, start, end, syncio, invalidate)`**:
+
+Implements msync():
+1. Read-lock map, verify range exists
+2. Check for holes (fail if any)
+3. If invalidate: `pmap_remove()` for entire range
+4. For each entry:
+   - Handle SUBMAP recursively
+   - For NORMAL: clean object pages via `vm_object_page_clean()`
+   - Handles backing_ba chain for stacked objects
+
+*(continues in next chunk)*
+
+#### 4.32 Map Cleaning (continued, lines 3000-3126)
+
+**`vm_map_clean()`** (continued):
+- For SUBMAP: Recursively looks up entry in submap
+- For NORMAL entries with vnode object:
+  - Follows backing_ba chain to find vnode object
+  - Locks vnode, cleans pages via `vm_object_page_clean()`
+  - If invalidate: removes pages via `vm_object_page_remove()`
+
+#### 4.33 Entry Unwire and Delete (lines 3128-3152)
+
+**`vm_map_entry_unwire(map, entry)`** (line 3133):
+- Clears USER_WIRED flag, sets wired_count = 0
+- Calls `vm_fault_unwire()` to undo wiring
+
+**`vm_map_entry_delete(map, entry, countp)`** (line 3146):
+- Unlinks entry from RB tree
+- Decrements map->size
+- Disposes entry via `vm_map_entry_dispose()`
+
+#### 4.34 Map Delete (lines 3154-3332)
+
+**`vm_map_delete(map, start, end, countp)`**:
+
+Core deletion routine:
+1. Lookup start address, clip if necessary
+2. Track `hole_start` for freehint update
+3. For each entry in range:
+   - Wait if IN_TRANSITION
+   - Clip end
+   - Unwire if wired
+   - Handle pmap removal + object page removal:
+     - kernel_object: `pmap_remove()` + `vm_object_page_remove()`
+     - vnode/device: `pmap_remove()` only (shared hold)
+     - DEFAULT/SWAP with ONEMAPPING: remove pages + free swap + shrink object
+     - UKSMAP: `pmap_remove()` only
+   - Delete entry
+4. Update freehint with new hole
+
+**`vm_map_remove(map, start, end)`** (line 3340):
+- Public wrapper for vm_map_delete()
+- Handles locking and entry reservation
+
+#### 4.35 Protection Check (lines 3356-3410)
+
+**`vm_map_check_protection(map, start, end, protection, have_lock)`**:
+- Verifies entire range has requested protection
+- Checks for holes (not allowed)
+- Returns TRUE if protection sufficient, FALSE otherwise
+
+#### 4.36 Backing Replication (lines 3412-3518)
+
+**`vm_map_backing_replicated(map, entry, flags)`** (line 3428):
+
+Replicates vm_map_backing chain (not shared across forks):
+- Walks backing_ba chain
+- For each ba:
+  - Sets `ba->pmap = map->pmap`
+  - References object (unless base object already referenced)
+  - Attaches to object's backing_list
+  - If not clipped and ref_count > 1: clears OBJ_ONEMAPPING
+- Allocates new ba structures for chain elements (not embedded ba)
+- Adjusts offset, start, end for new addresses
+
+**`vm_map_backing_adjust_start(entry, start)`** (line 3480):
+- Adjusts start and offset for all ba's in chain
+- Locks object's backing_lk during adjustment
+
+**`vm_map_backing_adjust_end(entry, end)`** (line 3503):
+- Adjusts end for all ba's in chain
+- Locks object's backing_lk during adjustment
+
+#### 4.37 Copy Entry for COW (lines 3520-3610)
+
+**`vm_map_copy_entry(src_map, dst_map, src_entry, dst_entry)`**:
+
+Handles COW setup for fork:
+
+**Wired case:**
+- Cannot do COW on wired pages
+- Detaches dst_entry from its object
+- Calls `vm_fault_copy_entry()` to copy pages physically
+
+**Non-wired case:**
+- If source not NEEDS_COPY: write-protect PTEs via `pmap_protect()`
+- Set COW | NEEDS_COPY on both entries
+- If no object: set dst offset to 0
+- Copy PTEs via `pmap_copy()`
+
+#### 4.38 vmspace_fork (lines 3612-3889)
+
+**`vmspace_fork(vm1, p2, lp2)`** (line 3626):
+
+Creates child vmspace from parent:
+1. Lock old map
+2. Allocate new vmspace via `vmspace_alloc()`
+3. Copy vm_startcopy to vm_endcopy region (sizes, addresses)
+4. Lock new map
+5. Reserve entries (old_map->nentries + reserve)
+6. Iterate old entries:
+   - SUBMAP: panic (not allowed)
+   - UKSMAP: call `vmspace_fork_uksmap_entry()`
+   - NORMAL: call `vmspace_fork_normal_entry()`
+7. Copy map size
+8. Unlock both maps
+
+**`vmspace_fork_normal_entry()`** (line 3688):
+
+**Shadow chain optimization:**
+- If backing_count >= vm_map_backing_limit OR object fully shadowed:
+- Collapse via `vm_fault_collapse()` to reduce chain depth
+- Dispose old backing_ba chain
+
+**Fork by inheritance:**
+| Inheritance | Action |
+|-------------|--------|
+| VM_INHERIT_NONE | Skip entry |
+| VM_INHERIT_SHARE | Clone entry, share backing (ensures object allocated, does shadow if NEEDS_COPY) |
+| VM_INHERIT_COPY | Clone entry, set up COW via `vm_map_copy_entry()` |
+
+**`vmspace_fork_uksmap_entry()`** (line 3823):
+- Special handling for user-kernel shared maps
+- lpmap entries: only fork if TID matches lp2
+- Updates aux_info to point to new proc/lwp
+
+#### 4.39 Stack Management (lines 3891-4209)
+
+**`vm_map_stack(map, addrbos, max_ssize, flags, prot, max, cow)`** (line 3896):
+
+Creates auto-grow stack entry:
+1. Initial size = min(max_ssize, sgrowsiz)
+2. Find space for max_ssize
+3. Verify no overlap with existing entries
+4. Insert mapping at top of range (grows down)
+5. Set `entry->aux.avail_ssize = max_ssize - init_ssize`
+
+**`vm_map_growstack(map, addr)`** (line 4020):
+
+Grows stack on fault:
+1. Only allowed on current process
+2. Find stack entry (has avail_ssize > 0)
+3. Calculate grow_amount (rounded up)
+4. Check against:
+   - Available space (avail_ssize)
+   - Previous entry gap
+   - RLIMIT_STACK
+   - RLIMIT_VMEM
+5. Insert new mapping below stack_entry
+6. Update avail_ssize and vm_ssize
+7. If MAP_WIREFUTURE: wire new region
+
+#### 4.40 vmspace_exec and vmspace_unshare (lines 4211-4275)
+
+**`vmspace_exec(p, vmcopy)`** (line 4217):
+- Unshares vmspace for exec
+- If vmcopy provided: forks it (resident exec optimization)
+- Otherwise: creates fresh vmspace
+- Replaces process vmspace via `pmap_replacevm()`
+
+**`vmspace_unshare(p)`** (line 4257):
+- Unshares vmspace for rfork(RFMEM|RFPROC)==0
+- Only forks if refcnt > 1 (actually shared)
+- Forces COW
+
+#### 4.41 Map Hint (lines 4277-4330)
+
+**`vm_map_hint(p, addr, prot, flags)`** (line 4283):
+
+Returns starting hint for mmap:
+- If randomize_mmap=0 or addr specified:
+  - Use addr if reasonable
+  - Otherwise use `vm_daddr + dsiz`
+- If randomize_mmap=1 and addr=0:
+  - Randomize within dsiz range beyond data limit
+  - Uses karc4random64() for ASLR
+
+#### 4.42 vm_map_lookup (lines 4332-4588)
+
+**`vm_map_lookup(var_map, vaddr, fault_type, out_entry, bap, pindex, pcount, out_prot, wflags)`**:
+
+Core fault lookup function:
+1. Reserve entries (with recursion protection via td_nest_count)
+2. Lock map (read or write depending on needs)
+3. Lookup entry for vaddr
+4. Handle submaps: switch to submap and retry
+5. Check protection:
+   - OVERRIDE_WRITE uses max_protection
+   - Normal uses current protection
+6. Special USER_WIRED + COW + WRITE check
+7. Set FW_WIRED flag if wired
+8. Handle NEEDS_COPY:
+   - Write fault: upgrade lock, call `vm_map_entry_shadow()`, set FW_DIDCOW
+   - Read fault: mask out VM_PROT_WRITE
+9. Allocate object if needed:
+   - Partition large entries (> 32MB) for concurrency
+   - Call `vm_map_entry_allocate_object()`
+10. Return ba, pindex, pcount, prot
+
+**`vm_map_lookup_done(map, entry, count)`** (line 4596):
+- Releases read lock and entry reservation
+
+**`vm_map_entry_partition(map, entry, vaddr, countp)`** (line 4607):
+- Clips entry to 32MB partition containing vaddr
+
+#### 4.43 Range Interlocks (lines 4617-4664)
+
+**`vm_map_interlock(map, ilock, ran_beg, ran_end)`** (line 4620):
+- Acquires interlock on address range
+- Waits if overlapping interlock exists
+- Used for MADV_INVAL coordination with vm_fault
+
+**`vm_map_deinterlock(map, ilock)`** (line 4644):
+- Releases interlock
+- Wakes waiters if any
+
+#### 4.44 DDB Commands (lines 4666-4781)
+
+**`DB_SHOW_COMMAND(map, vm_map_print)`**:
+- Prints map info: pmap, nentries, timestamp
+- Lists all entries with protection, inheritance, wired status
+- For submaps: recursively prints
+- For normal: shows object, offset, COW status
+
+**`DB_SHOW_COMMAND(procvm, procvm)`**:
+- Prints process vmspace info
+- Calls vm_map_print for full map dump
+
+---
+
+#### Key DragonFly-Specific Features (lines 0-4782)
+
+1. **vm_map_backing chains** - Shadow objects via linked ba structures, not object chains
+2. **Per-CPU entry cache** - Avoids zone allocation in hot paths
+3. **Freehint optimization** - O(1) findspace for repeated similar allocations
+4. **Two-stage vmspace termination** - refs→0 does bulk cleanup, holds→0 does final
+5. **Entry partitioning** - 32MB partitions for concurrent anonymous faults
+6. **Coalescing on insert** - Extends prev entry when possible
+7. **UKSMAP callbacks** - Device-managed user-kernel shared memory
 
 ---
 
