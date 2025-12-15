@@ -161,14 +161,14 @@ Next phase
 |-------|------|-------|-------------|--------|
 | 1 (Headers) | ✅ | ✅ | ✅ | `3108069` |
 | 2 (vm_page.c) | ✅ | ✅ | ✅ | `cbd8cf1` |
-| 3 (vm_object.c) | ✅ | ✅ | Pending | - |
+| 3 (vm_object.c) | ✅ | ✅ | ✅ | `8f1191d` |
 | 4 (vm_map.c) | Pending | Pending | Pending | - |
 | 5 (vm_fault.c) | Pending | Pending | Pending | - |
 | 6 (pageout/swap) | Pending | Pending | Pending | - |
 | 7 (pagers/mmap) | Pending | Pending | Pending | - |
 
 ### Next Action
-**Phase 3 → Write `docs/sys/vm/vm_object.md`** from accumulated notes, then commit.
+**Phase 4 → Read `vm_map.c` in chunks**, take notes, then write `docs/sys/vm/vm_map.md`.
 
 ---
 
