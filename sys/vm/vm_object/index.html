@@ -1,0 +1,2641 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Comprehensive documentation for the DragonFly BSD kernel source code">
+      
+      
+        <meta name="author" content="DragonFly BSD Community">
+      
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.0">
+    
+    
+      
+        <title>VM Objects - DragonFly BSD Kernel Documentation</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.618322db.min.css">
+      
+        
+        <link rel="stylesheet" href="../../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#vm-objects" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../../.." title="DragonFly BSD Kernel Documentation" class="md-header__button md-logo" aria-label="DragonFly BSD Kernel Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            DragonFly BSD Kernel Documentation
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              VM Objects
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/tuxillo/dragonflybsd-source-docs" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    tuxillo/dragonflybsd-source-docs
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../.." class="md-tabs__link">
+        
+  
+  
+    
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../getting-started/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Getting Started
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../" class="md-tabs__link">
+          
+  
+  
+  Kernel Subsystems
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../.." title="DragonFly BSD Kernel Documentation" class="md-nav__button md-logo" aria-label="DragonFly BSD Kernel Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    DragonFly BSD Kernel Documentation
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/tuxillo/dragonflybsd-source-docs" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    tuxillo/dragonflybsd-source-docs
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../getting-started/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Getting Started
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Kernel Subsystems
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Kernel Subsystems
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_3_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_3_2" id="__nav_3_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    kern/
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    kern/
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../kern/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../kern/lwkt/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    LWKT Threading
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../kern/synchronization/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Synchronization
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../kern/time/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Time & Timers
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../kern/memory/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Memory Management
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../kern/initialization/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Initialization & Bootstrap
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../kern/processes/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Processes & Threads
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../kern/resources/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Process Resources & Credentials
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../kern/signals/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Signals
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../kern/scheduling/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Scheduling
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_3_2_11" >
+        
+          
+          <label class="md-nav__link" for="__nav_3_2_11" id="__nav_3_2_11_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Virtual Filesystem
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_3_2_11_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_2_11">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Virtual Filesystem
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../kern/vfs/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../kern/vfs/namecache/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Name Lookup & Caching
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../kern/vfs/mounting/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Mounting & Unmounting
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../kern/vfs/buffer-cache/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Buffer Cache & I/O
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../kern/vfs/vfs-operations/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    VFS Operations Framework
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../kern/vfs/journaling/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Journaling System
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../kern/vfs/vfs-locking/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Vnode Locking & Lifecycle
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../kern/vfs/vfs-extensions/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    VFS Extensions & Helpers
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_3_2_12" >
+        
+          
+          <label class="md-nav__link" for="__nav_3_2_12" id="__nav_3_2_12_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    IPC & Sockets
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_3_2_12_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_2_12">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    IPC & Sockets
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../kern/ipc/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../kern/ipc/mbufs/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Mbufs
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../kern/ipc/sockets/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Sockets
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../kern/ipc/unix-sockets/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Unix Domain Sockets
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../kern/ipc/protocol-dispatch/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Protocol Dispatch
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../kern/ipc/pipes/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Pipes
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../kern/ipc/mqueue/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    POSIX Message Queues
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../kern/ipc/sysv-msg/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    System V Message Queues
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../kern/ipc/sysv-sem/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    System V Semaphores
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../kern/ipc/sysv-shm/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    System V Shared Memory
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../kern/devices/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Devices & Drivers
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../kern/newbus/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    NewBus Framework
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../kern/bus-resources/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Bus Resources & DMA
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../kern/disk/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Disk Subsystem
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../kern/firmware/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Firmware Loading
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../kern/syscalls/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    System Calls
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_3_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3_3" id="__nav_3_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    vm/
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    vm/
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_3_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_3_4" id="__nav_3_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    cpu/x86_64/
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    cpu/x86_64/
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../cpu/x86_64/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#overview" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Overview
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#object-types" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Object Types
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Object Types">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#type-characteristics" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Type Characteristics
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#data-structures" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Data Structures
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Data Structures">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#struct-vm_object" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        struct vm_object
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#object-flags" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Object Flags
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#global-hash-table" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Global Hash Table
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#locking-model" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Locking Model
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Locking Model">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#hold-count-vs-reference-count" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Hold Count vs Reference Count
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#object-lifecycle" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Object Lifecycle
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Object Lifecycle">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#allocation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Allocation
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#reference-counting" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Reference Counting
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#termination" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Termination
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#page-management" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Page Management
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Page Management">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#page-cleaning" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Page Cleaning
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#page-removal" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Page Removal
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#madvise-support" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        madvise Support
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#object-coalescing" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Object Coalescing
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#vnode-object-handling" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Vnode Object Handling
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#dirty-flag-management" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Dirty Flag Management
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#dragonfly-specific-features" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        DragonFly-Specific Features
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="DragonFly-Specific Features">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#lwkt-token-locking" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        LWKT Token Locking
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#backing_list" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        backing_list
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#page-coloring" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Page Coloring
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#debugging" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Debugging
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#see-also" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        See Also
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="vm-objects">VM Objects<a class="headerlink" href="#vm-objects" title="Permanent link">&para;</a></h1>
+<p>VM objects are the fundamental abstraction for managing virtual memory contents in DragonFly BSD. Each object represents a contiguous range of virtual memory that can be backed by files, swap space, devices, or anonymous memory.</p>
+<p><strong>Source file:</strong> <code>sys/vm/vm_object.c</code> (~2,034 lines)</p>
+<h2 id="overview">Overview<a class="headerlink" href="#overview" title="Permanent link">&para;</a></h2>
+<p>A VM object maintains:</p>
+<ul>
+<li>A red-black tree of resident physical pages (<code>rb_memq</code>)</li>
+<li>Reference count for lifetime management</li>
+<li>Type-specific backing store (file, swap, device)</li>
+<li>A list of <code>vm_map_backing</code> structures that reference this object</li>
+</ul>
+<p>Objects are the bridge between address space mappings (<code>vm_map_entry</code>) and physical pages (<code>vm_page</code>). A single page exists within exactly one object at any given time.</p>
+<h2 id="object-types">Object Types<a class="headerlink" href="#object-types" title="Permanent link">&para;</a></h2>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="k">enum</span><span class="w"> </span><span class="n">obj_type</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="w">    </span><span class="n">OBJT_DEFAULT</span><span class="p">,</span><span class="w">    </span><span class="cm">/* Anonymous memory, initially no backing */</span>
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="w">    </span><span class="n">OBJT_SWAP</span><span class="p">,</span><span class="w">       </span><span class="cm">/* Backed by swap blocks */</span>
+<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="w">    </span><span class="n">OBJT_VNODE</span><span class="p">,</span><span class="w">      </span><span class="cm">/* Backed by file (vnode) */</span>
+<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a><span class="w">    </span><span class="n">OBJT_DEVICE</span><span class="p">,</span><span class="w">     </span><span class="cm">/* Device-backed pages */</span>
+<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a><span class="w">    </span><span class="n">OBJT_MGTDEVICE</span><span class="p">,</span><span class="w">  </span><span class="cm">/* Managed device pager */</span>
+<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a><span class="w">    </span><span class="n">OBJT_PHYS</span><span class="p">,</span><span class="w">       </span><span class="cm">/* Physical pages (no paging) */</span>
+<a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a><span class="w">    </span><span class="n">OBJT_DEAD</span><span class="p">,</span><span class="w">       </span><span class="cm">/* Being destroyed */</span>
+<a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a><span class="w">    </span><span class="n">OBJT_MARKER</span><span class="p">,</span><span class="w">     </span><span class="cm">/* List iteration marker */</span>
+<a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a><span class="p">};</span>
+</code></pre></div>
+<h3 id="type-characteristics">Type Characteristics<a class="headerlink" href="#type-characteristics" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Type</th>
+<th>Backing Store</th>
+<th>Pages in rb_memq</th>
+<th>Swappable</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>OBJT_DEFAULT</td>
+<td>None initially</td>
+<td>Yes</td>
+<td>Converts to SWAP</td>
+</tr>
+<tr>
+<td>OBJT_SWAP</td>
+<td>Swap blocks</td>
+<td>Yes</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td>OBJT_VNODE</td>
+<td>File</td>
+<td>Yes</td>
+<td>Via file I/O</td>
+</tr>
+<tr>
+<td>OBJT_DEVICE</td>
+<td>Device memory</td>
+<td>No (typically)</td>
+<td>No</td>
+</tr>
+<tr>
+<td>OBJT_MGTDEVICE</td>
+<td>Managed device</td>
+<td>Via backing_list</td>
+<td>No</td>
+</tr>
+</tbody>
+</table>
+<h2 id="data-structures">Data Structures<a class="headerlink" href="#data-structures" title="Permanent link">&para;</a></h2>
+<h3 id="struct-vm_object">struct vm_object<a class="headerlink" href="#struct-vm_object" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="k">struct</span><span class="w"> </span><span class="nc">vm_object</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="w">    </span><span class="k">struct</span><span class="w"> </span><span class="nc">lwkt_token</span><span class="w"> </span><span class="n">token</span><span class="p">;</span><span class="w">           </span><span class="cm">/* Soft-lock for object */</span>
+<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="w">    </span><span class="k">struct</span><span class="w"> </span><span class="nc">lock</span><span class="w"> </span><span class="n">backing_lk</span><span class="p">;</span><span class="w">            </span><span class="cm">/* Lock for backing_list only */</span>
+<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a><span class="w">    </span><span class="k">struct</span><span class="w"> </span><span class="nc">vm_page_rb_tree</span><span class="w"> </span><span class="n">rb_memq</span><span class="p">;</span><span class="w">    </span><span class="cm">/* Resident pages (RB tree) */</span>
+<a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a><span class="w">    </span><span class="n">TAILQ_HEAD</span><span class="p">(,</span><span class="n">vm_map_backing</span><span class="p">)</span><span class="w"> </span><span class="n">backing_list</span><span class="p">;</span><span class="w">  </span><span class="cm">/* Who references us */</span>
+<a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a>
+<a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a><span class="w">    </span><span class="n">vm_pindex_t</span><span class="w"> </span><span class="n">size</span><span class="p">;</span><span class="w">                  </span><span class="cm">/* Size in pages */</span>
+<a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a><span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="n">ref_count</span><span class="p">;</span><span class="w">                     </span><span class="cm">/* Reference count */</span>
+<a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a><span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="n">hold_count</span><span class="p">;</span><span class="w">                    </span><span class="cm">/* Destruction prevention */</span>
+<a id="__codelineno-1-10" name="__codelineno-1-10" href="#__codelineno-1-10"></a><span class="w">    </span><span class="n">u_int</span><span class="w"> </span><span class="n">paging_in_progress</span><span class="p">;</span><span class="w">          </span><span class="cm">/* Active I/O operations */</span>
+<a id="__codelineno-1-11" name="__codelineno-1-11" href="#__codelineno-1-11"></a>
+<a id="__codelineno-1-12" name="__codelineno-1-12" href="#__codelineno-1-12"></a><span class="w">    </span><span class="n">objtype_t</span><span class="w"> </span><span class="n">type</span><span class="p">;</span><span class="w">                    </span><span class="cm">/* OBJT_* type */</span>
+<a id="__codelineno-1-13" name="__codelineno-1-13" href="#__codelineno-1-13"></a><span class="w">    </span><span class="n">u_short</span><span class="w"> </span><span class="n">flags</span><span class="p">;</span><span class="w">                     </span><span class="cm">/* OBJ_* flags */</span>
+<a id="__codelineno-1-14" name="__codelineno-1-14" href="#__codelineno-1-14"></a><span class="w">    </span><span class="n">vm_memattr_t</span><span class="w"> </span><span class="n">memattr</span><span class="p">;</span><span class="w">              </span><span class="cm">/* Memory attributes (PAT) */</span>
+<a id="__codelineno-1-15" name="__codelineno-1-15" href="#__codelineno-1-15"></a><span class="w">    </span><span class="n">u_short</span><span class="w"> </span><span class="n">pg_color</span><span class="p">;</span><span class="w">                  </span><span class="cm">/* Base page color */</span>
+<a id="__codelineno-1-16" name="__codelineno-1-16" href="#__codelineno-1-16"></a>
+<a id="__codelineno-1-17" name="__codelineno-1-17" href="#__codelineno-1-17"></a><span class="w">    </span><span class="kt">void</span><span class="w"> </span><span class="o">*</span><span class="n">handle</span><span class="p">;</span><span class="w">                      </span><span class="cm">/* Type-specific (vnode, dev) */</span>
+<a id="__codelineno-1-18" name="__codelineno-1-18" href="#__codelineno-1-18"></a><span class="w">    </span><span class="kt">long</span><span class="w"> </span><span class="n">resident_page_count</span><span class="p">;</span><span class="w">          </span><span class="cm">/* Cached page count */</span>
+<a id="__codelineno-1-19" name="__codelineno-1-19" href="#__codelineno-1-19"></a><span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="n">generation</span><span class="p">;</span><span class="w">                    </span><span class="cm">/* Modification counter */</span>
+<a id="__codelineno-1-20" name="__codelineno-1-20" href="#__codelineno-1-20"></a>
+<a id="__codelineno-1-21" name="__codelineno-1-21" href="#__codelineno-1-21"></a><span class="w">    </span><span class="cm">/* Swap support */</span>
+<a id="__codelineno-1-22" name="__codelineno-1-22" href="#__codelineno-1-22"></a><span class="w">    </span><span class="k">struct</span><span class="w"> </span><span class="nc">swblock_rb_tree</span><span class="w"> </span><span class="n">swblock_root</span><span class="p">;</span>
+<a id="__codelineno-1-23" name="__codelineno-1-23" href="#__codelineno-1-23"></a><span class="w">    </span><span class="kt">long</span><span class="w"> </span><span class="n">swblock_count</span><span class="p">;</span>
+<a id="__codelineno-1-24" name="__codelineno-1-24" href="#__codelineno-1-24"></a><span class="p">};</span>
+</code></pre></div>
+<h3 id="object-flags">Object Flags<a class="headerlink" href="#object-flags" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Flag</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>OBJ_ACTIVE</code></td>
+<td>Object is active</td>
+</tr>
+<tr>
+<td><code>OBJ_DEAD</code></td>
+<td>Being destroyed</td>
+</tr>
+<tr>
+<td><code>OBJ_NOSPLIT</code></td>
+<td>Don't split this object</td>
+</tr>
+<tr>
+<td><code>OBJ_ONEMAPPING</code></td>
+<td>Each page maps to at most one vm_map_entry</td>
+</tr>
+<tr>
+<td><code>OBJ_WRITEABLE</code></td>
+<td>Has been made writeable</td>
+</tr>
+<tr>
+<td><code>OBJ_MIGHTBEDIRTY</code></td>
+<td>May have dirty pages</td>
+</tr>
+<tr>
+<td><code>OBJ_CLEANING</code></td>
+<td>Page cleaning in progress</td>
+</tr>
+<tr>
+<td><code>OBJ_DEADWNT</code></td>
+<td>Waiter for object death</td>
+</tr>
+</tbody>
+</table>
+<h3 id="global-hash-table">Global Hash Table<a class="headerlink" href="#global-hash-table" title="Permanent link">&para;</a></h3>
+<p>Objects are tracked in a 256-bucket hash table for global enumeration:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="k">struct</span><span class="w"> </span><span class="nc">vm_object_hash</span><span class="w"> </span><span class="n">vm_object_hash</span><span class="p">[</span><span class="n">VMOBJ_HSIZE</span><span class="p">];</span><span class="w">  </span><span class="cm">/* VMOBJ_HSIZE = 256 */</span>
+</code></pre></div>
+<p>Each bucket contains a TAILQ list protected by an LWKT token. The hash function uses two large primes for distribution.</p>
+<h2 id="locking-model">Locking Model<a class="headerlink" href="#locking-model" title="Permanent link">&para;</a></h2>
+<p>DragonFly uses LWKT tokens (soft-locks) for VM objects, allowing blocking while held:</p>
+<table>
+<thead>
+<tr>
+<th>Function</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>vm_object_hold(obj)</code></td>
+<td>Acquire hold + exclusive token</td>
+</tr>
+<tr>
+<td><code>vm_object_hold_shared(obj)</code></td>
+<td>Acquire hold + shared token</td>
+</tr>
+<tr>
+<td><code>vm_object_hold_try(obj)</code></td>
+<td>Non-blocking hold attempt</td>
+</tr>
+<tr>
+<td><code>vm_object_drop(obj)</code></td>
+<td>Release hold + token</td>
+</tr>
+</tbody>
+</table>
+<h3 id="hold-count-vs-reference-count">Hold Count vs Reference Count<a class="headerlink" href="#hold-count-vs-reference-count" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>ref_count</strong>: Logical references (from mappings, etc.)</li>
+<li><strong>hold_count</strong>: Prevents object from being freed while working with it</li>
+</ul>
+<p>The hold/drop pattern is critical:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="cm">/* Must increment hold_count BEFORE blocking on token */</span>
+<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="n">refcount_acquire</span><span class="p">(</span><span class="o">&amp;</span><span class="n">obj</span><span class="o">-&gt;</span><span class="n">hold_count</span><span class="p">);</span><span class="w">  </span><span class="cm">/* Makes object stable */</span>
+<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a><span class="n">vm_object_lock</span><span class="p">(</span><span class="n">obj</span><span class="p">);</span><span class="w">                 </span><span class="cm">/* May block */</span>
+<a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a><span class="cm">/* ... work with object ... */</span>
+<a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a><span class="n">vm_object_unlock</span><span class="p">(</span><span class="n">obj</span><span class="p">);</span>
+<a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">refcount_release</span><span class="p">(</span><span class="o">&amp;</span><span class="n">obj</span><span class="o">-&gt;</span><span class="n">hold_count</span><span class="p">))</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a><span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">obj</span><span class="o">-&gt;</span><span class="n">ref_count</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="p">(</span><span class="n">obj</span><span class="o">-&gt;</span><span class="n">flags</span><span class="w"> </span><span class="o">&amp;</span><span class="w"> </span><span class="n">OBJ_DEAD</span><span class="p">))</span>
+<a id="__codelineno-3-8" name="__codelineno-3-8" href="#__codelineno-3-8"></a><span class="w">        </span><span class="n">kfree_obj</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span><span class="w"> </span><span class="n">M_VM_OBJECT</span><span class="p">);</span><span class="w">  </span><span class="cm">/* Final free */</span>
+<a id="__codelineno-3-9" name="__codelineno-3-9" href="#__codelineno-3-9"></a><span class="p">}</span>
+</code></pre></div>
+<h2 id="object-lifecycle">Object Lifecycle<a class="headerlink" href="#object-lifecycle" title="Permanent link">&para;</a></h2>
+<h3 id="allocation">Allocation<a class="headerlink" href="#allocation" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="cm">/* Returns unheld object */</span>
+<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a><span class="n">vm_object_t</span><span class="w"> </span><span class="nf">vm_object_allocate</span><span class="p">(</span><span class="n">objtype_t</span><span class="w"> </span><span class="n">type</span><span class="p">,</span><span class="w"> </span><span class="n">vm_pindex_t</span><span class="w"> </span><span class="n">size</span><span class="p">);</span>
+<a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a>
+<a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a><span class="cm">/* Returns held object for atomic initialization */</span>
+<a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a><span class="n">vm_object_t</span><span class="w"> </span><span class="nf">vm_object_allocate_hold</span><span class="p">(</span><span class="n">objtype_t</span><span class="w"> </span><span class="n">type</span><span class="p">,</span><span class="w"> </span><span class="n">vm_pindex_t</span><span class="w"> </span><span class="n">size</span><span class="p">);</span>
+</code></pre></div>
+<p>Initialization (<code>_vm_object_allocate()</code>) performs:</p>
+<ol>
+<li>Initialize page RB tree and token</li>
+<li>Initialize <code>backing_list</code> and <code>backing_lk</code></li>
+<li>Set type, size, ref_count=1</li>
+<li>For DEFAULT/SWAP: set <code>OBJ_ONEMAPPING</code></li>
+<li>Assign random page color via <code>vm_quickcolor()</code></li>
+<li>Initialize swap block tree</li>
+<li>Insert into global hash table</li>
+</ol>
+<h3 id="reference-counting">Reference Counting<a class="headerlink" href="#reference-counting" title="Permanent link">&para;</a></h3>
+<p><strong>Adding references:</strong></p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="cm">/* Must hold object token */</span>
+<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a><span class="kt">void</span><span class="w"> </span><span class="nf">vm_object_reference_locked</span><span class="p">(</span><span class="n">vm_object_t</span><span class="w"> </span><span class="n">object</span><span class="p">);</span>
+<a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a>
+<a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a><span class="cm">/* Safe without token when object is deterministically referenced */</span>
+<a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a><span class="kt">void</span><span class="w"> </span><span class="nf">vm_object_reference_quick</span><span class="p">(</span><span class="n">vm_object_t</span><span class="w"> </span><span class="n">object</span><span class="p">);</span>
+</code></pre></div>
+<p>For <code>OBJT_VNODE</code> objects, these also call <code>vref()</code> on the vnode.</p>
+<p><strong>Releasing references:</strong></p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="kt">void</span><span class="w"> </span><span class="nf">vm_object_deallocate</span><span class="p">(</span><span class="n">vm_object_t</span><span class="w"> </span><span class="n">object</span><span class="p">);</span>
+</code></pre></div>
+<p>The deallocation path optimizes for the common case:</p>
+<ul>
+<li><strong>Fast path</strong> (ref_count &gt; 3): Atomic decrement without locking</li>
+<li><strong>Slow path</strong> (ref_count &lt;= 3): Hold object, handle termination</li>
+</ul>
+<p>This avoids exclusive lock contention on highly-shared binaries during exec/exit.</p>
+<h3 id="termination">Termination<a class="headerlink" href="#termination" title="Permanent link">&para;</a></h3>
+<p>When ref_count reaches zero, <code>vm_object_terminate()</code> is called:</p>
+<ol>
+<li>Set <code>OBJ_DEAD</code> flag</li>
+<li>Wait for <code>paging_in_progress</code> to reach 0</li>
+<li>For <code>OBJT_VNODE</code>:</li>
+<li><code>vinvalbuf()</code> - flush buffers</li>
+<li><code>vm_object_page_clean()</code> - write dirty pages</li>
+<li><code>vinvalbuf()</code> again (TMPFS special case)</li>
+<li>Free all resident pages via callback</li>
+<li><code>vm_pager_deallocate()</code> - notify pager</li>
+<li>Remove from hash table</li>
+<li>Object freed when hold_count reaches 0</li>
+</ol>
+<h2 id="page-management">Page Management<a class="headerlink" href="#page-management" title="Permanent link">&para;</a></h2>
+<h3 id="page-cleaning">Page Cleaning<a class="headerlink" href="#page-cleaning" title="Permanent link">&para;</a></h3>
+<p><code>vm_object_page_clean()</code> writes dirty pages to backing store:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="kt">void</span><span class="w"> </span><span class="nf">vm_object_page_clean</span><span class="p">(</span><span class="n">vm_object_t</span><span class="w"> </span><span class="n">object</span><span class="p">,</span><span class="w"> </span>
+<a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a><span class="w">                          </span><span class="n">vm_pindex_t</span><span class="w"> </span><span class="n">start</span><span class="p">,</span><span class="w"> </span>
+<a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a><span class="w">                          </span><span class="n">vm_pindex_t</span><span class="w"> </span><span class="n">end</span><span class="p">,</span>
+<a id="__codelineno-7-4" name="__codelineno-7-4" href="#__codelineno-7-4"></a><span class="w">                          </span><span class="kt">int</span><span class="w"> </span><span class="n">flags</span><span class="p">);</span>
+</code></pre></div>
+<p><strong>Flags:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Flag</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>OBJPC_SYNC</code></td>
+<td>Synchronous I/O</td>
+</tr>
+<tr>
+<td><code>OBJPC_INVAL</code></td>
+<td>Invalidate after cleaning</td>
+</tr>
+<tr>
+<td><code>OBJPC_NOSYNC</code></td>
+<td>Skip PG_NOSYNC pages</td>
+</tr>
+<tr>
+<td><code>OBJPC_CLUSTER_OK</code></td>
+<td>Allow I/O clustering</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Two-pass algorithm:</strong></p>
+<ol>
+<li><strong>Pass 1</strong>: Mark all pages read-only (<code>vm_page_protect(VM_PROT_READ)</code>)</li>
+<li>Sets <code>PG_CLEANCHK</code> flag on each page</li>
+<li>
+<p>If entire object cleaned: clears <code>OBJ_WRITEABLE|OBJ_MIGHTBEDIRTY</code></p>
+</li>
+<li>
+<p><strong>Pass 2</strong>: Write dirty pages</p>
+</li>
+<li>Skips pages without <code>PG_CLEANCHK</code> (inserted after pass 1)</li>
+<li>Clusters adjacent dirty pages for efficient I/O</li>
+<li>Repeats if object's generation changes</li>
+</ol>
+<h3 id="page-removal">Page Removal<a class="headerlink" href="#page-removal" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a><span class="kt">void</span><span class="w"> </span><span class="nf">vm_object_page_remove</span><span class="p">(</span><span class="n">vm_object_t</span><span class="w"> </span><span class="n">object</span><span class="p">,</span>
+<a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a><span class="w">                           </span><span class="n">vm_pindex_t</span><span class="w"> </span><span class="n">start</span><span class="p">,</span>
+<a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a><span class="w">                           </span><span class="n">vm_pindex_t</span><span class="w"> </span><span class="n">end</span><span class="p">,</span>
+<a id="__codelineno-8-4" name="__codelineno-8-4" href="#__codelineno-8-4"></a><span class="w">                           </span><span class="n">boolean_t</span><span class="w"> </span><span class="n">clean_only</span><span class="p">);</span>
+</code></pre></div>
+<p>This function:</p>
+<ol>
+<li>Scans <code>backing_list</code> to remove pmap mappings (important for MGTDEVICE)</li>
+<li>Scans <code>rb_memq</code> to free pages</li>
+<li>Frees related swap blocks</li>
+</ol>
+<p>The <code>clean_only</code> flag preserves dirty pages.</p>
+<h3 id="madvise-support">madvise Support<a class="headerlink" href="#madvise-support" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a><span class="kt">void</span><span class="w"> </span><span class="nf">vm_object_madvise</span><span class="p">(</span><span class="n">vm_object_t</span><span class="w"> </span><span class="n">object</span><span class="p">,</span>
+<a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a><span class="w">                       </span><span class="n">vm_pindex_t</span><span class="w"> </span><span class="n">pindex</span><span class="p">,</span>
+<a id="__codelineno-9-3" name="__codelineno-9-3" href="#__codelineno-9-3"></a><span class="w">                       </span><span class="n">vm_pindex_t</span><span class="w"> </span><span class="n">count</span><span class="p">,</span>
+<a id="__codelineno-9-4" name="__codelineno-9-4" href="#__codelineno-9-4"></a><span class="w">                       </span><span class="kt">int</span><span class="w"> </span><span class="n">advise</span><span class="p">);</span>
+</code></pre></div>
+<table>
+<thead>
+<tr>
+<th>Advise</th>
+<th>Action</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>MADV_WILLNEED</code></td>
+<td>Activate pages (move to active queue)</td>
+</tr>
+<tr>
+<td><code>MADV_DONTNEED</code></td>
+<td>Deactivate pages (candidate for reclaim)</td>
+</tr>
+<tr>
+<td><code>MADV_FREE</code></td>
+<td>Mark clean + deactivate + free swap</td>
+</tr>
+</tbody>
+</table>
+<p><code>MADV_FREE</code> is restricted to <code>OBJT_DEFAULT</code>/<code>OBJT_SWAP</code> objects with <code>OBJ_ONEMAPPING</code>.</p>
+<h2 id="object-coalescing">Object Coalescing<a class="headerlink" href="#object-coalescing" title="Permanent link">&para;</a></h2>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a><span class="n">boolean_t</span><span class="w"> </span><span class="nf">vm_object_coalesce</span><span class="p">(</span><span class="n">vm_object_t</span><span class="w"> </span><span class="n">prev_object</span><span class="p">,</span>
+<a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a><span class="w">                             </span><span class="n">vm_pindex_t</span><span class="w"> </span><span class="n">prev_pindex</span><span class="p">,</span>
+<a id="__codelineno-10-3" name="__codelineno-10-3" href="#__codelineno-10-3"></a><span class="w">                             </span><span class="n">vm_size_t</span><span class="w"> </span><span class="n">prev_size</span><span class="p">,</span>
+<a id="__codelineno-10-4" name="__codelineno-10-4" href="#__codelineno-10-4"></a><span class="w">                             </span><span class="n">vm_size_t</span><span class="w"> </span><span class="n">next_size</span><span class="p">);</span>
+</code></pre></div>
+<p>Extends an object into adjacent virtual memory:</p>
+<ul>
+<li>Only for <code>OBJT_DEFAULT</code>/<code>OBJT_SWAP</code></li>
+<li>Requires single reference (or extending into new space)</li>
+<li>Removes any existing pages in the new region</li>
+<li>Updates <code>object-&gt;size</code></li>
+</ul>
+<h2 id="vnode-object-handling">Vnode Object Handling<a class="headerlink" href="#vnode-object-handling" title="Permanent link">&para;</a></h2>
+<p><code>OBJT_VNODE</code> objects have special handling:</p>
+<ul>
+<li><strong>Reference counting</strong>: <code>vref()</code>/<code>vrele()</code> called alongside object refs</li>
+<li><strong>VTEXT flag</strong>: Cleared on last reference (executable text)</li>
+<li><strong>Dirty tracking</strong>: <code>VOBJDIRTY</code> flag on vnode for syncer</li>
+<li><strong>Page cleaning</strong>: Double <code>vinvalbuf()</code> for TMPFS compatibility</li>
+</ul>
+<p>The <code>vm_object_vndeallocate()</code> function handles the complex 1-&gt;0 transition:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a><span class="cm">/* Atomically handle ref_count with retry loop */</span>
+<a id="__codelineno-11-2" name="__codelineno-11-2" href="#__codelineno-11-2"></a><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">count</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-11-3" name="__codelineno-11-3" href="#__codelineno-11-3"></a><span class="w">    </span><span class="n">vm_object_upgrade</span><span class="p">(</span><span class="n">object</span><span class="p">);</span><span class="w">      </span><span class="cm">/* Need exclusive for VTEXT */</span>
+<a id="__codelineno-11-4" name="__codelineno-11-4" href="#__codelineno-11-4"></a><span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">atomic_fcmpset_int</span><span class="p">(</span><span class="o">&amp;</span><span class="n">object</span><span class="o">-&gt;</span><span class="n">ref_count</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">count</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">))</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-11-5" name="__codelineno-11-5" href="#__codelineno-11-5"></a><span class="w">        </span><span class="n">vclrflags</span><span class="p">(</span><span class="n">vp</span><span class="p">,</span><span class="w"> </span><span class="n">VTEXT</span><span class="p">);</span>
+<a id="__codelineno-11-6" name="__codelineno-11-6" href="#__codelineno-11-6"></a><span class="w">        </span><span class="k">break</span><span class="p">;</span>
+<a id="__codelineno-11-7" name="__codelineno-11-7" href="#__codelineno-11-7"></a><span class="w">    </span><span class="p">}</span>
+<a id="__codelineno-11-8" name="__codelineno-11-8" href="#__codelineno-11-8"></a><span class="p">}</span>
+</code></pre></div>
+<h2 id="dirty-flag-management">Dirty Flag Management<a class="headerlink" href="#dirty-flag-management" title="Permanent link">&para;</a></h2>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a><span class="kt">void</span><span class="w"> </span><span class="nf">vm_object_set_writeable_dirty</span><span class="p">(</span><span class="n">vm_object_t</span><span class="w"> </span><span class="n">object</span><span class="p">);</span>
+</code></pre></div>
+<p>Called from the fault path when a page becomes writeable:</p>
+<ol>
+<li>Sets <code>OBJ_WRITEABLE | OBJ_MIGHTBEDIRTY</code> on object</li>
+<li>For <code>OBJT_VNODE</code>: sets <code>VOBJDIRTY</code> on vnode</li>
+<li>Uses <code>vsetobjdirty()</code> for <code>MNTK_THR_SYNC</code> mounts</li>
+<li>Uses <code>vsetflags()</code> for traditional mounts</li>
+</ol>
+<p>The flags check before atomic operation avoids contention in the fault path.</p>
+<h2 id="dragonfly-specific-features">DragonFly-Specific Features<a class="headerlink" href="#dragonfly-specific-features" title="Permanent link">&para;</a></h2>
+<h3 id="lwkt-token-locking">LWKT Token Locking<a class="headerlink" href="#lwkt-token-locking" title="Permanent link">&para;</a></h3>
+<p>Unlike traditional BSD mutexes, LWKT tokens allow:</p>
+<ul>
+<li>Blocking while held</li>
+<li>Other threads to "squeeze in" work</li>
+<li>Shared/exclusive modes</li>
+<li>Token swapping for lock ordering</li>
+</ul>
+<h3 id="backing_list">backing_list<a class="headerlink" href="#backing_list" title="Permanent link">&para;</a></h3>
+<p>Each object maintains a list of <code>vm_map_backing</code> structures:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a><span class="n">TAILQ_HEAD</span><span class="p">(,</span><span class="w"> </span><span class="n">vm_map_backing</span><span class="p">)</span><span class="w"> </span><span class="n">backing_list</span><span class="p">;</span>
+<a id="__codelineno-13-2" name="__codelineno-13-2" href="#__codelineno-13-2"></a><span class="k">struct</span><span class="w"> </span><span class="nc">lock</span><span class="w"> </span><span class="n">backing_lk</span><span class="p">;</span><span class="w">  </span><span class="cm">/* Separate lock for this list */</span>
+</code></pre></div>
+<p>This enables:</p>
+<ul>
+<li>Efficient pmap removal during page removal</li>
+<li>Support for <code>OBJT_MGTDEVICE</code> (pages not in rb_memq)</li>
+<li>Tracking all mappings of an object</li>
+</ul>
+<h3 id="page-coloring">Page Coloring<a class="headerlink" href="#page-coloring" title="Permanent link">&para;</a></h3>
+<p><code>vm_quickcolor()</code> provides semi-random initial page colors:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-14-1" name="__codelineno-14-1" href="#__codelineno-14-1"></a><span class="kt">int</span><span class="w"> </span><span class="nf">vm_quickcolor</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-14-2" name="__codelineno-14-2" href="#__codelineno-14-2"></a><span class="w">    </span><span class="n">globaldata_t</span><span class="w"> </span><span class="n">gd</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">mycpu</span><span class="p">;</span>
+<a id="__codelineno-14-3" name="__codelineno-14-3" href="#__codelineno-14-3"></a><span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="n">pg_color</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="kt">int</span><span class="p">)(</span><span class="kt">intptr_t</span><span class="p">)</span><span class="n">gd</span><span class="o">-&gt;</span><span class="n">gd_curthread</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="mi">10</span><span class="p">;</span>
+<a id="__codelineno-14-4" name="__codelineno-14-4" href="#__codelineno-14-4"></a><span class="w">    </span><span class="n">pg_color</span><span class="w"> </span><span class="o">+=</span><span class="w"> </span><span class="n">gd</span><span class="o">-&gt;</span><span class="n">gd_quick_color</span><span class="p">;</span>
+<a id="__codelineno-14-5" name="__codelineno-14-5" href="#__codelineno-14-5"></a><span class="w">    </span><span class="n">gd</span><span class="o">-&gt;</span><span class="n">gd_quick_color</span><span class="w"> </span><span class="o">+=</span><span class="w"> </span><span class="n">PQ_PRIME2</span><span class="p">;</span>
+<a id="__codelineno-14-6" name="__codelineno-14-6" href="#__codelineno-14-6"></a><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">pg_color</span><span class="p">;</span>
+<a id="__codelineno-14-7" name="__codelineno-14-7" href="#__codelineno-14-7"></a><span class="p">}</span>
+</code></pre></div>
+<p>This spreads page allocations across queues for SMP scalability.</p>
+<h2 id="debugging">Debugging<a class="headerlink" href="#debugging" title="Permanent link">&para;</a></h2>
+<p>DDB commands for object inspection:</p>
+<table>
+<thead>
+<tr>
+<th>Command</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>show vmochk</code></td>
+<td>Verify internal objects are mapped</td>
+</tr>
+<tr>
+<td><code>show object &lt;addr&gt;</code></td>
+<td>Print object details and pages</td>
+</tr>
+<tr>
+<td><code>show vmopag</code></td>
+<td>Print page runs for all objects</td>
+</tr>
+</tbody>
+</table>
+<h2 id="see-also">See Also<a class="headerlink" href="#see-also" title="Permanent link">&para;</a></h2>
+<ul>
+<li><a href="../">VM Subsystem Overview</a> - Architecture overview</li>
+<li><a href="../vm_page/">Physical Page Management</a> - Page allocation and queues</li>
+</ul>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": ["navigation.tabs", "navigation.sections", "navigation.expand", "navigation.top", "search.suggest", "search.highlight", "content.code.copy"], "search": "../../../assets/javascripts/workers/search.7a47a382.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../../assets/javascripts/bundle.e71a0d61.min.js"></script>
+      
+    
+  </body>
+</html>
