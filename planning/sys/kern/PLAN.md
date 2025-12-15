@@ -444,3 +444,162 @@ This plan organizes `sys/kern/` into **12 phases** that can be tackled increment
 12. Utilities and miscellaneous
 
 Each phase is mostly self-contained after earlier dependencies, allowing focused reading and documentation without overwhelming context.
+
+---
+
+## Progress Tracking
+
+### Completed Phases
+
+| Phase | Topic | Documentation | Lines | Commit |
+|-------|-------|---------------|-------|--------|
+| **0** | LWKT Threading | `lwkt.md` | 740 | ✅ |
+| **1a** | Synchronization | `synchronization.md` | 915 | ✅ |
+| **1b** | Time & Timers | `time.md` | 1,403 | ✅ |
+| **2** | Memory Allocation | `memory.md` | 2,793 | ✅ |
+| **3** | Initialization | `initialization.md` | 1,167 | ✅ |
+| **4a** | Process Lifecycle | `processes.md` | 1,133 | ✅ |
+| **4b** | Resources/Credentials | `resources.md` | 857 | ✅ |
+| **4c** | Signals | `signals.md` | 1,018 | ✅ |
+| **5** | Scheduling | `scheduling.md` | 923 | ✅ |
+| **6a** | VFS Core | `vfs/index.md` | 722 | ✅ |
+| **6b** | VFS Name Lookup | `vfs/namecache.md` | 837 | ✅ |
+| **6c** | VFS Mounting | `vfs/mounting.md` | 1,181 | ✅ |
+| **6d** | VFS Buffer Cache | `vfs/buffer-cache.md` | 1,666 | ✅ |
+| **6e** | VFS Operations | `vfs/vfs-operations.md` | 847 | ✅ |
+| **6e** | VFS Journaling | `vfs/journaling.md` | 1,214 | ✅ |
+| **6e** | VFS Locking | `vfs/vfs-locking.md` | 569 | ✅ |
+| **6e** | VFS Extensions | `vfs/vfs-extensions.md` | 627 | ✅ |
+| **7a1** | Mbufs | `ipc/mbufs.md` | 801 | `16b4658` |
+| **7a2** | Sockets | `ipc/sockets.md` | 1,098 | `10f10b0` |
+| **7a3** | Unix Domain Sockets | `ipc/unix-sockets.md` | 812 | `c85db6f` |
+| **7a4** | Protocol Dispatch | `ipc/protocol-dispatch.md` | 825 | `8d06674` |
+| **7c1** | Pipes | `ipc/pipes.md` | 510 | `4473f57` |
+| **7c2** | POSIX Message Queues | `ipc/mqueue.md` | 368 | `5fae267` |
+| **7b1** | SysV Message Queues | `ipc/sysv-msg.md` | 312 | `0de9e53` |
+| **7b2** | SysV Semaphores | `ipc/sysv-sem.md` | 345 | `88f6aae` |
+| **7b3** | SysV Shared Memory | `ipc/sysv-shm.md` | 340 | `3d4525b` |
+
+**Total completed:** ~24,000+ lines of documentation
+
+### Pending Phases
+
+| Phase | Topic | Status |
+|-------|-------|--------|
+| **8** | Device & Driver Infrastructure | Next |
+| **9** | System Calls & Kernel Linkage | Pending |
+| **10** | Monitoring, Debugging, Security | Pending |
+| **11** | TTY Subsystem | Pending |
+| **12** | Utilities & Miscellaneous | Pending |
+
+---
+
+## Phase 8 Detailed Plan: Device & Driver Infrastructure
+
+### Overview
+
+Phase 8 covers **~10,500 lines** across **17 source files** in four subphases:
+
+| Subphase | Files | Lines | Description |
+|----------|-------|-------|-------------|
+| **8a** | 6 files | ~6,377 | Device/Bus Framework (NewBus, dev_ops, rman) |
+| **8b** | 8 files | ~4,499 | Disk Layer (partitioning, labels, MBR/GPT) |
+| **8c** | 2 files | ~251 | I/O Scheduling (stubs + write throttling) |
+| **8d** | 1 file | ~540 | Firmware Loading |
+
+### Source Files
+
+#### 8a: Device/Bus Framework (~6,377 lines)
+
+| File | Lines | Purpose |
+|------|-------|---------|
+| `kern_conf.c` | 514 | Device number primitives, `make_dev()`/`destroy_dev()`, devfs integration |
+| `kern_device.c` | 791 | Device operations dispatch (`dev_d*`), MPSAFE handling, default handlers |
+| `subr_bus.c` | 3,991 | **NewBus core** - devclass, device/driver model, /dev/devctl, resources |
+| `subr_autoconf.c` | 202 | Interrupt-driven configuration hooks |
+| `subr_busdma.c` | 144 | Bus DMA helper functions |
+| `subr_rman.c` | 735 | Resource manager (I/O ports, memory, IRQs) |
+
+#### 8b: Disk Layer (~4,499 lines)
+
+| File | Lines | Purpose |
+|------|-------|---------|
+| `subr_disk.c` | 1,601 | **Core disk layer** - creation, probing, slice management, BIO dispatch |
+| `subr_devstat.c` | 315 | Device I/O statistics (for `iostat`) |
+| `subr_diskslice.c` | 907 | Disk slicing framework, ioctl handlers |
+| `subr_disklabel32.c` | 662 | Traditional BSD 32-bit disklabels |
+| `subr_disklabel64.c` | 544 | **DragonFly 64-bit disklabels** (native format) |
+| `subr_diskmbr.c` | 556 | MBR partition table parsing |
+| `subr_diskgpt.c` | 244 | GPT partition table parsing |
+| `subr_diskiocom.c` | 670 | Disk dmsg protocol (clustered storage) |
+
+#### 8c: I/O Scheduling (~251 lines)
+
+| File | Lines | Status | Purpose |
+|------|-------|--------|---------|
+| `kern_dsched.c` | 81 | **STUB** | Disk scheduling framework (empty implementations) |
+| `kern_iosched.c` | 170 | Active | Write throttling for I/O fairness |
+
+#### 8d: Firmware (~540 lines)
+
+| File | Lines | Purpose |
+|------|-------|---------|
+| `subr_firmware.c` | 540 | Firmware image registry and loading |
+
+### Key Data Structures
+
+#### Device/Bus Framework
+- `struct dev_ops` - Character device switch table
+- `struct bsd_device` - NewBus device instance
+- `struct devclass` - Device class container
+- `struct resource` / `struct rman` - Resource management
+- `cdev_t` - Device pointer (opaque)
+
+#### Disk Layer
+- `struct disk` - Main disk descriptor
+- `struct diskslices` / `struct diskslice` - Slice management
+- `struct disklabel32` / `struct disklabel64` - Disk labels
+- `struct devstat` - Per-device statistics
+
+### DragonFly-Specific Highlights
+
+1. **Message-Based Disk Operations** - LWKT messages for async disk management
+2. **64-bit Disklabel Format** - Native support for >2TB disks with byte-based addressing
+3. **Dual Label Support** - Runtime selection between 32-bit and 64-bit disklabels
+4. **Async Device Attachment** - Threaded probing for faster boot (`DF_ASYNCPROBE`)
+5. **MPSAFE Device Operations** - Per-device MPSAFE flags, BKL only when needed
+6. **KVABIO Support** - Buffer synchronization for non-KVABIO devices
+7. **Read Prioritization** - `bioqdisksort()` prioritizes reads with write trickle
+8. **dmsg Protocol** - Distributed block device access for clustering
+9. **Device Aliases** - Stable naming via serial number, UUID, pack label
+
+### Proposed Documentation Structure
+
+```
+docs/sys/kern/
+├── devices.md              # Device framework (dev_ops, make_dev, NewBus)
+├── disk.md                 # Disk layer (slices, labels, MBR/GPT, stats)
+├── resources.md            # (exists) - may add rman details
+└── firmware.md             # Firmware loading subsystem
+```
+
+### Estimated Documentation Sizes
+
+| Document | Est. Lines | Content |
+|----------|------------|---------|
+| `devices.md` | 800-1000 | dev_ops, make_dev, NewBus, devclass, bus methods |
+| `disk.md` | 600-800 | Disk layer, slices, labels, MBR/GPT, I/O sched |
+| `firmware.md` | 250-350 | Firmware registry, loading |
+| **Total** | **1650-2150** | |
+
+### Execution Order
+
+1. **devices.md** - Foundation for understanding disk and driver attachment
+2. **disk.md** - Core disk layer (depends on device framework)
+3. **firmware.md** - Independent, can be done in any order
+
+### Notes
+
+- `kern_dsched.c` is entirely stubs - will be documented as placeholder/historical
+- `subr_diskiocom.c` (dmsg) will get brief coverage; full clustering docs are out of scope
+- The existing `resources.md` covers process resources; rman is different (hardware resources)

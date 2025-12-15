@@ -440,6 +440,8 @@ List of key source files with brief descriptions:
 - ✅ Planning documents in `planning/sys/kern/PLAN.md`
 
 ### Completed Phases (sys/kern/)
+
+#### Phases 0-6: Core Kernel Infrastructure
 - ✅ Phase 0: LWKT threading (`docs/sys/kern/lwkt.md`)
 - ✅ Phase 1a: Synchronization primitives (`docs/sys/kern/synchronization.md`)
 - ✅ Phase 1b: Time and timers (`docs/sys/kern/time.md`)
@@ -454,41 +456,69 @@ List of key source files with brief descriptions:
 - ✅ Phase 6c: VFS mounting and syscalls (`docs/sys/kern/vfs/mounting.md`)
 - ✅ Phase 6d: VFS buffer cache and I/O (`docs/sys/kern/vfs/buffer-cache.md`)
 - ✅ Phase 6e: VFS operations and journaling (`docs/sys/kern/vfs/vfs-operations.md`, `docs/sys/kern/vfs/journaling.md`)
+- ✅ Phase 6e: VFS locking and extensions (`docs/sys/kern/vfs/vfs-locking.md`, `docs/sys/kern/vfs/vfs-extensions.md`)
+
+#### Phase 7: IPC and Socket Layer (Complete)
+- ✅ Phase 7a1: Mbufs (`docs/sys/kern/ipc/mbufs.md`) - 801 lines
+- ✅ Phase 7a2: Sockets (`docs/sys/kern/ipc/sockets.md`) - 1,098 lines
+- ✅ Phase 7a3: Unix Domain Sockets (`docs/sys/kern/ipc/unix-sockets.md`) - 812 lines
+- ✅ Phase 7a4: Protocol Dispatch (`docs/sys/kern/ipc/protocol-dispatch.md`) - 825 lines
+- ✅ Phase 7c1: Pipes (`docs/sys/kern/ipc/pipes.md`) - 510 lines
+- ✅ Phase 7c2: POSIX Message Queues (`docs/sys/kern/ipc/mqueue.md`) - 368 lines
+- ✅ Phase 7b1: SysV Message Queues (`docs/sys/kern/ipc/sysv-msg.md`) - 312 lines
+- ✅ Phase 7b2: SysV Semaphores (`docs/sys/kern/ipc/sysv-sem.md`) - 345 lines
+- ✅ Phase 7b3: SysV Shared Memory (`docs/sys/kern/ipc/sysv-shm.md`) - 340 lines
 
 ### Pending Phases (sys/kern/)
-- ⏳ Phase 7: IPC and socket layer (`docs/sys/kern/ipc.md` - stub only)
 - ⏳ Phase 8: Device infrastructure (`docs/sys/kern/devices.md` - stub only)
-- ⏳ Phase 9+: TTY, system calls, etc. (`docs/sys/kern/syscalls.md` - stub only)
+- ⏳ Phase 9: System calls and kernel linkage (`docs/sys/kern/syscalls.md` - stub only)
+- ⏳ Phase 10: Monitoring, debugging, security
+- ⏳ Phase 11: TTY subsystem
+- ⏳ Phase 12: Utilities and miscellaneous
 
 ### Documentation Files
 
-| File | Description | Status |
-|------|-------------|--------|
-| `docs/sys/kern/lwkt.md` | LWKT threading subsystem | Complete |
-| `docs/sys/kern/synchronization.md` | Locks, mutexes, serializers | Complete |
-| `docs/sys/kern/time.md` | Timekeeping and timers | Complete |
-| `docs/sys/kern/memory.md` | Memory allocation | Complete |
-| `docs/sys/kern/initialization.md` | Kernel bootstrap | Complete |
-| `docs/sys/kern/processes.md` | Process/thread lifecycle | Complete |
-| `docs/sys/kern/resources.md` | Resource limits, credentials, FDs | Complete |
-| `docs/sys/kern/signals.md` | Signal subsystem | Complete |
-| `docs/sys/kern/scheduling.md` | CPU scheduling | Complete |
-| `docs/sys/kern/vfs/index.md` | VFS core and initialization | Complete |
-| `docs/sys/kern/vfs/namecache.md` | Name lookup and caching | Complete |
-| `docs/sys/kern/vfs/mounting.md` | Filesystem mounting | Complete |
-| `docs/sys/kern/vfs/buffer-cache.md` | Buffer cache and I/O | Complete |
-| `docs/sys/kern/vfs/vfs-operations.md` | VFS operations | Complete |
-| `docs/sys/kern/vfs/journaling.md` | Journaling support | Complete |
-| `docs/sys/kern/vfs/vfs-locking.md` | Vnode locking and lifecycle | Complete |
-| `docs/sys/kern/vfs/vfs-extensions.md` | VFS helpers, syncer, quotas | Complete |
-| `docs/sys/kern/ipc.md` | IPC and sockets | Stub |
-| `docs/sys/kern/devices.md` | Device infrastructure | Stub |
-| `docs/sys/kern/syscalls.md` | System calls | Stub |
+| File | Description | Status | Lines |
+|------|-------------|--------|-------|
+| `docs/sys/kern/lwkt.md` | LWKT threading subsystem | Complete | 740 |
+| `docs/sys/kern/synchronization.md` | Locks, mutexes, serializers | Complete | 915 |
+| `docs/sys/kern/time.md` | Timekeeping and timers | Complete | 1,403 |
+| `docs/sys/kern/memory.md` | Memory allocation | Complete | 2,793 |
+| `docs/sys/kern/initialization.md` | Kernel bootstrap | Complete | 1,167 |
+| `docs/sys/kern/processes.md` | Process/thread lifecycle | Complete | 1,133 |
+| `docs/sys/kern/resources.md` | Resource limits, credentials, FDs | Complete | 857 |
+| `docs/sys/kern/signals.md` | Signal subsystem | Complete | 1,018 |
+| `docs/sys/kern/scheduling.md` | CPU scheduling | Complete | 923 |
+| `docs/sys/kern/vfs/index.md` | VFS core and initialization | Complete | 722 |
+| `docs/sys/kern/vfs/namecache.md` | Name lookup and caching | Complete | 837 |
+| `docs/sys/kern/vfs/mounting.md` | Filesystem mounting | Complete | 1,181 |
+| `docs/sys/kern/vfs/buffer-cache.md` | Buffer cache and I/O | Complete | 1,666 |
+| `docs/sys/kern/vfs/vfs-operations.md` | VFS operations | Complete | 847 |
+| `docs/sys/kern/vfs/journaling.md` | Journaling support | Complete | 1,214 |
+| `docs/sys/kern/vfs/vfs-locking.md` | Vnode locking and lifecycle | Complete | 569 |
+| `docs/sys/kern/vfs/vfs-extensions.md` | VFS helpers, syncer, quotas | Complete | 627 |
+| `docs/sys/kern/ipc/mbufs.md` | Memory buffer system | Complete | 801 |
+| `docs/sys/kern/ipc/sockets.md` | Socket core layer | Complete | 1,098 |
+| `docs/sys/kern/ipc/unix-sockets.md` | Unix domain sockets | Complete | 812 |
+| `docs/sys/kern/ipc/protocol-dispatch.md` | Protocol domains, message-passing | Complete | 825 |
+| `docs/sys/kern/ipc/pipes.md` | Pipe implementation | Complete | 510 |
+| `docs/sys/kern/ipc/mqueue.md` | POSIX message queues | Complete | 368 |
+| `docs/sys/kern/ipc/sysv-msg.md` | System V message queues | Complete | 312 |
+| `docs/sys/kern/ipc/sysv-sem.md` | System V semaphores | Complete | 345 |
+| `docs/sys/kern/ipc/sysv-shm.md` | System V shared memory | Complete | 340 |
+| `docs/sys/kern/ipc.md` | IPC overview | Stub | 11 |
+| `docs/sys/kern/devices.md` | Device infrastructure | Stub | 11 |
+| `docs/sys/kern/syscalls.md` | System calls | Stub | 11 |
+
+**Total documentation:** ~24,000+ lines
 
 ## Next Steps
 
-1. Begin Phase 7: IPC and socket layer documentation
-2. Continue with Phase 8: Device infrastructure
-3. Continue with Phase 9+: TTY, system calls, etc.
+1. **Phase 8: Device & Driver Infrastructure**
+   - `devices.md` - Device framework (dev_ops, make_dev, NewBus)
+   - `disk.md` - Disk layer (slices, labels, MBR/GPT)
+   - `firmware.md` - Firmware loading subsystem
+2. Continue with Phase 9: System calls and kernel linkage
+3. Continue with Phase 10+: Monitoring, debugging, security, TTY, utilities
 4. Add diagrams and cross-references as subsystems are completed
 5. Deploy generated documentation when ready
