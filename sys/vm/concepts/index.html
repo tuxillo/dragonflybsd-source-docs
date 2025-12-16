@@ -1,0 +1,1665 @@
+
+<!DOCTYPE html>
+
+<html class="no-js" lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width,initial-scale=1" name="viewport"/>
+<meta content="Comprehensive documentation for the DragonFly BSD kernel source code" name="description"/>
+<meta content="DragonFly BSD Community" name="author"/>
+<link href="../" rel="prev"/>
+<link href="../vm_page/" rel="next"/>
+<link href="../../../assets/images/favicon.png" rel="icon"/>
+<meta content="mkdocs-1.6.1, mkdocs-material-9.7.0" name="generator"/>
+<title>Concepts - DragonFly BSD Kernel Documentation</title>
+<link href="../../../assets/stylesheets/main.618322db.min.css" rel="stylesheet"/>
+<link href="../../../assets/stylesheets/palette.ab4e12ef.min.css" rel="stylesheet"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&amp;display=fallback" rel="stylesheet"/>
+<style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+<script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+</head>
+<body data-md-color-accent="indigo" data-md-color-primary="indigo" data-md-color-scheme="default" dir="ltr">
+<input autocomplete="off" class="md-toggle" data-md-toggle="drawer" id="__drawer" type="checkbox"/>
+<input autocomplete="off" class="md-toggle" data-md-toggle="search" id="__search" type="checkbox"/>
+<label class="md-overlay" for="__drawer"></label>
+<div data-md-component="skip">
+<a class="md-skip" href="#virtual-memory-concepts">
+          Skip to content
+        </a>
+</div>
+<div data-md-component="announce">
+</div>
+<header class="md-header" data-md-component="header">
+<nav aria-label="Header" class="md-header__inner md-grid">
+<a aria-label="DragonFly BSD Kernel Documentation" class="md-header__button md-logo" data-md-component="logo" href="../../.." title="DragonFly BSD Kernel Documentation">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"></path></svg>
+</a>
+<label class="md-header__button md-icon" for="__drawer">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"></path></svg>
+</label>
+<div class="md-header__title" data-md-component="header-title">
+<div class="md-header__ellipsis">
+<div class="md-header__topic">
+<span class="md-ellipsis">
+            DragonFly BSD Kernel Documentation
+          </span>
+</div>
+<div class="md-header__topic" data-md-component="header-topic">
+<span class="md-ellipsis">
+            
+              Concepts
+            
+          </span>
+</div>
+</div>
+</div>
+<form class="md-header__option" data-md-component="palette">
+<input aria-label="Switch to dark mode" class="md-option" data-md-color-accent="indigo" data-md-color-media="" data-md-color-primary="indigo" data-md-color-scheme="default" id="__palette_0" name="__palette" type="radio"/>
+<label class="md-header__button md-icon" for="__palette_1" hidden="" title="Switch to dark mode">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"></path></svg>
+</label>
+<input aria-label="Switch to light mode" class="md-option" data-md-color-accent="indigo" data-md-color-media="" data-md-color-primary="indigo" data-md-color-scheme="slate" id="__palette_1" name="__palette" type="radio"/>
+<label class="md-header__button md-icon" for="__palette_0" hidden="" title="Switch to light mode">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"></path></svg>
+</label>
+</form>
+<script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+<label class="md-header__button md-icon" for="__search">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"></path></svg>
+</label>
+<div class="md-search" data-md-component="search" role="dialog">
+<label class="md-search__overlay" for="__search"></label>
+<div class="md-search__inner" role="search">
+<form class="md-search__form" name="search">
+<input aria-label="Search" autocapitalize="off" autocomplete="off" autocorrect="off" class="md-search__input" data-md-component="search-query" name="query" placeholder="Search" required="" spellcheck="false" type="text"/>
+<label class="md-search__icon md-icon" for="__search">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"></path></svg>
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"></path></svg>
+</label>
+<nav aria-label="Search" class="md-search__options">
+<button aria-label="Clear" class="md-search__icon md-icon" tabindex="-1" title="Clear" type="reset">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"></path></svg>
+</button>
+</nav>
+<div class="md-search__suggest" data-md-component="search-suggest"></div>
+</form>
+<div class="md-search__output">
+<div class="md-search__scrollwrap" data-md-scrollfix="" tabindex="0">
+<div class="md-search-result" data-md-component="search-result">
+<div class="md-search-result__meta">
+            Initializing search
+          </div>
+<ol class="md-search-result__list" role="presentation"></ol>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="md-header__source">
+<a class="md-source" data-md-component="source" href="https://github.com/tuxillo/dragonflybsd-source-docs" title="Go to repository">
+<div class="md-source__icon md-icon">
+<svg viewbox="0 0 448 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"></path></svg>
+</div>
+<div class="md-source__repository">
+    tuxillo/dragonflybsd-source-docs
+  </div>
+</a>
+</div>
+</nav>
+</header>
+<div class="md-container" data-md-component="container">
+<nav aria-label="Tabs" class="md-tabs" data-md-component="tabs">
+<div class="md-grid">
+<ul class="md-tabs__list">
+<li class="md-tabs__item">
+<a class="md-tabs__link" href="../../..">
+        
+  
+  
+    
+  
+  Home
+
+      </a>
+</li>
+<li class="md-tabs__item">
+<a class="md-tabs__link" href="../../../getting-started/">
+        
+  
+  
+    
+  
+  Getting Started
+
+      </a>
+</li>
+<li class="md-tabs__item md-tabs__item--active">
+<a class="md-tabs__link" href="../../">
+          
+  
+  
+  Kernel Subsystems
+
+        </a>
+</li>
+</ul>
+</div>
+</nav>
+<main class="md-main" data-md-component="main">
+<div class="md-main__inner md-grid">
+<div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation">
+<div class="md-sidebar__scrollwrap">
+<div class="md-sidebar__inner">
+<nav aria-label="Navigation" class="md-nav md-nav--primary md-nav--lifted" data-md-level="0">
+<label class="md-nav__title" for="__drawer">
+<a aria-label="DragonFly BSD Kernel Documentation" class="md-nav__button md-logo" data-md-component="logo" href="../../.." title="DragonFly BSD Kernel Documentation">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"></path></svg>
+</a>
+    DragonFly BSD Kernel Documentation
+  </label>
+<div class="md-nav__source">
+<a class="md-source" data-md-component="source" href="https://github.com/tuxillo/dragonflybsd-source-docs" title="Go to repository">
+<div class="md-source__icon md-icon">
+<svg viewbox="0 0 448 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"></path></svg>
+</div>
+<div class="md-source__repository">
+    tuxillo/dragonflybsd-source-docs
+  </div>
+</a>
+</div>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../..">
+<span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../../getting-started/">
+<span class="md-ellipsis">
+    
+  
+    Getting Started
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+<input checked="" class="md-nav__toggle md-toggle" id="__nav_3" type="checkbox"/>
+<label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="">
+<span class="md-ellipsis">
+    
+  
+    Kernel Subsystems
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="true" aria-labelledby="__nav_3_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_3">
+<span class="md-nav__icon md-icon"></span>
+            
+  
+    Kernel Subsystems
+  
+
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../">
+<span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--section md-nav__item--nested">
+<input class="md-nav__toggle md-toggle md-toggle--indeterminate" id="__nav_3_2" type="checkbox"/>
+<label class="md-nav__link" for="__nav_3_2" id="__nav_3_2_label" tabindex="">
+<span class="md-ellipsis">
+    
+  
+    kern/
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="false" aria-labelledby="__nav_3_2_label" class="md-nav" data-md-level="2">
+<label class="md-nav__title" for="__nav_3_2">
+<span class="md-nav__icon md-icon"></span>
+            
+  
+    kern/
+  
+
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../kern/">
+<span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../kern/lwkt/">
+<span class="md-ellipsis">
+    
+  
+    LWKT Threading
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../kern/synchronization/">
+<span class="md-ellipsis">
+    
+  
+    Synchronization
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../kern/time/">
+<span class="md-ellipsis">
+    
+  
+    Time &amp; Timers
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../kern/memory/">
+<span class="md-ellipsis">
+    
+  
+    Memory Management
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../kern/initialization/">
+<span class="md-ellipsis">
+    
+  
+    Initialization &amp; Bootstrap
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../kern/processes/">
+<span class="md-ellipsis">
+    
+  
+    Processes &amp; Threads
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../kern/resources/">
+<span class="md-ellipsis">
+    
+  
+    Process Resources &amp; Credentials
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../kern/signals/">
+<span class="md-ellipsis">
+    
+  
+    Signals
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../kern/scheduling/">
+<span class="md-ellipsis">
+    
+  
+    Scheduling
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle md-toggle--indeterminate" id="__nav_3_2_11" type="checkbox"/>
+<label class="md-nav__link" for="__nav_3_2_11" id="__nav_3_2_11_label" tabindex="0">
+<span class="md-ellipsis">
+    
+  
+    Virtual Filesystem
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="false" aria-labelledby="__nav_3_2_11_label" class="md-nav" data-md-level="3">
+<label class="md-nav__title" for="__nav_3_2_11">
+<span class="md-nav__icon md-icon"></span>
+            
+  
+    Virtual Filesystem
+  
+
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../kern/vfs/">
+<span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../kern/vfs/namecache/">
+<span class="md-ellipsis">
+    
+  
+    Name Lookup &amp; Caching
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../kern/vfs/mounting/">
+<span class="md-ellipsis">
+    
+  
+    Mounting &amp; Unmounting
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../kern/vfs/buffer-cache/">
+<span class="md-ellipsis">
+    
+  
+    Buffer Cache &amp; I/O
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../kern/vfs/vfs-operations/">
+<span class="md-ellipsis">
+    
+  
+    VFS Operations Framework
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../kern/vfs/journaling/">
+<span class="md-ellipsis">
+    
+  
+    Journaling System
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../kern/vfs/vfs-locking/">
+<span class="md-ellipsis">
+    
+  
+    Vnode Locking &amp; Lifecycle
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../kern/vfs/vfs-extensions/">
+<span class="md-ellipsis">
+    
+  
+    VFS Extensions &amp; Helpers
+  
+
+    
+  </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle md-toggle--indeterminate" id="__nav_3_2_12" type="checkbox"/>
+<label class="md-nav__link" for="__nav_3_2_12" id="__nav_3_2_12_label" tabindex="0">
+<span class="md-ellipsis">
+    
+  
+    IPC &amp; Sockets
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="false" aria-labelledby="__nav_3_2_12_label" class="md-nav" data-md-level="3">
+<label class="md-nav__title" for="__nav_3_2_12">
+<span class="md-nav__icon md-icon"></span>
+            
+  
+    IPC &amp; Sockets
+  
+
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../kern/ipc/">
+<span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../kern/ipc/mbufs/">
+<span class="md-ellipsis">
+    
+  
+    Mbufs
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../kern/ipc/sockets/">
+<span class="md-ellipsis">
+    
+  
+    Sockets
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../kern/ipc/unix-sockets/">
+<span class="md-ellipsis">
+    
+  
+    Unix Domain Sockets
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../kern/ipc/protocol-dispatch/">
+<span class="md-ellipsis">
+    
+  
+    Protocol Dispatch
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../kern/ipc/pipes/">
+<span class="md-ellipsis">
+    
+  
+    Pipes
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../kern/ipc/mqueue/">
+<span class="md-ellipsis">
+    
+  
+    POSIX Message Queues
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../kern/ipc/sysv-msg/">
+<span class="md-ellipsis">
+    
+  
+    System V Message Queues
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../kern/ipc/sysv-sem/">
+<span class="md-ellipsis">
+    
+  
+    System V Semaphores
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../kern/ipc/sysv-shm/">
+<span class="md-ellipsis">
+    
+  
+    System V Shared Memory
+  
+
+    
+  </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../kern/devices/">
+<span class="md-ellipsis">
+    
+  
+    Devices &amp; Drivers
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../kern/newbus/">
+<span class="md-ellipsis">
+    
+  
+    NewBus Framework
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../kern/bus-resources/">
+<span class="md-ellipsis">
+    
+  
+    Bus Resources &amp; DMA
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../kern/disk/">
+<span class="md-ellipsis">
+    
+  
+    Disk Subsystem
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../kern/firmware/">
+<span class="md-ellipsis">
+    
+  
+    Firmware Loading
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../kern/syscalls/">
+<span class="md-ellipsis">
+    
+  
+    System Calls
+  
+
+    
+  </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+<input checked="" class="md-nav__toggle md-toggle" id="__nav_3_3" type="checkbox"/>
+<label class="md-nav__link" for="__nav_3_3" id="__nav_3_3_label" tabindex="">
+<span class="md-ellipsis">
+    
+  
+    vm/
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="true" aria-labelledby="__nav_3_3_label" class="md-nav" data-md-level="2">
+<label class="md-nav__title" for="__nav_3_3">
+<span class="md-nav__icon md-icon"></span>
+            
+  
+    vm/
+  
+
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../">
+<span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--active">
+<input class="md-nav__toggle md-toggle" id="__toc" type="checkbox"/>
+<label class="md-nav__link md-nav__link--active" for="__toc">
+<span class="md-ellipsis">
+    
+  
+    Concepts
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<a class="md-nav__link md-nav__link--active" href="./">
+<span class="md-ellipsis">
+    
+  
+    Concepts
+  
+
+    
+  </span>
+</a>
+<nav aria-label="Table of contents" class="md-nav md-nav--secondary">
+<label class="md-nav__title" for="__toc">
+<span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+<ul class="md-nav__list" data-md-component="toc" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#what-is-virtual-memory">
+<span class="md-ellipsis">
+      
+        What is Virtual Memory?
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#why-virtual-memory">
+<span class="md-ellipsis">
+      
+        Why Virtual Memory?
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#core-concepts">
+<span class="md-ellipsis">
+      
+        Core Concepts
+      
+    </span>
+</a>
+<nav aria-label="Core Concepts" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#virtual-address">
+<span class="md-ellipsis">
+      
+        Virtual Address
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#physical-address">
+<span class="md-ellipsis">
+      
+        Physical Address
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#page">
+<span class="md-ellipsis">
+      
+        Page
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#page-table">
+<span class="md-ellipsis">
+      
+        Page Table
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#page-fault">
+<span class="md-ellipsis">
+      
+        Page Fault
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#pager">
+<span class="md-ellipsis">
+      
+        Pager
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#demand-paging">
+<span class="md-ellipsis">
+      
+        Demand Paging
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#copy-on-write-cow">
+<span class="md-ellipsis">
+      
+        Copy-on-Write (COW)
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#working-set">
+<span class="md-ellipsis">
+      
+        Working Set
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#thrashing">
+<span class="md-ellipsis">
+      
+        Thrashing
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#mach-vm-heritage">
+<span class="md-ellipsis">
+      
+        Mach VM Heritage
+      
+    </span>
+</a>
+<nav aria-label="Mach VM Heritage" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#key-mach-vm-concepts">
+<span class="md-ellipsis">
+      
+        Key Mach VM Concepts
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#bsd-adaptations">
+<span class="md-ellipsis">
+      
+        BSD Adaptations
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#how-dragonfly-evolved-the-design">
+<span class="md-ellipsis">
+      
+        How DragonFly Evolved the Design
+      
+    </span>
+</a>
+<nav aria-label="How DragonFly Evolved the Design" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#vm_map_backing-chains">
+<span class="md-ellipsis">
+      
+        vm_map_backing Chains
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#lwkt-token-locking">
+<span class="md-ellipsis">
+      
+        LWKT Token Locking
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#page-coloring">
+<span class="md-ellipsis">
+      
+        Page Coloring
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#per-cpu-statistics">
+<span class="md-ellipsis">
+      
+        Per-CPU Statistics
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#fast-fault-bypass">
+<span class="md-ellipsis">
+      
+        Fast Fault Bypass
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#further-reading">
+<span class="md-ellipsis">
+      
+        Further Reading
+      
+    </span>
+</a>
+<nav aria-label="Further Reading" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#textbooks">
+<span class="md-ellipsis">
+      
+        Textbooks
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#papers">
+<span class="md-ellipsis">
+      
+        Papers
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#quick-reference">
+<span class="md-ellipsis">
+      
+        Quick Reference
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#see-also">
+<span class="md-ellipsis">
+      
+        See Also
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../vm_page/">
+<span class="md-ellipsis">
+    
+  
+    Physical Pages
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../vm_object/">
+<span class="md-ellipsis">
+    
+  
+    VM Objects
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../vm_map/">
+<span class="md-ellipsis">
+    
+  
+    Address Space
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../vm_fault/">
+<span class="md-ellipsis">
+    
+  
+    Page Faults
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../vm_pageout/">
+<span class="md-ellipsis">
+    
+  
+    Pageout &amp; Swap
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../vm_mmap/">
+<span class="md-ellipsis">
+    
+  
+    Memory Mapping
+  
+
+    
+  </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--section md-nav__item--nested">
+<input class="md-nav__toggle md-toggle md-toggle--indeterminate" id="__nav_3_4" type="checkbox"/>
+<label class="md-nav__link" for="__nav_3_4" id="__nav_3_4_label" tabindex="">
+<span class="md-ellipsis">
+    
+  
+    cpu/x86_64/
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="false" aria-labelledby="__nav_3_4_label" class="md-nav" data-md-level="2">
+<label class="md-nav__title" for="__nav_3_4">
+<span class="md-nav__icon md-icon"></span>
+            
+  
+    cpu/x86_64/
+  
+
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../cpu/x86_64/">
+<span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+</ul>
+</nav>
+</li>
+</ul>
+</nav>
+</div>
+</div>
+</div>
+<div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc">
+<div class="md-sidebar__scrollwrap">
+<div class="md-sidebar__inner">
+<nav aria-label="Table of contents" class="md-nav md-nav--secondary">
+<label class="md-nav__title" for="__toc">
+<span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+<ul class="md-nav__list" data-md-component="toc" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#what-is-virtual-memory">
+<span class="md-ellipsis">
+      
+        What is Virtual Memory?
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#why-virtual-memory">
+<span class="md-ellipsis">
+      
+        Why Virtual Memory?
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#core-concepts">
+<span class="md-ellipsis">
+      
+        Core Concepts
+      
+    </span>
+</a>
+<nav aria-label="Core Concepts" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#virtual-address">
+<span class="md-ellipsis">
+      
+        Virtual Address
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#physical-address">
+<span class="md-ellipsis">
+      
+        Physical Address
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#page">
+<span class="md-ellipsis">
+      
+        Page
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#page-table">
+<span class="md-ellipsis">
+      
+        Page Table
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#page-fault">
+<span class="md-ellipsis">
+      
+        Page Fault
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#pager">
+<span class="md-ellipsis">
+      
+        Pager
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#demand-paging">
+<span class="md-ellipsis">
+      
+        Demand Paging
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#copy-on-write-cow">
+<span class="md-ellipsis">
+      
+        Copy-on-Write (COW)
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#working-set">
+<span class="md-ellipsis">
+      
+        Working Set
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#thrashing">
+<span class="md-ellipsis">
+      
+        Thrashing
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#mach-vm-heritage">
+<span class="md-ellipsis">
+      
+        Mach VM Heritage
+      
+    </span>
+</a>
+<nav aria-label="Mach VM Heritage" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#key-mach-vm-concepts">
+<span class="md-ellipsis">
+      
+        Key Mach VM Concepts
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#bsd-adaptations">
+<span class="md-ellipsis">
+      
+        BSD Adaptations
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#how-dragonfly-evolved-the-design">
+<span class="md-ellipsis">
+      
+        How DragonFly Evolved the Design
+      
+    </span>
+</a>
+<nav aria-label="How DragonFly Evolved the Design" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#vm_map_backing-chains">
+<span class="md-ellipsis">
+      
+        vm_map_backing Chains
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#lwkt-token-locking">
+<span class="md-ellipsis">
+      
+        LWKT Token Locking
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#page-coloring">
+<span class="md-ellipsis">
+      
+        Page Coloring
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#per-cpu-statistics">
+<span class="md-ellipsis">
+      
+        Per-CPU Statistics
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#fast-fault-bypass">
+<span class="md-ellipsis">
+      
+        Fast Fault Bypass
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#further-reading">
+<span class="md-ellipsis">
+      
+        Further Reading
+      
+    </span>
+</a>
+<nav aria-label="Further Reading" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#textbooks">
+<span class="md-ellipsis">
+      
+        Textbooks
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#papers">
+<span class="md-ellipsis">
+      
+        Papers
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#quick-reference">
+<span class="md-ellipsis">
+      
+        Quick Reference
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#see-also">
+<span class="md-ellipsis">
+      
+        See Also
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</div>
+</div>
+</div>
+<div class="md-content" data-md-component="content">
+<article class="md-content__inner md-typeset">
+<h1 id="virtual-memory-concepts">Virtual Memory Concepts<a class="headerlink" href="#virtual-memory-concepts" title="Permanent link">¶</a></h1>
+<p>This page provides foundational background on virtual memory for readers approaching DragonFly's VM subsystem. If you're already familiar with VM concepts and Mach VM heritage, skip to the <a href="../">VM Subsystem Overview</a>.</p>
+<h2 id="what-is-virtual-memory">What is Virtual Memory?<a class="headerlink" href="#what-is-virtual-memory" title="Permanent link">¶</a></h2>
+<p>Virtual memory is an abstraction that gives each process its own private address space, isolated from other processes. When a program accesses memory at address <code>0x1000</code>, that address is <em>virtual</em>—it doesn't correspond directly to a location in physical RAM. Instead, the CPU's Memory Management Unit (MMU) translates virtual addresses to physical addresses using <em>page tables</em> maintained by the kernel.</p>
+<p>This translation happens transparently on every memory access. The kernel controls what translations exist, enabling it to:</p>
+<ul>
+<li>Isolate processes from each other (different page tables, different views of memory)</li>
+<li>Map the same physical page into multiple address spaces (sharing)</li>
+<li>Delay allocation until memory is actually accessed (demand paging)</li>
+<li>Move pages to disk when RAM is scarce (swapping)</li>
+</ul>
+<pre class="mermaid"><code>flowchart LR
+    subgraph PROCA["Process A"]
+        VA1["0x1000"]
+    end
+
+    subgraph PROCB["Process B"]
+        VA2["0x1000"]
+    end
+
+    MMU["MMU<br/>Page Tables"]
+
+    subgraph RAM["Physical RAM"]
+        PF1["Frame 42"]
+        PF2["Frame 108"]
+    end
+
+    VA1 --&gt;|"A's page table"| MMU
+    VA2 --&gt;|"B's page table"| MMU
+    MMU --&gt; PF1
+    MMU --&gt; PF2
+</code></pre>
+<p>Both processes use the same virtual address <code>0x1000</code>, but they map to different physical frames. Neither process can access the other's memory.</p>
+<h2 id="why-virtual-memory">Why Virtual Memory?<a class="headerlink" href="#why-virtual-memory" title="Permanent link">¶</a></h2>
+<table>
+<thead>
+<tr>
+<th>Benefit</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Isolation</strong></td>
+<td>Processes cannot read or write each other's memory; a bug in one program cannot corrupt another</td>
+</tr>
+<tr>
+<td><strong>Over-commitment</strong></td>
+<td>The system can allocate more virtual memory than physical RAM exists, paging to disk as needed</td>
+</tr>
+<tr>
+<td><strong>Sharing</strong></td>
+<td>Read-only code (libraries, executables) can be shared across processes without duplication</td>
+</tr>
+<tr>
+<td><strong>Simplicity</strong></td>
+<td>Each process sees a simple, contiguous address space starting at zero</td>
+</tr>
+<tr>
+<td><strong>Demand paging</strong></td>
+<td>Pages are loaded from disk only when first accessed, reducing startup time and memory pressure</td>
+</tr>
+<tr>
+<td><strong>Memory-mapped files</strong></td>
+<td>Files can be accessed as memory (<code>mmap</code>), enabling efficient I/O and sharing</td>
+</tr>
+</tbody>
+</table>
+<h2 id="core-concepts">Core Concepts<a class="headerlink" href="#core-concepts" title="Permanent link">¶</a></h2>
+<h3 id="virtual-address">Virtual Address<a class="headerlink" href="#virtual-address" title="Permanent link">¶</a></h3>
+<p>An address in a process's address space. The CPU sees these addresses; the MMU translates them to physical addresses. Each process has its own virtual address space (typically 0 to 2^47 on amd64).</p>
+<p><em>See: <a href="https://en.wikipedia.org/wiki/Virtual_address_space">Wikipedia: Virtual address space</a></em></p>
+<h3 id="physical-address">Physical Address<a class="headerlink" href="#physical-address" title="Permanent link">¶</a></h3>
+<p>An actual location in RAM hardware. The kernel and MMU deal with physical addresses; user processes never see them directly.</p>
+<p><em>See: <a href="https://en.wikipedia.org/wiki/Physical_address">Wikipedia: Physical address</a></em></p>
+<h3 id="page">Page<a class="headerlink" href="#page" title="Permanent link">¶</a></h3>
+<p>The fundamental unit of memory management, typically 4KB on x86-64. Virtual and physical memory are divided into fixed-size pages. The MMU translates at page granularity—all addresses within a page share the same translation.</p>
+<p><em>See: <a href="https://en.wikipedia.org/wiki/Page_(computer_memory)">Wikipedia: Page (computer memory)</a></em></p>
+<h3 id="page-table">Page Table<a class="headerlink" href="#page-table" title="Permanent link">¶</a></h3>
+<p>A data structure mapping virtual pages to physical frames. Maintained by the kernel, walked by the MMU hardware on every memory access. Modern systems use multi-level page tables (4 levels on x86-64) to handle sparse address spaces efficiently.</p>
+<p><em>See: <a href="https://en.wikipedia.org/wiki/Page_table">Wikipedia: Page table</a></em></p>
+<h3 id="page-fault">Page Fault<a class="headerlink" href="#page-fault" title="Permanent link">¶</a></h3>
+<p>A CPU exception triggered when accessing a virtual address with no valid translation. The kernel's fault handler determines why: the page may need to be loaded from disk, allocated and zero-filled, or the access may be illegal (segfault).</p>
+<p><em>See: <a href="https://en.wikipedia.org/wiki/Page_fault">Wikipedia: Page fault</a></em></p>
+<h3 id="pager">Pager<a class="headerlink" href="#pager" title="Permanent link">¶</a></h3>
+<p>A kernel component responsible for providing page contents. Different pagers handle different backing stores: the <em>vnode pager</em> reads from files, the <em>swap pager</em> reads from swap space, the <em>device pager</em> maps hardware memory.</p>
+<h3 id="demand-paging">Demand Paging<a class="headerlink" href="#demand-paging" title="Permanent link">¶</a></h3>
+<p>Pages are not loaded until accessed. When a process first touches a page, a fault occurs, and the kernel loads the page from its backing store. This reduces memory usage and startup time.</p>
+<p><em>See: <a href="https://en.wikipedia.org/wiki/Demand_paging">Wikipedia: Demand paging</a></em></p>
+<h3 id="copy-on-write-cow">Copy-on-Write (COW)<a class="headerlink" href="#copy-on-write-cow" title="Permanent link">¶</a></h3>
+<p>An optimization for <code>fork()</code>. Parent and child initially share the same physical pages (marked read-only). When either writes, a fault occurs, and the kernel copies the page so each has a private copy. Most pages are never written, so sharing persists.</p>
+<p><em>See: <a href="https://en.wikipedia.org/wiki/Copy-on-write">Wikipedia: Copy-on-write</a></em></p>
+<h3 id="working-set">Working Set<a class="headerlink" href="#working-set" title="Permanent link">¶</a></h3>
+<p>The set of pages a process is actively using. Good VM performance requires keeping the working set resident in RAM; if it exceeds available memory, the system thrashes.</p>
+<p><em>See: <a href="https://en.wikipedia.org/wiki/Working_set">Wikipedia: Working set</a></em></p>
+<h3 id="thrashing">Thrashing<a class="headerlink" href="#thrashing" title="Permanent link">¶</a></h3>
+<p>A pathological state where the system spends more time paging than executing. Occurs when the combined working sets exceed physical memory, causing continuous page faults.</p>
+<p><em>See: <a href="https://en.wikipedia.org/wiki/Thrashing_(computer_science)">Wikipedia: Thrashing</a></em></p>
+<hr/>
+<h2 id="mach-vm-heritage">Mach VM Heritage<a class="headerlink" href="#mach-vm-heritage" title="Permanent link">¶</a></h2>
+<p>DragonFly's VM subsystem descends from the Mach VM architecture developed at Carnegie Mellon University (1985-1994). Mach introduced an object-oriented approach to virtual memory that was later adopted by 4.4BSD and inherited by FreeBSD, NetBSD, and DragonFly.</p>
+<h3 id="key-mach-vm-concepts">Key Mach VM Concepts<a class="headerlink" href="#key-mach-vm-concepts" title="Permanent link">¶</a></h3>
+<p><strong>vm_object</strong>: A container for pages representing a contiguous region of backing store. Objects can be backed by files (vnode), anonymous memory (swap), or devices. Multiple address space mappings can reference the same object.</p>
+<p><strong>Shadow objects</strong>: When a mapping needs copy-on-write semantics, a <em>shadow object</em> is interposed. The shadow starts empty; copied pages go into the shadow while unmodified pages are read from the original. Shadow chains can form during successive forks.</p>
+<pre class="mermaid"><code>flowchart TB
+    subgraph PARENT["Parent (after fork)"]
+        PME["vm_map_entry"]
+        PSHADOW["shadow object<br/>(modified pages)"]
+    end
+
+    subgraph CHILD["Child (after fork)"]
+        CME["vm_map_entry"]
+        CSHADOW["shadow object<br/>(modified pages)"]
+    end
+
+    ORIG["original object<br/>(shared pages)"]
+    BACKING["backing store<br/>(file or swap)"]
+
+    PME --&gt; PSHADOW --&gt; ORIG
+    CME --&gt; CSHADOW --&gt; ORIG
+    ORIG --&gt; BACKING
+</code></pre>
+<p><strong>Pager abstraction</strong>: Objects delegate I/O to pagers. This separates memory management policy from I/O mechanism—the VM doesn't care whether pages come from a file, swap device, or network.</p>
+<p><strong>Memory object</strong>: In original Mach, external pagers could manage memory objects from user space. BSD simplified this to kernel-only pagers.</p>
+<h3 id="bsd-adaptations">BSD Adaptations<a class="headerlink" href="#bsd-adaptations" title="Permanent link">¶</a></h3>
+<p>When BSD adopted Mach VM, it made several simplifications:</p>
+<ul>
+<li>Removed external pagers (user-space memory servers)</li>
+<li>Integrated tightly with the vnode layer for file mapping</li>
+<li>Added the unified buffer cache (UBC) for file I/O</li>
+</ul>
+<hr/>
+<h2 id="how-dragonfly-evolved-the-design">How DragonFly Evolved the Design<a class="headerlink" href="#how-dragonfly-evolved-the-design" title="Permanent link">¶</a></h2>
+<p>DragonFly inherited the FreeBSD 4.x VM but made significant changes for SMP scalability and integration with the LWKT threading system.</p>
+<h3 id="vm_map_backing-chains">vm_map_backing Chains<a class="headerlink" href="#vm_map_backing-chains" title="Permanent link">¶</a></h3>
+<p>Traditional BSD attaches shadow objects directly to <code>vm_object</code>, creating chains shared across all mappings. DragonFly introduces <code>vm_map_backing</code>—a per-entry structure that forms its own chain:</p>
+<div class="highlight"><pre><span></span><code><a href="#__codelineno-0-1" id="__codelineno-0-1" name="__codelineno-0-1"></a>vm_map_entry → vm_map_backing → vm_map_backing → vm_object
+<a href="#__codelineno-0-2" id="__codelineno-0-2" name="__codelineno-0-2"></a>                (shadow info)    (shadow info)    (pages)
+</code></pre></div>
+<p>Benefits:</p>
+<ul>
+<li>Shadow relationships are per-entry, not shared across pmaps</li>
+<li>Easier to collapse and optimize chains</li>
+<li>Cleaner separation between mapping metadata and page storage</li>
+</ul>
+<h3 id="lwkt-token-locking">LWKT Token Locking<a class="headerlink" href="#lwkt-token-locking" title="Permanent link">¶</a></h3>
+<p>Traditional BSD uses sleep locks (<code>lockmgr</code>) on VM objects. DragonFly uses LWKT tokens—soft serialization primitives that allow blocking while held. This enables:</p>
+<ul>
+<li>Multiple threads to block on I/O without lock contention</li>
+<li>Deadlock-free lock ordering (tokens can be acquired in any order)</li>
+<li>Better integration with the LWKT message-passing model</li>
+</ul>
+<h3 id="page-coloring">Page Coloring<a class="headerlink" href="#page-coloring" title="Permanent link">¶</a></h3>
+<p>DragonFly organizes page queues into 1024 sub-queues based on physical address bits. This:</p>
+<ul>
+<li>Distributes lock contention across many queues</li>
+<li>Improves cache behavior by separating pages by color</li>
+<li>Enables parallel scanning during pageout</li>
+</ul>
+<h3 id="per-cpu-statistics">Per-CPU Statistics<a class="headerlink" href="#per-cpu-statistics" title="Permanent link">¶</a></h3>
+<p>VM statistics (<code>vm_stat</code>) are cached per-CPU and only aggregated when read. This eliminates cache-line bouncing on the global stats structure during allocation/free.</p>
+<h3 id="fast-fault-bypass">Fast Fault Bypass<a class="headerlink" href="#fast-fault-bypass" title="Permanent link">¶</a></h3>
+<p>For pages already resident and valid, DragonFly's <code>vm_fault_quick()</code> avoids the full fault path, directly wiring the page into the page table.</p>
+<hr/>
+<h2 id="further-reading">Further Reading<a class="headerlink" href="#further-reading" title="Permanent link">¶</a></h2>
+<h3 id="textbooks">Textbooks<a class="headerlink" href="#textbooks" title="Permanent link">¶</a></h3>
+<ul>
+<li>
+<p><strong><a href="https://pages.cs.wisc.edu/~remzi/OSTEP/">Operating Systems: Three Easy Pieces</a></strong> — Free online textbook with excellent VM chapters (13-23). Start here for foundational understanding.</p>
+</li>
+<li>
+<p><strong>The Design and Implementation of the FreeBSD Operating System</strong> (McKusick et al.) — Chapter 5 covers BSD VM in detail. The 4.4BSD and FreeBSD editions are both relevant.</p>
+</li>
+</ul>
+<h3 id="papers">Papers<a class="headerlink" href="#papers" title="Permanent link">¶</a></h3>
+<ul>
+<li><strong><a href="https://www.cs.cmu.edu/afs/cs/project/mach/public/www/doc/publications.html">Machine-Independent Virtual Memory Management for Paged Uniprocessor and Multiprocessor Architectures</a></strong> (Rashid et al., 1987) — The original Mach VM paper describing the object-oriented design.</li>
+</ul>
+<h3 id="quick-reference">Quick Reference<a class="headerlink" href="#quick-reference" title="Permanent link">¶</a></h3>
+<ul>
+<li><a href="https://en.wikipedia.org/wiki/Virtual_memory">Wikipedia: Virtual memory</a></li>
+<li><a href="https://en.wikipedia.org/wiki/Mach_(kernel)">Wikipedia: Mach (kernel)</a></li>
+<li><a href="https://wiki.osdev.org/Paging">OSDev Wiki: Paging</a> — x86-specific page table details</li>
+</ul>
+<hr/>
+<h2 id="see-also">See Also<a class="headerlink" href="#see-also" title="Permanent link">¶</a></h2>
+<ul>
+<li><a href="../">VM Subsystem Overview</a> — DragonFly's architecture and data structures</li>
+<li><a href="../vm_page/">Physical Pages</a> — Page allocation, queues, and coloring</li>
+<li><a href="../vm_object/">VM Objects</a> — Object lifecycle and page management</li>
+<li><a href="../vm_fault/">Page Faults</a> — Fault handling and COW implementation</li>
+<li><a href="../../kern/memory/">Memory Allocation</a> — Kernel memory (kmalloc, objcache)</li>
+</ul>
+</article>
+</div>
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+</div>
+<button class="md-top md-icon" data-md-component="top" hidden="" type="button">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"></path></svg>
+  Back to top
+</button>
+</main>
+<footer class="md-footer">
+<div class="md-footer-meta md-typeset">
+<div class="md-footer-meta__inner md-grid">
+<div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" rel="noopener" target="_blank">
+      Material for MkDocs
+    </a>
+</div>
+</div>
+</div>
+</footer>
+</div>
+<div class="md-dialog" data-md-component="dialog">
+<div class="md-dialog__inner md-typeset"></div>
+</div>
+<script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": ["navigation.tabs", "navigation.sections", "navigation.expand", "navigation.top", "search.suggest", "search.highlight", "content.code.copy"], "search": "../../../assets/javascripts/workers/search.7a47a382.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+<script src="../../../assets/javascripts/bundle.e71a0d61.min.js"></script>
+<script type="module">import mermaid from "https://unpkg.com/mermaid@10.4.0/dist/mermaid.esm.min.mjs";
+window.mermaidConfig = {default: {
+    startOnLoad: false
+}};</script></body>
+</html>
