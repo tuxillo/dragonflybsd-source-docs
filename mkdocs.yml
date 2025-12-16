@@ -112,6 +112,7 @@ nav:
       - Task Queues: sys/kern/taskqueue.md
       - Random Number Generation: sys/kern/random.md
       - Process Checkpoint/Restart: sys/kern/checkpoint.md
+      - Distributed Messaging (dmsg): sys/kern/dmsg.md
     - vm/:
       - Overview: sys/vm/index.md
       - Concepts: sys/vm/concepts.md
