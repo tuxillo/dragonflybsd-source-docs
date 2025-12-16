@@ -1,0 +1,4178 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Comprehensive documentation for the DragonFly BSD kernel source code">
+      
+      
+        <meta name="author" content="DragonFly BSD Community">
+      
+      
+      
+        <link rel="prev" href="../shutdown/">
+      
+      
+        <link rel="next" href="../../vm/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.0">
+    
+    
+      
+        <title>Kernel Utilities - DragonFly BSD Kernel Documentation</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.618322db.min.css">
+      
+        
+        <link rel="stylesheet" href="../../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#kernel-utilities-and-miscellaneous-subsystems" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../../.." title="DragonFly BSD Kernel Documentation" class="md-header__button md-logo" aria-label="DragonFly BSD Kernel Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            DragonFly BSD Kernel Documentation
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Kernel Utilities
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/tuxillo/dragonflybsd-source-docs" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    tuxillo/dragonflybsd-source-docs
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../.." class="md-tabs__link">
+        
+  
+  
+    
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../getting-started/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Getting Started
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+    
+  
+  
+    
+    
+      <li class="md-tabs__item md-tabs__item--active">
+        <a href="../../" class="md-tabs__link">
+          
+  
+  
+  Kernel Subsystems
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../.." title="DragonFly BSD Kernel Documentation" class="md-nav__button md-logo" aria-label="DragonFly BSD Kernel Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    DragonFly BSD Kernel Documentation
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/tuxillo/dragonflybsd-source-docs" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    tuxillo/dragonflybsd-source-docs
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../getting-started/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Getting Started
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Kernel Subsystems
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Kernel Subsystems
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+          
+          
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_2" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_3_2" id="__nav_3_2_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    kern/
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_2_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_3_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    kern/
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../lwkt/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    LWKT Threading
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../synchronization/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Synchronization
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../time/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Time & Timers
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../memory/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Memory Management
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../initialization/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Initialization & Bootstrap
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../processes/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Processes & Threads
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../resources/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Process Resources & Credentials
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../signals/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Signals
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../scheduling/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Scheduling
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_3_2_11" >
+        
+          
+          <label class="md-nav__link" for="__nav_3_2_11" id="__nav_3_2_11_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Virtual Filesystem
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_3_2_11_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_2_11">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Virtual Filesystem
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../vfs/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../vfs/namecache/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Name Lookup & Caching
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../vfs/mounting/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Mounting & Unmounting
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../vfs/buffer-cache/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Buffer Cache & I/O
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../vfs/vfs-operations/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    VFS Operations Framework
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../vfs/journaling/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Journaling System
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../vfs/vfs-locking/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Vnode Locking & Lifecycle
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../vfs/vfs-extensions/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    VFS Extensions & Helpers
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_3_2_12" >
+        
+          
+          <label class="md-nav__link" for="__nav_3_2_12" id="__nav_3_2_12_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    IPC & Sockets
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_3_2_12_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_2_12">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    IPC & Sockets
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ipc/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ipc/mbufs/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Mbufs
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ipc/sockets/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Sockets
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ipc/unix-sockets/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Unix Domain Sockets
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ipc/protocol-dispatch/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Protocol Dispatch
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ipc/pipes/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Pipes
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ipc/mqueue/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    POSIX Message Queues
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ipc/sysv-msg/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    System V Message Queues
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ipc/sysv-sem/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    System V Semaphores
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ipc/sysv-shm/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    System V Shared Memory
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../devices/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Devices & Drivers
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../newbus/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    NewBus Framework
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../bus-resources/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Bus Resources & DMA
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../disk/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Disk Subsystem
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../firmware/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Firmware Loading
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../syscalls/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    System Calls
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../kld/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Kernel Linker (KLD)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../tracing/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Tracing & Debugging
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../sysctl/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Sysctl Framework
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../accounting/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Accounting & Sensors
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../security/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Security
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../tty/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    TTY Subsystem
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../tty-pty/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Pseudo-Terminals (PTY)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../kevent/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Event Notification (kevent)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../taskqueue/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Task Queues
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../random/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Random Number Generation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../checkpoint/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Process Checkpoint/Restart
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../dmsg/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Distributed Messaging (dmsg)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../shutdown/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Shutdown & Panic
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Kernel Utilities
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Kernel Utilities
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#overview" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Overview
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#cpu-topology" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        CPU Topology
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="CPU Topology">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#topology-levels" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Topology Levels
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#cpu_node_t-structure" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        cpu_node_t Structure
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#topology-detection" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Topology Detection
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#api-functions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        API Functions
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#sysctl-interface" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Sysctl Interface
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#global-variables" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Global Variables
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#event-handler-framework" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Event Handler Framework
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Event Handler Framework">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#event-lists" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Event Lists
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#registration" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Registration
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#priority-ordering" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Priority Ordering
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#common-events" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Common Events
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#usage-example" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Usage Example
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#unit-number-allocation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Unit Number Allocation
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Unit Number Allocation">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#design-goals" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Design Goals
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#data-structures" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Data Structures
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#memory-efficiency" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Memory Efficiency
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#api" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        API
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#usage-example_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Usage Example
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#variant-symlinks-varsym" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Variant Symlinks (varsym)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Variant Symlinks (varsym)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#variable-scopes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Variable Scopes
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#variable-substitution" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Variable Substitution
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#data-structures_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Data Structures
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#system-calls" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        System Calls
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#kernel-api" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Kernel API
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#search-order" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Search Order
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#limits" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Limits
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#extended-io-xio" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Extended I/O (XIO)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Extended I/O (XIO)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#design" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Design
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#xio_t-structure" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        xio_t Structure
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#initialization" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Initialization
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#data-transfer" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Data Transfer
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#cleanup" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Cleanup
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#usage-example_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Usage Example
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#additional-utility-files" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Additional Utility Files
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Additional Utility Files">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#kernel-printf-subr_prfc" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Kernel Printf (subr_prf.c)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#kernel-log-subr_logc" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Kernel Log (subr_log.c)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#profiling-subr_profc" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Profiling (subr_prof.c)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#power-management-subr_powerc" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Power Management (subr_power.c)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#scanf-subr_scanfc" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Scanf (subr_scanf.c)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#uuid-kern_uuidc" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        UUID (kern_uuid.c)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#dragonfly-specific-features" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        DragonFly-Specific Features
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="DragonFly-Specific Features">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#cpu-topology_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        CPU Topology
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#variant-symlinks" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Variant Symlinks
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#xio-buffers" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        XIO Buffers
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#see-also" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        See Also
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+          
+          
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_3_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3_3" id="__nav_3_3_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    vm/
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    vm/
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../vm/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../vm/concepts/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Concepts
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../vm/vm_page/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Physical Pages
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../vm/vm_object/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    VM Objects
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../vm/vm_map/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Address Space
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../vm/vm_fault/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Page Faults
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../vm/vm_pageout/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Pageout & Swap
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../vm/vm_mmap/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Memory Mapping
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+          
+          
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_3_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_3_4" id="__nav_3_4_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    cpu/x86_64/
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    cpu/x86_64/
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../cpu/x86_64/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#overview" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Overview
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#cpu-topology" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        CPU Topology
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="CPU Topology">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#topology-levels" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Topology Levels
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#cpu_node_t-structure" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        cpu_node_t Structure
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#topology-detection" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Topology Detection
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#api-functions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        API Functions
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#sysctl-interface" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Sysctl Interface
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#global-variables" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Global Variables
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#event-handler-framework" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Event Handler Framework
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Event Handler Framework">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#event-lists" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Event Lists
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#registration" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Registration
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#priority-ordering" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Priority Ordering
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#common-events" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Common Events
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#usage-example" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Usage Example
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#unit-number-allocation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Unit Number Allocation
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Unit Number Allocation">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#design-goals" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Design Goals
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#data-structures" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Data Structures
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#memory-efficiency" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Memory Efficiency
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#api" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        API
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#usage-example_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Usage Example
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#variant-symlinks-varsym" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Variant Symlinks (varsym)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Variant Symlinks (varsym)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#variable-scopes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Variable Scopes
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#variable-substitution" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Variable Substitution
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#data-structures_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Data Structures
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#system-calls" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        System Calls
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#kernel-api" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Kernel API
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#search-order" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Search Order
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#limits" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Limits
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#extended-io-xio" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Extended I/O (XIO)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Extended I/O (XIO)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#design" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Design
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#xio_t-structure" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        xio_t Structure
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#initialization" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Initialization
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#data-transfer" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Data Transfer
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#cleanup" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Cleanup
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#usage-example_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Usage Example
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#additional-utility-files" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Additional Utility Files
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Additional Utility Files">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#kernel-printf-subr_prfc" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Kernel Printf (subr_prf.c)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#kernel-log-subr_logc" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Kernel Log (subr_log.c)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#profiling-subr_profc" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Profiling (subr_prof.c)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#power-management-subr_powerc" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Power Management (subr_power.c)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#scanf-subr_scanfc" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Scanf (subr_scanf.c)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#uuid-kern_uuidc" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        UUID (kern_uuid.c)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#dragonfly-specific-features" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        DragonFly-Specific Features
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="DragonFly-Specific Features">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#cpu-topology_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        CPU Topology
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#variant-symlinks" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Variant Symlinks
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#xio-buffers" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        XIO Buffers
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#see-also" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        See Also
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="kernel-utilities-and-miscellaneous-subsystems">Kernel Utilities and Miscellaneous Subsystems<a class="headerlink" href="#kernel-utilities-and-miscellaneous-subsystems" title="Permanent link">&para;</a></h1>
+<p>This document covers miscellaneous kernel utility subsystems in DragonFly BSD that
+don't fit into other major categories. These utilities provide essential support
+functions used throughout the kernel.</p>
+<h2 id="overview">Overview<a class="headerlink" href="#overview" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Utility</th>
+<th>Source</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>CPU Topology</td>
+<td><code>subr_cpu_topology.c</code></td>
+<td>CPU hierarchy detection and management</td>
+</tr>
+<tr>
+<td>Event Handlers</td>
+<td><code>subr_eventhandler.c</code></td>
+<td>Generic kernel event notification</td>
+</tr>
+<tr>
+<td>Unit Number Allocation</td>
+<td><code>subr_unit.c</code></td>
+<td>Efficient unit number management</td>
+</tr>
+<tr>
+<td>Variant Symlinks (varsym)</td>
+<td><code>kern_varsym.c</code></td>
+<td>Variable substitution in symlinks</td>
+</tr>
+<tr>
+<td>Extended I/O (XIO)</td>
+<td><code>kern_xio.c</code></td>
+<td>Page-based buffer management</td>
+</tr>
+</tbody>
+</table>
+<h2 id="cpu-topology">CPU Topology<a class="headerlink" href="#cpu-topology" title="Permanent link">&para;</a></h2>
+<p>The CPU topology subsystem (<code>subr_cpu_topology.c</code>) detects and manages the
+hierarchical structure of CPUs in multi-core and multi-socket systems.</p>
+<h3 id="topology-levels">Topology Levels<a class="headerlink" href="#topology-levels" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="cm">/* Topology hierarchy from top to bottom */</span>
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="cp">#define PACKAGE_LEVEL   0   </span><span class="cm">/* Physical package/socket */</span>
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="cp">#define CHIP_LEVEL      1   </span><span class="cm">/* Physical chip (socket) */</span>
+<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="cp">#define CORE_LEVEL      2   </span><span class="cm">/* Physical core */</span>
+<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a><span class="cp">#define THREAD_LEVEL    3   </span><span class="cm">/* Logical thread (HT/SMT) */</span>
+</code></pre></div>
+<h3 id="cpu_node_t-structure">cpu_node_t Structure<a class="headerlink" href="#cpu_node_t-structure" title="Permanent link">&para;</a></h3>
+<p>Each node in the topology tree (<code>subr_cpu_topology.c:63</code>):</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="k">struct</span><span class="w"> </span><span class="nc">cpu_node</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="w">    </span><span class="n">cpu_node_t</span><span class="w">      </span><span class="o">*</span><span class="n">parent_node</span><span class="p">;</span><span class="w">           </span><span class="cm">/* Parent in tree */</span>
+<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="w">    </span><span class="n">cpu_node_t</span><span class="w">      </span><span class="o">*</span><span class="n">child_node</span><span class="p">[</span><span class="n">MAXCPU</span><span class="p">];</span><span class="w">    </span><span class="cm">/* Children */</span>
+<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a><span class="w">    </span><span class="kt">int</span><span class="w">             </span><span class="n">child_no</span><span class="p">;</span><span class="w">               </span><span class="cm">/* Number of children */</span>
+<a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a><span class="w">    </span><span class="kt">cpumask_t</span><span class="w">       </span><span class="n">members</span><span class="p">;</span><span class="w">                </span><span class="cm">/* CPUs in this node */</span>
+<a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a><span class="w">    </span><span class="kt">uint8_t</span><span class="w">         </span><span class="n">type</span><span class="p">;</span><span class="w">                   </span><span class="cm">/* Level type */</span>
+<a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a><span class="w">    </span><span class="kt">uint8_t</span><span class="w">         </span><span class="n">compute_unit_id</span><span class="p">;</span><span class="w">        </span><span class="cm">/* AMD compute unit */</span>
+<a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a><span class="w">    </span><span class="kt">long</span><span class="w">            </span><span class="n">phys_mem</span><span class="p">;</span><span class="w">               </span><span class="cm">/* NUMA: memory attached */</span>
+<a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a><span class="p">};</span>
+</code></pre></div>
+<h3 id="topology-detection">Topology Detection<a class="headerlink" href="#topology-detection" title="Permanent link">&para;</a></h3>
+<p>The system builds a tree representing CPU relationships:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>                  PACKAGE (root)
+<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>                       │
+<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>         ┌─────────────┼─────────────┐
+<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a>         │             │             │
+<a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a>      CHIP 0        CHIP 1        CHIP 2
+<a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a>         │             │             │
+<a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a>    ┌────┴────┐   ┌────┴────┐   ┌────┴────┐
+<a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a>  CORE 0   CORE 1 CORE 0  CORE 1 CORE 0  CORE 1
+<a id="__codelineno-2-9" name="__codelineno-2-9" href="#__codelineno-2-9"></a>    │         │     │       │     │       │
+<a id="__codelineno-2-10" name="__codelineno-2-10" href="#__codelineno-2-10"></a>  THR 0,1  THR 0,1 ...     ...   ...     ...
+</code></pre></div>
+<h3 id="api-functions">API Functions<a class="headerlink" href="#api-functions" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="cm">/* Get CPU node by CPU ID */</span>
+<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="n">cpu_node_t</span><span class="w"> </span><span class="o">*</span><span class="nf">get_cpu_node_by_cpuid</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">cpuid</span><span class="p">);</span>
+<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a>
+<a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a><span class="cm">/* Get CPU node by chip ID */</span>
+<a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a><span class="k">const</span><span class="w"> </span><span class="n">cpu_node_t</span><span class="w"> </span><span class="o">*</span><span class="nf">get_cpu_node_by_chipid</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">chip_id</span><span class="p">);</span>
+<a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a>
+<a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a><span class="cm">/* Get sibling mask at specified level */</span>
+<a id="__codelineno-3-8" name="__codelineno-3-8" href="#__codelineno-3-8"></a><span class="kt">cpumask_t</span><span class="w"> </span><span class="nf">get_cpumask_from_level</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">cpuid</span><span class="p">,</span><span class="w"> </span><span class="kt">uint8_t</span><span class="w"> </span><span class="n">level_type</span><span class="p">);</span>
+<a id="__codelineno-3-9" name="__codelineno-3-9" href="#__codelineno-3-9"></a>
+<a id="__codelineno-3-10" name="__codelineno-3-10" href="#__codelineno-3-10"></a><span class="cm">/* Get CPU IDs */</span>
+<a id="__codelineno-3-11" name="__codelineno-3-11" href="#__codelineno-3-11"></a><span class="kt">int</span><span class="w"> </span><span class="nf">get_cpu_ht_id</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">cpuid</span><span class="p">);</span><span class="w">       </span><span class="cm">/* Thread ID within core */</span>
+<a id="__codelineno-3-12" name="__codelineno-3-12" href="#__codelineno-3-12"></a><span class="kt">int</span><span class="w"> </span><span class="nf">get_cpu_core_id</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">cpuid</span><span class="p">);</span><span class="w">     </span><span class="cm">/* Core ID within chip */</span>
+<a id="__codelineno-3-13" name="__codelineno-3-13" href="#__codelineno-3-13"></a><span class="kt">int</span><span class="w"> </span><span class="nf">get_cpu_phys_id</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">cpuid</span><span class="p">);</span><span class="w">     </span><span class="cm">/* Physical package ID */</span>
+<a id="__codelineno-3-14" name="__codelineno-3-14" href="#__codelineno-3-14"></a>
+<a id="__codelineno-3-15" name="__codelineno-3-15" href="#__codelineno-3-15"></a><span class="cm">/* NUMA support */</span>
+<a id="__codelineno-3-16" name="__codelineno-3-16" href="#__codelineno-3-16"></a><span class="kt">long</span><span class="w"> </span><span class="nf">get_highest_node_memory</span><span class="p">(</span><span class="kt">void</span><span class="p">);</span><span class="w">  </span><span class="cm">/* Highest memory on any node */</span>
+</code></pre></div>
+<h3 id="sysctl-interface">Sysctl Interface<a class="headerlink" href="#sysctl-interface" title="Permanent link">&para;</a></h3>
+<p>The topology is exposed via sysctl:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>hw.cpu_topology.tree              - ASCII tree diagram
+<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>hw.cpu_topology.level_description - Level meaning
+<a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a>hw.cpu_topology.members           - All CPUs in system
+<a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a>hw.cpu_topology.cpu0.physical_id  - Package ID for CPU 0
+<a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a>hw.cpu_topology.cpu0.core_id      - Core ID for CPU 0
+<a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a>hw.cpu_topology.cpu0.physical_siblings - CPUs in same package
+<a id="__codelineno-4-7" name="__codelineno-4-7" href="#__codelineno-4-7"></a>hw.cpu_topology.cpu0.core_siblings - CPUs in same core
+</code></pre></div>
+<h3 id="global-variables">Global Variables<a class="headerlink" href="#global-variables" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="cm">/* Available after SI_BOOT2_CPU_TOPOLOGY */</span>
+<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a><span class="kt">int</span><span class="w"> </span><span class="n">cpu_topology_levels_number</span><span class="p">;</span><span class="w">    </span><span class="cm">/* 2, 3, or 4 levels */</span>
+<a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a><span class="kt">int</span><span class="w"> </span><span class="n">cpu_topology_ht_ids</span><span class="p">;</span><span class="w">           </span><span class="cm">/* Threads per core */</span>
+<a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a><span class="kt">int</span><span class="w"> </span><span class="n">cpu_topology_core_ids</span><span class="p">;</span><span class="w">         </span><span class="cm">/* Cores per chip */</span>
+<a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a><span class="kt">int</span><span class="w"> </span><span class="n">cpu_topology_phys_ids</span><span class="p">;</span><span class="w">         </span><span class="cm">/* Physical packages */</span>
+<a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a><span class="n">cpu_node_t</span><span class="w"> </span><span class="o">*</span><span class="n">root_cpu_node</span><span class="p">;</span><span class="w">         </span><span class="cm">/* Root of topology tree */</span>
+</code></pre></div>
+<h2 id="event-handler-framework">Event Handler Framework<a class="headerlink" href="#event-handler-framework" title="Permanent link">&para;</a></h2>
+<p>The event handler framework (<code>subr_eventhandler.c</code>) provides a generic mechanism
+for registering callbacks that are invoked when specific events occur.</p>
+<h3 id="event-lists">Event Lists<a class="headerlink" href="#event-lists" title="Permanent link">&para;</a></h3>
+<p>Events are organized in named lists:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="k">struct</span><span class="w"> </span><span class="nc">eventhandler_list</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a><span class="w">    </span><span class="n">TAILQ_HEAD</span><span class="p">(,</span><span class="w"> </span><span class="n">eventhandler_entry</span><span class="p">)</span><span class="w"> </span><span class="n">el_entries</span><span class="p">;</span><span class="w">  </span><span class="cm">/* Handlers */</span>
+<a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a><span class="w">    </span><span class="kt">char</span><span class="w">            </span><span class="o">*</span><span class="n">el_name</span><span class="p">;</span><span class="w">                      </span><span class="cm">/* Event name */</span>
+<a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a><span class="w">    </span><span class="kt">int</span><span class="w">             </span><span class="n">el_flags</span><span class="p">;</span><span class="w">                      </span><span class="cm">/* State flags */</span>
+<a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a><span class="w">    </span><span class="n">TAILQ_ENTRY</span><span class="p">(</span><span class="n">eventhandler_list</span><span class="p">)</span><span class="w"> </span><span class="n">el_link</span><span class="p">;</span><span class="w">       </span><span class="cm">/* Global list */</span>
+<a id="__codelineno-6-6" name="__codelineno-6-6" href="#__codelineno-6-6"></a><span class="p">};</span>
+</code></pre></div>
+<h3 id="registration">Registration<a class="headerlink" href="#registration" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;sys/eventhandler.h&gt;</span>
+<a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a>
+<a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a><span class="cm">/* Register a handler */</span>
+<a id="__codelineno-7-4" name="__codelineno-7-4" href="#__codelineno-7-4"></a><span class="n">eventhandler_tag</span>
+<a id="__codelineno-7-5" name="__codelineno-7-5" href="#__codelineno-7-5"></a><span class="nf">eventhandler_register</span><span class="p">(</span><span class="k">struct</span><span class="w"> </span><span class="nc">eventhandler_list</span><span class="w"> </span><span class="o">*</span><span class="n">list</span><span class="p">,</span>
+<a id="__codelineno-7-6" name="__codelineno-7-6" href="#__codelineno-7-6"></a><span class="w">                      </span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="n">name</span><span class="p">,</span>
+<a id="__codelineno-7-7" name="__codelineno-7-7" href="#__codelineno-7-7"></a><span class="w">                      </span><span class="kt">void</span><span class="w"> </span><span class="o">*</span><span class="n">func</span><span class="p">,</span>
+<a id="__codelineno-7-8" name="__codelineno-7-8" href="#__codelineno-7-8"></a><span class="w">                      </span><span class="kt">void</span><span class="w"> </span><span class="o">*</span><span class="n">arg</span><span class="p">,</span>
+<a id="__codelineno-7-9" name="__codelineno-7-9" href="#__codelineno-7-9"></a><span class="w">                      </span><span class="kt">int</span><span class="w"> </span><span class="n">priority</span><span class="p">);</span>
+<a id="__codelineno-7-10" name="__codelineno-7-10" href="#__codelineno-7-10"></a>
+<a id="__codelineno-7-11" name="__codelineno-7-11" href="#__codelineno-7-11"></a><span class="cm">/* Deregister a handler */</span>
+<a id="__codelineno-7-12" name="__codelineno-7-12" href="#__codelineno-7-12"></a><span class="kt">void</span>
+<a id="__codelineno-7-13" name="__codelineno-7-13" href="#__codelineno-7-13"></a><span class="nf">eventhandler_deregister</span><span class="p">(</span><span class="k">struct</span><span class="w"> </span><span class="nc">eventhandler_list</span><span class="w"> </span><span class="o">*</span><span class="n">list</span><span class="p">,</span>
+<a id="__codelineno-7-14" name="__codelineno-7-14" href="#__codelineno-7-14"></a><span class="w">                        </span><span class="n">eventhandler_tag</span><span class="w"> </span><span class="n">tag</span><span class="p">);</span>
+<a id="__codelineno-7-15" name="__codelineno-7-15" href="#__codelineno-7-15"></a>
+<a id="__codelineno-7-16" name="__codelineno-7-16" href="#__codelineno-7-16"></a><span class="cm">/* Find a list by name */</span>
+<a id="__codelineno-7-17" name="__codelineno-7-17" href="#__codelineno-7-17"></a><span class="k">struct</span><span class="w"> </span><span class="nc">eventhandler_list</span><span class="w"> </span><span class="o">*</span>
+<a id="__codelineno-7-18" name="__codelineno-7-18" href="#__codelineno-7-18"></a><span class="n">eventhandler_find_list</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="n">name</span><span class="p">);</span>
+</code></pre></div>
+<h3 id="priority-ordering">Priority Ordering<a class="headerlink" href="#priority-ordering" title="Permanent link">&para;</a></h3>
+<p>Handlers are invoked in priority order (lower first):</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a><span class="cm">/* Standard priorities */</span>
+<a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a><span class="cp">#define EVENTHANDLER_PRI_FIRST      0</span>
+<a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a><span class="cp">#define EVENTHANDLER_PRI_ANY        10000</span>
+<a id="__codelineno-8-4" name="__codelineno-8-4" href="#__codelineno-8-4"></a><span class="cp">#define EVENTHANDLER_PRI_LAST       20000</span>
+</code></pre></div>
+<h3 id="common-events">Common Events<a class="headerlink" href="#common-events" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Event</th>
+<th>Arguments</th>
+<th>When Invoked</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>shutdown_pre_sync</code></td>
+<td><code>(void *arg, int howto)</code></td>
+<td>Before filesystem sync</td>
+</tr>
+<tr>
+<td><code>shutdown_post_sync</code></td>
+<td><code>(void *arg, int howto)</code></td>
+<td>After sync, before halt</td>
+</tr>
+<tr>
+<td><code>shutdown_final</code></td>
+<td><code>(void *arg, int howto)</code></td>
+<td>Final shutdown</td>
+</tr>
+<tr>
+<td><code>process_exit</code></td>
+<td><code>(void *arg, struct proc *p)</code></td>
+<td>Process termination</td>
+</tr>
+<tr>
+<td><code>process_fork</code></td>
+<td><code>(void *arg, struct proc *p1, struct proc *p2, int flags)</code></td>
+<td>Fork</td>
+</tr>
+</tbody>
+</table>
+<h3 id="usage-example">Usage Example<a class="headerlink" href="#usage-example" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a><span class="cm">/* Handler function */</span>
+<a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a><span class="k">static</span><span class="w"> </span><span class="kt">void</span>
+<a id="__codelineno-9-3" name="__codelineno-9-3" href="#__codelineno-9-3"></a><span class="nf">mydev_shutdown</span><span class="p">(</span><span class="kt">void</span><span class="w"> </span><span class="o">*</span><span class="n">arg</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">howto</span><span class="p">)</span>
+<a id="__codelineno-9-4" name="__codelineno-9-4" href="#__codelineno-9-4"></a><span class="p">{</span>
+<a id="__codelineno-9-5" name="__codelineno-9-5" href="#__codelineno-9-5"></a><span class="w">    </span><span class="k">struct</span><span class="w"> </span><span class="nc">mydev_softc</span><span class="w"> </span><span class="o">*</span><span class="n">sc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">arg</span><span class="p">;</span>
+<a id="__codelineno-9-6" name="__codelineno-9-6" href="#__codelineno-9-6"></a><span class="w">    </span><span class="n">mydev_flush</span><span class="p">(</span><span class="n">sc</span><span class="p">);</span>
+<a id="__codelineno-9-7" name="__codelineno-9-7" href="#__codelineno-9-7"></a><span class="p">}</span>
+<a id="__codelineno-9-8" name="__codelineno-9-8" href="#__codelineno-9-8"></a>
+<a id="__codelineno-9-9" name="__codelineno-9-9" href="#__codelineno-9-9"></a><span class="cm">/* Register during attach */</span>
+<a id="__codelineno-9-10" name="__codelineno-9-10" href="#__codelineno-9-10"></a><span class="n">sc</span><span class="o">-&gt;</span><span class="n">shutdown_tag</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">EVENTHANDLER_REGISTER</span><span class="p">(</span><span class="n">shutdown_pre_sync</span><span class="p">,</span>
+<a id="__codelineno-9-11" name="__codelineno-9-11" href="#__codelineno-9-11"></a><span class="w">    </span><span class="n">mydev_shutdown</span><span class="p">,</span><span class="w"> </span><span class="n">sc</span><span class="p">,</span><span class="w"> </span><span class="n">SHUTDOWN_PRI_DEFAULT</span><span class="p">);</span>
+<a id="__codelineno-9-12" name="__codelineno-9-12" href="#__codelineno-9-12"></a>
+<a id="__codelineno-9-13" name="__codelineno-9-13" href="#__codelineno-9-13"></a><span class="cm">/* Deregister during detach */</span>
+<a id="__codelineno-9-14" name="__codelineno-9-14" href="#__codelineno-9-14"></a><span class="n">EVENTHANDLER_DEREGISTER</span><span class="p">(</span><span class="n">shutdown_pre_sync</span><span class="p">,</span><span class="w"> </span><span class="n">sc</span><span class="o">-&gt;</span><span class="n">shutdown_tag</span><span class="p">);</span>
+</code></pre></div>
+<h2 id="unit-number-allocation">Unit Number Allocation<a class="headerlink" href="#unit-number-allocation" title="Permanent link">&para;</a></h2>
+<p>The unit allocator (<code>subr_unit.c</code>) provides efficient allocation of unit numbers
+for devices and other resources using a mixed run-length/bitmap approach.</p>
+<h3 id="design-goals">Design Goals<a class="headerlink" href="#design-goals" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Lowest free number first policy</li>
+<li>Memory-efficient for sparse allocations</li>
+<li>O(1) allocation in common cases</li>
+<li>Thread-safe with optional custom locking</li>
+</ul>
+<h3 id="data-structures">Data Structures<a class="headerlink" href="#data-structures" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a><span class="cm">/* Unit range header */</span>
+<a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a><span class="k">struct</span><span class="w"> </span><span class="nc">unrhdr</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-10-3" name="__codelineno-10-3" href="#__codelineno-10-3"></a><span class="w">    </span><span class="n">TAILQ_HEAD</span><span class="p">(,</span><span class="w"> </span><span class="n">unr</span><span class="p">)</span><span class="w">   </span><span class="n">head</span><span class="p">;</span><span class="w">       </span><span class="cm">/* List of ranges */</span>
+<a id="__codelineno-10-4" name="__codelineno-10-4" href="#__codelineno-10-4"></a><span class="w">    </span><span class="n">u_int</span><span class="w">               </span><span class="n">low</span><span class="p">;</span><span class="w">        </span><span class="cm">/* Lowest valid unit */</span>
+<a id="__codelineno-10-5" name="__codelineno-10-5" href="#__codelineno-10-5"></a><span class="w">    </span><span class="n">u_int</span><span class="w">               </span><span class="n">high</span><span class="p">;</span><span class="w">       </span><span class="cm">/* Highest valid unit */</span>
+<a id="__codelineno-10-6" name="__codelineno-10-6" href="#__codelineno-10-6"></a><span class="w">    </span><span class="n">u_int</span><span class="w">               </span><span class="n">busy</span><span class="p">;</span><span class="w">       </span><span class="cm">/* Allocated count */</span>
+<a id="__codelineno-10-7" name="__codelineno-10-7" href="#__codelineno-10-7"></a><span class="w">    </span><span class="n">u_int</span><span class="w">               </span><span class="n">alloc</span><span class="p">;</span><span class="w">      </span><span class="cm">/* Memory block count */</span>
+<a id="__codelineno-10-8" name="__codelineno-10-8" href="#__codelineno-10-8"></a><span class="w">    </span><span class="n">u_int</span><span class="w">               </span><span class="n">first</span><span class="p">;</span><span class="w">      </span><span class="cm">/* Units allocated from start */</span>
+<a id="__codelineno-10-9" name="__codelineno-10-9" href="#__codelineno-10-9"></a><span class="w">    </span><span class="n">u_int</span><span class="w">               </span><span class="n">last</span><span class="p">;</span><span class="w">       </span><span class="cm">/* Units free at end */</span>
+<a id="__codelineno-10-10" name="__codelineno-10-10" href="#__codelineno-10-10"></a><span class="w">    </span><span class="k">struct</span><span class="w"> </span><span class="nc">lock</span><span class="w">         </span><span class="o">*</span><span class="n">lock</span><span class="p">;</span><span class="w">      </span><span class="cm">/* Locking */</span>
+<a id="__codelineno-10-11" name="__codelineno-10-11" href="#__codelineno-10-11"></a><span class="p">};</span>
+<a id="__codelineno-10-12" name="__codelineno-10-12" href="#__codelineno-10-12"></a>
+<a id="__codelineno-10-13" name="__codelineno-10-13" href="#__codelineno-10-13"></a><span class="cm">/* Range element (run-length or bitmap) */</span>
+<a id="__codelineno-10-14" name="__codelineno-10-14" href="#__codelineno-10-14"></a><span class="k">struct</span><span class="w"> </span><span class="nc">unr</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-10-15" name="__codelineno-10-15" href="#__codelineno-10-15"></a><span class="w">    </span><span class="n">TAILQ_ENTRY</span><span class="p">(</span><span class="n">unr</span><span class="p">)</span><span class="w">    </span><span class="n">list</span><span class="p">;</span>
+<a id="__codelineno-10-16" name="__codelineno-10-16" href="#__codelineno-10-16"></a><span class="w">    </span><span class="n">u_int</span><span class="w">               </span><span class="n">len</span><span class="p">;</span><span class="w">        </span><span class="cm">/* Length or bitmap count */</span>
+<a id="__codelineno-10-17" name="__codelineno-10-17" href="#__codelineno-10-17"></a><span class="w">    </span><span class="kt">void</span><span class="w">                </span><span class="o">*</span><span class="n">ptr</span><span class="p">;</span><span class="w">       </span><span class="cm">/* NULL=free, unrhdr=alloc, else bitmap */</span>
+<a id="__codelineno-10-18" name="__codelineno-10-18" href="#__codelineno-10-18"></a><span class="p">};</span>
+</code></pre></div>
+<h3 id="memory-efficiency">Memory Efficiency<a class="headerlink" href="#memory-efficiency" title="Permanent link">&para;</a></h3>
+<p>The allocator automatically optimizes storage:</p>
+<ul>
+<li><strong>Ideal split</strong>: Just tracks first allocated and last free counts</li>
+<li><strong>Run-length</strong>: Consecutive free/allocated ranges stored as count</li>
+<li><strong>Bitmap</strong>: Mixed regions use compact bitmaps</li>
+</ul>
+<p>Memory usage examples:
+- Single contiguous run: 44 bytes (x86)
+- 1000 units, random pattern: ~252 bytes worst case
+- Worst case (alternating): 44 + N/4 bytes</p>
+<h3 id="api">API<a class="headerlink" href="#api" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a><span class="cm">/* Create a new unit number space */</span>
+<a id="__codelineno-11-2" name="__codelineno-11-2" href="#__codelineno-11-2"></a><span class="k">struct</span><span class="w"> </span><span class="nc">unrhdr</span><span class="w"> </span><span class="o">*</span><span class="n">new_unrhdr</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">low</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">high</span><span class="p">,</span><span class="w"> </span><span class="k">struct</span><span class="w"> </span><span class="nc">lock</span><span class="w"> </span><span class="o">*</span><span class="n">lock</span><span class="p">);</span>
+<a id="__codelineno-11-3" name="__codelineno-11-3" href="#__codelineno-11-3"></a>
+<a id="__codelineno-11-4" name="__codelineno-11-4" href="#__codelineno-11-4"></a><span class="cm">/* Delete a unit number space */</span>
+<a id="__codelineno-11-5" name="__codelineno-11-5" href="#__codelineno-11-5"></a><span class="kt">void</span><span class="w"> </span><span class="nf">delete_unrhdr</span><span class="p">(</span><span class="k">struct</span><span class="w"> </span><span class="nc">unrhdr</span><span class="w"> </span><span class="o">*</span><span class="n">uh</span><span class="p">);</span>
+<a id="__codelineno-11-6" name="__codelineno-11-6" href="#__codelineno-11-6"></a>
+<a id="__codelineno-11-7" name="__codelineno-11-7" href="#__codelineno-11-7"></a><span class="cm">/* Allocate a unit number (with locking) */</span>
+<a id="__codelineno-11-8" name="__codelineno-11-8" href="#__codelineno-11-8"></a><span class="kt">int</span><span class="w"> </span><span class="nf">alloc_unr</span><span class="p">(</span><span class="k">struct</span><span class="w"> </span><span class="nc">unrhdr</span><span class="w"> </span><span class="o">*</span><span class="n">uh</span><span class="p">);</span>
+<a id="__codelineno-11-9" name="__codelineno-11-9" href="#__codelineno-11-9"></a>
+<a id="__codelineno-11-10" name="__codelineno-11-10" href="#__codelineno-11-10"></a><span class="cm">/* Allocate with lock already held */</span>
+<a id="__codelineno-11-11" name="__codelineno-11-11" href="#__codelineno-11-11"></a><span class="kt">int</span><span class="w"> </span><span class="nf">alloc_unrl</span><span class="p">(</span><span class="k">struct</span><span class="w"> </span><span class="nc">unrhdr</span><span class="w"> </span><span class="o">*</span><span class="n">uh</span><span class="p">);</span>
+<a id="__codelineno-11-12" name="__codelineno-11-12" href="#__codelineno-11-12"></a>
+<a id="__codelineno-11-13" name="__codelineno-11-13" href="#__codelineno-11-13"></a><span class="cm">/* Free a unit number */</span>
+<a id="__codelineno-11-14" name="__codelineno-11-14" href="#__codelineno-11-14"></a><span class="kt">void</span><span class="w"> </span><span class="nf">free_unr</span><span class="p">(</span><span class="k">struct</span><span class="w"> </span><span class="nc">unrhdr</span><span class="w"> </span><span class="o">*</span><span class="n">uh</span><span class="p">,</span><span class="w"> </span><span class="n">u_int</span><span class="w"> </span><span class="n">item</span><span class="p">);</span>
+</code></pre></div>
+<h3 id="usage-example_1">Usage Example<a class="headerlink" href="#usage-example_1" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a><span class="k">static</span><span class="w"> </span><span class="k">struct</span><span class="w"> </span><span class="nc">unrhdr</span><span class="w"> </span><span class="o">*</span><span class="n">mydev_units</span><span class="p">;</span>
+<a id="__codelineno-12-2" name="__codelineno-12-2" href="#__codelineno-12-2"></a>
+<a id="__codelineno-12-3" name="__codelineno-12-3" href="#__codelineno-12-3"></a><span class="cm">/* Initialize unit allocator */</span>
+<a id="__codelineno-12-4" name="__codelineno-12-4" href="#__codelineno-12-4"></a><span class="k">static</span><span class="w"> </span><span class="kt">void</span>
+<a id="__codelineno-12-5" name="__codelineno-12-5" href="#__codelineno-12-5"></a><span class="nf">mydev_init</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<a id="__codelineno-12-6" name="__codelineno-12-6" href="#__codelineno-12-6"></a><span class="p">{</span>
+<a id="__codelineno-12-7" name="__codelineno-12-7" href="#__codelineno-12-7"></a><span class="w">    </span><span class="n">mydev_units</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">new_unrhdr</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="n">MAXUNITS</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="nb">NULL</span><span class="p">);</span>
+<a id="__codelineno-12-8" name="__codelineno-12-8" href="#__codelineno-12-8"></a><span class="p">}</span>
+<a id="__codelineno-12-9" name="__codelineno-12-9" href="#__codelineno-12-9"></a>
+<a id="__codelineno-12-10" name="__codelineno-12-10" href="#__codelineno-12-10"></a><span class="cm">/* Allocate a unit */</span>
+<a id="__codelineno-12-11" name="__codelineno-12-11" href="#__codelineno-12-11"></a><span class="k">static</span><span class="w"> </span><span class="kt">int</span>
+<a id="__codelineno-12-12" name="__codelineno-12-12" href="#__codelineno-12-12"></a><span class="nf">mydev_attach</span><span class="p">(</span><span class="n">device_t</span><span class="w"> </span><span class="n">dev</span><span class="p">)</span>
+<a id="__codelineno-12-13" name="__codelineno-12-13" href="#__codelineno-12-13"></a><span class="p">{</span>
+<a id="__codelineno-12-14" name="__codelineno-12-14" href="#__codelineno-12-14"></a><span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="n">unit</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">alloc_unr</span><span class="p">(</span><span class="n">mydev_units</span><span class="p">);</span>
+<a id="__codelineno-12-15" name="__codelineno-12-15" href="#__codelineno-12-15"></a><span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">unit</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span>
+<a id="__codelineno-12-16" name="__codelineno-12-16" href="#__codelineno-12-16"></a><span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">ENOMEM</span><span class="p">;</span>
+<a id="__codelineno-12-17" name="__codelineno-12-17" href="#__codelineno-12-17"></a><span class="w">    </span><span class="cm">/* Use unit number... */</span>
+<a id="__codelineno-12-18" name="__codelineno-12-18" href="#__codelineno-12-18"></a><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+<a id="__codelineno-12-19" name="__codelineno-12-19" href="#__codelineno-12-19"></a><span class="p">}</span>
+<a id="__codelineno-12-20" name="__codelineno-12-20" href="#__codelineno-12-20"></a>
+<a id="__codelineno-12-21" name="__codelineno-12-21" href="#__codelineno-12-21"></a><span class="cm">/* Free a unit */</span>
+<a id="__codelineno-12-22" name="__codelineno-12-22" href="#__codelineno-12-22"></a><span class="k">static</span><span class="w"> </span><span class="kt">int</span>
+<a id="__codelineno-12-23" name="__codelineno-12-23" href="#__codelineno-12-23"></a><span class="nf">mydev_detach</span><span class="p">(</span><span class="n">device_t</span><span class="w"> </span><span class="n">dev</span><span class="p">)</span>
+<a id="__codelineno-12-24" name="__codelineno-12-24" href="#__codelineno-12-24"></a><span class="p">{</span>
+<a id="__codelineno-12-25" name="__codelineno-12-25" href="#__codelineno-12-25"></a><span class="w">    </span><span class="n">free_unr</span><span class="p">(</span><span class="n">mydev_units</span><span class="p">,</span><span class="w"> </span><span class="n">sc</span><span class="o">-&gt;</span><span class="n">unit</span><span class="p">);</span>
+<a id="__codelineno-12-26" name="__codelineno-12-26" href="#__codelineno-12-26"></a><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+<a id="__codelineno-12-27" name="__codelineno-12-27" href="#__codelineno-12-27"></a><span class="p">}</span>
+</code></pre></div>
+<h2 id="variant-symlinks-varsym">Variant Symlinks (varsym)<a class="headerlink" href="#variant-symlinks-varsym" title="Permanent link">&para;</a></h2>
+<p>The variant symlink subsystem (<code>kern_varsym.c</code>) provides variable storage and
+substitution for variant symlinks and general-purpose variables.</p>
+<h3 id="variable-scopes">Variable Scopes<a class="headerlink" href="#variable-scopes" title="Permanent link">&para;</a></h3>
+<p>Variables exist at different scope levels:</p>
+<table>
+<thead>
+<tr>
+<th>Level</th>
+<th>Scope</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>VARSYM_PROC</code></td>
+<td>Process</td>
+<td>Per-process variables</td>
+</tr>
+<tr>
+<td><code>VARSYM_USER</code></td>
+<td>User</td>
+<td>Per-user (UID) variables</td>
+</tr>
+<tr>
+<td><code>VARSYM_PRISON</code></td>
+<td>Jail</td>
+<td>Per-jail variables</td>
+</tr>
+<tr>
+<td><code>VARSYM_SYS</code></td>
+<td>System</td>
+<td>System-wide variables</td>
+</tr>
+</tbody>
+</table>
+<h3 id="variable-substitution">Variable Substitution<a class="headerlink" href="#variable-substitution" title="Permanent link">&para;</a></h3>
+<p>When resolving symlinks, <code>${variable}</code> patterns are substituted:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a><span class="cm">/* Called from namei during symlink resolution */</span>
+<a id="__codelineno-13-2" name="__codelineno-13-2" href="#__codelineno-13-2"></a><span class="kt">int</span><span class="w"> </span><span class="nf">varsymreplace</span><span class="p">(</span><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="n">cp</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">linklen</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">maxlen</span><span class="p">);</span>
+</code></pre></div>
+<p>Example symlink: <code>/home/${USER}/data</code> resolves to <code>/home/john/data</code></p>
+<h3 id="data-structures_1">Data Structures<a class="headerlink" href="#data-structures_1" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-14-1" name="__codelineno-14-1" href="#__codelineno-14-1"></a><span class="k">struct</span><span class="w"> </span><span class="nc">varsym</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-14-2" name="__codelineno-14-2" href="#__codelineno-14-2"></a><span class="w">    </span><span class="kt">int</span><span class="w">             </span><span class="n">vs_refs</span><span class="p">;</span><span class="w">        </span><span class="cm">/* Reference count */</span>
+<a id="__codelineno-14-3" name="__codelineno-14-3" href="#__codelineno-14-3"></a><span class="w">    </span><span class="kt">int</span><span class="w">             </span><span class="n">vs_namelen</span><span class="p">;</span><span class="w">     </span><span class="cm">/* Name length */</span>
+<a id="__codelineno-14-4" name="__codelineno-14-4" href="#__codelineno-14-4"></a><span class="w">    </span><span class="kt">char</span><span class="w">            </span><span class="o">*</span><span class="n">vs_name</span><span class="p">;</span><span class="w">       </span><span class="cm">/* Variable name */</span>
+<a id="__codelineno-14-5" name="__codelineno-14-5" href="#__codelineno-14-5"></a><span class="w">    </span><span class="kt">char</span><span class="w">            </span><span class="o">*</span><span class="n">vs_data</span><span class="p">;</span><span class="w">       </span><span class="cm">/* Variable value */</span>
+<a id="__codelineno-14-6" name="__codelineno-14-6" href="#__codelineno-14-6"></a><span class="p">};</span>
+<a id="__codelineno-14-7" name="__codelineno-14-7" href="#__codelineno-14-7"></a>
+<a id="__codelineno-14-8" name="__codelineno-14-8" href="#__codelineno-14-8"></a><span class="k">struct</span><span class="w"> </span><span class="nc">varsymset</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-14-9" name="__codelineno-14-9" href="#__codelineno-14-9"></a><span class="w">    </span><span class="n">TAILQ_HEAD</span><span class="p">(,</span><span class="w"> </span><span class="n">varsyment</span><span class="p">)</span><span class="w"> </span><span class="n">vx_queue</span><span class="p">;</span><span class="w">   </span><span class="cm">/* Variables in set */</span>
+<a id="__codelineno-14-10" name="__codelineno-14-10" href="#__codelineno-14-10"></a><span class="w">    </span><span class="k">struct</span><span class="w"> </span><span class="nc">lock</span><span class="w">     </span><span class="n">vx_lock</span><span class="p">;</span><span class="w">            </span><span class="cm">/* Lock */</span>
+<a id="__codelineno-14-11" name="__codelineno-14-11" href="#__codelineno-14-11"></a><span class="w">    </span><span class="kt">int</span><span class="w">             </span><span class="n">vx_setsize</span><span class="p">;</span><span class="w">         </span><span class="cm">/* Total size */</span>
+<a id="__codelineno-14-12" name="__codelineno-14-12" href="#__codelineno-14-12"></a><span class="p">};</span>
+</code></pre></div>
+<h3 id="system-calls">System Calls<a class="headerlink" href="#system-calls" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-15-1" name="__codelineno-15-1" href="#__codelineno-15-1"></a><span class="cm">/* Set a variable */</span>
+<a id="__codelineno-15-2" name="__codelineno-15-2" href="#__codelineno-15-2"></a><span class="kt">int</span><span class="w"> </span><span class="nf">sys_varsym_set</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">level</span><span class="p">,</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="n">name</span><span class="p">,</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="n">data</span><span class="p">);</span>
+<a id="__codelineno-15-3" name="__codelineno-15-3" href="#__codelineno-15-3"></a>
+<a id="__codelineno-15-4" name="__codelineno-15-4" href="#__codelineno-15-4"></a><span class="cm">/* Get a variable */</span>
+<a id="__codelineno-15-5" name="__codelineno-15-5" href="#__codelineno-15-5"></a><span class="kt">int</span><span class="w"> </span><span class="nf">sys_varsym_get</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">mask</span><span class="p">,</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="n">wild</span><span class="p">,</span><span class="w"> </span><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="n">buf</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">bufsize</span><span class="p">);</span>
+<a id="__codelineno-15-6" name="__codelineno-15-6" href="#__codelineno-15-6"></a>
+<a id="__codelineno-15-7" name="__codelineno-15-7" href="#__codelineno-15-7"></a><span class="cm">/* List variables */</span>
+<a id="__codelineno-15-8" name="__codelineno-15-8" href="#__codelineno-15-8"></a><span class="kt">int</span><span class="w"> </span><span class="nf">sys_varsym_list</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">level</span><span class="p">,</span><span class="w"> </span><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="n">buf</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">maxsize</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="o">*</span><span class="n">marker</span><span class="p">);</span>
+</code></pre></div>
+<h3 id="kernel-api">Kernel API<a class="headerlink" href="#kernel-api" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-16-1" name="__codelineno-16-1" href="#__codelineno-16-1"></a><span class="cm">/* Find a variable (returns held reference) */</span>
+<a id="__codelineno-16-2" name="__codelineno-16-2" href="#__codelineno-16-2"></a><span class="n">varsym_t</span><span class="w"> </span><span class="nf">varsymfind</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">mask</span><span class="p">,</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="n">name</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">namelen</span><span class="p">);</span>
+<a id="__codelineno-16-3" name="__codelineno-16-3" href="#__codelineno-16-3"></a>
+<a id="__codelineno-16-4" name="__codelineno-16-4" href="#__codelineno-16-4"></a><span class="cm">/* Drop reference */</span>
+<a id="__codelineno-16-5" name="__codelineno-16-5" href="#__codelineno-16-5"></a><span class="kt">void</span><span class="w"> </span><span class="nf">varsymdrop</span><span class="p">(</span><span class="n">varsym_t</span><span class="w"> </span><span class="n">sym</span><span class="p">);</span>
+<a id="__codelineno-16-6" name="__codelineno-16-6" href="#__codelineno-16-6"></a>
+<a id="__codelineno-16-7" name="__codelineno-16-7" href="#__codelineno-16-7"></a><span class="cm">/* Create/delete variable */</span>
+<a id="__codelineno-16-8" name="__codelineno-16-8" href="#__codelineno-16-8"></a><span class="kt">int</span><span class="w"> </span><span class="nf">varsymmake</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">level</span><span class="p">,</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="n">name</span><span class="p">,</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="n">data</span><span class="p">);</span>
+<a id="__codelineno-16-9" name="__codelineno-16-9" href="#__codelineno-16-9"></a>
+<a id="__codelineno-16-10" name="__codelineno-16-10" href="#__codelineno-16-10"></a><span class="cm">/* Initialize variable set */</span>
+<a id="__codelineno-16-11" name="__codelineno-16-11" href="#__codelineno-16-11"></a><span class="kt">void</span><span class="w"> </span><span class="nf">varsymset_init</span><span class="p">(</span><span class="k">struct</span><span class="w"> </span><span class="nc">varsymset</span><span class="w"> </span><span class="o">*</span><span class="n">vss</span><span class="p">,</span><span class="w"> </span><span class="k">struct</span><span class="w"> </span><span class="nc">varsymset</span><span class="w"> </span><span class="o">*</span><span class="n">copy</span><span class="p">);</span>
+<a id="__codelineno-16-12" name="__codelineno-16-12" href="#__codelineno-16-12"></a>
+<a id="__codelineno-16-13" name="__codelineno-16-13" href="#__codelineno-16-13"></a><span class="cm">/* Clean variable set */</span>
+<a id="__codelineno-16-14" name="__codelineno-16-14" href="#__codelineno-16-14"></a><span class="kt">void</span><span class="w"> </span><span class="nf">varsymset_clean</span><span class="p">(</span><span class="k">struct</span><span class="w"> </span><span class="nc">varsymset</span><span class="w"> </span><span class="o">*</span><span class="n">vss</span><span class="p">);</span>
+</code></pre></div>
+<h3 id="search-order">Search Order<a class="headerlink" href="#search-order" title="Permanent link">&para;</a></h3>
+<p>Variable lookup searches scopes in order:</p>
+<ol>
+<li>Process scope (<code>VARSYM_PROC_MASK</code>)</li>
+<li>User scope (<code>VARSYM_USER_MASK</code>)</li>
+<li>Prison scope (if jailed) or System scope (<code>VARSYM_SYS_MASK</code>)</li>
+</ol>
+<h3 id="limits">Limits<a class="headerlink" href="#limits" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-17-1" name="__codelineno-17-1" href="#__codelineno-17-1"></a><span class="cp">#define MAXVARSYM_NAME  64      </span><span class="cm">/* Maximum variable name length */</span>
+<a id="__codelineno-17-2" name="__codelineno-17-2" href="#__codelineno-17-2"></a><span class="cp">#define MAXVARSYM_DATA  256     </span><span class="cm">/* Maximum variable data length */</span>
+<a id="__codelineno-17-3" name="__codelineno-17-3" href="#__codelineno-17-3"></a><span class="cp">#define MAXVARSYM_SET   16384   </span><span class="cm">/* Maximum total size per set */</span>
+</code></pre></div>
+<h2 id="extended-io-xio">Extended I/O (XIO)<a class="headerlink" href="#extended-io-xio" title="Permanent link">&para;</a></h2>
+<p>The XIO subsystem (<code>kern_xio.c</code>) provides a page-based buffer abstraction that
+can represent memory from any address space without requiring KVM mappings.</p>
+<h3 id="design">Design<a class="headerlink" href="#design" title="Permanent link">&para;</a></h3>
+<p>XIO buffers are:
+- <strong>Vmspace agnostic</strong> - Can represent user or kernel memory
+- <strong>Not KVM mapped</strong> - Low overhead for passing between threads
+- <strong>Page-based</strong> - Collection of held vm_page_t references</p>
+<h3 id="xio_t-structure">xio_t Structure<a class="headerlink" href="#xio_t-structure" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-18-1" name="__codelineno-18-1" href="#__codelineno-18-1"></a><span class="k">struct</span><span class="w"> </span><span class="nc">xio</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-18-2" name="__codelineno-18-2" href="#__codelineno-18-2"></a><span class="w">    </span><span class="kt">int</span><span class="w">             </span><span class="n">xio_flags</span><span class="p">;</span><span class="w">      </span><span class="cm">/* State flags */</span>
+<a id="__codelineno-18-3" name="__codelineno-18-3" href="#__codelineno-18-3"></a><span class="w">    </span><span class="kt">int</span><span class="w">             </span><span class="n">xio_bytes</span><span class="p">;</span><span class="w">      </span><span class="cm">/* Valid bytes */</span>
+<a id="__codelineno-18-4" name="__codelineno-18-4" href="#__codelineno-18-4"></a><span class="w">    </span><span class="kt">int</span><span class="w">             </span><span class="n">xio_error</span><span class="p">;</span><span class="w">      </span><span class="cm">/* Error code */</span>
+<a id="__codelineno-18-5" name="__codelineno-18-5" href="#__codelineno-18-5"></a><span class="w">    </span><span class="kt">int</span><span class="w">             </span><span class="n">xio_offset</span><span class="p">;</span><span class="w">     </span><span class="cm">/* Offset in first page */</span>
+<a id="__codelineno-18-6" name="__codelineno-18-6" href="#__codelineno-18-6"></a><span class="w">    </span><span class="kt">int</span><span class="w">             </span><span class="n">xio_npages</span><span class="p">;</span><span class="w">     </span><span class="cm">/* Number of pages */</span>
+<a id="__codelineno-18-7" name="__codelineno-18-7" href="#__codelineno-18-7"></a><span class="w">    </span><span class="n">vm_page_t</span><span class="w">       </span><span class="o">*</span><span class="n">xio_pages</span><span class="p">;</span><span class="w">     </span><span class="cm">/* Page array */</span>
+<a id="__codelineno-18-8" name="__codelineno-18-8" href="#__codelineno-18-8"></a><span class="w">    </span><span class="n">vm_page_t</span><span class="w">       </span><span class="n">xio_internal_pages</span><span class="p">[</span><span class="n">XIO_INTERNAL_PAGES</span><span class="p">];</span>
+<a id="__codelineno-18-9" name="__codelineno-18-9" href="#__codelineno-18-9"></a><span class="p">};</span>
+<a id="__codelineno-18-10" name="__codelineno-18-10" href="#__codelineno-18-10"></a>
+<a id="__codelineno-18-11" name="__codelineno-18-11" href="#__codelineno-18-11"></a><span class="cm">/* Flags */</span>
+<a id="__codelineno-18-12" name="__codelineno-18-12" href="#__codelineno-18-12"></a><span class="cp">#define XIOF_WRITE      0x0001      </span><span class="cm">/* Pages may be modified */</span>
+</code></pre></div>
+<h3 id="initialization">Initialization<a class="headerlink" href="#initialization" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-19-1" name="__codelineno-19-1" href="#__codelineno-19-1"></a><span class="cm">/* Initialize empty XIO */</span>
+<a id="__codelineno-19-2" name="__codelineno-19-2" href="#__codelineno-19-2"></a><span class="kt">void</span><span class="w"> </span><span class="nf">xio_init</span><span class="p">(</span><span class="n">xio_t</span><span class="w"> </span><span class="n">xio</span><span class="p">);</span>
+<a id="__codelineno-19-3" name="__codelineno-19-3" href="#__codelineno-19-3"></a>
+<a id="__codelineno-19-4" name="__codelineno-19-4" href="#__codelineno-19-4"></a><span class="cm">/* Initialize from kernel buffer */</span>
+<a id="__codelineno-19-5" name="__codelineno-19-5" href="#__codelineno-19-5"></a><span class="kt">int</span><span class="w"> </span><span class="nf">xio_init_kbuf</span><span class="p">(</span><span class="n">xio_t</span><span class="w"> </span><span class="n">xio</span><span class="p">,</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="o">*</span><span class="n">kbase</span><span class="p">,</span><span class="w"> </span><span class="kt">size_t</span><span class="w"> </span><span class="n">kbytes</span><span class="p">);</span>
+<a id="__codelineno-19-6" name="__codelineno-19-6" href="#__codelineno-19-6"></a>
+<a id="__codelineno-19-7" name="__codelineno-19-7" href="#__codelineno-19-7"></a><span class="cm">/* Initialize from page array */</span>
+<a id="__codelineno-19-8" name="__codelineno-19-8" href="#__codelineno-19-8"></a><span class="kt">int</span><span class="w"> </span><span class="nf">xio_init_pages</span><span class="p">(</span><span class="n">xio_t</span><span class="w"> </span><span class="n">xio</span><span class="p">,</span><span class="w"> </span><span class="k">struct</span><span class="w"> </span><span class="nc">vm_page</span><span class="w"> </span><span class="o">**</span><span class="n">mbase</span><span class="p">,</span>
+<a id="__codelineno-19-9" name="__codelineno-19-9" href="#__codelineno-19-9"></a><span class="w">                   </span><span class="kt">int</span><span class="w"> </span><span class="n">npages</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">xflags</span><span class="p">);</span>
+</code></pre></div>
+<h3 id="data-transfer">Data Transfer<a class="headerlink" href="#data-transfer" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-20-1" name="__codelineno-20-1" href="#__codelineno-20-1"></a><span class="cm">/* Copy between XIO and UIO */</span>
+<a id="__codelineno-20-2" name="__codelineno-20-2" href="#__codelineno-20-2"></a><span class="kt">int</span><span class="w"> </span><span class="nf">xio_uio_copy</span><span class="p">(</span><span class="n">xio_t</span><span class="w"> </span><span class="n">xio</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">uoffset</span><span class="p">,</span><span class="w"> </span><span class="k">struct</span><span class="w"> </span><span class="nc">uio</span><span class="w"> </span><span class="o">*</span><span class="n">uio</span><span class="p">,</span><span class="w"> </span><span class="kt">size_t</span><span class="w"> </span><span class="o">*</span><span class="n">sizep</span><span class="p">);</span>
+<a id="__codelineno-20-3" name="__codelineno-20-3" href="#__codelineno-20-3"></a>
+<a id="__codelineno-20-4" name="__codelineno-20-4" href="#__codelineno-20-4"></a><span class="cm">/* XIO to userspace */</span>
+<a id="__codelineno-20-5" name="__codelineno-20-5" href="#__codelineno-20-5"></a><span class="kt">int</span><span class="w"> </span><span class="nf">xio_copy_xtou</span><span class="p">(</span><span class="n">xio_t</span><span class="w"> </span><span class="n">xio</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">uoffset</span><span class="p">,</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="o">*</span><span class="n">uptr</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">bytes</span><span class="p">);</span>
+<a id="__codelineno-20-6" name="__codelineno-20-6" href="#__codelineno-20-6"></a>
+<a id="__codelineno-20-7" name="__codelineno-20-7" href="#__codelineno-20-7"></a><span class="cm">/* Userspace to XIO */</span>
+<a id="__codelineno-20-8" name="__codelineno-20-8" href="#__codelineno-20-8"></a><span class="kt">int</span><span class="w"> </span><span class="nf">xio_copy_utox</span><span class="p">(</span><span class="n">xio_t</span><span class="w"> </span><span class="n">xio</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">uoffset</span><span class="p">,</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="o">*</span><span class="n">uptr</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">bytes</span><span class="p">);</span>
+<a id="__codelineno-20-9" name="__codelineno-20-9" href="#__codelineno-20-9"></a>
+<a id="__codelineno-20-10" name="__codelineno-20-10" href="#__codelineno-20-10"></a><span class="cm">/* XIO to kernel */</span>
+<a id="__codelineno-20-11" name="__codelineno-20-11" href="#__codelineno-20-11"></a><span class="kt">int</span><span class="w"> </span><span class="nf">xio_copy_xtok</span><span class="p">(</span><span class="n">xio_t</span><span class="w"> </span><span class="n">xio</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">uoffset</span><span class="p">,</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="o">*</span><span class="n">kptr</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">bytes</span><span class="p">);</span>
+<a id="__codelineno-20-12" name="__codelineno-20-12" href="#__codelineno-20-12"></a>
+<a id="__codelineno-20-13" name="__codelineno-20-13" href="#__codelineno-20-13"></a><span class="cm">/* Kernel to XIO */</span>
+<a id="__codelineno-20-14" name="__codelineno-20-14" href="#__codelineno-20-14"></a><span class="kt">int</span><span class="w"> </span><span class="nf">xio_copy_ktox</span><span class="p">(</span><span class="n">xio_t</span><span class="w"> </span><span class="n">xio</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">uoffset</span><span class="p">,</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="o">*</span><span class="n">kptr</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">bytes</span><span class="p">);</span>
+</code></pre></div>
+<h3 id="cleanup">Cleanup<a class="headerlink" href="#cleanup" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-21-1" name="__codelineno-21-1" href="#__codelineno-21-1"></a><span class="cm">/* Release XIO resources (unholds pages) */</span>
+<a id="__codelineno-21-2" name="__codelineno-21-2" href="#__codelineno-21-2"></a><span class="kt">void</span><span class="w"> </span><span class="nf">xio_release</span><span class="p">(</span><span class="n">xio_t</span><span class="w"> </span><span class="n">xio</span><span class="p">);</span>
+</code></pre></div>
+<h3 id="usage-example_2">Usage Example<a class="headerlink" href="#usage-example_2" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-22-1" name="__codelineno-22-1" href="#__codelineno-22-1"></a><span class="cm">/* Create XIO from kernel buffer */</span>
+<a id="__codelineno-22-2" name="__codelineno-22-2" href="#__codelineno-22-2"></a><span class="n">xio_t</span><span class="w"> </span><span class="n">xio</span><span class="p">;</span>
+<a id="__codelineno-22-3" name="__codelineno-22-3" href="#__codelineno-22-3"></a><span class="kt">char</span><span class="w"> </span><span class="n">kbuf</span><span class="p">[</span><span class="mi">4096</span><span class="p">];</span>
+<a id="__codelineno-22-4" name="__codelineno-22-4" href="#__codelineno-22-4"></a>
+<a id="__codelineno-22-5" name="__codelineno-22-5" href="#__codelineno-22-5"></a><span class="n">xio_init</span><span class="p">(</span><span class="o">&amp;</span><span class="n">xio</span><span class="p">);</span>
+<a id="__codelineno-22-6" name="__codelineno-22-6" href="#__codelineno-22-6"></a><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">xio_init_kbuf</span><span class="p">(</span><span class="o">&amp;</span><span class="n">xio</span><span class="p">,</span><span class="w"> </span><span class="n">kbuf</span><span class="p">,</span><span class="w"> </span><span class="k">sizeof</span><span class="p">(</span><span class="n">kbuf</span><span class="p">))</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-22-7" name="__codelineno-22-7" href="#__codelineno-22-7"></a><span class="w">    </span><span class="cm">/* Pass xio to another thread/function */</span>
+<a id="__codelineno-22-8" name="__codelineno-22-8" href="#__codelineno-22-8"></a><span class="w">    </span><span class="n">do_io_with_xio</span><span class="p">(</span><span class="o">&amp;</span><span class="n">xio</span><span class="p">);</span>
+<a id="__codelineno-22-9" name="__codelineno-22-9" href="#__codelineno-22-9"></a>
+<a id="__codelineno-22-10" name="__codelineno-22-10" href="#__codelineno-22-10"></a><span class="w">    </span><span class="cm">/* Copy data back to userspace */</span>
+<a id="__codelineno-22-11" name="__codelineno-22-11" href="#__codelineno-22-11"></a><span class="w">    </span><span class="n">xio_copy_xtou</span><span class="p">(</span><span class="o">&amp;</span><span class="n">xio</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="n">user_ptr</span><span class="p">,</span><span class="w"> </span><span class="n">xio</span><span class="p">.</span><span class="n">xio_bytes</span><span class="p">);</span>
+<a id="__codelineno-22-12" name="__codelineno-22-12" href="#__codelineno-22-12"></a>
+<a id="__codelineno-22-13" name="__codelineno-22-13" href="#__codelineno-22-13"></a><span class="w">    </span><span class="n">xio_release</span><span class="p">(</span><span class="o">&amp;</span><span class="n">xio</span><span class="p">);</span>
+<a id="__codelineno-22-14" name="__codelineno-22-14" href="#__codelineno-22-14"></a><span class="p">}</span>
+</code></pre></div>
+<h2 id="additional-utility-files">Additional Utility Files<a class="headerlink" href="#additional-utility-files" title="Permanent link">&para;</a></h2>
+<h3 id="kernel-printf-subr_prfc">Kernel Printf (subr_prf.c)<a class="headerlink" href="#kernel-printf-subr_prfc" title="Permanent link">&para;</a></h3>
+<p>Implements kernel print functions:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-23-1" name="__codelineno-23-1" href="#__codelineno-23-1"></a><span class="kt">int</span><span class="w"> </span><span class="nf">kprintf</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="n">fmt</span><span class="p">,</span><span class="w"> </span><span class="p">...);</span><span class="w">      </span><span class="cm">/* Kernel printf */</span>
+<a id="__codelineno-23-2" name="__codelineno-23-2" href="#__codelineno-23-2"></a><span class="kt">int</span><span class="w"> </span><span class="nf">ksnprintf</span><span class="p">(</span><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="n">buf</span><span class="p">,</span><span class="w"> </span><span class="kt">size_t</span><span class="w"> </span><span class="n">size</span><span class="p">,</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="n">fmt</span><span class="p">,</span><span class="w"> </span><span class="p">...);</span>
+<a id="__codelineno-23-3" name="__codelineno-23-3" href="#__codelineno-23-3"></a><span class="kt">int</span><span class="w"> </span><span class="nf">kvprintf</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="n">fmt</span><span class="p">,</span><span class="w"> </span><span class="n">__va_list</span><span class="w"> </span><span class="n">ap</span><span class="p">);</span>
+<a id="__codelineno-23-4" name="__codelineno-23-4" href="#__codelineno-23-4"></a><span class="kt">void</span><span class="w"> </span><span class="nf">log</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">level</span><span class="p">,</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="n">fmt</span><span class="p">,</span><span class="w"> </span><span class="p">...);</span><span class="w">  </span><span class="cm">/* Syslog logging */</span>
+</code></pre></div>
+<h3 id="kernel-log-subr_logc">Kernel Log (subr_log.c)<a class="headerlink" href="#kernel-log-subr_logc" title="Permanent link">&para;</a></h3>
+<p>Provides the <code>/dev/klog</code> interface for syslogd:</p>
+<ul>
+<li>Kernel message buffer management</li>
+<li>Log message priorities</li>
+<li>Poll/select support for log device</li>
+</ul>
+<h3 id="profiling-subr_profc">Profiling (subr_prof.c)<a class="headerlink" href="#profiling-subr_profc" title="Permanent link">&para;</a></h3>
+<p>Kernel profiling support:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-24-1" name="__codelineno-24-1" href="#__codelineno-24-1"></a><span class="kt">void</span><span class="w"> </span><span class="nf">addupc_intr</span><span class="p">(</span><span class="k">struct</span><span class="w"> </span><span class="nc">proc</span><span class="w"> </span><span class="o">*</span><span class="n">p</span><span class="p">,</span><span class="w"> </span><span class="n">u_long</span><span class="w"> </span><span class="n">pc</span><span class="p">,</span><span class="w"> </span><span class="n">u_int</span><span class="w"> </span><span class="n">ticks</span><span class="p">);</span>
+<a id="__codelineno-24-2" name="__codelineno-24-2" href="#__codelineno-24-2"></a><span class="kt">void</span><span class="w"> </span><span class="nf">addupc_task</span><span class="p">(</span><span class="k">struct</span><span class="w"> </span><span class="nc">proc</span><span class="w"> </span><span class="o">*</span><span class="n">p</span><span class="p">,</span><span class="w"> </span><span class="n">u_long</span><span class="w"> </span><span class="n">pc</span><span class="p">,</span><span class="w"> </span><span class="n">u_int</span><span class="w"> </span><span class="n">ticks</span><span class="p">);</span>
+</code></pre></div>
+<h3 id="power-management-subr_powerc">Power Management (subr_power.c)<a class="headerlink" href="#power-management-subr_powerc" title="Permanent link">&para;</a></h3>
+<p>Basic power management hooks:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-25-1" name="__codelineno-25-1" href="#__codelineno-25-1"></a><span class="kt">int</span><span class="w"> </span><span class="nf">power_pm_get_type</span><span class="p">(</span><span class="kt">void</span><span class="p">);</span>
+<a id="__codelineno-25-2" name="__codelineno-25-2" href="#__codelineno-25-2"></a><span class="kt">void</span><span class="w"> </span><span class="nf">power_pm_suspend</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">type</span><span class="p">);</span>
+<a id="__codelineno-25-3" name="__codelineno-25-3" href="#__codelineno-25-3"></a><span class="kt">void</span><span class="w"> </span><span class="nf">power_pm_resume</span><span class="p">(</span><span class="kt">void</span><span class="p">);</span>
+</code></pre></div>
+<h3 id="scanf-subr_scanfc">Scanf (subr_scanf.c)<a class="headerlink" href="#scanf-subr_scanfc" title="Permanent link">&para;</a></h3>
+<p>Kernel implementations of scanf-like parsing:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-26-1" name="__codelineno-26-1" href="#__codelineno-26-1"></a><span class="kt">int</span><span class="w"> </span><span class="nf">ksscanf</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="n">buf</span><span class="p">,</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="n">fmt</span><span class="p">,</span><span class="w"> </span><span class="p">...);</span>
+<a id="__codelineno-26-2" name="__codelineno-26-2" href="#__codelineno-26-2"></a><span class="kt">int</span><span class="w"> </span><span class="nf">kvsscanf</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="n">buf</span><span class="p">,</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="n">fmt</span><span class="p">,</span><span class="w"> </span><span class="n">__va_list</span><span class="w"> </span><span class="n">ap</span><span class="p">);</span>
+</code></pre></div>
+<h3 id="uuid-kern_uuidc">UUID (kern_uuid.c)<a class="headerlink" href="#uuid-kern_uuidc" title="Permanent link">&para;</a></h3>
+<p>UUID generation and manipulation:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-27-1" name="__codelineno-27-1" href="#__codelineno-27-1"></a><span class="kt">void</span><span class="w"> </span><span class="nf">kern_uuidgen</span><span class="p">(</span><span class="k">struct</span><span class="w"> </span><span class="nc">uuid</span><span class="w"> </span><span class="o">*</span><span class="n">store</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">count</span><span class="p">);</span>
+<a id="__codelineno-27-2" name="__codelineno-27-2" href="#__codelineno-27-2"></a><span class="kt">int</span><span class="w"> </span><span class="nf">snprintf_uuid</span><span class="p">(</span><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="n">buf</span><span class="p">,</span><span class="w"> </span><span class="kt">size_t</span><span class="w"> </span><span class="n">sz</span><span class="p">,</span><span class="w"> </span><span class="k">struct</span><span class="w"> </span><span class="nc">uuid</span><span class="w"> </span><span class="o">*</span><span class="n">uuid</span><span class="p">);</span>
+<a id="__codelineno-27-3" name="__codelineno-27-3" href="#__codelineno-27-3"></a><span class="kt">int</span><span class="w"> </span><span class="nf">parse_uuid</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="n">str</span><span class="p">,</span><span class="w"> </span><span class="k">struct</span><span class="w"> </span><span class="nc">uuid</span><span class="w"> </span><span class="o">*</span><span class="n">uuid</span><span class="p">);</span>
+<a id="__codelineno-27-4" name="__codelineno-27-4" href="#__codelineno-27-4"></a><span class="kt">int</span><span class="w"> </span><span class="nf">uuidcmp</span><span class="p">(</span><span class="k">struct</span><span class="w"> </span><span class="nc">uuid</span><span class="w"> </span><span class="o">*</span><span class="n">a</span><span class="p">,</span><span class="w"> </span><span class="k">struct</span><span class="w"> </span><span class="nc">uuid</span><span class="w"> </span><span class="o">*</span><span class="n">b</span><span class="p">);</span>
+</code></pre></div>
+<h2 id="dragonfly-specific-features">DragonFly-Specific Features<a class="headerlink" href="#dragonfly-specific-features" title="Permanent link">&para;</a></h2>
+<h3 id="cpu-topology_1">CPU Topology<a class="headerlink" href="#cpu-topology_1" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>AMD Compute Units</strong>: Special handling for AMD's module architecture</li>
+<li><strong>NUMA Support</strong>: Memory-per-node tracking for scheduler optimization</li>
+<li><strong>Dynamic Detection</strong>: Topology built at boot from APIC information</li>
+</ul>
+<h3 id="variant-symlinks">Variant Symlinks<a class="headerlink" href="#variant-symlinks" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Hierarchical Scopes</strong>: Process → User → Jail → System lookup order</li>
+<li><strong>Jail Integration</strong>: Per-jail variable sets</li>
+<li><strong>Dynamic Substitution</strong>: Variables resolved at symlink traversal time</li>
+</ul>
+<h3 id="xio-buffers">XIO Buffers<a class="headerlink" href="#xio-buffers" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Zero-Copy Paths</strong>: Designed for efficient I/O without unnecessary copies</li>
+<li><strong>LWBUF Integration</strong>: Uses lightweight buffer mapping for page access</li>
+<li><strong>Page Hold Semantics</strong>: Pages held (not wired) for efficiency</li>
+</ul>
+<h2 id="see-also">See Also<a class="headerlink" href="#see-also" title="Permanent link">&para;</a></h2>
+<ul>
+<li><a href="../lwkt/">LWKT Threading</a> - Thread and CPU management</li>
+<li><a href="../synchronization/">Synchronization</a> - Locking primitives</li>
+<li><a href="../shutdown/">Shutdown &amp; Panic</a> - Event handler usage</li>
+<li><a href="../sysctl/">Sysctl Framework</a> - Sysctl interface implementation</li>
+</ul>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": ["navigation.tabs", "navigation.sections", "navigation.expand", "navigation.top", "search.suggest", "search.highlight", "content.code.copy"], "search": "../../../assets/javascripts/workers/search.7a47a382.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../../assets/javascripts/bundle.e71a0d61.min.js"></script>
+      
+    
+  </body>
+</html>
