@@ -479,15 +479,21 @@ Each phase is mostly self-contained after earlier dependencies, allowing focused
 | **7b1** | SysV Message Queues | `ipc/sysv-msg.md` | 312 | `0de9e53` |
 | **7b2** | SysV Semaphores | `ipc/sysv-sem.md` | 345 | `88f6aae` |
 | **7b3** | SysV Shared Memory | `ipc/sysv-shm.md` | 340 | `3d4525b` |
+| **8a** | Devices & Drivers | `devices.md` | 877 | ✅ |
+| **8a** | NewBus Framework | `newbus.md` | 783 | ✅ |
+| **8a** | Bus Resources & DMA | `bus-resources.md` | 547 | ✅ |
+| **8b** | Disk Subsystem | `disk.md` | 988 | ✅ |
+| **8d** | Firmware Loading | `firmware.md` | 347 | ✅ |
+| **9a** | System Calls | `syscalls.md` | 485 | `87b914f` |
+| **9b** | Kernel Linker (KLD) | `kld.md` | 675 | `52027b4` |
 
-**Total completed:** ~24,000+ lines of documentation
+**Total completed:** ~28,000+ lines of documentation
 
 ### Pending Phases
 
 | Phase | Topic | Status |
 |-------|-------|--------|
-| **8** | Device & Driver Infrastructure | Next |
-| **9** | System Calls & Kernel Linkage | Pending |
+| **10** | Monitoring, Debugging, Security | Next |
 | **10** | Monitoring, Debugging, Security | Pending |
 | **11** | TTY Subsystem | Pending |
 | **12** | Utilities & Miscellaneous | Pending |
