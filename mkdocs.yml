@@ -101,6 +101,7 @@ nav:
       - Disk Subsystem: sys/kern/disk.md
       - Firmware Loading: sys/kern/firmware.md
       - System Calls: sys/kern/syscalls.md
+      - Kernel Linker (KLD): sys/kern/kld.md
     - vm/:
       - Overview: sys/vm/index.md
       - Concepts: sys/vm/concepts.md
