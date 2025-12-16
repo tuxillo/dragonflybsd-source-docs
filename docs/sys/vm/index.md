@@ -2,6 +2,24 @@
 
 The DragonFly BSD virtual memory subsystem manages virtual address spaces, physical memory allocation, paging, and swap. It derives from the Mach VM architecture as adopted by BSD but has been extensively modified for better SMP scalability and LWKT integration.
 
+## Introduction
+
+Virtual memory is a fundamental operating system service that gives each process its own isolated address space and enables the system to use more memory than physically available through demand paging and swapping.
+
+**New to virtual memory concepts?** Start with [Virtual Memory Concepts](concepts.md) for an introduction to VM theory, terminology, and the Mach VM heritage that DragonFly builds upon.
+
+### DragonFly's VM Design
+
+DragonFly's VM evolved from the Mach/BSD VM architecture with significant enhancements for SMP scalability and LWKT integration:
+
+- **vm_map_backing chains** — Per-entry backing store chains (vs traditional shadow objects)
+- **LWKT token locking** — Soft locks allowing blocking operations
+- **Page coloring** — 1024-way queuing reduces lock contention
+- **Per-CPU vmstats** — Cached statistics avoid global contention
+- **Fast fault bypass** — Optimization path for resident pages
+
+See [Concepts](concepts.md) for details on how DragonFly differs from traditional Mach VM.
+
 ## Architecture Overview
 
 ```mermaid
@@ -27,6 +45,7 @@ flowchart TB
 
 | If you want to... | Read this | Why |
 |-------------------|-----------|-----|
+| Learn VM fundamentals | [Concepts](concepts.md) | Theory primer and terminology |
 | Understand how `mmap()` works | [Memory Mapping](vm_mmap.md) | Traces syscall to VM layer |
 | Debug a page fault or crash | [Page Faults](vm_fault.md) | Explains fault handling and COW |
 | Investigate memory pressure/OOM | [Pageout and Swap](vm_pageout.md) | Covers reclamation and OOM killer |
@@ -36,10 +55,11 @@ flowchart TB
 
 **Recommended reading order for newcomers:**
 
-1. This overview (understand the hierarchy)
-2. [Memory Mapping](vm_mmap.md) (see how userspace enters the VM)
-3. [Page Faults](vm_fault.md) (see how pages get populated)
-4. [Physical Pages](vm_page.md) (understand page lifecycle)
+1. [Concepts](concepts.md) (understand VM theory and terminology)
+2. This overview (understand the DragonFly-specific hierarchy)
+3. [Memory Mapping](vm_mmap.md) (see how userspace enters the VM)
+4. [Page Faults](vm_fault.md) (see how pages get populated)
+5. [Physical Pages](vm_page.md) (understand page lifecycle)
 
 ## How Operations Flow Through the VM
 
@@ -153,15 +173,6 @@ The VM subsystem uses several locking strategies:
 | lockmgr | Hard locks on vm_map for structural changes |
 | Spinlocks | Per-page and per-queue locks |
 | Per-CPU stats | Cached vmstats avoid global contention |
-
-## DragonFly-Specific Features
-
-- **Page coloring** with 1024 queues reduces lock contention
-- **vm_map_backing chains** for efficient shadow objects
-- **LWKT token locking** allows blocking while held
-- **Per-CPU vmstats caching** avoids cache-line bouncing
-- **Fast fault path** (`vm_fault_bypass`) for active pages
-- **UKSMAP** - User-kernel shared memory with device callbacks
 
 ## Source Files
 

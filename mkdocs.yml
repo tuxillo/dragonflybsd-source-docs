@@ -103,6 +103,7 @@ nav:
       - System Calls: sys/kern/syscalls.md
     - vm/:
       - Overview: sys/vm/index.md
+      - Concepts: sys/vm/concepts.md
       - Physical Pages: sys/vm/vm_page.md
       - VM Objects: sys/vm/vm_object.md
       - Address Space: sys/vm/vm_map.md
