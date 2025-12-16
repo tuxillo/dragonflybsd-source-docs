@@ -114,6 +114,7 @@ nav:
       - Process Checkpoint/Restart: sys/kern/checkpoint.md
       - Distributed Messaging (dmsg): sys/kern/dmsg.md
       - Shutdown & Panic: sys/kern/shutdown.md
+      - Kernel Utilities: sys/kern/utilities.md
     - vm/:
       - Overview: sys/vm/index.md
       - Concepts: sys/vm/concepts.md

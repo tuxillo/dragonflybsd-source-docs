@@ -498,15 +498,17 @@ Each phase is mostly self-contained after earlier dependencies, allowing focused
 | **12d** | Checkpoint/Restart | `checkpoint.md` | 830 | ✅ |
 | **12e** | Distributed Messaging | `dmsg.md` | 580 | ✅ |
 | **12f** | Shutdown & Panic | `shutdown.md` | 670 | ✅ |
+| **12g** | Kernel Utilities | `utilities.md` | 556 | ✅ |
 
-**Total completed:** ~37,800+ lines of documentation
+**Total completed:** ~38,400+ lines of documentation
 
 ### Pending Phases
 
 | Phase | Topic | Status |
 |-------|-------|--------|
-| **12f** | Shutdown & Panic | ✅ Complete |
-| **12g** | Kernel Utilities Misc | Pending |
+| **12g** | Kernel Utilities | ✅ Complete |
+
+All `sys/kern/` documentation phases are now complete!
 
 ---
 
