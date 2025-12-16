@@ -486,15 +486,17 @@ Each phase is mostly self-contained after earlier dependencies, allowing focused
 | **8d** | Firmware Loading | `firmware.md` | 347 | ✅ |
 | **9a** | System Calls | `syscalls.md` | 485 | `87b914f` |
 | **9b** | Kernel Linker (KLD) | `kld.md` | 675 | `52027b4` |
+| **10a** | Tracing & Debugging | `tracing.md` | 534 | `d7c0a1c` |
+| **10b** | Sysctl Framework | `sysctl.md` | 656 | `571d0b6` |
+| **10c** | Accounting & Sensors | `accounting.md` | 624 | `5535505` |
+| **10d** | Security | `security.md` | 615 | `8a6bc2a` |
 
-**Total completed:** ~28,000+ lines of documentation
+**Total completed:** ~30,500+ lines of documentation
 
 ### Pending Phases
 
 | Phase | Topic | Status |
 |-------|-------|--------|
-| **10** | Monitoring, Debugging, Security | Next |
-| **10** | Monitoring, Debugging, Security | Pending |
 | **11** | TTY Subsystem | Pending |
 | **12** | Utilities & Miscellaneous | Pending |
 

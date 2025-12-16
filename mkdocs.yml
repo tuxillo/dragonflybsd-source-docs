@@ -102,6 +102,10 @@ nav:
       - Firmware Loading: sys/kern/firmware.md
       - System Calls: sys/kern/syscalls.md
       - Kernel Linker (KLD): sys/kern/kld.md
+      - Tracing & Debugging: sys/kern/tracing.md
+      - Sysctl Framework: sys/kern/sysctl.md
+      - Accounting & Sensors: sys/kern/accounting.md
+      - Security: sys/kern/security.md
     - vm/:
       - Overview: sys/vm/index.md
       - Concepts: sys/vm/concepts.md
