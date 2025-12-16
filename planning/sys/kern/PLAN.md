@@ -490,14 +490,15 @@ Each phase is mostly self-contained after earlier dependencies, allowing focused
 | **10b** | Sysctl Framework | `sysctl.md` | 656 | `571d0b6` |
 | **10c** | Accounting & Sensors | `accounting.md` | 624 | `5535505` |
 | **10d** | Security | `security.md` | 615 | `8a6bc2a` |
+| **11a** | TTY Subsystem | `tty.md` | 1,092 | `9e00ccf` |
+| **11b** | Pseudo-Terminals | `tty-pty.md` | 1,078 | `5d3204e` |
 
-**Total completed:** ~30,500+ lines of documentation
+**Total completed:** ~32,700+ lines of documentation
 
 ### Pending Phases
 
 | Phase | Topic | Status |
 |-------|-------|--------|
-| **11** | TTY Subsystem | Pending |
 | **12** | Utilities & Miscellaneous | Pending |
 
 ---

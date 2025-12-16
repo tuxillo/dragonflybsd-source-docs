@@ -106,6 +106,8 @@ nav:
       - Sysctl Framework: sys/kern/sysctl.md
       - Accounting & Sensors: sys/kern/accounting.md
       - Security: sys/kern/security.md
+      - TTY Subsystem: sys/kern/tty.md
+      - Pseudo-Terminals (PTY): sys/kern/tty-pty.md
     - vm/:
       - Overview: sys/vm/index.md
       - Concepts: sys/vm/concepts.md
