@@ -13,6 +13,10 @@
       
       
       
+        <link rel="prev" href="../tracing/">
+      
+      
+        <link rel="next" href="../accounting/">
       
       
         
@@ -257,10 +261,12 @@
   
   
   
+    
+  
   
     
     
-      <li class="md-tabs__item">
+      <li class="md-tabs__item md-tabs__item--active">
         <a href="../../" class="md-tabs__link">
           
   
@@ -376,28 +382,31 @@
       
   
   
+    
   
   
+  
     
     
     
     
+      
+        
+        
       
       
         
       
     
     
-    <li class="md-nav__item md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
       
         
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" checked>
         
           
-        
-        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_3" >
-        
-          
-          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="">
             
   
   
@@ -415,7 +424,7 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="true">
           <label class="md-nav__title" for="__nav_3">
             <span class="md-nav__icon md-icon"></span>
             
@@ -458,28 +467,31 @@
                 
   
   
+    
   
   
+  
     
     
     
     
       
       
-        
-      
-    
-    
-    <li class="md-nav__item md-nav__item--nested">
-      
-        
         
           
+          
         
-        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_3_2" >
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_2" checked>
         
           
-          <label class="md-nav__link" for="__nav_3_2" id="__nav_3_2_label" tabindex="0">
+          <label class="md-nav__link" for="__nav_3_2" id="__nav_3_2_label" tabindex="">
             
   
   
@@ -497,7 +509,7 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_2_label" aria-expanded="false">
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_2_label" aria-expanded="true">
           <label class="md-nav__title" for="__nav_3_2">
             <span class="md-nav__icon md-icon"></span>
             
@@ -1612,6 +1624,749 @@
 
               
             
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../tracing/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Tracing & Debugging
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Sysctl Framework
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Sysctl Framework
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#source-files" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Source Files
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#architecture-overview" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Architecture Overview
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#data-structures" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Data Structures
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Data Structures">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#sysctl_oid-syssysctlh157" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        sysctl_oid (sys/sysctl.h:157)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#sysctl_req-syssysctlh136" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        sysctl_req (sys/sysctl.h:136)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#oid-types-and-flags" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        OID Types and Flags
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="OID Types and Flags">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#type-codes-syssysctlh69" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Type Codes (sys/sysctl.h:69)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#access-flags-syssysctlh92" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Access Flags (sys/sysctl.h:92)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#defining-static-sysctls" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Defining Static Sysctls
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Defining Static Sysctls">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#node-declaration" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Node Declaration
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#leaf-values" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Leaf Values
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#bit-fields" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Bit Fields
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#handler-functions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Handler Functions
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Handler Functions">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#standard-handlers" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Standard Handlers
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#custom-handler-example-kern_mibc165" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Custom Handler Example (kern_mib.c:165)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#data-transfer-macros" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Data Transfer Macros
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#dynamic-sysctl-api" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Dynamic Sysctl API
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Dynamic Sysctl API">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#context-management" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Context Management
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#direct-registration-kern_sysctlc434" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Direct Registration (kern_sysctl.c:434)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#oid-removal" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        OID Removal
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#locking-strategy" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Locking Strategy
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Locking Strategy">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#per-cpu-shared-lock" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Per-CPU Shared Lock
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#exclusive-lock-implementation-kern_sysctlc1639" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Exclusive Lock Implementation (kern_sysctl.c:1639)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#per-oid-locking-kern_sysctlc1458" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Per-OID Locking (kern_sysctl.c:1458)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#system-calls" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        System Calls
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="System Calls">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#sys___sysctl-kern_sysctlc1488" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        sys___sysctl (kern_sysctl.c:1488)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#mib-lookup-flow" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        MIB Lookup Flow
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#meta-sysctls-sysctl" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Meta-Sysctls (sysctl.*)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Meta-Sysctls (sysctl.*)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#name2oid-example-kern_sysctlc799" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        name2oid Example (kern_sysctl.c:799)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#standard-mibs-kern_mibc" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Standard MIBs (kern_mib.c)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Standard MIBs (kern_mib.c)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#top-level-nodes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Top-Level Nodes
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#key-kernel-parameters" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Key Kernel Parameters
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#securelevel-kern_mibc204" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Securelevel (kern_mib.c:204)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kinfo-structures-kern_kinfoc" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        kinfo Structures (kern_kinfo.c)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="kinfo Structures (kern_kinfo.c)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#fill_kinfo_proc-kern_kinfoc116" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        fill_kinfo_proc (kern_kinfo.c:116)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#fill_kinfo_lwp-kern_kinfoc225" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        fill_kinfo_lwp (kern_kinfo.c:225)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#initialization" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Initialization
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Initialization">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#registration-order" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Registration Order
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kernel-api" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Kernel API
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Kernel API">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#kernel_sysctl-kern_sysctlc1242" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        kernel_sysctl (kern_sysctl.c:1242)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#kernel_sysctlbyname-kern_sysctlc1295" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        kernel_sysctlbyname (kern_sysctl.c:1295)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#usage-examples" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Usage Examples
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Usage Examples">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#reading-a-sysctl-from-userspace" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Reading a Sysctl from Userspace
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#writing-a-sysctl" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Writing a Sysctl
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#listing-sysctls-sysctl-a" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Listing Sysctls (sysctl -a)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#see-also" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        See Also
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../accounting/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Accounting & Sensors
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../security/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Security
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
           </ul>
         </nav>
       
@@ -1633,10 +2388,13 @@
       
       
         
+          
+          
+        
       
     
     
-    <li class="md-nav__item md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
       
         
         
@@ -1645,7 +2403,7 @@
         <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_3_3" >
         
           
-          <label class="md-nav__link" for="__nav_3_3" id="__nav_3_3_label" tabindex="0">
+          <label class="md-nav__link" for="__nav_3_3" id="__nav_3_3_label" tabindex="">
             
   
   
@@ -1919,10 +2677,13 @@
       
       
         
+          
+          
+        
       
     
     
-    <li class="md-nav__item md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
       
         
         
@@ -1931,7 +2692,7 @@
         <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_3_4" >
         
           
-          <label class="md-nav__link" for="__nav_3_4" id="__nav_3_4_label" tabindex="0">
+          <label class="md-nav__link" for="__nav_3_4" id="__nav_3_4_label" tabindex="">
             
   
   
@@ -3435,7 +4196,7 @@ scalability:</p>
 <ul>
 <li><a href="../tracing/">Tracing</a> - KTR uses sysctl for enable masks</li>
 <li><a href="../processes/">Processes</a> - Process info via kinfo</li>
-<li><a href="security.md">Security</a> - securelevel, jails, and sysctl access</li>
+<li><a href="../security/">Security</a> - securelevel, jails, and sysctl access</li>
 </ul>
 
 

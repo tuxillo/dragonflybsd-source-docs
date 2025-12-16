@@ -13,6 +13,10 @@
       
       
       
+        <link rel="prev" href="../kld/">
+      
+      
+        <link rel="next" href="../sysctl/">
       
       
         
@@ -23,7 +27,7 @@
     
     
       
-        <title>Kernel Tracing and Debugging - DragonFly BSD Kernel Documentation</title>
+        <title>Tracing & Debugging - DragonFly BSD Kernel Documentation</title>
       
     
     
@@ -108,7 +112,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Kernel Tracing and Debugging
+              Tracing & Debugging
             
           </span>
         </div>
@@ -257,10 +261,12 @@
   
   
   
+    
+  
   
     
     
-      <li class="md-tabs__item">
+      <li class="md-tabs__item md-tabs__item--active">
         <a href="../../" class="md-tabs__link">
           
   
@@ -376,28 +382,31 @@
       
   
   
+    
   
   
+  
     
     
     
     
+      
+        
+        
       
       
         
       
     
     
-    <li class="md-nav__item md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
       
         
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" checked>
         
           
-        
-        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_3" >
-        
-          
-          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="">
             
   
   
@@ -415,7 +424,7 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="true">
           <label class="md-nav__title" for="__nav_3">
             <span class="md-nav__icon md-icon"></span>
             
@@ -458,28 +467,31 @@
                 
   
   
+    
   
   
+  
     
     
     
     
       
       
-        
-      
-    
-    
-    <li class="md-nav__item md-nav__item--nested">
-      
-        
         
           
+          
         
-        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_3_2" >
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_2" checked>
         
           
-          <label class="md-nav__link" for="__nav_3_2" id="__nav_3_2_label" tabindex="0">
+          <label class="md-nav__link" for="__nav_3_2" id="__nav_3_2_label" tabindex="">
             
   
   
@@ -497,7 +509,7 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_2_label" aria-expanded="false">
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_2_label" aria-expanded="true">
           <label class="md-nav__title" for="__nav_3_2">
             <span class="md-nav__icon md-icon"></span>
             
@@ -1612,6 +1624,637 @@
 
               
             
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Tracing & Debugging
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Tracing & Debugging
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#source-files" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Source Files
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#ktr-kernel-trace-buffer" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KTR: Kernel Trace Buffer
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="KTR: Kernel Trace Buffer">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#architecture" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Architecture
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#data-structures" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Data Structures
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Data Structures">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#ktr_entry-sysktrh78" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        ktr_entry (sys/ktr.h:78)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#ktr_info-sysktrh71" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        ktr_info (sys/ktr.h:71)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#ktr_cpu-sysktrh94" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        ktr_cpu (sys/ktr.h:94)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#defining-trace-points" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Defining Trace Points
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#logging-events" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Logging Events
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#implementation-details" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Implementation Details
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Implementation Details">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#entry-recording-kern_ktrc496" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Entry Recording (kern_ktr.c:496)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tsc-synchronization-kern_ktrc249" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        TSC Synchronization (kern_ktr.c:249)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#sysctl-interface" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Sysctl Interface
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#ddb-integration" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        DDB Integration
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#early-boot-support" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Early Boot Support
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#ktrace-process-system-call-tracing" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        ktrace: Process System Call Tracing
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="ktrace: Process System Call Tracing">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#architecture_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Architecture
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#data-structures_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Data Structures
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Data Structures">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#ktrace_node-sysktraceh48" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        ktrace_node (sys/ktrace.h:48)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#ktr_header-sysktraceh71" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        ktr_header (sys/ktrace.h:71)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#record-types" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Record Types
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#trace-functions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Trace Functions
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Trace Functions">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#ktrsyscall-kern_ktracec110" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        ktrsyscall (kern_ktrace.c:110)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#ktrwrite-kern_ktracec592" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        ktrwrite (kern_ktrace.c:592)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#system-calls" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        System Calls
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="System Calls">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#sys_ktrace-kern_ktracec288" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        sys_ktrace (kern_ktrace.c:288)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#sys_utrace-kern_ktracec439" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        sys_utrace (kern_ktrace.c:439)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#permission-checking" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Permission Checking
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#trace-inheritance" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Trace Inheritance
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#debugging-utilities" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Debugging Utilities
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Debugging Utilities">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#stack-trace" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Stack Trace
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#debug-sysctls" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Debug Sysctls
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#comparison-ktr-vs-ktrace" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Comparison: KTR vs ktrace
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#usage-examples" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Usage Examples
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Usage Examples">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#ktr-enable-token-tracing" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KTR: Enable Token Tracing
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#ktrace-trace-a-process" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        ktrace: Trace a Process
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#user-trace-from-application" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        User Trace from Application
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#see-also" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        See Also
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../sysctl/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Sysctl Framework
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../accounting/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Accounting & Sensors
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../security/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Security
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
           </ul>
         </nav>
       
@@ -1633,10 +2276,13 @@
       
       
         
+          
+          
+        
       
     
     
-    <li class="md-nav__item md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
       
         
         
@@ -1645,7 +2291,7 @@
         <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_3_3" >
         
           
-          <label class="md-nav__link" for="__nav_3_3" id="__nav_3_3_label" tabindex="0">
+          <label class="md-nav__link" for="__nav_3_3" id="__nav_3_3_label" tabindex="">
             
   
   
@@ -1919,10 +2565,13 @@
       
       
         
+          
+          
+        
       
     
     
-    <li class="md-nav__item md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
       
         
         
@@ -1931,7 +2580,7 @@
         <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_3_4" >
         
           
-          <label class="md-nav__link" for="__nav_3_4" id="__nav_3_4_label" tabindex="0">
+          <label class="md-nav__link" for="__nav_3_4" id="__nav_3_4_label" tabindex="">
             
   
   
