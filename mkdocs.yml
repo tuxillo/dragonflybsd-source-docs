@@ -108,6 +108,9 @@ nav:
       - Security: sys/kern/security.md
       - TTY Subsystem: sys/kern/tty.md
       - Pseudo-Terminals (PTY): sys/kern/tty-pty.md
+      - Event Notification (kevent): sys/kern/kevent.md
+      - Task Queues: sys/kern/taskqueue.md
+      - Random Number Generation: sys/kern/random.md
     - vm/:
       - Overview: sys/vm/index.md
       - Concepts: sys/vm/concepts.md

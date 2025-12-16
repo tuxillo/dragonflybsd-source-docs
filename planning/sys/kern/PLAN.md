@@ -492,14 +492,20 @@ Each phase is mostly self-contained after earlier dependencies, allowing focused
 | **10d** | Security | `security.md` | 615 | `8a6bc2a` |
 | **11a** | TTY Subsystem | `tty.md` | 1,092 | `9e00ccf` |
 | **11b** | Pseudo-Terminals | `tty-pty.md` | 1,078 | `5d3204e` |
+| **12a** | Event Notification | `kevent.md` | 1,259 | ✅ |
+| **12b** | Task Queues | `taskqueue.md` | 990 | ✅ |
+| **12c** | Random Numbers | `random.md` | 754 | ✅ |
 
-**Total completed:** ~32,700+ lines of documentation
+**Total completed:** ~35,700+ lines of documentation
 
 ### Pending Phases
 
 | Phase | Topic | Status |
 |-------|-------|--------|
-| **12** | Utilities & Miscellaneous | Pending |
+| **12d** | Checkpoint/Restart | Pending |
+| **12e** | Distributed Messaging | Pending |
+| **12f** | Shutdown Subsystem | Pending |
+| **12g** | Kernel Utilities Misc | Pending |
 
 ---
 
