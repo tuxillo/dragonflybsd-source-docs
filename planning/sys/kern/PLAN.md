@@ -497,15 +497,15 @@ Each phase is mostly self-contained after earlier dependencies, allowing focused
 | **12c** | Random Numbers | `random.md` | 754 | ✅ |
 | **12d** | Checkpoint/Restart | `checkpoint.md` | 830 | ✅ |
 | **12e** | Distributed Messaging | `dmsg.md` | 580 | ✅ |
+| **12f** | Shutdown & Panic | `shutdown.md` | 670 | ✅ |
 
-**Total completed:** ~37,100+ lines of documentation
+**Total completed:** ~37,800+ lines of documentation
 
 ### Pending Phases
 
 | Phase | Topic | Status |
 |-------|-------|--------|
-| **12e** | Distributed Messaging | ✅ Complete |
-| **12f** | Shutdown Subsystem | Pending |
+| **12f** | Shutdown & Panic | ✅ Complete |
 | **12g** | Kernel Utilities Misc | Pending |
 
 ---
