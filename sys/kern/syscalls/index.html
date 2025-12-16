@@ -16,7 +16,7 @@
         <link rel="prev" href="../firmware/">
       
       
-        <link rel="next" href="../../vm/">
+        <link rel="next" href="../kld/">
       
       
         
@@ -78,7 +78,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#syscalls" class="md-skip">
+        <a href="#system-calls" class="md-skip">
           Skip to content
         </a>
       
@@ -1646,10 +1646,387 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#key-files" class="md-nav__link">
+  <a href="#key-source-files" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Key Files
+        Key Source Files
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#syscall-dispatch-mechanism" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Syscall Dispatch Mechanism
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Syscall Dispatch Mechanism">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#the-sysent-structure" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The sysent Structure
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#the-sysmsg-structure" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The sysmsg Structure
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#syscall-handler-signature" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Syscall Handler Signature
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#execution-vector-sysentvec" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Execution Vector (sysentvec)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#generic-io-syscalls" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Generic I/O Syscalls
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Generic I/O Syscalls">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#read-write" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        read / write
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#readv-writev-scatter-gather-io" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        readv / writev (Scatter-Gather I/O)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#positioned-io-preadpwrite" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Positioned I/O (pread/pwrite)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#the-file-operations-layer" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The File Operations Layer
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#the-ioctl-interface" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The ioctl Interface
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="The ioctl Interface">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#overview_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Overview
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#ioctl-command-encoding" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        ioctl Command Encoding
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#mapped_ioctl" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        mapped_ioctl()
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#mapped-ioctl-handlers" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Mapped ioctl Handlers
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#io-multiplexing-select-and-poll" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        I/O Multiplexing: select and poll
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="I/O Multiplexing: select and poll">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#select" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        select()
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#poll" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        poll()
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#ppoll-and-pselect" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        ppoll() and pselect()
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#event-flag-mapping" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Event Flag Mapping
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#process-tracing-ptrace" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Process Tracing (ptrace)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Process Tracing (ptrace)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#overview_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Overview
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#ptrace-requests" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        ptrace Requests
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#security-checks" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Security Checks
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#memory-access" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Memory Access
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#process-events-stopevent" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Process Events (stopevent)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#syscall-registration-for-modules" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Syscall Registration for Modules
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Syscall Registration for Modules">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#registration-api" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Registration API
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#syscall_module-macro" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        SYSCALL_MODULE Macro
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#module-event-handler" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Module Event Handler
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#see-also" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        See Also
       
     </span>
   </a>
@@ -1660,6 +2037,34 @@
   
 </nav>
       
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../kld/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Kernel Linker (KLD)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
     </li>
   
 
@@ -2100,10 +2505,387 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#key-files" class="md-nav__link">
+  <a href="#key-source-files" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Key Files
+        Key Source Files
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#syscall-dispatch-mechanism" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Syscall Dispatch Mechanism
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Syscall Dispatch Mechanism">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#the-sysent-structure" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The sysent Structure
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#the-sysmsg-structure" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The sysmsg Structure
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#syscall-handler-signature" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Syscall Handler Signature
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#execution-vector-sysentvec" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Execution Vector (sysentvec)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#generic-io-syscalls" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Generic I/O Syscalls
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Generic I/O Syscalls">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#read-write" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        read / write
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#readv-writev-scatter-gather-io" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        readv / writev (Scatter-Gather I/O)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#positioned-io-preadpwrite" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Positioned I/O (pread/pwrite)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#the-file-operations-layer" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The File Operations Layer
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#the-ioctl-interface" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The ioctl Interface
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="The ioctl Interface">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#overview_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Overview
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#ioctl-command-encoding" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        ioctl Command Encoding
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#mapped_ioctl" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        mapped_ioctl()
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#mapped-ioctl-handlers" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Mapped ioctl Handlers
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#io-multiplexing-select-and-poll" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        I/O Multiplexing: select and poll
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="I/O Multiplexing: select and poll">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#select" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        select()
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#poll" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        poll()
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#ppoll-and-pselect" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        ppoll() and pselect()
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#event-flag-mapping" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Event Flag Mapping
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#process-tracing-ptrace" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Process Tracing (ptrace)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Process Tracing (ptrace)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#overview_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Overview
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#ptrace-requests" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        ptrace Requests
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#security-checks" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Security Checks
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#memory-access" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Memory Access
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#process-events-stopevent" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Process Events (stopevent)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#syscall-registration-for-modules" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Syscall Registration for Modules
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Syscall Registration for Modules">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#registration-api" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Registration API
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#syscall_module-macro" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        SYSCALL_MODULE Macro
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#module-event-handler" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Module Event Handler
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#see-also" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        See Also
       
     </span>
   </a>
@@ -2130,12 +2912,503 @@
   
 
 
-<h1 id="syscalls">Syscalls<a class="headerlink" href="#syscalls" title="Permanent link">&para;</a></h1>
-<p><em>Documentation in progress. See planning/sys/kern/PLAN.md for details.</em></p>
+<h1 id="system-calls">System Calls<a class="headerlink" href="#system-calls" title="Permanent link">&para;</a></h1>
+<p>This document covers the system call dispatch mechanism, generic I/O syscalls,
+the ioctl interface, I/O multiplexing (select/poll), and process tracing (ptrace).</p>
 <h2 id="overview">Overview<a class="headerlink" href="#overview" title="Permanent link">&para;</a></h2>
-<p>To be documented.</p>
-<h2 id="key-files">Key Files<a class="headerlink" href="#key-files" title="Permanent link">&para;</a></h2>
-<p>To be listed.</p>
+<p>System calls are the interface between user programs and the kernel. When a
+user program invokes a system call, the CPU transitions from user mode to
+kernel mode, the kernel locates the appropriate handler function, executes it,
+and returns the result to the user program.</p>
+<p>DragonFly BSD uses a table-driven syscall dispatch mechanism. Each syscall has
+an entry in the <code>sysent[]</code> array that specifies the handler function and
+argument count.</p>
+<h2 id="key-source-files">Key Source Files<a class="headerlink" href="#key-source-files" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>File</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>sys/sys/sysent.h</code></td>
+<td><code>struct sysent</code> and <code>struct sysentvec</code> definitions</td>
+</tr>
+<tr>
+<td><code>sys/sys/sysmsg.h</code></td>
+<td><code>struct sysmsg</code> - syscall message structure</td>
+</tr>
+<tr>
+<td><code>sys/kern/syscalls.c</code></td>
+<td>Generated syscall name table</td>
+</tr>
+<tr>
+<td><code>sys/kern/kern_syscalls.c</code></td>
+<td>Syscall registration for modules</td>
+</tr>
+<tr>
+<td><code>sys/kern/sys_generic.c</code></td>
+<td>Generic I/O syscalls (read, write, ioctl, select, poll)</td>
+</tr>
+<tr>
+<td><code>sys/kern/sys_process.c</code></td>
+<td>ptrace implementation</td>
+</tr>
+</tbody>
+</table>
+<h2 id="syscall-dispatch-mechanism">Syscall Dispatch Mechanism<a class="headerlink" href="#syscall-dispatch-mechanism" title="Permanent link">&para;</a></h2>
+<h3 id="the-sysent-structure">The sysent Structure<a class="headerlink" href="#the-sysent-structure" title="Permanent link">&para;</a></h3>
+<p>Each system call is described by a <code>struct sysent</code> entry (<code>sys/sys/sysent.h:44</code>):</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="k">struct</span><span class="w"> </span><span class="nc">sysent</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="w">    </span><span class="kt">int32_t</span><span class="w">   </span><span class="n">sy_narg</span><span class="p">;</span><span class="w">    </span><span class="cm">/* number of arguments */</span>
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="w">    </span><span class="kt">uint32_t</span><span class="w">  </span><span class="n">sy_rsize</span><span class="p">;</span><span class="w">   </span><span class="cm">/* sizeof(result) */</span>
+<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="w">    </span><span class="n">sy_call_t</span><span class="w"> </span><span class="o">*</span><span class="n">sy_call</span><span class="p">;</span><span class="w">   </span><span class="cm">/* start function */</span>
+<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a><span class="w">    </span><span class="n">sy_call_t</span><span class="w"> </span><span class="o">*</span><span class="n">sy_abort</span><span class="p">;</span><span class="w">  </span><span class="cm">/* abort function (only if start was async) */</span>
+<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a><span class="p">};</span>
+</code></pre></div>
+<p>The global <code>sysent[]</code> array contains entries for all system calls. Syscall
+numbers index directly into this array.</p>
+<h3 id="the-sysmsg-structure">The sysmsg Structure<a class="headerlink" href="#the-sysmsg-structure" title="Permanent link">&para;</a></h3>
+<p>Every syscall handler receives a <code>struct sysmsg</code> that carries the return value
+back to userspace (<code>sys/sys/sysmsg.h:58</code>):</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="k">struct</span><span class="w"> </span><span class="nc">sysmsg</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="w">    </span><span class="k">union</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="w">        </span><span class="kt">void</span><span class="w">    </span><span class="o">*</span><span class="n">resultp</span><span class="p">;</span><span class="w">       </span><span class="cm">/* misc pointer data or result */</span>
+<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a><span class="w">        </span><span class="kt">int</span><span class="w">     </span><span class="n">iresult</span><span class="p">;</span><span class="w">        </span><span class="cm">/* standard &#39;int&#39;eger result */</span>
+<a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a><span class="w">        </span><span class="kt">long</span><span class="w">    </span><span class="n">lresult</span><span class="p">;</span><span class="w">        </span><span class="cm">/* long result */</span>
+<a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a><span class="w">        </span><span class="kt">size_t</span><span class="w">  </span><span class="n">szresult</span><span class="p">;</span><span class="w">       </span><span class="cm">/* size_t result */</span>
+<a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a><span class="w">        </span><span class="kt">long</span><span class="w">    </span><span class="n">fds</span><span class="p">[</span><span class="mi">2</span><span class="p">];</span><span class="w">         </span><span class="cm">/* double result (e.g., pipe) */</span>
+<a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a><span class="w">        </span><span class="n">__int32_t</span><span class="w"> </span><span class="n">result32</span><span class="p">;</span><span class="w">     </span><span class="cm">/* 32 bit result */</span>
+<a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a><span class="w">        </span><span class="n">__int64_t</span><span class="w"> </span><span class="n">result64</span><span class="p">;</span><span class="w">     </span><span class="cm">/* 64 bit result */</span>
+<a id="__codelineno-1-10" name="__codelineno-1-10" href="#__codelineno-1-10"></a><span class="w">        </span><span class="n">__off_t</span><span class="w"> </span><span class="n">offset</span><span class="p">;</span><span class="w">         </span><span class="cm">/* off_t result */</span>
+<a id="__codelineno-1-11" name="__codelineno-1-11" href="#__codelineno-1-11"></a><span class="w">        </span><span class="n">register_t</span><span class="w"> </span><span class="n">reg</span><span class="p">;</span>
+<a id="__codelineno-1-12" name="__codelineno-1-12" href="#__codelineno-1-12"></a><span class="w">    </span><span class="p">}</span><span class="w"> </span><span class="n">sm_result</span><span class="p">;</span>
+<a id="__codelineno-1-13" name="__codelineno-1-13" href="#__codelineno-1-13"></a><span class="w">    </span><span class="k">struct</span><span class="w"> </span><span class="nc">trapframe</span><span class="w"> </span><span class="o">*</span><span class="n">sm_frame</span><span class="p">;</span><span class="w"> </span><span class="cm">/* saved user context */</span>
+<a id="__codelineno-1-14" name="__codelineno-1-14" href="#__codelineno-1-14"></a><span class="w">    </span><span class="k">union</span><span class="w"> </span><span class="nc">sysunion</span><span class="w"> </span><span class="n">extargs</span><span class="p">;</span><span class="w">     </span><span class="cm">/* if more than 6 args */</span>
+<a id="__codelineno-1-15" name="__codelineno-1-15" href="#__codelineno-1-15"></a><span class="p">};</span>
+</code></pre></div>
+<p>The union allows syscalls to return different types efficiently. Common accessor
+macros include:
+- <code>sysmsg-&gt;sysmsg_result</code> - standard int result
+- <code>sysmsg-&gt;sysmsg_szresult</code> - size_t result (read/write byte counts)
+- <code>sysmsg-&gt;sysmsg_fds</code> - dual result for syscalls like <code>pipe()</code></p>
+<h3 id="syscall-handler-signature">Syscall Handler Signature<a class="headerlink" href="#syscall-handler-signature" title="Permanent link">&para;</a></h3>
+<p>All syscall handlers follow this signature:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="kt">int</span><span class="w"> </span><span class="nf">sys_xxx</span><span class="p">(</span><span class="k">struct</span><span class="w"> </span><span class="nc">sysmsg</span><span class="w"> </span><span class="o">*</span><span class="n">sysmsg</span><span class="p">,</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="k">struct</span><span class="w"> </span><span class="nc">xxx_args</span><span class="w"> </span><span class="o">*</span><span class="n">uap</span><span class="p">);</span>
+</code></pre></div>
+<p>Where:
+- <code>sysmsg</code> carries the return value
+- <code>uap</code> points to the userspace arguments (already copied in)
+- The function returns an errno value (0 on success)</p>
+<h3 id="execution-vector-sysentvec">Execution Vector (sysentvec)<a class="headerlink" href="#execution-vector-sysentvec" title="Permanent link">&para;</a></h3>
+<p>Different ABIs (native, Linux emulation, etc.) use different <code>struct sysentvec</code>
+configurations (<code>sys/sys/sysent.h:56</code>):</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="k">struct</span><span class="w"> </span><span class="nc">sysentvec</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="w">    </span><span class="kt">int</span><span class="w">             </span><span class="n">sv_size</span><span class="p">;</span><span class="w">        </span><span class="cm">/* number of entries */</span>
+<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a><span class="w">    </span><span class="k">struct</span><span class="w"> </span><span class="nc">sysent</span><span class="w">   </span><span class="o">*</span><span class="n">sv_table</span><span class="p">;</span><span class="w">      </span><span class="cm">/* pointer to sysent */</span>
+<a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a><span class="w">    </span><span class="kt">int</span><span class="w">             </span><span class="n">sv_sigsize</span><span class="p">;</span><span class="w">     </span><span class="cm">/* size of signal translation table */</span>
+<a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a><span class="w">    </span><span class="kt">int</span><span class="w">             </span><span class="o">*</span><span class="n">sv_sigtbl</span><span class="p">;</span><span class="w">     </span><span class="cm">/* signal translation table */</span>
+<a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a><span class="w">    </span><span class="kt">int</span><span class="w">             </span><span class="n">sv_errsize</span><span class="p">;</span><span class="w">     </span><span class="cm">/* size of errno translation table */</span>
+<a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a><span class="w">    </span><span class="kt">int</span><span class="w">             </span><span class="o">*</span><span class="n">sv_errtbl</span><span class="p">;</span><span class="w">     </span><span class="cm">/* errno translation table */</span>
+<a id="__codelineno-3-8" name="__codelineno-3-8" href="#__codelineno-3-8"></a><span class="w">    </span><span class="kt">int</span><span class="w">             </span><span class="p">(</span><span class="o">*</span><span class="n">sv_transtrap</span><span class="p">)(</span><span class="kt">int</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="p">);</span><span class="w">  </span><span class="cm">/* trap translation */</span>
+<a id="__codelineno-3-9" name="__codelineno-3-9" href="#__codelineno-3-9"></a><span class="w">    </span><span class="kt">int</span><span class="w">             </span><span class="p">(</span><span class="o">*</span><span class="n">sv_fixup</span><span class="p">)(</span><span class="n">register_t</span><span class="w"> </span><span class="o">**</span><span class="p">,</span><span class="w"> </span><span class="k">struct</span><span class="w"> </span><span class="nc">image_params</span><span class="w"> </span><span class="o">*</span><span class="p">);</span>
+<a id="__codelineno-3-10" name="__codelineno-3-10" href="#__codelineno-3-10"></a><span class="w">    </span><span class="kt">void</span><span class="w">            </span><span class="p">(</span><span class="o">*</span><span class="n">sv_sendsig</span><span class="p">)(...);</span><span class="w">         </span><span class="cm">/* signal delivery */</span>
+<a id="__codelineno-3-11" name="__codelineno-3-11" href="#__codelineno-3-11"></a><span class="w">    </span><span class="kt">char</span><span class="w">            </span><span class="o">*</span><span class="n">sv_sigcode</span><span class="p">;</span><span class="w">    </span><span class="cm">/* sigtramp code */</span>
+<a id="__codelineno-3-12" name="__codelineno-3-12" href="#__codelineno-3-12"></a><span class="w">    </span><span class="kt">int</span><span class="w">             </span><span class="o">*</span><span class="n">sv_szsigcode</span><span class="p">;</span><span class="w">  </span><span class="cm">/* sigtramp size */</span>
+<a id="__codelineno-3-13" name="__codelineno-3-13" href="#__codelineno-3-13"></a><span class="w">    </span><span class="kt">char</span><span class="w">            </span><span class="o">*</span><span class="n">sv_name</span><span class="p">;</span><span class="w">       </span><span class="cm">/* ABI name */</span>
+<a id="__codelineno-3-14" name="__codelineno-3-14" href="#__codelineno-3-14"></a><span class="w">    </span><span class="kt">int</span><span class="w">             </span><span class="p">(</span><span class="o">*</span><span class="n">sv_coredump</span><span class="p">)(...);</span><span class="w">        </span><span class="cm">/* core dump function */</span>
+<a id="__codelineno-3-15" name="__codelineno-3-15" href="#__codelineno-3-15"></a><span class="w">    </span><span class="kt">int</span><span class="w">             </span><span class="p">(</span><span class="o">*</span><span class="n">sv_imgact_try</span><span class="p">)(</span><span class="k">struct</span><span class="w"> </span><span class="nc">image_params</span><span class="w"> </span><span class="o">*</span><span class="p">);</span>
+<a id="__codelineno-3-16" name="__codelineno-3-16" href="#__codelineno-3-16"></a><span class="w">    </span><span class="kt">int</span><span class="w">             </span><span class="n">sv_minsigstksz</span><span class="p">;</span><span class="w"> </span><span class="cm">/* minimum signal stack size */</span>
+<a id="__codelineno-3-17" name="__codelineno-3-17" href="#__codelineno-3-17"></a><span class="p">};</span>
+</code></pre></div>
+<p>This allows the kernel to support multiple system call ABIs simultaneously.</p>
+<h2 id="generic-io-syscalls">Generic I/O Syscalls<a class="headerlink" href="#generic-io-syscalls" title="Permanent link">&para;</a></h2>
+<p>The generic I/O syscalls are implemented in <code>sys/kern/sys_generic.c</code>.</p>
+<h3 id="read-write">read / write<a class="headerlink" href="#read-write" title="Permanent link">&para;</a></h3>
+<p>The <code>sys_read()</code> and <code>sys_write()</code> functions (<code>sys_generic.c:123</code>, <code>sys_generic.c:329</code>)
+build a <code>struct uio</code> describing the I/O operation and delegate to <code>kern_preadv()</code>
+or <code>kern_pwritev()</code>.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="kt">int</span><span class="w"> </span><span class="nf">sys_read</span><span class="p">(</span><span class="k">struct</span><span class="w"> </span><span class="nc">sysmsg</span><span class="w"> </span><span class="o">*</span><span class="n">sysmsg</span><span class="p">,</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="k">struct</span><span class="w"> </span><span class="nc">read_args</span><span class="w"> </span><span class="o">*</span><span class="n">uap</span><span class="p">)</span>
+<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a><span class="p">{</span>
+<a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a><span class="w">    </span><span class="k">struct</span><span class="w"> </span><span class="nc">uio</span><span class="w"> </span><span class="n">auio</span><span class="p">;</span>
+<a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a><span class="w">    </span><span class="k">struct</span><span class="w"> </span><span class="nc">iovec</span><span class="w"> </span><span class="n">aiov</span><span class="p">;</span>
+<a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a>
+<a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a><span class="w">    </span><span class="n">aiov</span><span class="p">.</span><span class="n">iov_base</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">uap</span><span class="o">-&gt;</span><span class="n">buf</span><span class="p">;</span>
+<a id="__codelineno-4-7" name="__codelineno-4-7" href="#__codelineno-4-7"></a><span class="w">    </span><span class="n">aiov</span><span class="p">.</span><span class="n">iov_len</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">uap</span><span class="o">-&gt;</span><span class="n">nbyte</span><span class="p">;</span>
+<a id="__codelineno-4-8" name="__codelineno-4-8" href="#__codelineno-4-8"></a><span class="w">    </span><span class="n">auio</span><span class="p">.</span><span class="n">uio_iov</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="o">&amp;</span><span class="n">aiov</span><span class="p">;</span>
+<a id="__codelineno-4-9" name="__codelineno-4-9" href="#__codelineno-4-9"></a><span class="w">    </span><span class="n">auio</span><span class="p">.</span><span class="n">uio_iovcnt</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span>
+<a id="__codelineno-4-10" name="__codelineno-4-10" href="#__codelineno-4-10"></a><span class="w">    </span><span class="n">auio</span><span class="p">.</span><span class="n">uio_offset</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">-1</span><span class="p">;</span><span class="w">           </span><span class="cm">/* use file position */</span>
+<a id="__codelineno-4-11" name="__codelineno-4-11" href="#__codelineno-4-11"></a><span class="w">    </span><span class="n">auio</span><span class="p">.</span><span class="n">uio_resid</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">uap</span><span class="o">-&gt;</span><span class="n">nbyte</span><span class="p">;</span>
+<a id="__codelineno-4-12" name="__codelineno-4-12" href="#__codelineno-4-12"></a><span class="w">    </span><span class="n">auio</span><span class="p">.</span><span class="n">uio_rw</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">UIO_READ</span><span class="p">;</span>
+<a id="__codelineno-4-13" name="__codelineno-4-13" href="#__codelineno-4-13"></a><span class="w">    </span><span class="n">auio</span><span class="p">.</span><span class="n">uio_segflg</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">UIO_USERSPACE</span><span class="p">;</span>
+<a id="__codelineno-4-14" name="__codelineno-4-14" href="#__codelineno-4-14"></a><span class="w">    </span><span class="n">auio</span><span class="p">.</span><span class="n">uio_td</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">curthread</span><span class="p">;</span>
+<a id="__codelineno-4-15" name="__codelineno-4-15" href="#__codelineno-4-15"></a>
+<a id="__codelineno-4-16" name="__codelineno-4-16" href="#__codelineno-4-16"></a><span class="w">    </span><span class="n">error</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">kern_preadv</span><span class="p">(</span><span class="n">uap</span><span class="o">-&gt;</span><span class="n">fd</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">auio</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">sysmsg</span><span class="o">-&gt;</span><span class="n">sysmsg_szresult</span><span class="p">);</span>
+<a id="__codelineno-4-17" name="__codelineno-4-17" href="#__codelineno-4-17"></a><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">error</span><span class="p">;</span>
+<a id="__codelineno-4-18" name="__codelineno-4-18" href="#__codelineno-4-18"></a><span class="p">}</span>
+</code></pre></div>
+<p>Key points:
+- <code>uio_offset = -1</code> means use the file's current position
+- <code>uio_segflg = UIO_USERSPACE</code> indicates the buffer is in user address space
+- The byte count is returned via <code>sysmsg-&gt;sysmsg_szresult</code></p>
+<h3 id="readv-writev-scatter-gather-io">readv / writev (Scatter-Gather I/O)<a class="headerlink" href="#readv-writev-scatter-gather-io" title="Permanent link">&para;</a></h3>
+<p>The vectored variants (<code>sys_readv</code>, <code>sys_writev</code>) use <code>iovec_copyin()</code> to copy
+the iovec array from userspace, then proceed similarly:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="kt">int</span><span class="w"> </span><span class="nf">sys_readv</span><span class="p">(</span><span class="k">struct</span><span class="w"> </span><span class="nc">sysmsg</span><span class="w"> </span><span class="o">*</span><span class="n">sysmsg</span><span class="p">,</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="k">struct</span><span class="w"> </span><span class="nc">readv_args</span><span class="w"> </span><span class="o">*</span><span class="n">uap</span><span class="p">)</span>
+<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a><span class="p">{</span>
+<a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a><span class="w">    </span><span class="k">struct</span><span class="w"> </span><span class="nc">iovec</span><span class="w"> </span><span class="n">aiov</span><span class="p">[</span><span class="n">UIO_SMALLIOV</span><span class="p">],</span><span class="w"> </span><span class="o">*</span><span class="n">iov</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">NULL</span><span class="p">;</span>
+<a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a>
+<a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a><span class="w">    </span><span class="n">error</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">iovec_copyin</span><span class="p">(</span><span class="n">uap</span><span class="o">-&gt;</span><span class="n">iovp</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">iov</span><span class="p">,</span><span class="w"> </span><span class="n">aiov</span><span class="p">,</span><span class="w"> </span><span class="n">uap</span><span class="o">-&gt;</span><span class="n">iovcnt</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">auio</span><span class="p">.</span><span class="n">uio_resid</span><span class="p">);</span>
+<a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a><span class="w">    </span><span class="cm">/* ... build uio ... */</span>
+<a id="__codelineno-5-7" name="__codelineno-5-7" href="#__codelineno-5-7"></a><span class="w">    </span><span class="n">error</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">kern_preadv</span><span class="p">(</span><span class="n">uap</span><span class="o">-&gt;</span><span class="n">fd</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">auio</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">sysmsg</span><span class="o">-&gt;</span><span class="n">sysmsg_szresult</span><span class="p">);</span>
+<a id="__codelineno-5-8" name="__codelineno-5-8" href="#__codelineno-5-8"></a><span class="w">    </span><span class="n">iovec_free</span><span class="p">(</span><span class="o">&amp;</span><span class="n">iov</span><span class="p">,</span><span class="w"> </span><span class="n">aiov</span><span class="p">);</span>
+<a id="__codelineno-5-9" name="__codelineno-5-9" href="#__codelineno-5-9"></a><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">error</span><span class="p">;</span>
+<a id="__codelineno-5-10" name="__codelineno-5-10" href="#__codelineno-5-10"></a><span class="p">}</span>
+</code></pre></div>
+<p>The <code>UIO_SMALLIOV</code> optimization avoids kmalloc for small iovec counts (typically 8).</p>
+<h3 id="positioned-io-preadpwrite">Positioned I/O (pread/pwrite)<a class="headerlink" href="#positioned-io-preadpwrite" title="Permanent link">&para;</a></h3>
+<p>DragonFly provides extended positioned I/O via <code>sys_extpread()</code> and <code>sys_extpwritev()</code>.
+These accept an explicit offset and flags, allowing atomic read/write at a
+specific file position without affecting the file pointer.</p>
+<h3 id="the-file-operations-layer">The File Operations Layer<a class="headerlink" href="#the-file-operations-layer" title="Permanent link">&para;</a></h3>
+<p>All I/O ultimately goes through file operations (<code>fo_read</code>, <code>fo_write</code>) defined
+per file type. See <a href="../resources/">resources.md</a> for file descriptor management.</p>
+<h2 id="the-ioctl-interface">The ioctl Interface<a class="headerlink" href="#the-ioctl-interface" title="Permanent link">&para;</a></h2>
+<h3 id="overview_1">Overview<a class="headerlink" href="#overview_1" title="Permanent link">&para;</a></h3>
+<p>The <code>ioctl()</code> syscall provides device-specific control operations. It's
+implemented by <code>sys_ioctl()</code> (<code>sys_generic.c:537</code>) which delegates to
+<code>mapped_ioctl()</code>.</p>
+<h3 id="ioctl-command-encoding">ioctl Command Encoding<a class="headerlink" href="#ioctl-command-encoding" title="Permanent link">&para;</a></h3>
+<p>ioctl commands encode direction and size in the command number:
+- <code>IOC_VOID</code> - no data transfer
+- <code>IOC_IN</code> - data flows from user to kernel
+- <code>IOC_OUT</code> - data flows from kernel to user
+- <code>IOCPARM_LEN(cmd)</code> - extracts the data size</p>
+<h3 id="mapped_ioctl">mapped_ioctl()<a class="headerlink" href="#mapped_ioctl" title="Permanent link">&para;</a></h3>
+<p>The <code>mapped_ioctl()</code> function (<code>sys_generic.c:558</code>) handles:</p>
+<ol>
+<li><strong>Command translation</strong> - For emulation layers, commands can be remapped</li>
+<li><strong>Data copyin/copyout</strong> - Based on IOC_IN/IOC_OUT flags</li>
+<li><strong>Built-in commands</strong> - FIONBIO, FIOASYNC, FIOCLEX, FIONCLEX</li>
+<li><strong>Delegation</strong> - Calls <code>fo_ioctl()</code> for file-type-specific handling</li>
+</ol>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="kt">int</span><span class="w"> </span><span class="nf">mapped_ioctl</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">fd</span><span class="p">,</span><span class="w"> </span><span class="n">u_long</span><span class="w"> </span><span class="n">com</span><span class="p">,</span><span class="w"> </span><span class="n">caddr_t</span><span class="w"> </span><span class="n">uspc_data</span><span class="p">,</span>
+<a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a><span class="w">                 </span><span class="k">struct</span><span class="w"> </span><span class="nc">ioctl_map</span><span class="w"> </span><span class="o">*</span><span class="n">map</span><span class="p">,</span><span class="w"> </span><span class="k">struct</span><span class="w"> </span><span class="nc">sysmsg</span><span class="w"> </span><span class="o">*</span><span class="n">msg</span><span class="p">)</span>
+<a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a><span class="p">{</span>
+<a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a><span class="w">    </span><span class="cm">/* Handle translation map if provided */</span>
+<a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a><span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">map</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="nb">NULL</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-6-6" name="__codelineno-6-6" href="#__codelineno-6-6"></a><span class="w">        </span><span class="cm">/* ... lookup and translate command ... */</span>
+<a id="__codelineno-6-7" name="__codelineno-6-7" href="#__codelineno-6-7"></a><span class="w">    </span><span class="p">}</span>
+<a id="__codelineno-6-8" name="__codelineno-6-8" href="#__codelineno-6-8"></a>
+<a id="__codelineno-6-9" name="__codelineno-6-9" href="#__codelineno-6-9"></a><span class="w">    </span><span class="cm">/* Built-in commands */</span>
+<a id="__codelineno-6-10" name="__codelineno-6-10" href="#__codelineno-6-10"></a><span class="w">    </span><span class="k">switch</span><span class="w"> </span><span class="p">(</span><span class="n">com</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-6-11" name="__codelineno-6-11" href="#__codelineno-6-11"></a><span class="w">    </span><span class="k">case</span><span class="w"> </span><span class="no">FIONCLEX</span><span class="p">:</span><span class="w">  </span><span class="cm">/* clear close-on-exec */</span>
+<a id="__codelineno-6-12" name="__codelineno-6-12" href="#__codelineno-6-12"></a><span class="w">    </span><span class="k">case</span><span class="w"> </span><span class="no">FIOCLEX</span><span class="p">:</span><span class="w">   </span><span class="cm">/* set close-on-exec */</span>
+<a id="__codelineno-6-13" name="__codelineno-6-13" href="#__codelineno-6-13"></a><span class="w">    </span><span class="k">case</span><span class="w"> </span><span class="no">FIONBIO</span><span class="p">:</span><span class="w">   </span><span class="cm">/* set/clear non-blocking */</span>
+<a id="__codelineno-6-14" name="__codelineno-6-14" href="#__codelineno-6-14"></a><span class="w">    </span><span class="k">case</span><span class="w"> </span><span class="no">FIOASYNC</span><span class="p">:</span><span class="w">  </span><span class="cm">/* set/clear async I/O */</span>
+<a id="__codelineno-6-15" name="__codelineno-6-15" href="#__codelineno-6-15"></a><span class="w">        </span><span class="cm">/* ... handle directly ... */</span>
+<a id="__codelineno-6-16" name="__codelineno-6-16" href="#__codelineno-6-16"></a><span class="w">    </span><span class="p">}</span>
+<a id="__codelineno-6-17" name="__codelineno-6-17" href="#__codelineno-6-17"></a>
+<a id="__codelineno-6-18" name="__codelineno-6-18" href="#__codelineno-6-18"></a><span class="w">    </span><span class="cm">/* Copy data in/out and call file operation */</span>
+<a id="__codelineno-6-19" name="__codelineno-6-19" href="#__codelineno-6-19"></a><span class="w">    </span><span class="n">size</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">IOCPARM_LEN</span><span class="p">(</span><span class="n">com</span><span class="p">);</span>
+<a id="__codelineno-6-20" name="__codelineno-6-20" href="#__codelineno-6-20"></a><span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">com</span><span class="w"> </span><span class="o">&amp;</span><span class="w"> </span><span class="n">IOC_IN</span><span class="p">)</span>
+<a id="__codelineno-6-21" name="__codelineno-6-21" href="#__codelineno-6-21"></a><span class="w">        </span><span class="n">copyin</span><span class="p">(</span><span class="n">uspc_data</span><span class="p">,</span><span class="w"> </span><span class="n">data</span><span class="p">,</span><span class="w"> </span><span class="n">size</span><span class="p">);</span>
+<a id="__codelineno-6-22" name="__codelineno-6-22" href="#__codelineno-6-22"></a>
+<a id="__codelineno-6-23" name="__codelineno-6-23" href="#__codelineno-6-23"></a><span class="w">    </span><span class="n">error</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">fo_ioctl</span><span class="p">(</span><span class="n">fp</span><span class="p">,</span><span class="w"> </span><span class="n">com</span><span class="p">,</span><span class="w"> </span><span class="n">data</span><span class="p">,</span><span class="w"> </span><span class="n">cred</span><span class="p">,</span><span class="w"> </span><span class="n">msg</span><span class="p">);</span>
+<a id="__codelineno-6-24" name="__codelineno-6-24" href="#__codelineno-6-24"></a>
+<a id="__codelineno-6-25" name="__codelineno-6-25" href="#__codelineno-6-25"></a><span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">com</span><span class="w"> </span><span class="o">&amp;</span><span class="w"> </span><span class="n">IOC_OUT</span><span class="p">)</span>
+<a id="__codelineno-6-26" name="__codelineno-6-26" href="#__codelineno-6-26"></a><span class="w">        </span><span class="n">copyout</span><span class="p">(</span><span class="n">data</span><span class="p">,</span><span class="w"> </span><span class="n">uspc_data</span><span class="p">,</span><span class="w"> </span><span class="n">size</span><span class="p">);</span>
+<a id="__codelineno-6-27" name="__codelineno-6-27" href="#__codelineno-6-27"></a><span class="p">}</span>
+</code></pre></div>
+<h3 id="mapped-ioctl-handlers">Mapped ioctl Handlers<a class="headerlink" href="#mapped-ioctl-handlers" title="Permanent link">&para;</a></h3>
+<p>Subsystems can register ioctl command ranges for translation via
+<code>mapped_ioctl_register_handler()</code>. This is primarily used for emulation
+compatibility layers.</p>
+<h2 id="io-multiplexing-select-and-poll">I/O Multiplexing: select and poll<a class="headerlink" href="#io-multiplexing-select-and-poll" title="Permanent link">&para;</a></h2>
+<p>DragonFly implements <code>select()</code> and <code>poll()</code> using the kqueue infrastructure
+internally. This provides efficient, scalable event notification.</p>
+<h3 id="select">select()<a class="headerlink" href="#select" title="Permanent link">&para;</a></h3>
+<p>The <code>sys_select()</code> function (<code>sys_generic.c:798</code>) and its variant <code>sys_pselect()</code>
+convert fd_set bitmaps into kqueue events:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="kt">int</span><span class="w"> </span><span class="nf">sys_select</span><span class="p">(</span><span class="k">struct</span><span class="w"> </span><span class="nc">sysmsg</span><span class="w"> </span><span class="o">*</span><span class="n">sysmsg</span><span class="p">,</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="k">struct</span><span class="w"> </span><span class="nc">select_args</span><span class="w"> </span><span class="o">*</span><span class="n">uap</span><span class="p">)</span>
+<a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a><span class="p">{</span>
+<a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a><span class="w">    </span><span class="cm">/* Copy timeout if provided */</span>
+<a id="__codelineno-7-4" name="__codelineno-7-4" href="#__codelineno-7-4"></a><span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">uap</span><span class="o">-&gt;</span><span class="n">tv</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="nb">NULL</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-7-5" name="__codelineno-7-5" href="#__codelineno-7-5"></a><span class="w">        </span><span class="n">copyin</span><span class="p">(</span><span class="n">uap</span><span class="o">-&gt;</span><span class="n">tv</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">ktv</span><span class="p">,</span><span class="w"> </span><span class="k">sizeof</span><span class="p">(</span><span class="n">ktv</span><span class="p">));</span>
+<a id="__codelineno-7-6" name="__codelineno-7-6" href="#__codelineno-7-6"></a><span class="w">        </span><span class="n">TIMEVAL_TO_TIMESPEC</span><span class="p">(</span><span class="o">&amp;</span><span class="n">ktv</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">kts</span><span class="p">);</span>
+<a id="__codelineno-7-7" name="__codelineno-7-7" href="#__codelineno-7-7"></a><span class="w">    </span><span class="p">}</span>
+<a id="__codelineno-7-8" name="__codelineno-7-8" href="#__codelineno-7-8"></a>
+<a id="__codelineno-7-9" name="__codelineno-7-9" href="#__codelineno-7-9"></a><span class="w">    </span><span class="n">error</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">doselect</span><span class="p">(</span><span class="n">uap</span><span class="o">-&gt;</span><span class="n">nd</span><span class="p">,</span><span class="w"> </span><span class="n">uap</span><span class="o">-&gt;</span><span class="n">in</span><span class="p">,</span><span class="w"> </span><span class="n">uap</span><span class="o">-&gt;</span><span class="n">ou</span><span class="p">,</span><span class="w"> </span><span class="n">uap</span><span class="o">-&gt;</span><span class="n">ex</span><span class="p">,</span><span class="w"> </span><span class="n">ktsp</span><span class="p">,</span>
+<a id="__codelineno-7-10" name="__codelineno-7-10" href="#__codelineno-7-10"></a><span class="w">                     </span><span class="o">&amp;</span><span class="n">sysmsg</span><span class="o">-&gt;</span><span class="n">sysmsg_result</span><span class="p">);</span>
+<a id="__codelineno-7-11" name="__codelineno-7-11" href="#__codelineno-7-11"></a><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">error</span><span class="p">;</span>
+<a id="__codelineno-7-12" name="__codelineno-7-12" href="#__codelineno-7-12"></a><span class="p">}</span>
+</code></pre></div>
+<p>The <code>doselect()</code> function (<code>sys_generic.c:1144</code>):</p>
+<ol>
+<li>Copies fd_set bitmaps from userspace</li>
+<li>Converts each set bit to a kevent (EVFILT_READ, EVFILT_WRITE, EVFILT_EXCEPT)</li>
+<li>Calls <code>kern_kevent()</code> on the per-lwp kqueue</li>
+<li>Converts returned events back to fd_set bitmaps</li>
+<li>Copies results to userspace</li>
+</ol>
+<p>Key implementation details:
+- Uses per-LWP kqueue (<code>lwp-&gt;lwp_kqueue</code>) for efficiency
+- Serial numbers (<code>lwp-&gt;lwp_kqueue_serial</code>) detect stale events
+- Events are registered with <code>NOTE_OLDAPI</code> for select/poll compatibility</p>
+<h3 id="poll">poll()<a class="headerlink" href="#poll" title="Permanent link">&para;</a></h3>
+<p>The <code>sys_poll()</code> function (<code>sys_generic.c:1234</code>) works similarly but uses
+<code>struct pollfd</code> arrays instead of bitmaps:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a><span class="kt">int</span><span class="w"> </span><span class="nf">sys_poll</span><span class="p">(</span><span class="k">struct</span><span class="w"> </span><span class="nc">sysmsg</span><span class="w"> </span><span class="o">*</span><span class="n">sysmsg</span><span class="p">,</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="k">struct</span><span class="w"> </span><span class="nc">poll_args</span><span class="w"> </span><span class="o">*</span><span class="n">uap</span><span class="p">)</span>
+<a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a><span class="p">{</span>
+<a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a><span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">uap</span><span class="o">-&gt;</span><span class="n">timeout</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="n">INFTIM</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-8-4" name="__codelineno-8-4" href="#__codelineno-8-4"></a><span class="w">        </span><span class="n">ts</span><span class="p">.</span><span class="n">tv_sec</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">uap</span><span class="o">-&gt;</span><span class="n">timeout</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="mi">1000</span><span class="p">;</span>
+<a id="__codelineno-8-5" name="__codelineno-8-5" href="#__codelineno-8-5"></a><span class="w">        </span><span class="n">ts</span><span class="p">.</span><span class="n">tv_nsec</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="n">uap</span><span class="o">-&gt;</span><span class="n">timeout</span><span class="w"> </span><span class="o">%</span><span class="w"> </span><span class="mi">1000</span><span class="p">)</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mi">1000</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mi">1000</span><span class="p">;</span>
+<a id="__codelineno-8-6" name="__codelineno-8-6" href="#__codelineno-8-6"></a><span class="w">        </span><span class="n">tsp</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="o">&amp;</span><span class="n">ts</span><span class="p">;</span>
+<a id="__codelineno-8-7" name="__codelineno-8-7" href="#__codelineno-8-7"></a><span class="w">    </span><span class="p">}</span>
+<a id="__codelineno-8-8" name="__codelineno-8-8" href="#__codelineno-8-8"></a>
+<a id="__codelineno-8-9" name="__codelineno-8-9" href="#__codelineno-8-9"></a><span class="w">    </span><span class="n">error</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">dopoll</span><span class="p">(</span><span class="n">uap</span><span class="o">-&gt;</span><span class="n">nfds</span><span class="p">,</span><span class="w"> </span><span class="n">uap</span><span class="o">-&gt;</span><span class="n">fds</span><span class="p">,</span><span class="w"> </span><span class="n">tsp</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">sysmsg</span><span class="o">-&gt;</span><span class="n">sysmsg_result</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">);</span>
+<a id="__codelineno-8-10" name="__codelineno-8-10" href="#__codelineno-8-10"></a><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">error</span><span class="p">;</span>
+<a id="__codelineno-8-11" name="__codelineno-8-11" href="#__codelineno-8-11"></a><span class="p">}</span>
+</code></pre></div>
+<p>The <code>dopoll()</code> function (<code>sys_generic.c:1620</code>):</p>
+<ol>
+<li>Copies pollfd array from userspace</li>
+<li>For each pollfd, registers appropriate kevents based on <code>events</code> field</li>
+<li>Calls <code>kern_kevent()</code> </li>
+<li>Maps kevent results back to <code>revents</code> fields</li>
+<li>Copies pollfd array back to userspace</li>
+</ol>
+<h3 id="ppoll-and-pselect">ppoll() and pselect()<a class="headerlink" href="#ppoll-and-pselect" title="Permanent link">&para;</a></h3>
+<p>The <code>sys_ppoll()</code> and <code>sys_pselect()</code> variants add:
+- Precise timespec timeout (instead of timeval/milliseconds)
+- Atomic signal mask manipulation during the wait</p>
+<p>Signal mask handling:
+<div class="highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">uap</span><span class="o">-&gt;</span><span class="n">sigmask</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="nb">NULL</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a><span class="w">    </span><span class="n">lp</span><span class="o">-&gt;</span><span class="n">lwp_oldsigmask</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">lp</span><span class="o">-&gt;</span><span class="n">lwp_sigmask</span><span class="p">;</span>
+<a id="__codelineno-9-3" name="__codelineno-9-3" href="#__codelineno-9-3"></a><span class="w">    </span><span class="n">lp</span><span class="o">-&gt;</span><span class="n">lwp_sigmask</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">sigmask</span><span class="p">;</span>
+<a id="__codelineno-9-4" name="__codelineno-9-4" href="#__codelineno-9-4"></a><span class="w">    </span><span class="cm">/* ... do poll/select ... */</span>
+<a id="__codelineno-9-5" name="__codelineno-9-5" href="#__codelineno-9-5"></a><span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">error</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">EINTR</span><span class="p">)</span>
+<a id="__codelineno-9-6" name="__codelineno-9-6" href="#__codelineno-9-6"></a><span class="w">        </span><span class="n">lp</span><span class="o">-&gt;</span><span class="n">lwp_flags</span><span class="w"> </span><span class="o">|=</span><span class="w"> </span><span class="n">LWP_OLDMASK</span><span class="p">;</span><span class="w">  </span><span class="cm">/* restore after signal handler */</span>
+<a id="__codelineno-9-7" name="__codelineno-9-7" href="#__codelineno-9-7"></a><span class="w">    </span><span class="k">else</span>
+<a id="__codelineno-9-8" name="__codelineno-9-8" href="#__codelineno-9-8"></a><span class="w">        </span><span class="n">lp</span><span class="o">-&gt;</span><span class="n">lwp_sigmask</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">lp</span><span class="o">-&gt;</span><span class="n">lwp_oldsigmask</span><span class="p">;</span><span class="w">  </span><span class="cm">/* restore immediately */</span>
+<a id="__codelineno-9-9" name="__codelineno-9-9" href="#__codelineno-9-9"></a><span class="p">}</span>
+</code></pre></div></p>
+<h3 id="event-flag-mapping">Event Flag Mapping<a class="headerlink" href="#event-flag-mapping" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>poll events</th>
+<th>kqueue filter</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>POLLIN, POLLRDNORM</td>
+<td>EVFILT_READ</td>
+<td>Normal read data</td>
+</tr>
+<tr>
+<td>POLLOUT, POLLWRNORM</td>
+<td>EVFILT_WRITE</td>
+<td>Write possible</td>
+</tr>
+<tr>
+<td>POLLPRI, POLLRDBAND</td>
+<td>EVFILT_EXCEPT</td>
+<td>OOB/urgent data</td>
+</tr>
+<tr>
+<td>POLLHUP</td>
+<td>EV_HUP flag</td>
+<td>Hangup detected</td>
+</tr>
+<tr>
+<td>POLLERR</td>
+<td>EV_EOF with fflags</td>
+<td>Error condition</td>
+</tr>
+<tr>
+<td>POLLNVAL</td>
+<td>EV_ERROR with EBADF</td>
+<td>Bad file descriptor</td>
+</tr>
+</tbody>
+</table>
+<h2 id="process-tracing-ptrace">Process Tracing (ptrace)<a class="headerlink" href="#process-tracing-ptrace" title="Permanent link">&para;</a></h2>
+<p>The <code>ptrace()</code> syscall enables debuggers to control and inspect other processes.
+Implementation is in <code>sys/kern/sys_process.c</code>.</p>
+<h3 id="overview_2">Overview<a class="headerlink" href="#overview_2" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a><span class="kt">int</span><span class="w"> </span><span class="nf">sys_ptrace</span><span class="p">(</span><span class="k">struct</span><span class="w"> </span><span class="nc">sysmsg</span><span class="w"> </span><span class="o">*</span><span class="n">sysmsg</span><span class="p">,</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="k">struct</span><span class="w"> </span><span class="nc">ptrace_args</span><span class="w"> </span><span class="o">*</span><span class="n">uap</span><span class="p">)</span>
+<a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a><span class="p">{</span>
+<a id="__codelineno-10-3" name="__codelineno-10-3" href="#__codelineno-10-3"></a><span class="w">    </span><span class="cm">/* Copy register structures if needed */</span>
+<a id="__codelineno-10-4" name="__codelineno-10-4" href="#__codelineno-10-4"></a><span class="w">    </span><span class="k">switch</span><span class="w"> </span><span class="p">(</span><span class="n">uap</span><span class="o">-&gt;</span><span class="n">req</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-10-5" name="__codelineno-10-5" href="#__codelineno-10-5"></a><span class="w">    </span><span class="k">case</span><span class="w"> </span><span class="no">PT_SETREGS</span><span class="p">:</span>
+<a id="__codelineno-10-6" name="__codelineno-10-6" href="#__codelineno-10-6"></a><span class="w">        </span><span class="n">copyin</span><span class="p">(</span><span class="n">uap</span><span class="o">-&gt;</span><span class="n">addr</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">r</span><span class="p">.</span><span class="n">reg</span><span class="p">,</span><span class="w"> </span><span class="k">sizeof</span><span class="p">(</span><span class="n">r</span><span class="p">.</span><span class="n">reg</span><span class="p">));</span>
+<a id="__codelineno-10-7" name="__codelineno-10-7" href="#__codelineno-10-7"></a><span class="w">        </span><span class="k">break</span><span class="p">;</span>
+<a id="__codelineno-10-8" name="__codelineno-10-8" href="#__codelineno-10-8"></a><span class="w">    </span><span class="cm">/* ... */</span>
+<a id="__codelineno-10-9" name="__codelineno-10-9" href="#__codelineno-10-9"></a><span class="w">    </span><span class="p">}</span>
+<a id="__codelineno-10-10" name="__codelineno-10-10" href="#__codelineno-10-10"></a>
+<a id="__codelineno-10-11" name="__codelineno-10-11" href="#__codelineno-10-11"></a><span class="w">    </span><span class="n">error</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">kern_ptrace</span><span class="p">(</span><span class="n">curp</span><span class="p">,</span><span class="w"> </span><span class="n">uap</span><span class="o">-&gt;</span><span class="n">req</span><span class="p">,</span><span class="w"> </span><span class="n">uap</span><span class="o">-&gt;</span><span class="n">pid</span><span class="p">,</span><span class="w"> </span><span class="n">addr</span><span class="p">,</span><span class="w"> </span><span class="n">uap</span><span class="o">-&gt;</span><span class="n">data</span><span class="p">,</span>
+<a id="__codelineno-10-12" name="__codelineno-10-12" href="#__codelineno-10-12"></a><span class="w">                        </span><span class="o">&amp;</span><span class="n">sysmsg</span><span class="o">-&gt;</span><span class="n">sysmsg_result</span><span class="p">);</span>
+<a id="__codelineno-10-13" name="__codelineno-10-13" href="#__codelineno-10-13"></a>
+<a id="__codelineno-10-14" name="__codelineno-10-14" href="#__codelineno-10-14"></a><span class="w">    </span><span class="cm">/* Copy results out */</span>
+<a id="__codelineno-10-15" name="__codelineno-10-15" href="#__codelineno-10-15"></a><span class="w">    </span><span class="k">switch</span><span class="w"> </span><span class="p">(</span><span class="n">uap</span><span class="o">-&gt;</span><span class="n">req</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-10-16" name="__codelineno-10-16" href="#__codelineno-10-16"></a><span class="w">    </span><span class="k">case</span><span class="w"> </span><span class="no">PT_GETREGS</span><span class="p">:</span>
+<a id="__codelineno-10-17" name="__codelineno-10-17" href="#__codelineno-10-17"></a><span class="w">        </span><span class="n">copyout</span><span class="p">(</span><span class="o">&amp;</span><span class="n">r</span><span class="p">.</span><span class="n">reg</span><span class="p">,</span><span class="w"> </span><span class="n">uap</span><span class="o">-&gt;</span><span class="n">addr</span><span class="p">,</span><span class="w"> </span><span class="k">sizeof</span><span class="p">(</span><span class="n">r</span><span class="p">.</span><span class="n">reg</span><span class="p">));</span>
+<a id="__codelineno-10-18" name="__codelineno-10-18" href="#__codelineno-10-18"></a><span class="w">        </span><span class="k">break</span><span class="p">;</span>
+<a id="__codelineno-10-19" name="__codelineno-10-19" href="#__codelineno-10-19"></a><span class="w">    </span><span class="cm">/* ... */</span>
+<a id="__codelineno-10-20" name="__codelineno-10-20" href="#__codelineno-10-20"></a><span class="w">    </span><span class="p">}</span>
+<a id="__codelineno-10-21" name="__codelineno-10-21" href="#__codelineno-10-21"></a><span class="p">}</span>
+</code></pre></div>
+<h3 id="ptrace-requests">ptrace Requests<a class="headerlink" href="#ptrace-requests" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Request</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>PT_TRACE_ME</code></td>
+<td>Mark self as traced (child calls this)</td>
+</tr>
+<tr>
+<td><code>PT_ATTACH</code></td>
+<td>Attach to existing process</td>
+</tr>
+<tr>
+<td><code>PT_DETACH</code></td>
+<td>Detach from traced process</td>
+</tr>
+<tr>
+<td><code>PT_CONTINUE</code></td>
+<td>Resume execution</td>
+</tr>
+<tr>
+<td><code>PT_STEP</code></td>
+<td>Single-step one instruction</td>
+</tr>
+<tr>
+<td><code>PT_KILL</code></td>
+<td>Kill traced process</td>
+</tr>
+<tr>
+<td><code>PT_READ_I/D</code></td>
+<td>Read instruction/data memory</td>
+</tr>
+<tr>
+<td><code>PT_WRITE_I/D</code></td>
+<td>Write instruction/data memory</td>
+</tr>
+<tr>
+<td><code>PT_IO</code></td>
+<td>Bulk memory read/write</td>
+</tr>
+<tr>
+<td><code>PT_GETREGS</code></td>
+<td>Get general registers</td>
+</tr>
+<tr>
+<td><code>PT_SETREGS</code></td>
+<td>Set general registers</td>
+</tr>
+<tr>
+<td><code>PT_GETFPREGS</code></td>
+<td>Get floating-point registers</td>
+</tr>
+<tr>
+<td><code>PT_SETFPREGS</code></td>
+<td>Set floating-point registers</td>
+</tr>
+<tr>
+<td><code>PT_GETDBREGS</code></td>
+<td>Get debug registers</td>
+</tr>
+<tr>
+<td><code>PT_SETDBREGS</code></td>
+<td>Set debug registers</td>
+</tr>
+</tbody>
+</table>
+<h3 id="security-checks">Security Checks<a class="headerlink" href="#security-checks" title="Permanent link">&para;</a></h3>
+<p>The <code>kern_ptrace()</code> function (<code>sys_process.c:290</code>) enforces:</p>
+<ol>
+<li><strong>PT_TRACE_ME</strong> - Always allowed (process traces itself)</li>
+<li><strong>PT_ATTACH</strong> requires:</li>
+<li>Cannot trace self</li>
+<li>Target not already traced</li>
+<li>Same UID or root privileges</li>
+<li>Cannot trace init at securelevel &gt; 0</li>
+<li>Target not currently in exec</li>
+<li><strong>Other requests</strong> require:</li>
+<li>Target is traced (<code>P_TRACED</code> flag)</li>
+<li>Tracer is the parent (<code>p-&gt;p_pptr == curp</code>)</li>
+<li>Target is stopped (<code>p-&gt;p_stat == SSTOP</code>)</li>
+</ol>
+<h3 id="memory-access">Memory Access<a class="headerlink" href="#memory-access" title="Permanent link">&para;</a></h3>
+<p>Memory read/write uses procfs infrastructure:
+<div class="highlight"><pre><span></span><code><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a><span class="k">case</span><span class="w"> </span><span class="no">PT_READ_I</span><span class="p">:</span>
+<a id="__codelineno-11-2" name="__codelineno-11-2" href="#__codelineno-11-2"></a><span class="k">case</span><span class="w"> </span><span class="no">PT_READ_D</span><span class="p">:</span>
+<a id="__codelineno-11-3" name="__codelineno-11-3" href="#__codelineno-11-3"></a><span class="w">    </span><span class="n">iov</span><span class="p">.</span><span class="n">iov_base</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="o">&amp;</span><span class="n">tmp</span><span class="p">;</span>
+<a id="__codelineno-11-4" name="__codelineno-11-4" href="#__codelineno-11-4"></a><span class="w">    </span><span class="n">iov</span><span class="p">.</span><span class="n">iov_len</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">sizeof</span><span class="p">(</span><span class="kt">int</span><span class="p">);</span>
+<a id="__codelineno-11-5" name="__codelineno-11-5" href="#__codelineno-11-5"></a><span class="w">    </span><span class="n">uio</span><span class="p">.</span><span class="n">uio_offset</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="kt">off_t</span><span class="p">)(</span><span class="kt">uintptr_t</span><span class="p">)</span><span class="n">addr</span><span class="p">;</span>
+<a id="__codelineno-11-6" name="__codelineno-11-6" href="#__codelineno-11-6"></a><span class="w">    </span><span class="n">uio</span><span class="p">.</span><span class="n">uio_rw</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">UIO_READ</span><span class="p">;</span>
+<a id="__codelineno-11-7" name="__codelineno-11-7" href="#__codelineno-11-7"></a><span class="w">    </span><span class="n">error</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">procfs_domem</span><span class="p">(</span><span class="n">curp</span><span class="p">,</span><span class="w"> </span><span class="n">lp</span><span class="p">,</span><span class="w"> </span><span class="nb">NULL</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">uio</span><span class="p">);</span>
+<a id="__codelineno-11-8" name="__codelineno-11-8" href="#__codelineno-11-8"></a><span class="w">    </span><span class="o">*</span><span class="n">res</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">tmp</span><span class="p">;</span>
+<a id="__codelineno-11-9" name="__codelineno-11-9" href="#__codelineno-11-9"></a><span class="w">    </span><span class="k">break</span><span class="p">;</span>
+</code></pre></div></p>
+<p>For bulk I/O, <code>PT_IO</code> uses a <code>struct ptrace_io_desc</code>:
+<div class="highlight"><pre><span></span><code><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a><span class="k">struct</span><span class="w"> </span><span class="nc">ptrace_io_desc</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-12-2" name="__codelineno-12-2" href="#__codelineno-12-2"></a><span class="w">    </span><span class="kt">int</span><span class="w">     </span><span class="n">piod_op</span><span class="p">;</span><span class="w">        </span><span class="cm">/* PIOD_READ_D, PIOD_WRITE_I, etc. */</span>
+<a id="__codelineno-12-3" name="__codelineno-12-3" href="#__codelineno-12-3"></a><span class="w">    </span><span class="kt">void</span><span class="w">    </span><span class="o">*</span><span class="n">piod_offs</span><span class="p">;</span><span class="w">     </span><span class="cm">/* offset in traced process */</span>
+<a id="__codelineno-12-4" name="__codelineno-12-4" href="#__codelineno-12-4"></a><span class="w">    </span><span class="kt">void</span><span class="w">    </span><span class="o">*</span><span class="n">piod_addr</span><span class="p">;</span><span class="w">     </span><span class="cm">/* buffer in tracer */</span>
+<a id="__codelineno-12-5" name="__codelineno-12-5" href="#__codelineno-12-5"></a><span class="w">    </span><span class="kt">size_t</span><span class="w">  </span><span class="n">piod_len</span><span class="p">;</span><span class="w">       </span><span class="cm">/* length */</span>
+<a id="__codelineno-12-6" name="__codelineno-12-6" href="#__codelineno-12-6"></a><span class="p">};</span>
+</code></pre></div></p>
+<h3 id="process-events-stopevent">Process Events (stopevent)<a class="headerlink" href="#process-events-stopevent" title="Permanent link">&para;</a></h3>
+<p>The <code>stopevent()</code> function (<code>sys_process.c:744</code>) stops a process for procfs
+events, allowing debuggers to intercept specific operations:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a><span class="kt">void</span><span class="w"> </span><span class="nf">stopevent</span><span class="p">(</span><span class="k">struct</span><span class="w"> </span><span class="nc">proc</span><span class="w"> </span><span class="o">*</span><span class="n">p</span><span class="p">,</span><span class="w"> </span><span class="kt">unsigned</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">event</span><span class="p">,</span><span class="w"> </span><span class="kt">unsigned</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">val</span><span class="p">)</span>
+<a id="__codelineno-13-2" name="__codelineno-13-2" href="#__codelineno-13-2"></a><span class="p">{</span>
+<a id="__codelineno-13-3" name="__codelineno-13-3" href="#__codelineno-13-3"></a><span class="w">    </span><span class="n">p</span><span class="o">-&gt;</span><span class="n">p_xstat</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">val</span><span class="p">;</span>
+<a id="__codelineno-13-4" name="__codelineno-13-4" href="#__codelineno-13-4"></a><span class="w">    </span><span class="n">p</span><span class="o">-&gt;</span><span class="n">p_stype</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">event</span><span class="p">;</span>
+<a id="__codelineno-13-5" name="__codelineno-13-5" href="#__codelineno-13-5"></a><span class="w">    </span><span class="n">p</span><span class="o">-&gt;</span><span class="n">p_step</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span>
+<a id="__codelineno-13-6" name="__codelineno-13-6" href="#__codelineno-13-6"></a><span class="w">    </span><span class="n">wakeup</span><span class="p">(</span><span class="o">&amp;</span><span class="n">p</span><span class="o">-&gt;</span><span class="n">p_stype</span><span class="p">);</span><span class="w">  </span><span class="cm">/* wake PIOCWAIT waiters */</span>
+<a id="__codelineno-13-7" name="__codelineno-13-7" href="#__codelineno-13-7"></a><span class="w">    </span><span class="n">tsleep</span><span class="p">(</span><span class="o">&amp;</span><span class="n">p</span><span class="o">-&gt;</span><span class="n">p_step</span><span class="p">,</span><span class="w"> </span><span class="p">...);</span><span class="w">  </span><span class="cm">/* wait for PIOCCONT */</span>
+<a id="__codelineno-13-8" name="__codelineno-13-8" href="#__codelineno-13-8"></a><span class="p">}</span>
+</code></pre></div>
+<h2 id="syscall-registration-for-modules">Syscall Registration for Modules<a class="headerlink" href="#syscall-registration-for-modules" title="Permanent link">&para;</a></h2>
+<p>Kernel modules can register new system calls dynamically using the functions
+in <code>sys/kern/kern_syscalls.c</code>.</p>
+<h3 id="registration-api">Registration API<a class="headerlink" href="#registration-api" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-14-1" name="__codelineno-14-1" href="#__codelineno-14-1"></a><span class="kt">int</span><span class="w"> </span><span class="nf">syscall_register</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="o">*</span><span class="n">offset</span><span class="p">,</span><span class="w"> </span><span class="k">struct</span><span class="w"> </span><span class="nc">sysent</span><span class="w"> </span><span class="o">*</span><span class="n">new_sysent</span><span class="p">,</span>
+<a id="__codelineno-14-2" name="__codelineno-14-2" href="#__codelineno-14-2"></a><span class="w">                     </span><span class="k">struct</span><span class="w"> </span><span class="nc">sysent</span><span class="w"> </span><span class="o">*</span><span class="n">old_sysent</span><span class="p">);</span>
+<a id="__codelineno-14-3" name="__codelineno-14-3" href="#__codelineno-14-3"></a><span class="kt">int</span><span class="w"> </span><span class="nf">syscall_deregister</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="o">*</span><span class="n">offset</span><span class="p">,</span><span class="w"> </span><span class="k">struct</span><span class="w"> </span><span class="nc">sysent</span><span class="w"> </span><span class="o">*</span><span class="n">old_sysent</span><span class="p">);</span>
+</code></pre></div>
+<p>If <code>*offset == NO_SYSCALL</code>, the kernel finds an available slot (one marked
+with <code>sys_lkmnosys</code>). Otherwise, it uses the specified slot.</p>
+<h3 id="syscall_module-macro">SYSCALL_MODULE Macro<a class="headerlink" href="#syscall_module-macro" title="Permanent link">&para;</a></h3>
+<p>The <code>SYSCALL_MODULE</code> macro (<code>sys/sys/sysent.h:96</code>) simplifies module creation:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-15-1" name="__codelineno-15-1" href="#__codelineno-15-1"></a><span class="n">SYSCALL_MODULE</span><span class="p">(</span><span class="n">name</span><span class="p">,</span><span class="w"> </span><span class="n">offset</span><span class="p">,</span><span class="w"> </span><span class="n">new_sysent</span><span class="p">,</span><span class="w"> </span><span class="n">evh</span><span class="p">,</span><span class="w"> </span><span class="n">arg</span><span class="p">)</span>
+</code></pre></div>
+<p>This creates the necessary module data structures and registers the module
+with <code>syscall_module_handler()</code> as the event handler.</p>
+<h3 id="module-event-handler">Module Event Handler<a class="headerlink" href="#module-event-handler" title="Permanent link">&para;</a></h3>
+<p>The <code>syscall_module_handler()</code> function (<code>kern_syscalls.c:80</code>) handles:
+- <code>MOD_LOAD</code> - Calls <code>syscall_register()</code>, stores slot in module-specific data
+- <code>MOD_UNLOAD</code> - Calls <code>syscall_deregister()</code> to restore original entry</p>
+<h2 id="see-also">See Also<a class="headerlink" href="#see-also" title="Permanent link">&para;</a></h2>
+<ul>
+<li><a href="../processes/">processes.md</a> - Process lifecycle (for ptrace context)</li>
+<li><a href="../signals/">signals.md</a> - Signal handling (for ptrace signal delivery)</li>
+<li><a href="../resources/">resources.md</a> - File descriptors and file operations</li>
+<li><a href="../ipc/sockets/">ipc/sockets.md</a> - Socket I/O operations</li>
+<li><a href="../kld/">kld.md</a> - Kernel module loading (for syscall modules)</li>
+</ul>
 
 
 
