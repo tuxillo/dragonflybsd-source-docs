@@ -399,6 +399,56 @@ List of key source files with brief descriptions:
 - **Cross-reference heavily** — Link to related subsystems
 - **Code references** — Use format `file.c:line` or `function_name()` to reference source
 
+### Concepts Documentation Guidelines
+
+When creating foundational "concepts" documentation (e.g., `concepts.md` files that introduce a subsystem's theory), follow these guidelines:
+
+#### 1. Separate Theory from Implementation
+
+- Create standalone `concepts.md` files for foundational theory and terminology
+- Keep detailed implementation docs (e.g., `vm_page.md`, `vm_fault.md`) focused on DragonFly-specific code
+- Link bidirectionally between concepts and implementation docs
+
+#### 2. Target Audience: Kernel Developers (Varying Experience)
+
+- Assume programming knowledge but not necessarily subsystem expertise
+- Explain the "why" behind design decisions, not just the "what"
+- Provide context for newcomers while remaining useful for experienced developers
+
+#### 3. External Links Over Embedded Literature
+
+- Link to authoritative external resources (textbooks, academic papers, BSD documentation)
+- Don't reproduce full textbook explanations — keep explanations high-level
+- Provide pointers to deep-dive materials for readers who want more
+
+#### 4. Standard Structure for Concepts Docs
+
+A concepts document should include:
+
+1. **What is it?** — Brief definition of the subsystem
+2. **Why does it matter?** — Use cases and benefits (consider using a table)
+3. **Core terminology** — Glossary of key terms with external resource links
+4. **Historical context** — Where the design came from (e.g., Mach VM heritage)
+5. **DragonFly's evolution** — How DragonFly differs from the traditional design
+6. **Visual aids** — 2-3 Mermaid diagrams illustrating key concepts
+7. **Further reading** — Curated list of external resources
+8. **See also** — Links back to implementation docs in this documentation
+
+#### 5. Integration with Existing Documentation
+
+When adding a concepts doc to a subsystem:
+
+- Update the parent `index.md` to link the concepts doc prominently in the introduction
+- Add to `mkdocs.yml` navigation right after the Overview entry
+- Update "Reading Guide" tables to recommend concepts as the first stop for newcomers
+- Adjust "Recommended reading order" to start with the concepts doc
+
+#### 6. Avoid Premature Comparisons
+
+- Focus on explaining DragonFly's design on its own merits first
+- Note historical origins (Mach, BSD, etc.) for context
+- Defer extensive comparative analysis with other BSDs until the core documentation is mature
+
 ### Markdown Conventions
 
 - Use `code` for identifiers, functions, file names
