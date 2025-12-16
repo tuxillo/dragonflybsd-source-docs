@@ -495,14 +495,15 @@ Each phase is mostly self-contained after earlier dependencies, allowing focused
 | **12a** | Event Notification | `kevent.md` | 1,259 | ✅ |
 | **12b** | Task Queues | `taskqueue.md` | 990 | ✅ |
 | **12c** | Random Numbers | `random.md` | 754 | ✅ |
+| **12d** | Checkpoint/Restart | `checkpoint.md` | 830 | ✅ |
 
-**Total completed:** ~35,700+ lines of documentation
+**Total completed:** ~36,500+ lines of documentation
 
 ### Pending Phases
 
 | Phase | Topic | Status |
 |-------|-------|--------|
-| **12d** | Checkpoint/Restart | Pending |
+| **12d** | Checkpoint/Restart | ✅ Complete |
 | **12e** | Distributed Messaging | Pending |
 | **12f** | Shutdown Subsystem | Pending |
 | **12g** | Kernel Utilities Misc | Pending |
