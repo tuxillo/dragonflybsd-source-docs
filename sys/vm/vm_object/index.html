@@ -2529,23 +2529,24 @@
 <a href="#__codelineno-18-13" id="__codelineno-18-13" name="__codelineno-18-13"></a><span class="n">vm_object_drop</span><span class="p">(</span><span class="n">object</span><span class="p">);</span>
 </code></pre></div>
 <h3 id="pattern-5-handling-object-type-transitions">Pattern 5: Handling Object Type Transitions<a class="headerlink" href="#pattern-5-handling-object-type-transitions" title="Permanent link">¶</a></h3>
-<p>Anonymous objects silently convert to swap-backed when pages are pushed out:</p>
-<div class="highlight"><pre><span></span><code><a href="#__codelineno-19-1" id="__codelineno-19-1" name="__codelineno-19-1"></a><span class="cm">/* Initially OBJT_DEFAULT */</span>
-<a href="#__codelineno-19-2" id="__codelineno-19-2" name="__codelineno-19-2"></a><span class="n">object</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">vm_object_allocate</span><span class="p">(</span><span class="n">OBJT_DEFAULT</span><span class="p">,</span><span class="w"> </span><span class="n">size</span><span class="p">);</span>
-<a href="#__codelineno-19-3" id="__codelineno-19-3" name="__codelineno-19-3"></a>
-<a href="#__codelineno-19-4" id="__codelineno-19-4" name="__codelineno-19-4"></a><span class="cm">/* ... pages faulted in, memory pressure occurs ... */</span>
-<a href="#__codelineno-19-5" id="__codelineno-19-5" name="__codelineno-19-5"></a>
-<a href="#__codelineno-19-6" id="__codelineno-19-6" name="__codelineno-19-6"></a><span class="cm">/* Swap pager converts type when storing first page */</span>
-<a href="#__codelineno-19-7" id="__codelineno-19-7" name="__codelineno-19-7"></a><span class="cm">/* In swap_pager.c: */</span>
-<a href="#__codelineno-19-8" id="__codelineno-19-8" name="__codelineno-19-8"></a><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">object</span><span class="o">-&gt;</span><span class="n">type</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">OBJT_DEFAULT</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
-<a href="#__codelineno-19-9" id="__codelineno-19-9" name="__codelineno-19-9"></a><span class="w">    </span><span class="n">object</span><span class="o">-&gt;</span><span class="n">type</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">OBJT_SWAP</span><span class="p">;</span>
-<a href="#__codelineno-19-10" id="__codelineno-19-10" name="__codelineno-19-10"></a><span class="w">    </span><span class="n">object</span><span class="o">-&gt;</span><span class="n">un_pager</span><span class="p">.</span><span class="n">swp</span><span class="p">.</span><span class="n">swp_blks</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">NULL</span><span class="p">;</span>
-<a href="#__codelineno-19-11" id="__codelineno-19-11" name="__codelineno-19-11"></a><span class="p">}</span>
-<a href="#__codelineno-19-12" id="__codelineno-19-12" name="__codelineno-19-12"></a>
-<a href="#__codelineno-19-13" id="__codelineno-19-13" name="__codelineno-19-13"></a><span class="cm">/* Code should handle both types for anonymous memory */</span>
-<a href="#__codelineno-19-14" id="__codelineno-19-14" name="__codelineno-19-14"></a><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">object</span><span class="o">-&gt;</span><span class="n">type</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">OBJT_DEFAULT</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="n">object</span><span class="o">-&gt;</span><span class="n">type</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">OBJT_SWAP</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
-<a href="#__codelineno-19-15" id="__codelineno-19-15" name="__codelineno-19-15"></a><span class="w">    </span><span class="cm">/* Anonymous memory handling */</span>
-<a href="#__codelineno-19-16" id="__codelineno-19-16" name="__codelineno-19-16"></a><span class="p">}</span>
+<p>From <code>sys/vm/swap_pager.c</code> - anonymous objects convert to swap-backed when pages are pushed out:</p>
+<div class="highlight"><pre><span></span><code><a href="#__codelineno-19-1" id="__codelineno-19-1" name="__codelineno-19-1"></a><span class="cm">/* </span>
+<a href="#__codelineno-19-2" id="__codelineno-19-2" name="__codelineno-19-2"></a><span class="cm"> * swp_pager_meta_convert() - called when first swap block is allocated</span>
+<a href="#__codelineno-19-3" id="__codelineno-19-3" name="__codelineno-19-3"></a><span class="cm"> * The conversion is simple - just change the type field.</span>
+<a href="#__codelineno-19-4" id="__codelineno-19-4" name="__codelineno-19-4"></a><span class="cm"> */</span>
+<a href="#__codelineno-19-5" id="__codelineno-19-5" name="__codelineno-19-5"></a><span class="k">static</span><span class="w"> </span><span class="kt">void</span>
+<a href="#__codelineno-19-6" id="__codelineno-19-6" name="__codelineno-19-6"></a><span class="nf">swp_pager_meta_convert</span><span class="p">(</span><span class="n">vm_object_t</span><span class="w"> </span><span class="n">object</span><span class="p">)</span>
+<a href="#__codelineno-19-7" id="__codelineno-19-7" name="__codelineno-19-7"></a><span class="p">{</span>
+<a href="#__codelineno-19-8" id="__codelineno-19-8" name="__codelineno-19-8"></a><span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">object</span><span class="o">-&gt;</span><span class="n">type</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">OBJT_DEFAULT</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<a href="#__codelineno-19-9" id="__codelineno-19-9" name="__codelineno-19-9"></a><span class="w">        </span><span class="n">object</span><span class="o">-&gt;</span><span class="n">type</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">OBJT_SWAP</span><span class="p">;</span>
+<a href="#__codelineno-19-10" id="__codelineno-19-10" name="__codelineno-19-10"></a><span class="w">        </span><span class="n">KKASSERT</span><span class="p">(</span><span class="n">object</span><span class="o">-&gt;</span><span class="n">swblock_count</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">0</span><span class="p">);</span>
+<a href="#__codelineno-19-11" id="__codelineno-19-11" name="__codelineno-19-11"></a><span class="w">    </span><span class="p">}</span>
+<a href="#__codelineno-19-12" id="__codelineno-19-12" name="__codelineno-19-12"></a><span class="p">}</span>
+<a href="#__codelineno-19-13" id="__codelineno-19-13" name="__codelineno-19-13"></a>
+<a href="#__codelineno-19-14" id="__codelineno-19-14" name="__codelineno-19-14"></a><span class="cm">/* Code checking for anonymous memory should handle both types */</span>
+<a href="#__codelineno-19-15" id="__codelineno-19-15" name="__codelineno-19-15"></a><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">object</span><span class="o">-&gt;</span><span class="n">type</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">OBJT_DEFAULT</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="n">object</span><span class="o">-&gt;</span><span class="n">type</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">OBJT_SWAP</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<a href="#__codelineno-19-16" id="__codelineno-19-16" name="__codelineno-19-16"></a><span class="w">    </span><span class="cm">/* Anonymous memory - may or may not have swap blocks */</span>
+<a href="#__codelineno-19-17" id="__codelineno-19-17" name="__codelineno-19-17"></a><span class="p">}</span>
 </code></pre></div>
 <hr/>
 <h2 id="further-reading">Further Reading<a class="headerlink" href="#further-reading" title="Permanent link">¶</a></h2>
