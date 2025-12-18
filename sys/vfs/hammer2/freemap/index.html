@@ -2407,11 +2407,14 @@ topology (though coordinated via <code>mirror_tid</code>).</p>
 <p>HAMMER2 divides storage into 2GB zones. Each zone reserves the first 4MB for
 metadata including freemap blocks.</p>
 <h3 id="zone-structure">Zone Structure<a class="headerlink" href="#zone-structure" title="Permanent link">¶</a></h3>
-<div class="highlight"><pre><span></span><code><a href="#__codelineno-0-1" id="__codelineno-0-1" name="__codelineno-0-1"></a>Zone (2GB)
-<a href="#__codelineno-0-2" id="__codelineno-0-2" name="__codelineno-0-2"></a>+------------------+---------------------------------------------+
-<a href="#__codelineno-0-3" id="__codelineno-0-3" name="__codelineno-0-3"></a>| Reserved (4MB)   | User Data (~2044MB)                         |
-<a href="#__codelineno-0-4" id="__codelineno-0-4" name="__codelineno-0-4"></a>+------------------+---------------------------------------------+
-</code></pre></div>
+<pre class="mermaid"><code>graph TB
+    subgraph zone["Zone (2GB)"]
+        direction LR
+        R["Reserved<br/>(4MB)"] --- U["User Data<br/>(~2044MB)"]
+    end
+    style R fill:#f9f,stroke:#333
+    style U fill:#9f9,stroke:#333
+</code></pre>
 <p>The reserved 4MB area contains:</p>
 <table>
 <thead>
@@ -2464,13 +2467,13 @@ metadata including freemap blocks.</p>
 </tbody>
 </table>
 <p>Source: <code>hammer2_disk.h:277-313</code></p>
-<div class="highlight"><pre><span></span><code><a href="#__codelineno-1-1" id="__codelineno-1-1" name="__codelineno-1-1"></a><span class="cp">#define HAMMER2_ZONE_BYTES64        (2LLU * 1024 * 1024 * 1024)</span>
-<a href="#__codelineno-1-2" id="__codelineno-1-2" name="__codelineno-1-2"></a><span class="cp">#define HAMMER2_ZONE_SEG            (4 * 1024 * 1024)</span>
-<a href="#__codelineno-1-3" id="__codelineno-1-3" name="__codelineno-1-3"></a><span class="cp">#define HAMMER2_NFREEMAPS           8   </span><span class="cm">/* 8 freemap rotation sets */</span>
-<a href="#__codelineno-1-4" id="__codelineno-1-4" name="__codelineno-1-4"></a>
-<a href="#__codelineno-1-5" id="__codelineno-1-5" name="__codelineno-1-5"></a><span class="cp">#define HAMMER2_ZONE_VOLHDR         0   </span><span class="cm">/* Volume header */</span>
-<a href="#__codelineno-1-6" id="__codelineno-1-6" name="__codelineno-1-6"></a><span class="cp">#define HAMMER2_ZONE_FREEMAP_00     1   </span><span class="cm">/* Freemap set 0 */</span>
-<a href="#__codelineno-1-7" id="__codelineno-1-7" name="__codelineno-1-7"></a><span class="cp">#define HAMMER2_ZONE_FREEMAP_INC    5   </span><span class="cm">/* 5 blocks per set */</span>
+<div class="highlight"><pre><span></span><code><a href="#__codelineno-0-1" id="__codelineno-0-1" name="__codelineno-0-1"></a><span class="cp">#define HAMMER2_ZONE_BYTES64        (2LLU * 1024 * 1024 * 1024)</span>
+<a href="#__codelineno-0-2" id="__codelineno-0-2" name="__codelineno-0-2"></a><span class="cp">#define HAMMER2_ZONE_SEG            (4 * 1024 * 1024)</span>
+<a href="#__codelineno-0-3" id="__codelineno-0-3" name="__codelineno-0-3"></a><span class="cp">#define HAMMER2_NFREEMAPS           8   </span><span class="cm">/* 8 freemap rotation sets */</span>
+<a href="#__codelineno-0-4" id="__codelineno-0-4" name="__codelineno-0-4"></a>
+<a href="#__codelineno-0-5" id="__codelineno-0-5" name="__codelineno-0-5"></a><span class="cp">#define HAMMER2_ZONE_VOLHDR         0   </span><span class="cm">/* Volume header */</span>
+<a href="#__codelineno-0-6" id="__codelineno-0-6" name="__codelineno-0-6"></a><span class="cp">#define HAMMER2_ZONE_FREEMAP_00     1   </span><span class="cm">/* Freemap set 0 */</span>
+<a href="#__codelineno-0-7" id="__codelineno-0-7" name="__codelineno-0-7"></a><span class="cp">#define HAMMER2_ZONE_FREEMAP_INC    5   </span><span class="cm">/* 5 blocks per set */</span>
 </code></pre></div>
 <h3 id="freemap-block-rotation">Freemap Block Rotation<a class="headerlink" href="#freemap-block-rotation" title="Permanent link">¶</a></h3>
 <p>Freemap blocks rotate through 8 copies (sets 0-7) on each modification. This
@@ -2489,13 +2492,13 @@ an older freemap if the latest is corrupted.</p>
     end
 </code></pre>
 <p>The rotation is calculated in <code>hammer2_freemap_reserve()</code> (<code>hammer2_freemap.c:76-168</code>):</p>
-<div class="highlight"><pre><span></span><code><a href="#__codelineno-2-1" id="__codelineno-2-1" name="__codelineno-2-1"></a><span class="cm">/* Calculate next rotation index */</span>
-<a href="#__codelineno-2-2" id="__codelineno-2-2" name="__codelineno-2-2"></a><span class="k">if</span><span class="w"> </span><span class="p">((</span><span class="n">bref</span><span class="o">-&gt;</span><span class="n">data_off</span><span class="w"> </span><span class="o">&amp;</span><span class="w"> </span><span class="o">~</span><span class="n">HAMMER2_OFF_MASK_RADIX</span><span class="p">)</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
-<a href="#__codelineno-2-3" id="__codelineno-2-3" name="__codelineno-2-3"></a><span class="w">    </span><span class="n">index</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w">  </span><span class="cm">/* First allocation */</span>
-<a href="#__codelineno-2-4" id="__codelineno-2-4" name="__codelineno-2-4"></a><span class="p">}</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="p">{</span>
-<a href="#__codelineno-2-5" id="__codelineno-2-5" name="__codelineno-2-5"></a><span class="w">    </span><span class="cm">/* Extract current index from data_off, increment */</span>
-<a href="#__codelineno-2-6" id="__codelineno-2-6" name="__codelineno-2-6"></a><span class="w">    </span><span class="n">index</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="n">current_index</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="o">%</span><span class="w"> </span><span class="n">HAMMER2_NFREEMAPS</span><span class="p">;</span>
-<a href="#__codelineno-2-7" id="__codelineno-2-7" name="__codelineno-2-7"></a><span class="p">}</span>
+<div class="highlight"><pre><span></span><code><a href="#__codelineno-1-1" id="__codelineno-1-1" name="__codelineno-1-1"></a><span class="cm">/* Calculate next rotation index */</span>
+<a href="#__codelineno-1-2" id="__codelineno-1-2" name="__codelineno-1-2"></a><span class="k">if</span><span class="w"> </span><span class="p">((</span><span class="n">bref</span><span class="o">-&gt;</span><span class="n">data_off</span><span class="w"> </span><span class="o">&amp;</span><span class="w"> </span><span class="o">~</span><span class="n">HAMMER2_OFF_MASK_RADIX</span><span class="p">)</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<a href="#__codelineno-1-3" id="__codelineno-1-3" name="__codelineno-1-3"></a><span class="w">    </span><span class="n">index</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w">  </span><span class="cm">/* First allocation */</span>
+<a href="#__codelineno-1-4" id="__codelineno-1-4" name="__codelineno-1-4"></a><span class="p">}</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="p">{</span>
+<a href="#__codelineno-1-5" id="__codelineno-1-5" name="__codelineno-1-5"></a><span class="w">    </span><span class="cm">/* Extract current index from data_off, increment */</span>
+<a href="#__codelineno-1-6" id="__codelineno-1-6" name="__codelineno-1-6"></a><span class="w">    </span><span class="n">index</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="n">current_index</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="o">%</span><span class="w"> </span><span class="n">HAMMER2_NFREEMAPS</span><span class="p">;</span>
+<a href="#__codelineno-1-7" id="__codelineno-1-7" name="__codelineno-1-7"></a><span class="p">}</span>
 </code></pre></div>
 <h2 id="freemap-tree-structure">Freemap Tree Structure<a class="headerlink" href="#freemap-tree-structure" title="Permanent link">¶</a></h2>
 <p>The freemap is organized as a 6-level radix tree, with each level covering
@@ -2556,13 +2559,13 @@ progressively larger address ranges.</p>
 </tbody>
 </table>
 <p>Source: <code>hammer2_disk.h:335-356</code></p>
-<div class="highlight"><pre><span></span><code><a href="#__codelineno-3-1" id="__codelineno-3-1" name="__codelineno-3-1"></a><span class="cp">#define HAMMER2_FREEMAP_LEVEL6_RADIX    64  </span><span class="cm">/* 16EB (root) */</span>
-<a href="#__codelineno-3-2" id="__codelineno-3-2" name="__codelineno-3-2"></a><span class="cp">#define HAMMER2_FREEMAP_LEVEL5_RADIX    62  </span><span class="cm">/* 4EB */</span>
-<a href="#__codelineno-3-3" id="__codelineno-3-3" name="__codelineno-3-3"></a><span class="cp">#define HAMMER2_FREEMAP_LEVEL4_RADIX    54  </span><span class="cm">/* 16PB */</span>
-<a href="#__codelineno-3-4" id="__codelineno-3-4" name="__codelineno-3-4"></a><span class="cp">#define HAMMER2_FREEMAP_LEVEL3_RADIX    46  </span><span class="cm">/* 64TB */</span>
-<a href="#__codelineno-3-5" id="__codelineno-3-5" name="__codelineno-3-5"></a><span class="cp">#define HAMMER2_FREEMAP_LEVEL2_RADIX    38  </span><span class="cm">/* 256GB */</span>
-<a href="#__codelineno-3-6" id="__codelineno-3-6" name="__codelineno-3-6"></a><span class="cp">#define HAMMER2_FREEMAP_LEVEL1_RADIX    30  </span><span class="cm">/* 1GB */</span>
-<a href="#__codelineno-3-7" id="__codelineno-3-7" name="__codelineno-3-7"></a><span class="cp">#define HAMMER2_FREEMAP_LEVEL0_RADIX    22  </span><span class="cm">/* 4MB */</span>
+<div class="highlight"><pre><span></span><code><a href="#__codelineno-2-1" id="__codelineno-2-1" name="__codelineno-2-1"></a><span class="cp">#define HAMMER2_FREEMAP_LEVEL6_RADIX    64  </span><span class="cm">/* 16EB (root) */</span>
+<a href="#__codelineno-2-2" id="__codelineno-2-2" name="__codelineno-2-2"></a><span class="cp">#define HAMMER2_FREEMAP_LEVEL5_RADIX    62  </span><span class="cm">/* 4EB */</span>
+<a href="#__codelineno-2-3" id="__codelineno-2-3" name="__codelineno-2-3"></a><span class="cp">#define HAMMER2_FREEMAP_LEVEL4_RADIX    54  </span><span class="cm">/* 16PB */</span>
+<a href="#__codelineno-2-4" id="__codelineno-2-4" name="__codelineno-2-4"></a><span class="cp">#define HAMMER2_FREEMAP_LEVEL3_RADIX    46  </span><span class="cm">/* 64TB */</span>
+<a href="#__codelineno-2-5" id="__codelineno-2-5" name="__codelineno-2-5"></a><span class="cp">#define HAMMER2_FREEMAP_LEVEL2_RADIX    38  </span><span class="cm">/* 256GB */</span>
+<a href="#__codelineno-2-6" id="__codelineno-2-6" name="__codelineno-2-6"></a><span class="cp">#define HAMMER2_FREEMAP_LEVEL1_RADIX    30  </span><span class="cm">/* 1GB */</span>
+<a href="#__codelineno-2-7" id="__codelineno-2-7" name="__codelineno-2-7"></a><span class="cp">#define HAMMER2_FREEMAP_LEVEL0_RADIX    22  </span><span class="cm">/* 4MB */</span>
 </code></pre></div>
 <h3 id="tree-visualization">Tree Visualization<a class="headerlink" href="#tree-visualization" title="Permanent link">¶</a></h3>
 <pre class="mermaid"><code>flowchart TB
@@ -2603,7 +2606,7 @@ progressively larger address ranges.</p>
 </code></pre>
 <h3 id="freemap-nodeleaf-size">Freemap Node/Leaf Size<a class="headerlink" href="#freemap-nodeleaf-size" title="Permanent link">¶</a></h3>
 <p>All freemap nodes and leaves are 32KB:</p>
-<div class="highlight"><pre><span></span><code><a href="#__codelineno-4-1" id="__codelineno-4-1" name="__codelineno-4-1"></a><span class="cp">#define HAMMER2_FREEMAP_LEVELN_PSIZE    32768   </span><span class="cm">/* 32KB */</span>
+<div class="highlight"><pre><span></span><code><a href="#__codelineno-3-1" id="__codelineno-3-1" name="__codelineno-3-1"></a><span class="cp">#define HAMMER2_FREEMAP_LEVELN_PSIZE    32768   </span><span class="cm">/* 32KB */</span>
 </code></pre></div>
 <p>A 32KB block holds 256 blockrefs (128 bytes each) for nodes, or 256 <code>bmap_data</code>
 structures for leaves.</p>
@@ -2611,14 +2614,14 @@ structures for leaves.</p>
 <p>Each <code>FREEMAP_LEAF</code> contains 256 <code>hammer2_bmap_data_t</code> structures, with each
 structure tracking a 4MB region.</p>
 <h3 id="bmap_data-structure">bmap_data Structure<a class="headerlink" href="#bmap_data-structure" title="Permanent link">¶</a></h3>
-<div class="highlight"><pre><span></span><code><a href="#__codelineno-5-1" id="__codelineno-5-1" name="__codelineno-5-1"></a><span class="k">struct</span><span class="w"> </span><span class="nc">hammer2_bmap_data</span><span class="w"> </span><span class="p">{</span>
-<a href="#__codelineno-5-2" id="__codelineno-5-2" name="__codelineno-5-2"></a><span class="w">    </span><span class="kt">int32_t</span><span class="w">     </span><span class="n">linear</span><span class="p">;</span><span class="w">         </span><span class="cm">/* Linear allocation offset */</span>
-<a href="#__codelineno-5-3" id="__codelineno-5-3" name="__codelineno-5-3"></a><span class="w">    </span><span class="kt">uint16_t</span><span class="w">    </span><span class="n">class</span><span class="p">;</span><span class="w">          </span><span class="cm">/* Allocation class */</span>
-<a href="#__codelineno-5-4" id="__codelineno-5-4" name="__codelineno-5-4"></a><span class="w">    </span><span class="kt">uint16_t</span><span class="w">    </span><span class="n">reserved</span><span class="p">;</span>
-<a href="#__codelineno-5-5" id="__codelineno-5-5" name="__codelineno-5-5"></a><span class="w">    </span><span class="kt">uint32_t</span><span class="w">    </span><span class="n">reserved2</span><span class="p">;</span>
-<a href="#__codelineno-5-6" id="__codelineno-5-6" name="__codelineno-5-6"></a><span class="w">    </span><span class="n">hammer2_bitmap_t</span><span class="w"> </span><span class="n">bitmapq</span><span class="p">[</span><span class="n">HAMMER2_BMAP_ELEMENTS</span><span class="p">];</span><span class="w">  </span><span class="cm">/* 8 x 64-bit */</span>
-<a href="#__codelineno-5-7" id="__codelineno-5-7" name="__codelineno-5-7"></a><span class="w">    </span><span class="n">hammer2_off_t</span><span class="w">    </span><span class="n">avail</span><span class="p">;</span><span class="w">     </span><span class="cm">/* Available bytes in this 4MB region */</span>
-<a href="#__codelineno-5-8" id="__codelineno-5-8" name="__codelineno-5-8"></a><span class="p">};</span>
+<div class="highlight"><pre><span></span><code><a href="#__codelineno-4-1" id="__codelineno-4-1" name="__codelineno-4-1"></a><span class="k">struct</span><span class="w"> </span><span class="nc">hammer2_bmap_data</span><span class="w"> </span><span class="p">{</span>
+<a href="#__codelineno-4-2" id="__codelineno-4-2" name="__codelineno-4-2"></a><span class="w">    </span><span class="kt">int32_t</span><span class="w">     </span><span class="n">linear</span><span class="p">;</span><span class="w">         </span><span class="cm">/* Linear allocation offset */</span>
+<a href="#__codelineno-4-3" id="__codelineno-4-3" name="__codelineno-4-3"></a><span class="w">    </span><span class="kt">uint16_t</span><span class="w">    </span><span class="n">class</span><span class="p">;</span><span class="w">          </span><span class="cm">/* Allocation class */</span>
+<a href="#__codelineno-4-4" id="__codelineno-4-4" name="__codelineno-4-4"></a><span class="w">    </span><span class="kt">uint16_t</span><span class="w">    </span><span class="n">reserved</span><span class="p">;</span>
+<a href="#__codelineno-4-5" id="__codelineno-4-5" name="__codelineno-4-5"></a><span class="w">    </span><span class="kt">uint32_t</span><span class="w">    </span><span class="n">reserved2</span><span class="p">;</span>
+<a href="#__codelineno-4-6" id="__codelineno-4-6" name="__codelineno-4-6"></a><span class="w">    </span><span class="n">hammer2_bitmap_t</span><span class="w"> </span><span class="n">bitmapq</span><span class="p">[</span><span class="n">HAMMER2_BMAP_ELEMENTS</span><span class="p">];</span><span class="w">  </span><span class="cm">/* 8 x 64-bit */</span>
+<a href="#__codelineno-4-7" id="__codelineno-4-7" name="__codelineno-4-7"></a><span class="w">    </span><span class="n">hammer2_off_t</span><span class="w">    </span><span class="n">avail</span><span class="p">;</span><span class="w">     </span><span class="cm">/* Available bytes in this 4MB region */</span>
+<a href="#__codelineno-4-8" id="__codelineno-4-8" name="__codelineno-4-8"></a><span class="p">};</span>
 </code></pre></div>
 <h3 id="bitmap-encoding">Bitmap Encoding<a class="headerlink" href="#bitmap-encoding" title="Permanent link">¶</a></h3>
 <p>Each 4MB region is divided into 256 x 16KB blocks. The bitmap uses 2 bits per
@@ -2655,16 +2658,22 @@ block:</p>
 </tbody>
 </table>
 <p>The 8 x 64-bit <code>bitmapq[]</code> array covers 256 blocks:</p>
-<div class="highlight"><pre><span></span><code><a href="#__codelineno-6-1" id="__codelineno-6-1" name="__codelineno-6-1"></a>bitmapq[0]: blocks 0-31   (64 bits / 2 = 32 blocks)
-<a href="#__codelineno-6-2" id="__codelineno-6-2" name="__codelineno-6-2"></a>bitmapq[1]: blocks 32-63
-<a href="#__codelineno-6-3" id="__codelineno-6-3" name="__codelineno-6-3"></a>...
-<a href="#__codelineno-6-4" id="__codelineno-6-4" name="__codelineno-6-4"></a>bitmapq[7]: blocks 224-255
-</code></pre></div>
+<pre class="mermaid"><code>graph TB
+    subgraph bitmapq["bitmapq Array (8 x 64-bit = 512 bits)"]
+        direction TB
+        B0["bitmapq[0]: blocks 0-31<br/>(64 bits / 2 = 32 blocks)"]
+        B1["bitmapq[1]: blocks 32-63"]
+        B2["bitmapq[2]: blocks 64-95"]
+        B3["..."]
+        B7["bitmapq[7]: blocks 224-255"]
+    end
+    B0 --- B1 --- B2 --- B3 --- B7
+</code></pre>
 <h3 id="bitmap-constants">Bitmap Constants<a class="headerlink" href="#bitmap-constants" title="Permanent link">¶</a></h3>
-<div class="highlight"><pre><span></span><code><a href="#__codelineno-7-1" id="__codelineno-7-1" name="__codelineno-7-1"></a><span class="cp">#define HAMMER2_FREEMAP_BLOCK_RADIX     14      </span><span class="cm">/* 16KB granularity */</span>
-<a href="#__codelineno-7-2" id="__codelineno-7-2" name="__codelineno-7-2"></a><span class="cp">#define HAMMER2_FREEMAP_BLOCK_SIZE      16384   </span><span class="cm">/* 16KB */</span>
-<a href="#__codelineno-7-3" id="__codelineno-7-3" name="__codelineno-7-3"></a><span class="cp">#define HAMMER2_BMAP_ELEMENTS           8       </span><span class="cm">/* 8 x 64-bit elements */</span>
-<a href="#__codelineno-7-4" id="__codelineno-7-4" name="__codelineno-7-4"></a><span class="cp">#define HAMMER2_BMAP_BITS_PER_ELEMENT   64</span>
+<div class="highlight"><pre><span></span><code><a href="#__codelineno-5-1" id="__codelineno-5-1" name="__codelineno-5-1"></a><span class="cp">#define HAMMER2_FREEMAP_BLOCK_RADIX     14      </span><span class="cm">/* 16KB granularity */</span>
+<a href="#__codelineno-5-2" id="__codelineno-5-2" name="__codelineno-5-2"></a><span class="cp">#define HAMMER2_FREEMAP_BLOCK_SIZE      16384   </span><span class="cm">/* 16KB */</span>
+<a href="#__codelineno-5-3" id="__codelineno-5-3" name="__codelineno-5-3"></a><span class="cp">#define HAMMER2_BMAP_ELEMENTS           8       </span><span class="cm">/* 8 x 64-bit elements */</span>
+<a href="#__codelineno-5-4" id="__codelineno-5-4" name="__codelineno-5-4"></a><span class="cp">#define HAMMER2_BMAP_BITS_PER_ELEMENT   64</span>
 </code></pre></div>
 <h3 id="linear-allocator">Linear Allocator<a class="headerlink" href="#linear-allocator" title="Permanent link">¶</a></h3>
 <p>The <code>linear</code> field in <code>bmap_data</code> tracks sub-16KB allocations. When allocating
@@ -2707,10 +2716,10 @@ blocks.</p>
 </code></pre>
 <h3 id="heuristic-hints">Heuristic Hints<a class="headerlink" href="#heuristic-hints" title="Permanent link">¶</a></h3>
 <p>The allocator uses per-type hints to improve locality:</p>
-<div class="highlight"><pre><span></span><code><a href="#__codelineno-8-1" id="__codelineno-8-1" name="__codelineno-8-1"></a><span class="cm">/* hammer2_freemap.c:229-238 */</span>
-<a href="#__codelineno-8-2" id="__codelineno-8-2" name="__codelineno-8-2"></a><span class="n">hindex</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">HAMMER2_PBUFRADIX</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">HAMMER2_LBUFRADIX</span><span class="p">;</span>
-<a href="#__codelineno-8-3" id="__codelineno-8-3" name="__codelineno-8-3"></a><span class="n">hindex</span><span class="w"> </span><span class="o">+=</span><span class="w"> </span><span class="n">bref</span><span class="o">-&gt;</span><span class="n">type</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">HAMMER2_FREEMAP_HEUR_NRADIX</span><span class="p">;</span>
-<a href="#__codelineno-8-4" id="__codelineno-8-4" name="__codelineno-8-4"></a><span class="n">iter</span><span class="p">.</span><span class="n">bpref</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">hmp</span><span class="o">-&gt;</span><span class="n">heur_freemap</span><span class="p">[</span><span class="n">hindex</span><span class="p">];</span>
+<div class="highlight"><pre><span></span><code><a href="#__codelineno-6-1" id="__codelineno-6-1" name="__codelineno-6-1"></a><span class="cm">/* hammer2_freemap.c:229-238 */</span>
+<a href="#__codelineno-6-2" id="__codelineno-6-2" name="__codelineno-6-2"></a><span class="n">hindex</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">HAMMER2_PBUFRADIX</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">HAMMER2_LBUFRADIX</span><span class="p">;</span>
+<a href="#__codelineno-6-3" id="__codelineno-6-3" name="__codelineno-6-3"></a><span class="n">hindex</span><span class="w"> </span><span class="o">+=</span><span class="w"> </span><span class="n">bref</span><span class="o">-&gt;</span><span class="n">type</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">HAMMER2_FREEMAP_HEUR_NRADIX</span><span class="p">;</span>
+<a href="#__codelineno-6-4" id="__codelineno-6-4" name="__codelineno-6-4"></a><span class="n">iter</span><span class="p">.</span><span class="n">bpref</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">hmp</span><span class="o">-&gt;</span><span class="n">heur_freemap</span><span class="p">[</span><span class="n">hindex</span><span class="p">];</span>
 </code></pre></div>
 <p>After allocation, the hint is updated to the next expected position.</p>
 <h3 id="try-allocation">Try Allocation<a class="headerlink" href="#try-allocation" title="Permanent link">¶</a></h3>
@@ -2742,44 +2751,44 @@ blocks.</p>
 </code></pre>
 <h3 id="class-based-allocation">Class-Based Allocation<a class="headerlink" href="#class-based-allocation" title="Permanent link">¶</a></h3>
 <p>Allocations are grouped by class (block type + radix) to improve locality:</p>
-<div class="highlight"><pre><span></span><code><a href="#__codelineno-9-1" id="__codelineno-9-1" name="__codelineno-9-1"></a><span class="n">class</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="n">bref</span><span class="o">-&gt;</span><span class="n">type</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="mi">8</span><span class="p">)</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">HAMMER2_PBUFRADIX</span><span class="p">;</span>
+<div class="highlight"><pre><span></span><code><a href="#__codelineno-7-1" id="__codelineno-7-1" name="__codelineno-7-1"></a><span class="n">class</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="n">bref</span><span class="o">-&gt;</span><span class="n">type</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="mi">8</span><span class="p">)</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">HAMMER2_PBUFRADIX</span><span class="p">;</span>
 </code></pre></div>
 <p>A bmap entry preferentially accepts allocations of the same class, unless in
 "relaxed mode" (when space is tight).</p>
 <h3 id="relaxed-mode">Relaxed Mode<a class="headerlink" href="#relaxed-mode" title="Permanent link">¶</a></h3>
 <p>When allocation fails in normal mode, the allocator enters relaxed mode:</p>
-<div class="highlight"><pre><span></span><code><a href="#__codelineno-10-1" id="__codelineno-10-1" name="__codelineno-10-1"></a><span class="cm">/* hammer2_freemap.c:897-902 */</span>
-<a href="#__codelineno-10-2" id="__codelineno-10-2" name="__codelineno-10-2"></a><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">++</span><span class="n">iter</span><span class="o">-&gt;</span><span class="n">loops</span><span class="w"> </span><span class="o">&gt;=</span><span class="w"> </span><span class="mi">2</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
-<a href="#__codelineno-10-3" id="__codelineno-10-3" name="__codelineno-10-3"></a><span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">iter</span><span class="o">-&gt;</span><span class="n">relaxed</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span>
-<a href="#__codelineno-10-4" id="__codelineno-10-4" name="__codelineno-10-4"></a><span class="w">        </span><span class="n">iter</span><span class="o">-&gt;</span><span class="n">relaxed</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span><span class="w">  </span><span class="cm">/* Enter relaxed mode */</span>
-<a href="#__codelineno-10-5" id="__codelineno-10-5" name="__codelineno-10-5"></a><span class="w">    </span><span class="k">else</span>
-<a href="#__codelineno-10-6" id="__codelineno-10-6" name="__codelineno-10-6"></a><span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="p">(</span><span class="n">HAMMER2_ERROR_ENOSPC</span><span class="p">);</span><span class="w">  </span><span class="cm">/* Truly out of space */</span>
-<a href="#__codelineno-10-7" id="__codelineno-10-7" name="__codelineno-10-7"></a><span class="p">}</span>
+<div class="highlight"><pre><span></span><code><a href="#__codelineno-8-1" id="__codelineno-8-1" name="__codelineno-8-1"></a><span class="cm">/* hammer2_freemap.c:897-902 */</span>
+<a href="#__codelineno-8-2" id="__codelineno-8-2" name="__codelineno-8-2"></a><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">++</span><span class="n">iter</span><span class="o">-&gt;</span><span class="n">loops</span><span class="w"> </span><span class="o">&gt;=</span><span class="w"> </span><span class="mi">2</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<a href="#__codelineno-8-3" id="__codelineno-8-3" name="__codelineno-8-3"></a><span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">iter</span><span class="o">-&gt;</span><span class="n">relaxed</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span>
+<a href="#__codelineno-8-4" id="__codelineno-8-4" name="__codelineno-8-4"></a><span class="w">        </span><span class="n">iter</span><span class="o">-&gt;</span><span class="n">relaxed</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span><span class="w">  </span><span class="cm">/* Enter relaxed mode */</span>
+<a href="#__codelineno-8-5" id="__codelineno-8-5" name="__codelineno-8-5"></a><span class="w">    </span><span class="k">else</span>
+<a href="#__codelineno-8-6" id="__codelineno-8-6" name="__codelineno-8-6"></a><span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="p">(</span><span class="n">HAMMER2_ERROR_ENOSPC</span><span class="p">);</span><span class="w">  </span><span class="cm">/* Truly out of space */</span>
+<a href="#__codelineno-8-7" id="__codelineno-8-7" name="__codelineno-8-7"></a><span class="p">}</span>
 </code></pre></div>
 <p>In relaxed mode, allocations can use any bmap class, not just matching ones.</p>
 <h2 id="freemap-initialization">Freemap Initialization<a class="headerlink" href="#freemap-initialization" title="Permanent link">¶</a></h2>
 <p>When a new 1GB region is first accessed, its freemap leaf is initialized by
 <code>hammer2_freemap_init()</code> (<code>hammer2_freemap.c:801-873</code>):</p>
-<div class="highlight"><pre><span></span><code><a href="#__codelineno-11-1" id="__codelineno-11-1" name="__codelineno-11-1"></a><span class="kt">void</span><span class="w"> </span><span class="nf">hammer2_freemap_init</span><span class="p">(</span><span class="n">hammer2_dev_t</span><span class="w"> </span><span class="o">*</span><span class="n">hmp</span><span class="p">,</span><span class="w"> </span><span class="n">hammer2_key_t</span><span class="w"> </span><span class="n">key</span><span class="p">,</span>
-<a href="#__codelineno-11-2" id="__codelineno-11-2" name="__codelineno-11-2"></a><span class="w">                          </span><span class="n">hammer2_chain_t</span><span class="w"> </span><span class="o">*</span><span class="n">chain</span><span class="p">)</span>
-<a href="#__codelineno-11-3" id="__codelineno-11-3" name="__codelineno-11-3"></a><span class="p">{</span>
-<a href="#__codelineno-11-4" id="__codelineno-11-4" name="__codelineno-11-4"></a><span class="w">    </span><span class="cm">/* Mark reserved areas (first 4MB of each 2GB zone) as allocated */</span>
-<a href="#__codelineno-11-5" id="__codelineno-11-5" name="__codelineno-11-5"></a><span class="w">    </span><span class="n">lokey</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">H2FMZONEBASE</span><span class="p">(</span><span class="n">key</span><span class="p">)</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">HAMMER2_ZONE_SEG64</span><span class="p">;</span>
-<a href="#__codelineno-11-6" id="__codelineno-11-6" name="__codelineno-11-6"></a>
-<a href="#__codelineno-11-7" id="__codelineno-11-7" name="__codelineno-11-7"></a><span class="w">    </span><span class="cm">/* Mark areas beyond volume end as allocated */</span>
-<a href="#__codelineno-11-8" id="__codelineno-11-8" name="__codelineno-11-8"></a><span class="w">    </span><span class="n">hikey</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">min</span><span class="p">(</span><span class="n">key</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">HAMMER2_FREEMAP_LEVEL1_SIZE</span><span class="p">,</span><span class="w"> </span><span class="n">hmp</span><span class="o">-&gt;</span><span class="n">total_size</span><span class="p">);</span>
-<a href="#__codelineno-11-9" id="__codelineno-11-9" name="__codelineno-11-9"></a>
-<a href="#__codelineno-11-10" id="__codelineno-11-10" name="__codelineno-11-10"></a><span class="w">    </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="n">count</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">count</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">HAMMER2_FREEMAP_COUNT</span><span class="p">;</span><span class="w"> </span><span class="o">++</span><span class="n">count</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
-<a href="#__codelineno-11-11" id="__codelineno-11-11" name="__codelineno-11-11"></a><span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">key</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">lokey</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="n">key</span><span class="w"> </span><span class="o">&gt;=</span><span class="w"> </span><span class="n">hikey</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
-<a href="#__codelineno-11-12" id="__codelineno-11-12" name="__codelineno-11-12"></a><span class="w">            </span><span class="cm">/* Mark as fully allocated */</span>
-<a href="#__codelineno-11-13" id="__codelineno-11-13" name="__codelineno-11-13"></a><span class="w">            </span><span class="n">memset</span><span class="p">(</span><span class="n">bmap</span><span class="o">-&gt;</span><span class="n">bitmapq</span><span class="p">,</span><span class="w"> </span><span class="mi">-1</span><span class="p">,</span><span class="w"> </span><span class="k">sizeof</span><span class="p">(</span><span class="n">bmap</span><span class="o">-&gt;</span><span class="n">bitmapq</span><span class="p">));</span>
-<a href="#__codelineno-11-14" id="__codelineno-11-14" name="__codelineno-11-14"></a><span class="w">            </span><span class="n">bmap</span><span class="o">-&gt;</span><span class="n">avail</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
-<a href="#__codelineno-11-15" id="__codelineno-11-15" name="__codelineno-11-15"></a><span class="w">        </span><span class="p">}</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="p">{</span>
-<a href="#__codelineno-11-16" id="__codelineno-11-16" name="__codelineno-11-16"></a><span class="w">            </span><span class="cm">/* Mark as fully free */</span>
-<a href="#__codelineno-11-17" id="__codelineno-11-17" name="__codelineno-11-17"></a><span class="w">            </span><span class="n">bmap</span><span class="o">-&gt;</span><span class="n">avail</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">HAMMER2_FREEMAP_LEVEL0_SIZE</span><span class="p">;</span>
-<a href="#__codelineno-11-18" id="__codelineno-11-18" name="__codelineno-11-18"></a><span class="w">        </span><span class="p">}</span>
-<a href="#__codelineno-11-19" id="__codelineno-11-19" name="__codelineno-11-19"></a><span class="w">    </span><span class="p">}</span>
-<a href="#__codelineno-11-20" id="__codelineno-11-20" name="__codelineno-11-20"></a><span class="p">}</span>
+<div class="highlight"><pre><span></span><code><a href="#__codelineno-9-1" id="__codelineno-9-1" name="__codelineno-9-1"></a><span class="kt">void</span><span class="w"> </span><span class="nf">hammer2_freemap_init</span><span class="p">(</span><span class="n">hammer2_dev_t</span><span class="w"> </span><span class="o">*</span><span class="n">hmp</span><span class="p">,</span><span class="w"> </span><span class="n">hammer2_key_t</span><span class="w"> </span><span class="n">key</span><span class="p">,</span>
+<a href="#__codelineno-9-2" id="__codelineno-9-2" name="__codelineno-9-2"></a><span class="w">                          </span><span class="n">hammer2_chain_t</span><span class="w"> </span><span class="o">*</span><span class="n">chain</span><span class="p">)</span>
+<a href="#__codelineno-9-3" id="__codelineno-9-3" name="__codelineno-9-3"></a><span class="p">{</span>
+<a href="#__codelineno-9-4" id="__codelineno-9-4" name="__codelineno-9-4"></a><span class="w">    </span><span class="cm">/* Mark reserved areas (first 4MB of each 2GB zone) as allocated */</span>
+<a href="#__codelineno-9-5" id="__codelineno-9-5" name="__codelineno-9-5"></a><span class="w">    </span><span class="n">lokey</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">H2FMZONEBASE</span><span class="p">(</span><span class="n">key</span><span class="p">)</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">HAMMER2_ZONE_SEG64</span><span class="p">;</span>
+<a href="#__codelineno-9-6" id="__codelineno-9-6" name="__codelineno-9-6"></a>
+<a href="#__codelineno-9-7" id="__codelineno-9-7" name="__codelineno-9-7"></a><span class="w">    </span><span class="cm">/* Mark areas beyond volume end as allocated */</span>
+<a href="#__codelineno-9-8" id="__codelineno-9-8" name="__codelineno-9-8"></a><span class="w">    </span><span class="n">hikey</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">min</span><span class="p">(</span><span class="n">key</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">HAMMER2_FREEMAP_LEVEL1_SIZE</span><span class="p">,</span><span class="w"> </span><span class="n">hmp</span><span class="o">-&gt;</span><span class="n">total_size</span><span class="p">);</span>
+<a href="#__codelineno-9-9" id="__codelineno-9-9" name="__codelineno-9-9"></a>
+<a href="#__codelineno-9-10" id="__codelineno-9-10" name="__codelineno-9-10"></a><span class="w">    </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="n">count</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">count</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">HAMMER2_FREEMAP_COUNT</span><span class="p">;</span><span class="w"> </span><span class="o">++</span><span class="n">count</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<a href="#__codelineno-9-11" id="__codelineno-9-11" name="__codelineno-9-11"></a><span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">key</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">lokey</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="n">key</span><span class="w"> </span><span class="o">&gt;=</span><span class="w"> </span><span class="n">hikey</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<a href="#__codelineno-9-12" id="__codelineno-9-12" name="__codelineno-9-12"></a><span class="w">            </span><span class="cm">/* Mark as fully allocated */</span>
+<a href="#__codelineno-9-13" id="__codelineno-9-13" name="__codelineno-9-13"></a><span class="w">            </span><span class="n">memset</span><span class="p">(</span><span class="n">bmap</span><span class="o">-&gt;</span><span class="n">bitmapq</span><span class="p">,</span><span class="w"> </span><span class="mi">-1</span><span class="p">,</span><span class="w"> </span><span class="k">sizeof</span><span class="p">(</span><span class="n">bmap</span><span class="o">-&gt;</span><span class="n">bitmapq</span><span class="p">));</span>
+<a href="#__codelineno-9-14" id="__codelineno-9-14" name="__codelineno-9-14"></a><span class="w">            </span><span class="n">bmap</span><span class="o">-&gt;</span><span class="n">avail</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+<a href="#__codelineno-9-15" id="__codelineno-9-15" name="__codelineno-9-15"></a><span class="w">        </span><span class="p">}</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="p">{</span>
+<a href="#__codelineno-9-16" id="__codelineno-9-16" name="__codelineno-9-16"></a><span class="w">            </span><span class="cm">/* Mark as fully free */</span>
+<a href="#__codelineno-9-17" id="__codelineno-9-17" name="__codelineno-9-17"></a><span class="w">            </span><span class="n">bmap</span><span class="o">-&gt;</span><span class="n">avail</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">HAMMER2_FREEMAP_LEVEL0_SIZE</span><span class="p">;</span>
+<a href="#__codelineno-9-18" id="__codelineno-9-18" name="__codelineno-9-18"></a><span class="w">        </span><span class="p">}</span>
+<a href="#__codelineno-9-19" id="__codelineno-9-19" name="__codelineno-9-19"></a><span class="w">    </span><span class="p">}</span>
+<a href="#__codelineno-9-20" id="__codelineno-9-20" name="__codelineno-9-20"></a><span class="p">}</span>
 </code></pre></div>
 <h2 id="freemap-recovery">Freemap Recovery<a class="headerlink" href="#freemap-recovery" title="Permanent link">¶</a></h2>
 <p>On mount, HAMMER2 may need to recover the freemap if blocks were allocated but
@@ -2787,24 +2796,24 @@ the freemap wasn't flushed before a crash.</p>
 <h3 id="recovery-via-adjust">Recovery via Adjust<a class="headerlink" href="#recovery-via-adjust" title="Permanent link">¶</a></h3>
 <p><code>hammer2_freemap_adjust()</code> marks blocks as allocated during recovery
 (<code>hammer2_freemap.c:920-1214</code>):</p>
-<div class="highlight"><pre><span></span><code><a href="#__codelineno-12-1" id="__codelineno-12-1" name="__codelineno-12-1"></a><span class="kt">void</span><span class="w"> </span><span class="nf">hammer2_freemap_adjust</span><span class="p">(</span><span class="n">hammer2_dev_t</span><span class="w"> </span><span class="o">*</span><span class="n">hmp</span><span class="p">,</span><span class="w"> </span><span class="n">hammer2_blockref_t</span><span class="w"> </span><span class="o">*</span><span class="n">bref</span><span class="p">,</span>
-<a href="#__codelineno-12-2" id="__codelineno-12-2" name="__codelineno-12-2"></a><span class="w">                            </span><span class="kt">int</span><span class="w"> </span><span class="n">how</span><span class="p">)</span>
-<a href="#__codelineno-12-3" id="__codelineno-12-3" name="__codelineno-12-3"></a><span class="p">{</span>
-<a href="#__codelineno-12-4" id="__codelineno-12-4" name="__codelineno-12-4"></a><span class="w">    </span><span class="n">KKASSERT</span><span class="p">(</span><span class="n">how</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">HAMMER2_FREEMAP_DORECOVER</span><span class="p">);</span>
-<a href="#__codelineno-12-5" id="__codelineno-12-5" name="__codelineno-12-5"></a>
-<a href="#__codelineno-12-6" id="__codelineno-12-6" name="__codelineno-12-6"></a><span class="w">    </span><span class="cm">/* Find or create the freemap leaf */</span>
-<a href="#__codelineno-12-7" id="__codelineno-12-7" name="__codelineno-12-7"></a><span class="w">    </span><span class="n">chain</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">hammer2_chain_lookup</span><span class="p">(...);</span>
-<a href="#__codelineno-12-8" id="__codelineno-12-8" name="__codelineno-12-8"></a><span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">chain</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="nb">NULL</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
-<a href="#__codelineno-12-9" id="__codelineno-12-9" name="__codelineno-12-9"></a><span class="w">        </span><span class="n">hammer2_chain_create</span><span class="p">(...);</span><span class="w">  </span><span class="cm">/* Create missing leaf */</span>
-<a href="#__codelineno-12-10" id="__codelineno-12-10" name="__codelineno-12-10"></a><span class="w">        </span><span class="n">hammer2_freemap_init</span><span class="p">(</span><span class="n">hmp</span><span class="p">,</span><span class="w"> </span><span class="n">key</span><span class="p">,</span><span class="w"> </span><span class="n">chain</span><span class="p">);</span>
-<a href="#__codelineno-12-11" id="__codelineno-12-11" name="__codelineno-12-11"></a><span class="w">    </span><span class="p">}</span>
-<a href="#__codelineno-12-12" id="__codelineno-12-12" name="__codelineno-12-12"></a>
-<a href="#__codelineno-12-13" id="__codelineno-12-13" name="__codelineno-12-13"></a><span class="w">    </span><span class="cm">/* Mark bits as allocated (11) */</span>
-<a href="#__codelineno-12-14" id="__codelineno-12-14" name="__codelineno-12-14"></a><span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">((</span><span class="o">*</span><span class="n">bitmap</span><span class="w"> </span><span class="o">&amp;</span><span class="w"> </span><span class="n">bmmask11</span><span class="p">)</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="n">bmmask11</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
-<a href="#__codelineno-12-15" id="__codelineno-12-15" name="__codelineno-12-15"></a><span class="w">        </span><span class="o">*</span><span class="n">bitmap</span><span class="w"> </span><span class="o">|=</span><span class="w"> </span><span class="n">bmmask11</span><span class="p">;</span>
-<a href="#__codelineno-12-16" id="__codelineno-12-16" name="__codelineno-12-16"></a><span class="w">        </span><span class="n">bmap</span><span class="o">-&gt;</span><span class="n">avail</span><span class="w"> </span><span class="o">-=</span><span class="w"> </span><span class="n">HAMMER2_FREEMAP_BLOCK_SIZE</span><span class="p">;</span>
-<a href="#__codelineno-12-17" id="__codelineno-12-17" name="__codelineno-12-17"></a><span class="w">    </span><span class="p">}</span>
-<a href="#__codelineno-12-18" id="__codelineno-12-18" name="__codelineno-12-18"></a><span class="p">}</span>
+<div class="highlight"><pre><span></span><code><a href="#__codelineno-10-1" id="__codelineno-10-1" name="__codelineno-10-1"></a><span class="kt">void</span><span class="w"> </span><span class="nf">hammer2_freemap_adjust</span><span class="p">(</span><span class="n">hammer2_dev_t</span><span class="w"> </span><span class="o">*</span><span class="n">hmp</span><span class="p">,</span><span class="w"> </span><span class="n">hammer2_blockref_t</span><span class="w"> </span><span class="o">*</span><span class="n">bref</span><span class="p">,</span>
+<a href="#__codelineno-10-2" id="__codelineno-10-2" name="__codelineno-10-2"></a><span class="w">                            </span><span class="kt">int</span><span class="w"> </span><span class="n">how</span><span class="p">)</span>
+<a href="#__codelineno-10-3" id="__codelineno-10-3" name="__codelineno-10-3"></a><span class="p">{</span>
+<a href="#__codelineno-10-4" id="__codelineno-10-4" name="__codelineno-10-4"></a><span class="w">    </span><span class="n">KKASSERT</span><span class="p">(</span><span class="n">how</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">HAMMER2_FREEMAP_DORECOVER</span><span class="p">);</span>
+<a href="#__codelineno-10-5" id="__codelineno-10-5" name="__codelineno-10-5"></a>
+<a href="#__codelineno-10-6" id="__codelineno-10-6" name="__codelineno-10-6"></a><span class="w">    </span><span class="cm">/* Find or create the freemap leaf */</span>
+<a href="#__codelineno-10-7" id="__codelineno-10-7" name="__codelineno-10-7"></a><span class="w">    </span><span class="n">chain</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">hammer2_chain_lookup</span><span class="p">(...);</span>
+<a href="#__codelineno-10-8" id="__codelineno-10-8" name="__codelineno-10-8"></a><span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">chain</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="nb">NULL</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<a href="#__codelineno-10-9" id="__codelineno-10-9" name="__codelineno-10-9"></a><span class="w">        </span><span class="n">hammer2_chain_create</span><span class="p">(...);</span><span class="w">  </span><span class="cm">/* Create missing leaf */</span>
+<a href="#__codelineno-10-10" id="__codelineno-10-10" name="__codelineno-10-10"></a><span class="w">        </span><span class="n">hammer2_freemap_init</span><span class="p">(</span><span class="n">hmp</span><span class="p">,</span><span class="w"> </span><span class="n">key</span><span class="p">,</span><span class="w"> </span><span class="n">chain</span><span class="p">);</span>
+<a href="#__codelineno-10-11" id="__codelineno-10-11" name="__codelineno-10-11"></a><span class="w">    </span><span class="p">}</span>
+<a href="#__codelineno-10-12" id="__codelineno-10-12" name="__codelineno-10-12"></a>
+<a href="#__codelineno-10-13" id="__codelineno-10-13" name="__codelineno-10-13"></a><span class="w">    </span><span class="cm">/* Mark bits as allocated (11) */</span>
+<a href="#__codelineno-10-14" id="__codelineno-10-14" name="__codelineno-10-14"></a><span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">((</span><span class="o">*</span><span class="n">bitmap</span><span class="w"> </span><span class="o">&amp;</span><span class="w"> </span><span class="n">bmmask11</span><span class="p">)</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="n">bmmask11</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<a href="#__codelineno-10-15" id="__codelineno-10-15" name="__codelineno-10-15"></a><span class="w">        </span><span class="o">*</span><span class="n">bitmap</span><span class="w"> </span><span class="o">|=</span><span class="w"> </span><span class="n">bmmask11</span><span class="p">;</span>
+<a href="#__codelineno-10-16" id="__codelineno-10-16" name="__codelineno-10-16"></a><span class="w">        </span><span class="n">bmap</span><span class="o">-&gt;</span><span class="n">avail</span><span class="w"> </span><span class="o">-=</span><span class="w"> </span><span class="n">HAMMER2_FREEMAP_BLOCK_SIZE</span><span class="p">;</span>
+<a href="#__codelineno-10-17" id="__codelineno-10-17" name="__codelineno-10-17"></a><span class="w">    </span><span class="p">}</span>
+<a href="#__codelineno-10-18" id="__codelineno-10-18" name="__codelineno-10-18"></a><span class="p">}</span>
 </code></pre></div>
 <h3 id="recovery-flow">Recovery Flow<a class="headerlink" href="#recovery-flow" title="Permanent link">¶</a></h3>
 <pre class="mermaid"><code>flowchart TB
@@ -2826,14 +2835,14 @@ copy-on-write complexity), it uses a background <strong>bulkfree</strong> scan t
 space.</p>
 <h3 id="bulkfree-algorithm">Bulkfree Algorithm<a class="headerlink" href="#bulkfree-algorithm" title="Permanent link">¶</a></h3>
 <p>The bulkfree process runs in three stages:</p>
-<div class="highlight"><pre><span></span><code><a href="#__codelineno-13-1" id="__codelineno-13-1" name="__codelineno-13-1"></a>Stage 1: ALLOCATED (11) -&gt; STAGED (10)
-<a href="#__codelineno-13-2" id="__codelineno-13-2" name="__codelineno-13-2"></a>         Mark all potentially free blocks as staged
-<a href="#__codelineno-13-3" id="__codelineno-13-3" name="__codelineno-13-3"></a>
-<a href="#__codelineno-13-4" id="__codelineno-13-4" name="__codelineno-13-4"></a>Stage 2: Scan topology
-<a href="#__codelineno-13-5" id="__codelineno-13-5" name="__codelineno-13-5"></a>         STAGED (10) -&gt; ALLOCATED (11) for blocks still in use
-<a href="#__codelineno-13-6" id="__codelineno-13-6" name="__codelineno-13-6"></a>
-<a href="#__codelineno-13-7" id="__codelineno-13-7" name="__codelineno-13-7"></a>Stage 3: STAGED (10) -&gt; FREE (00)
-<a href="#__codelineno-13-8" id="__codelineno-13-8" name="__codelineno-13-8"></a>         Finalize blocks that remained staged
+<div class="highlight"><pre><span></span><code><a href="#__codelineno-11-1" id="__codelineno-11-1" name="__codelineno-11-1"></a>Stage 1: ALLOCATED (11) -&gt; STAGED (10)
+<a href="#__codelineno-11-2" id="__codelineno-11-2" name="__codelineno-11-2"></a>         Mark all potentially free blocks as staged
+<a href="#__codelineno-11-3" id="__codelineno-11-3" name="__codelineno-11-3"></a>
+<a href="#__codelineno-11-4" id="__codelineno-11-4" name="__codelineno-11-4"></a>Stage 2: Scan topology
+<a href="#__codelineno-11-5" id="__codelineno-11-5" name="__codelineno-11-5"></a>         STAGED (10) -&gt; ALLOCATED (11) for blocks still in use
+<a href="#__codelineno-11-6" id="__codelineno-11-6" name="__codelineno-11-6"></a>
+<a href="#__codelineno-11-7" id="__codelineno-11-7" name="__codelineno-11-7"></a>Stage 3: STAGED (10) -&gt; FREE (00)
+<a href="#__codelineno-11-8" id="__codelineno-11-8" name="__codelineno-11-8"></a>         Finalize blocks that remained staged
 </code></pre></div>
 <p>Source: <code>hammer2_freemap.c:1216-1251</code></p>
 <h3 id="double-transition-safety">Double-Transition Safety<a class="headerlink" href="#double-transition-safety" title="Permanent link">¶</a></h3>
@@ -2845,50 +2854,50 @@ space.</p>
 </ul>
 <h3 id="bulkfree-implementation">Bulkfree Implementation<a class="headerlink" href="#bulkfree-implementation" title="Permanent link">¶</a></h3>
 <p>The bulkfree scan is implemented in <code>hammer2_bulkfree.c</code>:</p>
-<div class="highlight"><pre><span></span><code><a href="#__codelineno-14-1" id="__codelineno-14-1" name="__codelineno-14-1"></a><span class="cm">/* hammer2_bulkfree.c:414-423 */</span>
-<a href="#__codelineno-14-2" id="__codelineno-14-2" name="__codelineno-14-2"></a><span class="cm">/*</span>
-<a href="#__codelineno-14-3" id="__codelineno-14-3" name="__codelineno-14-3"></a><span class="cm"> * Bulkfree algorithm:</span>
-<a href="#__codelineno-14-4" id="__codelineno-14-4" name="__codelineno-14-4"></a><span class="cm"> * Repeat {</span>
-<a href="#__codelineno-14-5" id="__codelineno-14-5" name="__codelineno-14-5"></a><span class="cm"> *     Scan topology - build in-memory freemap (mark 11)</span>
-<a href="#__codelineno-14-6" id="__codelineno-14-6" name="__codelineno-14-6"></a><span class="cm"> *     Reconcile in-memory vs on-disk freemap:</span>
-<a href="#__codelineno-14-7" id="__codelineno-14-7" name="__codelineno-14-7"></a><span class="cm"> *         ondisk xx -&gt; ondisk 11 (if allocated in-memory)</span>
-<a href="#__codelineno-14-8" id="__codelineno-14-8" name="__codelineno-14-8"></a><span class="cm"> *         ondisk 11 -&gt; ondisk 10 (if free in-memory)</span>
-<a href="#__codelineno-14-9" id="__codelineno-14-9" name="__codelineno-14-9"></a><span class="cm"> *         ondisk 10 -&gt; ondisk 00 (if free in-memory) - next pass</span>
-<a href="#__codelineno-14-10" id="__codelineno-14-10" name="__codelineno-14-10"></a><span class="cm"> * }</span>
-<a href="#__codelineno-14-11" id="__codelineno-14-11" name="__codelineno-14-11"></a><span class="cm"> */</span>
+<div class="highlight"><pre><span></span><code><a href="#__codelineno-12-1" id="__codelineno-12-1" name="__codelineno-12-1"></a><span class="cm">/* hammer2_bulkfree.c:414-423 */</span>
+<a href="#__codelineno-12-2" id="__codelineno-12-2" name="__codelineno-12-2"></a><span class="cm">/*</span>
+<a href="#__codelineno-12-3" id="__codelineno-12-3" name="__codelineno-12-3"></a><span class="cm"> * Bulkfree algorithm:</span>
+<a href="#__codelineno-12-4" id="__codelineno-12-4" name="__codelineno-12-4"></a><span class="cm"> * Repeat {</span>
+<a href="#__codelineno-12-5" id="__codelineno-12-5" name="__codelineno-12-5"></a><span class="cm"> *     Scan topology - build in-memory freemap (mark 11)</span>
+<a href="#__codelineno-12-6" id="__codelineno-12-6" name="__codelineno-12-6"></a><span class="cm"> *     Reconcile in-memory vs on-disk freemap:</span>
+<a href="#__codelineno-12-7" id="__codelineno-12-7" name="__codelineno-12-7"></a><span class="cm"> *         ondisk xx -&gt; ondisk 11 (if allocated in-memory)</span>
+<a href="#__codelineno-12-8" id="__codelineno-12-8" name="__codelineno-12-8"></a><span class="cm"> *         ondisk 11 -&gt; ondisk 10 (if free in-memory)</span>
+<a href="#__codelineno-12-9" id="__codelineno-12-9" name="__codelineno-12-9"></a><span class="cm"> *         ondisk 10 -&gt; ondisk 00 (if free in-memory) - next pass</span>
+<a href="#__codelineno-12-10" id="__codelineno-12-10" name="__codelineno-12-10"></a><span class="cm"> * }</span>
+<a href="#__codelineno-12-11" id="__codelineno-12-11" name="__codelineno-12-11"></a><span class="cm"> */</span>
 </code></pre></div>
 <h3 id="bulkfree-info-structure">Bulkfree Info Structure<a class="headerlink" href="#bulkfree-info-structure" title="Permanent link">¶</a></h3>
-<div class="highlight"><pre><span></span><code><a href="#__codelineno-15-1" id="__codelineno-15-1" name="__codelineno-15-1"></a><span class="k">typedef</span><span class="w"> </span><span class="k">struct</span><span class="w"> </span><span class="nc">hammer2_bulkfree_info</span><span class="w"> </span><span class="p">{</span>
-<a href="#__codelineno-15-2" id="__codelineno-15-2" name="__codelineno-15-2"></a><span class="w">    </span><span class="n">hammer2_dev_t</span><span class="w">       </span><span class="o">*</span><span class="n">hmp</span><span class="p">;</span>
-<a href="#__codelineno-15-3" id="__codelineno-15-3" name="__codelineno-15-3"></a><span class="w">    </span><span class="n">hammer2_bmap_data_t</span><span class="w"> </span><span class="o">*</span><span class="n">bmap</span><span class="p">;</span><span class="w">      </span><span class="cm">/* In-memory freemap */</span>
-<a href="#__codelineno-15-4" id="__codelineno-15-4" name="__codelineno-15-4"></a><span class="w">    </span><span class="n">hammer2_off_t</span><span class="w">       </span><span class="n">sbase</span><span class="p">;</span><span class="w">      </span><span class="cm">/* Current scan base */</span>
-<a href="#__codelineno-15-5" id="__codelineno-15-5" name="__codelineno-15-5"></a><span class="w">    </span><span class="n">hammer2_off_t</span><span class="w">       </span><span class="n">sstop</span><span class="p">;</span><span class="w">      </span><span class="cm">/* Current scan stop */</span>
-<a href="#__codelineno-15-6" id="__codelineno-15-6" name="__codelineno-15-6"></a><span class="w">    </span><span class="kt">long</span><span class="w">                </span><span class="n">count_10_00</span><span class="p">;</span><span class="w"> </span><span class="cm">/* Staged -&gt; Free */</span>
-<a href="#__codelineno-15-7" id="__codelineno-15-7" name="__codelineno-15-7"></a><span class="w">    </span><span class="kt">long</span><span class="w">                </span><span class="n">count_11_10</span><span class="p">;</span><span class="w"> </span><span class="cm">/* Allocated -&gt; Staged */</span>
-<a href="#__codelineno-15-8" id="__codelineno-15-8" name="__codelineno-15-8"></a><span class="w">    </span><span class="n">hammer2_off_t</span><span class="w">       </span><span class="n">adj_free</span><span class="p">;</span><span class="w">   </span><span class="cm">/* Free space adjustment */</span>
-<a href="#__codelineno-15-9" id="__codelineno-15-9" name="__codelineno-15-9"></a><span class="w">    </span><span class="cm">/* ... */</span>
-<a href="#__codelineno-15-10" id="__codelineno-15-10" name="__codelineno-15-10"></a><span class="p">}</span><span class="w"> </span><span class="n">hammer2_bulkfree_info_t</span><span class="p">;</span>
+<div class="highlight"><pre><span></span><code><a href="#__codelineno-13-1" id="__codelineno-13-1" name="__codelineno-13-1"></a><span class="k">typedef</span><span class="w"> </span><span class="k">struct</span><span class="w"> </span><span class="nc">hammer2_bulkfree_info</span><span class="w"> </span><span class="p">{</span>
+<a href="#__codelineno-13-2" id="__codelineno-13-2" name="__codelineno-13-2"></a><span class="w">    </span><span class="n">hammer2_dev_t</span><span class="w">       </span><span class="o">*</span><span class="n">hmp</span><span class="p">;</span>
+<a href="#__codelineno-13-3" id="__codelineno-13-3" name="__codelineno-13-3"></a><span class="w">    </span><span class="n">hammer2_bmap_data_t</span><span class="w"> </span><span class="o">*</span><span class="n">bmap</span><span class="p">;</span><span class="w">      </span><span class="cm">/* In-memory freemap */</span>
+<a href="#__codelineno-13-4" id="__codelineno-13-4" name="__codelineno-13-4"></a><span class="w">    </span><span class="n">hammer2_off_t</span><span class="w">       </span><span class="n">sbase</span><span class="p">;</span><span class="w">      </span><span class="cm">/* Current scan base */</span>
+<a href="#__codelineno-13-5" id="__codelineno-13-5" name="__codelineno-13-5"></a><span class="w">    </span><span class="n">hammer2_off_t</span><span class="w">       </span><span class="n">sstop</span><span class="p">;</span><span class="w">      </span><span class="cm">/* Current scan stop */</span>
+<a href="#__codelineno-13-6" id="__codelineno-13-6" name="__codelineno-13-6"></a><span class="w">    </span><span class="kt">long</span><span class="w">                </span><span class="n">count_10_00</span><span class="p">;</span><span class="w"> </span><span class="cm">/* Staged -&gt; Free */</span>
+<a href="#__codelineno-13-7" id="__codelineno-13-7" name="__codelineno-13-7"></a><span class="w">    </span><span class="kt">long</span><span class="w">                </span><span class="n">count_11_10</span><span class="p">;</span><span class="w"> </span><span class="cm">/* Allocated -&gt; Staged */</span>
+<a href="#__codelineno-13-8" id="__codelineno-13-8" name="__codelineno-13-8"></a><span class="w">    </span><span class="n">hammer2_off_t</span><span class="w">       </span><span class="n">adj_free</span><span class="p">;</span><span class="w">   </span><span class="cm">/* Free space adjustment */</span>
+<a href="#__codelineno-13-9" id="__codelineno-13-9" name="__codelineno-13-9"></a><span class="w">    </span><span class="cm">/* ... */</span>
+<a href="#__codelineno-13-10" id="__codelineno-13-10" name="__codelineno-13-10"></a><span class="p">}</span><span class="w"> </span><span class="n">hammer2_bulkfree_info_t</span><span class="p">;</span>
 </code></pre></div>
 <h3 id="memory-bounded-scanning">Memory-Bounded Scanning<a class="headerlink" href="#memory-bounded-scanning" title="Permanent link">¶</a></h3>
 <p>Bulkfree uses bounded memory. Each 32KB of RAM represents 1GB of storage:</p>
-<div class="highlight"><pre><span></span><code><a href="#__codelineno-16-1" id="__codelineno-16-1" name="__codelineno-16-1"></a><span class="cm">/* hammer2_bulkfree.c:549-550 */</span>
-<a href="#__codelineno-16-2" id="__codelineno-16-2" name="__codelineno-16-2"></a><span class="cp">#define HAMMER2_FREEMAP_SIZEDIV \</span>
-<a href="#__codelineno-16-3" id="__codelineno-16-3" name="__codelineno-16-3"></a><span class="cp">    (HAMMER2_FREEMAP_LEVEL1_SIZE / HAMMER2_FREEMAP_LEVELN_PSIZE)</span>
+<div class="highlight"><pre><span></span><code><a href="#__codelineno-14-1" id="__codelineno-14-1" name="__codelineno-14-1"></a><span class="cm">/* hammer2_bulkfree.c:549-550 */</span>
+<a href="#__codelineno-14-2" id="__codelineno-14-2" name="__codelineno-14-2"></a><span class="cp">#define HAMMER2_FREEMAP_SIZEDIV \</span>
+<a href="#__codelineno-14-3" id="__codelineno-14-3" name="__codelineno-14-3"></a><span class="cp">    (HAMMER2_FREEMAP_LEVEL1_SIZE / HAMMER2_FREEMAP_LEVELN_PSIZE)</span>
 </code></pre></div>
 <p>If memory is insufficient to cover the entire volume, multiple passes are made.</p>
 <h3 id="bulkfree-thread">Bulkfree Thread<a class="headerlink" href="#bulkfree-thread" title="Permanent link">¶</a></h3>
 <p>A background thread periodically runs bulkfree (<code>hammer2_bulkfree.c:468-510</code>):</p>
-<div class="highlight"><pre><span></span><code><a href="#__codelineno-17-1" id="__codelineno-17-1" name="__codelineno-17-1"></a><span class="k">static</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="nf">hammer2_bulkfree_thread</span><span class="p">(</span><span class="kt">void</span><span class="w"> </span><span class="o">*</span><span class="n">arg</span><span class="p">)</span>
-<a href="#__codelineno-17-2" id="__codelineno-17-2" name="__codelineno-17-2"></a><span class="p">{</span>
-<a href="#__codelineno-17-3" id="__codelineno-17-3" name="__codelineno-17-3"></a><span class="w">    </span><span class="k">for</span><span class="w"> </span><span class="p">(;;)</span><span class="w"> </span><span class="p">{</span>
-<a href="#__codelineno-17-4" id="__codelineno-17-4" name="__codelineno-17-4"></a><span class="w">        </span><span class="n">hammer2_thr_wait_any</span><span class="p">(</span><span class="n">thr</span><span class="p">,</span><span class="w"> </span><span class="p">...,</span><span class="w"> </span><span class="n">hz</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mi">60</span><span class="p">);</span><span class="w">  </span><span class="cm">/* Wake every 60 sec */</span>
-<a href="#__codelineno-17-5" id="__codelineno-17-5" name="__codelineno-17-5"></a>
-<a href="#__codelineno-17-6" id="__codelineno-17-6" name="__codelineno-17-6"></a><span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">flags</span><span class="w"> </span><span class="o">&amp;</span><span class="w"> </span><span class="n">HAMMER2_THREAD_REMASTER</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
-<a href="#__codelineno-17-7" id="__codelineno-17-7" name="__codelineno-17-7"></a><span class="w">            </span><span class="n">bfi</span><span class="p">.</span><span class="n">size</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">8192</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mi">1024</span><span class="p">;</span><span class="w">  </span><span class="cm">/* 8MB buffer */</span>
-<a href="#__codelineno-17-8" id="__codelineno-17-8" name="__codelineno-17-8"></a><span class="w">            </span><span class="n">hammer2_bulkfree_pass</span><span class="p">(</span><span class="n">hmp</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">bfi</span><span class="p">);</span>
-<a href="#__codelineno-17-9" id="__codelineno-17-9" name="__codelineno-17-9"></a><span class="w">        </span><span class="p">}</span>
-<a href="#__codelineno-17-10" id="__codelineno-17-10" name="__codelineno-17-10"></a><span class="w">    </span><span class="p">}</span>
-<a href="#__codelineno-17-11" id="__codelineno-17-11" name="__codelineno-17-11"></a><span class="p">}</span>
+<div class="highlight"><pre><span></span><code><a href="#__codelineno-15-1" id="__codelineno-15-1" name="__codelineno-15-1"></a><span class="k">static</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="nf">hammer2_bulkfree_thread</span><span class="p">(</span><span class="kt">void</span><span class="w"> </span><span class="o">*</span><span class="n">arg</span><span class="p">)</span>
+<a href="#__codelineno-15-2" id="__codelineno-15-2" name="__codelineno-15-2"></a><span class="p">{</span>
+<a href="#__codelineno-15-3" id="__codelineno-15-3" name="__codelineno-15-3"></a><span class="w">    </span><span class="k">for</span><span class="w"> </span><span class="p">(;;)</span><span class="w"> </span><span class="p">{</span>
+<a href="#__codelineno-15-4" id="__codelineno-15-4" name="__codelineno-15-4"></a><span class="w">        </span><span class="n">hammer2_thr_wait_any</span><span class="p">(</span><span class="n">thr</span><span class="p">,</span><span class="w"> </span><span class="p">...,</span><span class="w"> </span><span class="n">hz</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mi">60</span><span class="p">);</span><span class="w">  </span><span class="cm">/* Wake every 60 sec */</span>
+<a href="#__codelineno-15-5" id="__codelineno-15-5" name="__codelineno-15-5"></a>
+<a href="#__codelineno-15-6" id="__codelineno-15-6" name="__codelineno-15-6"></a><span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">flags</span><span class="w"> </span><span class="o">&amp;</span><span class="w"> </span><span class="n">HAMMER2_THREAD_REMASTER</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<a href="#__codelineno-15-7" id="__codelineno-15-7" name="__codelineno-15-7"></a><span class="w">            </span><span class="n">bfi</span><span class="p">.</span><span class="n">size</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">8192</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mi">1024</span><span class="p">;</span><span class="w">  </span><span class="cm">/* 8MB buffer */</span>
+<a href="#__codelineno-15-8" id="__codelineno-15-8" name="__codelineno-15-8"></a><span class="w">            </span><span class="n">hammer2_bulkfree_pass</span><span class="p">(</span><span class="n">hmp</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">bfi</span><span class="p">);</span>
+<a href="#__codelineno-15-9" id="__codelineno-15-9" name="__codelineno-15-9"></a><span class="w">        </span><span class="p">}</span>
+<a href="#__codelineno-15-10" id="__codelineno-15-10" name="__codelineno-15-10"></a><span class="w">    </span><span class="p">}</span>
+<a href="#__codelineno-15-11" id="__codelineno-15-11" name="__codelineno-15-11"></a><span class="p">}</span>
 </code></pre></div>
 <h2 id="freemap-and-volume-header">Freemap and Volume Header<a class="headerlink" href="#freemap-and-volume-header" title="Permanent link">¶</a></h2>
 <p>The freemap's state is recorded in the volume header:</p>
@@ -2917,36 +2926,36 @@ space.</p>
 <h3 id="freemap-flush-coordination">Freemap Flush Coordination<a class="headerlink" href="#freemap-flush-coordination" title="Permanent link">¶</a></h3>
 <p>The freemap (<code>fchain</code>) is flushed before the volume chain (<code>vchain</code>) to ensure
 consistency:</p>
-<div class="highlight"><pre><span></span><code><a href="#__codelineno-18-1" id="__codelineno-18-1" name="__codelineno-18-1"></a><span class="cm">/* hammer2_flush.c:1432-1441 */</span>
-<a href="#__codelineno-18-2" id="__codelineno-18-2" name="__codelineno-18-2"></a><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">hmp</span><span class="o">-&gt;</span><span class="n">fchain</span><span class="p">.</span><span class="n">flags</span><span class="w"> </span><span class="o">&amp;</span><span class="w"> </span><span class="n">HAMMER2_CHAIN_FLUSH_MASK</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
-<a href="#__codelineno-18-3" id="__codelineno-18-3" name="__codelineno-18-3"></a><span class="w">    </span><span class="n">hammer2_voldata_modify</span><span class="p">(</span><span class="n">hmp</span><span class="p">);</span>
-<a href="#__codelineno-18-4" id="__codelineno-18-4" name="__codelineno-18-4"></a><span class="w">    </span><span class="n">chain</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="o">&amp;</span><span class="n">hmp</span><span class="o">-&gt;</span><span class="n">fchain</span><span class="p">;</span>
-<a href="#__codelineno-18-5" id="__codelineno-18-5" name="__codelineno-18-5"></a><span class="w">    </span><span class="n">flush_error</span><span class="w"> </span><span class="o">|=</span><span class="w"> </span><span class="n">hammer2_flush</span><span class="p">(</span><span class="n">chain</span><span class="p">,</span><span class="w"> </span><span class="n">HAMMER2_FLUSH_TOP</span><span class="p">);</span>
-<a href="#__codelineno-18-6" id="__codelineno-18-6" name="__codelineno-18-6"></a><span class="p">}</span>
-<a href="#__codelineno-18-7" id="__codelineno-18-7" name="__codelineno-18-7"></a><span class="cm">/* Then flush vchain */</span>
+<div class="highlight"><pre><span></span><code><a href="#__codelineno-16-1" id="__codelineno-16-1" name="__codelineno-16-1"></a><span class="cm">/* hammer2_flush.c:1432-1441 */</span>
+<a href="#__codelineno-16-2" id="__codelineno-16-2" name="__codelineno-16-2"></a><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">hmp</span><span class="o">-&gt;</span><span class="n">fchain</span><span class="p">.</span><span class="n">flags</span><span class="w"> </span><span class="o">&amp;</span><span class="w"> </span><span class="n">HAMMER2_CHAIN_FLUSH_MASK</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<a href="#__codelineno-16-3" id="__codelineno-16-3" name="__codelineno-16-3"></a><span class="w">    </span><span class="n">hammer2_voldata_modify</span><span class="p">(</span><span class="n">hmp</span><span class="p">);</span>
+<a href="#__codelineno-16-4" id="__codelineno-16-4" name="__codelineno-16-4"></a><span class="w">    </span><span class="n">chain</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="o">&amp;</span><span class="n">hmp</span><span class="o">-&gt;</span><span class="n">fchain</span><span class="p">;</span>
+<a href="#__codelineno-16-5" id="__codelineno-16-5" name="__codelineno-16-5"></a><span class="w">    </span><span class="n">flush_error</span><span class="w"> </span><span class="o">|=</span><span class="w"> </span><span class="n">hammer2_flush</span><span class="p">(</span><span class="n">chain</span><span class="p">,</span><span class="w"> </span><span class="n">HAMMER2_FLUSH_TOP</span><span class="p">);</span>
+<a href="#__codelineno-16-6" id="__codelineno-16-6" name="__codelineno-16-6"></a><span class="p">}</span>
+<a href="#__codelineno-16-7" id="__codelineno-16-7" name="__codelineno-16-7"></a><span class="cm">/* Then flush vchain */</span>
 </code></pre></div>
 <p>When flushing <code>fchain</code>, the volume header's <code>freemap_tid</code> is updated:</p>
-<div class="highlight"><pre><span></span><code><a href="#__codelineno-19-1" id="__codelineno-19-1" name="__codelineno-19-1"></a><span class="cm">/* hammer2_flush.c:766-768 */</span>
-<a href="#__codelineno-19-2" id="__codelineno-19-2" name="__codelineno-19-2"></a><span class="k">case</span><span class="w"> </span><span class="no">HAMMER2_BREF_TYPE_FREEMAP</span><span class="p">:</span>
-<a href="#__codelineno-19-3" id="__codelineno-19-3" name="__codelineno-19-3"></a><span class="w">    </span><span class="n">hmp</span><span class="o">-&gt;</span><span class="n">voldata</span><span class="p">.</span><span class="n">freemap_tid</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">chain</span><span class="o">-&gt;</span><span class="n">bref</span><span class="p">.</span><span class="n">mirror_tid</span><span class="p">;</span>
-<a href="#__codelineno-19-4" id="__codelineno-19-4" name="__codelineno-19-4"></a><span class="w">    </span><span class="k">break</span><span class="p">;</span>
+<div class="highlight"><pre><span></span><code><a href="#__codelineno-17-1" id="__codelineno-17-1" name="__codelineno-17-1"></a><span class="cm">/* hammer2_flush.c:766-768 */</span>
+<a href="#__codelineno-17-2" id="__codelineno-17-2" name="__codelineno-17-2"></a><span class="k">case</span><span class="w"> </span><span class="no">HAMMER2_BREF_TYPE_FREEMAP</span><span class="p">:</span>
+<a href="#__codelineno-17-3" id="__codelineno-17-3" name="__codelineno-17-3"></a><span class="w">    </span><span class="n">hmp</span><span class="o">-&gt;</span><span class="n">voldata</span><span class="p">.</span><span class="n">freemap_tid</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">chain</span><span class="o">-&gt;</span><span class="n">bref</span><span class="p">.</span><span class="n">mirror_tid</span><span class="p">;</span>
+<a href="#__codelineno-17-4" id="__codelineno-17-4" name="__codelineno-17-4"></a><span class="w">    </span><span class="k">break</span><span class="p">;</span>
 </code></pre></div>
 <h2 id="blockref-check-field">Blockref Check Field<a class="headerlink" href="#blockref-check-field" title="Permanent link">¶</a></h2>
 <p>Freemap blockrefs use the check field to store hints:</p>
-<div class="highlight"><pre><span></span><code><a href="#__codelineno-20-1" id="__codelineno-20-1" name="__codelineno-20-1"></a><span class="k">struct</span><span class="w"> </span><span class="p">{</span>
-<a href="#__codelineno-20-2" id="__codelineno-20-2" name="__codelineno-20-2"></a><span class="w">    </span><span class="kt">uint32_t</span><span class="w"> </span><span class="n">icrc32</span><span class="p">;</span><span class="w">    </span><span class="cm">/* Integrity check */</span>
-<a href="#__codelineno-20-3" id="__codelineno-20-3" name="__codelineno-20-3"></a><span class="w">    </span><span class="kt">uint32_t</span><span class="w"> </span><span class="n">bigmask</span><span class="p">;</span><span class="w">   </span><span class="cm">/* Available radixes (bitmask) */</span>
-<a href="#__codelineno-20-4" id="__codelineno-20-4" name="__codelineno-20-4"></a><span class="w">    </span><span class="kt">uint64_t</span><span class="w"> </span><span class="n">avail</span><span class="p">;</span><span class="w">     </span><span class="cm">/* Available bytes */</span>
-<a href="#__codelineno-20-5" id="__codelineno-20-5" name="__codelineno-20-5"></a><span class="w">    </span><span class="kt">char</span><span class="w"> </span><span class="n">reserved</span><span class="p">[</span><span class="mi">48</span><span class="p">];</span>
-<a href="#__codelineno-20-6" id="__codelineno-20-6" name="__codelineno-20-6"></a><span class="p">}</span><span class="w"> </span><span class="n">freemap</span><span class="p">;</span>
+<div class="highlight"><pre><span></span><code><a href="#__codelineno-18-1" id="__codelineno-18-1" name="__codelineno-18-1"></a><span class="k">struct</span><span class="w"> </span><span class="p">{</span>
+<a href="#__codelineno-18-2" id="__codelineno-18-2" name="__codelineno-18-2"></a><span class="w">    </span><span class="kt">uint32_t</span><span class="w"> </span><span class="n">icrc32</span><span class="p">;</span><span class="w">    </span><span class="cm">/* Integrity check */</span>
+<a href="#__codelineno-18-3" id="__codelineno-18-3" name="__codelineno-18-3"></a><span class="w">    </span><span class="kt">uint32_t</span><span class="w"> </span><span class="n">bigmask</span><span class="p">;</span><span class="w">   </span><span class="cm">/* Available radixes (bitmask) */</span>
+<a href="#__codelineno-18-4" id="__codelineno-18-4" name="__codelineno-18-4"></a><span class="w">    </span><span class="kt">uint64_t</span><span class="w"> </span><span class="n">avail</span><span class="p">;</span><span class="w">     </span><span class="cm">/* Available bytes */</span>
+<a href="#__codelineno-18-5" id="__codelineno-18-5" name="__codelineno-18-5"></a><span class="w">    </span><span class="kt">char</span><span class="w"> </span><span class="n">reserved</span><span class="p">[</span><span class="mi">48</span><span class="p">];</span>
+<a href="#__codelineno-18-6" id="__codelineno-18-6" name="__codelineno-18-6"></a><span class="p">}</span><span class="w"> </span><span class="n">freemap</span><span class="p">;</span>
 </code></pre></div>
 <h3 id="bigmask-optimization">Bigmask Optimization<a class="headerlink" href="#bigmask-optimization" title="Permanent link">¶</a></h3>
 <p>The <code>bigmask</code> field indicates which allocation sizes might succeed:</p>
-<div class="highlight"><pre><span></span><code><a href="#__codelineno-21-1" id="__codelineno-21-1" name="__codelineno-21-1"></a><span class="cm">/* Bit N set = allocations of (1 &lt;&lt; N) bytes might succeed */</span>
-<a href="#__codelineno-21-2" id="__codelineno-21-2" name="__codelineno-21-2"></a><span class="n">chain</span><span class="o">-&gt;</span><span class="n">bref</span><span class="p">.</span><span class="n">check</span><span class="p">.</span><span class="n">freemap</span><span class="p">.</span><span class="n">bigmask</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="kt">uint32_t</span><span class="p">)</span><span class="mi">-1</span><span class="p">;</span><span class="w">  </span><span class="cm">/* All sizes possible */</span>
-<a href="#__codelineno-21-3" id="__codelineno-21-3" name="__codelineno-21-3"></a>
-<a href="#__codelineno-21-4" id="__codelineno-21-4" name="__codelineno-21-4"></a><span class="cm">/* Clear bit when a scan confirms no space for that size */</span>
-<a href="#__codelineno-21-5" id="__codelineno-21-5" name="__codelineno-21-5"></a><span class="n">chain</span><span class="o">-&gt;</span><span class="n">bref</span><span class="p">.</span><span class="n">check</span><span class="p">.</span><span class="n">freemap</span><span class="p">.</span><span class="n">bigmask</span><span class="w"> </span><span class="o">&amp;=</span><span class="w"> </span><span class="o">~</span><span class="p">((</span><span class="kt">size_t</span><span class="p">)</span><span class="mi">1</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">radix</span><span class="p">);</span>
+<div class="highlight"><pre><span></span><code><a href="#__codelineno-19-1" id="__codelineno-19-1" name="__codelineno-19-1"></a><span class="cm">/* Bit N set = allocations of (1 &lt;&lt; N) bytes might succeed */</span>
+<a href="#__codelineno-19-2" id="__codelineno-19-2" name="__codelineno-19-2"></a><span class="n">chain</span><span class="o">-&gt;</span><span class="n">bref</span><span class="p">.</span><span class="n">check</span><span class="p">.</span><span class="n">freemap</span><span class="p">.</span><span class="n">bigmask</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="kt">uint32_t</span><span class="p">)</span><span class="mi">-1</span><span class="p">;</span><span class="w">  </span><span class="cm">/* All sizes possible */</span>
+<a href="#__codelineno-19-3" id="__codelineno-19-3" name="__codelineno-19-3"></a>
+<a href="#__codelineno-19-4" id="__codelineno-19-4" name="__codelineno-19-4"></a><span class="cm">/* Clear bit when a scan confirms no space for that size */</span>
+<a href="#__codelineno-19-5" id="__codelineno-19-5" name="__codelineno-19-5"></a><span class="n">chain</span><span class="o">-&gt;</span><span class="n">bref</span><span class="p">.</span><span class="n">check</span><span class="p">.</span><span class="n">freemap</span><span class="p">.</span><span class="n">bigmask</span><span class="w"> </span><span class="o">&amp;=</span><span class="w"> </span><span class="o">~</span><span class="p">((</span><span class="kt">size_t</span><span class="p">)</span><span class="mi">1</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">radix</span><span class="p">);</span>
 </code></pre></div>
 <p>This allows quick rejection of allocations that cannot possibly succeed.</p>
 <h2 id="performance-considerations">Performance Considerations<a class="headerlink" href="#performance-considerations" title="Permanent link">¶</a></h2>
@@ -2960,18 +2969,18 @@ consistency:</p>
 <h3 id="avoiding-read-before-write">Avoiding Read-Before-Write<a class="headerlink" href="#avoiding-read-before-write" title="Permanent link">¶</a></h3>
 <p>When allocating new blocks, the allocator may pre-initialize buffers to avoid
 unnecessary reads:</p>
-<div class="highlight"><pre><span></span><code><a href="#__codelineno-22-1" id="__codelineno-22-1" name="__codelineno-22-1"></a><span class="cm">/* hammer2_freemap.c:702-732 */</span>
-<a href="#__codelineno-22-2" id="__codelineno-22-2" name="__codelineno-22-2"></a><span class="k">if</span><span class="w"> </span><span class="p">((</span><span class="n">bmap</span><span class="o">-&gt;</span><span class="n">bitmapq</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="w"> </span><span class="o">&amp;</span><span class="w"> </span><span class="n">pbmmask</span><span class="p">)</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
-<a href="#__codelineno-22-3" id="__codelineno-22-3" name="__codelineno-22-3"></a><span class="w">    </span><span class="cm">/* Entire physical buffer is new, skip read */</span>
-<a href="#__codelineno-22-4" id="__codelineno-22-4" name="__codelineno-22-4"></a><span class="w">    </span><span class="n">hammer2_io_newnz</span><span class="p">(</span><span class="n">hmp</span><span class="p">,</span><span class="w"> </span><span class="n">class</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="mi">8</span><span class="p">,</span><span class="w"> </span><span class="n">offset</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">pradix</span><span class="p">,</span><span class="w"> </span><span class="n">psize</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">dio</span><span class="p">);</span>
-<a href="#__codelineno-22-5" id="__codelineno-22-5" name="__codelineno-22-5"></a><span class="w">    </span><span class="n">hammer2_io_putblk</span><span class="p">(</span><span class="o">&amp;</span><span class="n">dio</span><span class="p">);</span>
-<a href="#__codelineno-22-6" id="__codelineno-22-6" name="__codelineno-22-6"></a><span class="p">}</span>
+<div class="highlight"><pre><span></span><code><a href="#__codelineno-20-1" id="__codelineno-20-1" name="__codelineno-20-1"></a><span class="cm">/* hammer2_freemap.c:702-732 */</span>
+<a href="#__codelineno-20-2" id="__codelineno-20-2" name="__codelineno-20-2"></a><span class="k">if</span><span class="w"> </span><span class="p">((</span><span class="n">bmap</span><span class="o">-&gt;</span><span class="n">bitmapq</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="w"> </span><span class="o">&amp;</span><span class="w"> </span><span class="n">pbmmask</span><span class="p">)</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<a href="#__codelineno-20-3" id="__codelineno-20-3" name="__codelineno-20-3"></a><span class="w">    </span><span class="cm">/* Entire physical buffer is new, skip read */</span>
+<a href="#__codelineno-20-4" id="__codelineno-20-4" name="__codelineno-20-4"></a><span class="w">    </span><span class="n">hammer2_io_newnz</span><span class="p">(</span><span class="n">hmp</span><span class="p">,</span><span class="w"> </span><span class="n">class</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="mi">8</span><span class="p">,</span><span class="w"> </span><span class="n">offset</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">pradix</span><span class="p">,</span><span class="w"> </span><span class="n">psize</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">dio</span><span class="p">);</span>
+<a href="#__codelineno-20-5" id="__codelineno-20-5" name="__codelineno-20-5"></a><span class="w">    </span><span class="n">hammer2_io_putblk</span><span class="p">(</span><span class="o">&amp;</span><span class="n">dio</span><span class="p">);</span>
+<a href="#__codelineno-20-6" id="__codelineno-20-6" name="__codelineno-20-6"></a><span class="p">}</span>
 </code></pre></div>
 <h3 id="deduplication-integration">Deduplication Integration<a class="headerlink" href="#deduplication-integration" title="Permanent link">¶</a></h3>
 <p>The freemap tracks deduplication candidates:</p>
-<div class="highlight"><pre><span></span><code><a href="#__codelineno-23-1" id="__codelineno-23-1" name="__codelineno-23-1"></a><span class="cm">/* hammer2_freemap.c:502-503 */</span>
-<a href="#__codelineno-23-2" id="__codelineno-23-2" name="__codelineno-23-2"></a><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">bref</span><span class="o">-&gt;</span><span class="n">type</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">HAMMER2_BREF_TYPE_DATA</span><span class="p">)</span>
-<a href="#__codelineno-23-3" id="__codelineno-23-3" name="__codelineno-23-3"></a><span class="w">    </span><span class="n">hammer2_io_dedup_set</span><span class="p">(</span><span class="n">hmp</span><span class="p">,</span><span class="w"> </span><span class="n">bref</span><span class="p">);</span>
+<div class="highlight"><pre><span></span><code><a href="#__codelineno-21-1" id="__codelineno-21-1" name="__codelineno-21-1"></a><span class="cm">/* hammer2_freemap.c:502-503 */</span>
+<a href="#__codelineno-21-2" id="__codelineno-21-2" name="__codelineno-21-2"></a><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">bref</span><span class="o">-&gt;</span><span class="n">type</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">HAMMER2_BREF_TYPE_DATA</span><span class="p">)</span>
+<a href="#__codelineno-21-3" id="__codelineno-21-3" name="__codelineno-21-3"></a><span class="w">    </span><span class="n">hammer2_io_dedup_set</span><span class="p">(</span><span class="n">hmp</span><span class="p">,</span><span class="w"> </span><span class="n">bref</span><span class="p">);</span>
 </code></pre></div>
 <p>Dedup bits are cleared during bulkfree's 11-&gt;10 transition.</p>
 <h2 id="see-also">See Also<a class="headerlink" href="#see-also" title="Permanent link">¶</a></h2>
