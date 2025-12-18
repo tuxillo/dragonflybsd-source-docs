@@ -13,10 +13,10 @@
       
       
       
-        <link rel="prev" href="../vm/vm_mmap/">
+        <link rel="prev" href="../vfs/dirfs/">
       
       
-        <link rel="next" href="hammer2/">
+        <link rel="next" href="interfaces/">
       
       
         
@@ -78,7 +78,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#filesystem-implementations-sysvfs" class="md-skip">
+        <a href="#networking-subsystem" class="md-skip">
           Skip to content
         </a>
       
@@ -2289,6 +2289,687 @@
                 
   
   
+  
+  
+    
+    
+    
+    
+      
+      
+        
+          
+          
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_3_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_3_4" id="__nav_3_4_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    vfs/
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    vfs/
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../vfs/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../vfs/hammer2/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    HAMMER2
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../vfs/hammer/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    HAMMER
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../vfs/devfs/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    devfs
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../vfs/procfs/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    procfs
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../vfs/tmpfs/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    tmpfs
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../vfs/nullfs/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    nullfs
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../vfs/fifofs/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    fifofs
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../vfs/deadfs/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    deadfs
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../vfs/mfs/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    mfs
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../vfs/ufs/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    UFS
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../vfs/nfs/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    NFS
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../vfs/ext2fs/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    ext2fs
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../vfs/msdosfs/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    msdosfs
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../vfs/ntfs/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    NTFS
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../vfs/isofs/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    ISO9660
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../vfs/udf/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    UDF
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../vfs/hpfs/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    HPFS
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../vfs/smbfs/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    smbfs
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../vfs/fuse/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    FUSE
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../vfs/autofs/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    autofs
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../vfs/dirfs/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    dirfs
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
     
   
   
@@ -2310,17 +2991,17 @@
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_4" checked>
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_5" checked>
         
           
-          <label class="md-nav__link" for="__nav_3_4" id="__nav_3_4_label" tabindex="">
+          <label class="md-nav__link" for="__nav_3_5" id="__nav_3_5_label" tabindex="">
             
   
   
   <span class="md-ellipsis">
     
   
-    vfs/
+    net/
   
 
     
@@ -2331,12 +3012,12 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_4_label" aria-expanded="true">
-          <label class="md-nav__title" for="__nav_3_4">
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_5_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_3_5">
             <span class="md-nav__icon md-icon"></span>
             
   
-    vfs/
+    net/
   
 
           </label>
@@ -2420,22 +3101,22 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#filesystem-summary" class="md-nav__link">
+  <a href="#architecture" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Filesystem Summary
+        Architecture
       
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="Filesystem Summary">
+    <nav class="md-nav" aria-label="Architecture">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#dragonfly-native-filesystems" class="md-nav__link">
+  <a href="#per-cpu-protocol-threads" class="md-nav__link">
     <span class="md-ellipsis">
       
-        DragonFly-Native Filesystems
+        Per-CPU Protocol Threads
       
     </span>
   </a>
@@ -2443,10 +3124,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#pseudovirtual-filesystems" class="md-nav__link">
+  <a href="#message-based-design" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Pseudo/Virtual Filesystems
+        Message-Based Design
       
     </span>
   </a>
@@ -2454,43 +3135,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#traditional-unix-filesystems" class="md-nav__link">
+  <a href="#interface-model" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Traditional Unix Filesystems
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#compatibility-filesystems" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Compatibility Filesystems
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#networkdistributed-filesystems" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Network/Distributed Filesystems
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#specialized-filesystems" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Specialized Filesystems
+        Interface Model
       
     </span>
   </a>
@@ -2503,10 +3151,204 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#source-location" class="md-nav__link">
+  <a href="#source-organization" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Source Location
+        Source Organization
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Source Organization">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#core-files" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Core Files
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#firewalls" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Firewalls
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#traffic-shaping" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Traffic Shaping
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#virtual-interfaces" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Virtual Interfaces
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tunneling" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Tunneling
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#high-performance-io" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        High-Performance I/O
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#serialppp" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Serial/PPP
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#multicast" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Multicast
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#key-data-structures" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Key Data Structures
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Key Data Structures">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#struct-ifnet" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        struct ifnet
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#struct-route" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        struct route
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#struct-rtentry" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        struct rtentry
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#packet-flow" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Packet Flow
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Packet Flow">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#receive-path" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Receive Path
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#transmit-path" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Transmit Path
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#related-documentation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Related Documentation
       
     </span>
   </a>
@@ -2514,10 +3356,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#see-also" class="md-nav__link">
+  <a href="#source-reference" class="md-nav__link">
     <span class="md-ellipsis">
       
-        See Also
+        Source Reference
       
     </span>
   </a>
@@ -2540,688 +3382,7 @@
   
   
     <li class="md-nav__item">
-      <a href="hammer2/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    HAMMER2
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="hammer/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    HAMMER
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="devfs/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    devfs
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="procfs/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    procfs
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="tmpfs/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    tmpfs
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="nullfs/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    nullfs
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="fifofs/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    fifofs
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="deadfs/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    deadfs
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="mfs/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    mfs
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="ufs/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    UFS
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="nfs/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    NFS
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="ext2fs/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    ext2fs
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="msdosfs/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    msdosfs
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="ntfs/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    NTFS
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="isofs/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    ISO9660
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="udf/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    UDF
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="hpfs/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    HPFS
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="smbfs/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    smbfs
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="fuse/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    FUSE
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="autofs/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    autofs
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="dirfs/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    dirfs
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-          </ul>
-        </nav>
-      
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    
-    
-    
-    
-      
-      
-        
-          
-          
-        
-      
-    
-    
-    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
-      
-        
-        
-          
-        
-        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_3_5" >
-        
-          
-          <label class="md-nav__link" for="__nav_3_5" id="__nav_3_5_label" tabindex="">
-            
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    net/
-  
-
-    
-  </span>
-  
-  
-
-            <span class="md-nav__icon md-icon"></span>
-          </label>
-        
-        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_5_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_3_5">
-            <span class="md-nav__icon md-icon"></span>
-            
-  
-    net/
-  
-
-          </label>
-          <ul class="md-nav__list" data-md-scrollfix>
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../net/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Overview
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../net/interfaces/" class="md-nav__link">
+      <a href="interfaces/" class="md-nav__link">
         
   
   
@@ -3249,7 +3410,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../net/netisr/" class="md-nav__link">
+      <a href="netisr/" class="md-nav__link">
         
   
   
@@ -3416,22 +3577,22 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#filesystem-summary" class="md-nav__link">
+  <a href="#architecture" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Filesystem Summary
+        Architecture
       
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="Filesystem Summary">
+    <nav class="md-nav" aria-label="Architecture">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#dragonfly-native-filesystems" class="md-nav__link">
+  <a href="#per-cpu-protocol-threads" class="md-nav__link">
     <span class="md-ellipsis">
       
-        DragonFly-Native Filesystems
+        Per-CPU Protocol Threads
       
     </span>
   </a>
@@ -3439,10 +3600,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#pseudovirtual-filesystems" class="md-nav__link">
+  <a href="#message-based-design" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Pseudo/Virtual Filesystems
+        Message-Based Design
       
     </span>
   </a>
@@ -3450,43 +3611,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#traditional-unix-filesystems" class="md-nav__link">
+  <a href="#interface-model" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Traditional Unix Filesystems
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#compatibility-filesystems" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Compatibility Filesystems
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#networkdistributed-filesystems" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Network/Distributed Filesystems
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#specialized-filesystems" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Specialized Filesystems
+        Interface Model
       
     </span>
   </a>
@@ -3499,10 +3627,204 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#source-location" class="md-nav__link">
+  <a href="#source-organization" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Source Location
+        Source Organization
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Source Organization">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#core-files" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Core Files
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#firewalls" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Firewalls
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#traffic-shaping" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Traffic Shaping
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#virtual-interfaces" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Virtual Interfaces
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tunneling" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Tunneling
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#high-performance-io" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        High-Performance I/O
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#serialppp" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Serial/PPP
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#multicast" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Multicast
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#key-data-structures" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Key Data Structures
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Key Data Structures">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#struct-ifnet" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        struct ifnet
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#struct-route" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        struct route
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#struct-rtentry" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        struct rtentry
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#packet-flow" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Packet Flow
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Packet Flow">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#receive-path" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Receive Path
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#transmit-path" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Transmit Path
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#related-documentation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Related Documentation
       
     </span>
   </a>
@@ -3510,10 +3832,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#see-also" class="md-nav__link">
+  <a href="#source-reference" class="md-nav__link">
     <span class="md-ellipsis">
       
-        See Also
+        Source Reference
       
     </span>
   </a>
@@ -3540,205 +3862,367 @@
   
 
 
-<h1 id="filesystem-implementations-sysvfs">Filesystem Implementations (<code>sys/vfs/</code>)<a class="headerlink" href="#filesystem-implementations-sysvfs" title="Permanent link">&para;</a></h1>
-<p>This section documents the filesystem implementations in DragonFly BSD. The <code>sys/vfs/</code> directory contains 23 filesystems totaling approximately 189,000 lines of code.</p>
+<h1 id="networking-subsystem">Networking Subsystem<a class="headerlink" href="#networking-subsystem" title="Permanent link">&para;</a></h1>
+<p>The DragonFly BSD networking subsystem provides the infrastructure for all
+network communications, from low-level interface management to high-level
+protocol processing.</p>
 <h2 id="overview">Overview<a class="headerlink" href="#overview" title="Permanent link">&para;</a></h2>
-<p>DragonFly BSD supports a variety of filesystems for different purposes:</p>
+<p>The networking code in <code>sys/net/</code> implements:</p>
 <ul>
-<li><strong>Native filesystems</strong> — HAMMER2 (current) and HAMMER (legacy), developed specifically for DragonFly</li>
-<li><strong>Pseudo-filesystems</strong> — Virtual filesystems like devfs, procfs, and tmpfs</li>
-<li><strong>Traditional Unix</strong> — UFS/FFS and NFS for compatibility</li>
-<li><strong>Compatibility</strong> — Support for ext2, FAT, NTFS, ISO9660, and others</li>
+<li><strong>Network interface management</strong> - Interface lifecycle, configuration, and I/O</li>
+<li><strong>Protocol dispatch</strong> - Per-CPU network ISR threads for scalability</li>
+<li><strong>Routing</strong> - Route lookup, management, and routing sockets</li>
+<li><strong>Packet filtering</strong> - pfil hooks, pf, and IPFW firewalls</li>
+<li><strong>Traffic shaping</strong> - ALTQ and dummynet QoS</li>
+<li><strong>Virtual interfaces</strong> - tun, tap, VLAN, bridge, lagg</li>
+<li><strong>Tunneling</strong> - GIF, GRE, WireGuard</li>
 </ul>
-<p>All filesystems integrate with the kernel through the VFS (Virtual File System) layer documented in <a href="../kern/vfs/">VFS Core</a>.</p>
-<h2 id="filesystem-summary">Filesystem Summary<a class="headerlink" href="#filesystem-summary" title="Permanent link">&para;</a></h2>
-<h3 id="dragonfly-native-filesystems">DragonFly-Native Filesystems<a class="headerlink" href="#dragonfly-native-filesystems" title="Permanent link">&para;</a></h3>
-<table>
-<thead>
-<tr>
-<th>Filesystem</th>
-<th>Lines</th>
-<th>Description</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><a href="hammer2/">HAMMER2</a></td>
-<td>~40,800</td>
-<td>Current native filesystem with clustering, dedup, compression</td>
-</tr>
-<tr>
-<td><a href="hammer/">HAMMER</a></td>
-<td>~34,600</td>
-<td>Legacy native filesystem</td>
-</tr>
-</tbody>
-</table>
-<h3 id="pseudovirtual-filesystems">Pseudo/Virtual Filesystems<a class="headerlink" href="#pseudovirtual-filesystems" title="Permanent link">&para;</a></h3>
-<table>
-<thead>
-<tr>
-<th>Filesystem</th>
-<th>Lines</th>
-<th>Description</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><a href="devfs/">devfs</a></td>
-<td>~6,400</td>
-<td>Device filesystem — dynamic <code>/dev</code> management</td>
-</tr>
-<tr>
-<td><a href="procfs/">procfs</a></td>
-<td>~3,800</td>
-<td>Process filesystem — <code>/proc</code> interface</td>
-</tr>
-<tr>
-<td><a href="tmpfs/">tmpfs</a></td>
-<td>~5,000</td>
-<td>Memory-based temporary filesystem</td>
-</tr>
-<tr>
-<td><a href="nullfs/">nullfs</a></td>
-<td>~770</td>
-<td>Null/loopback filesystem</td>
-</tr>
-<tr>
-<td><a href="fifofs/">fifofs</a></td>
-<td>~750</td>
-<td>FIFO (named pipe) filesystem</td>
-</tr>
-<tr>
-<td><a href="deadfs/">deadfs</a></td>
-<td>~210</td>
-<td>Dead vnode operations</td>
-</tr>
-<tr>
-<td><a href="mfs/">mfs</a></td>
-<td>~700</td>
-<td>Memory filesystem (legacy)</td>
-</tr>
-</tbody>
-</table>
-<h3 id="traditional-unix-filesystems">Traditional Unix Filesystems<a class="headerlink" href="#traditional-unix-filesystems" title="Permanent link">&para;</a></h3>
-<table>
-<thead>
-<tr>
-<th>Filesystem</th>
-<th>Lines</th>
-<th>Description</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><a href="ufs/">UFS</a></td>
-<td>~19,400</td>
-<td>BSD Unix File System (FFS)</td>
-</tr>
-<tr>
-<td><a href="nfs/">NFS</a></td>
-<td>~24,700</td>
-<td>Network File System client/server</td>
-</tr>
-</tbody>
-</table>
-<h3 id="compatibility-filesystems">Compatibility Filesystems<a class="headerlink" href="#compatibility-filesystems" title="Permanent link">&para;</a></h3>
-<table>
-<thead>
-<tr>
-<th>Filesystem</th>
-<th>Lines</th>
-<th>Description</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><a href="ext2fs/">ext2fs</a></td>
-<td>~12,400</td>
-<td>Linux ext2/ext3 support</td>
-</tr>
-<tr>
-<td><a href="msdosfs/">msdosfs</a></td>
-<td>~8,100</td>
-<td>FAT12/FAT16/FAT32</td>
-</tr>
-<tr>
-<td><a href="ntfs/">ntfs</a></td>
-<td>~4,700</td>
-<td>Windows NTFS (read-only)</td>
-</tr>
-<tr>
-<td><a href="isofs/">isofs</a></td>
-<td>~4,600</td>
-<td>ISO 9660 CD-ROM</td>
-</tr>
-<tr>
-<td><a href="udf/">udf</a></td>
-<td>~3,000</td>
-<td>Universal Disk Format</td>
-</tr>
-<tr>
-<td><a href="hpfs/">hpfs</a></td>
-<td>~4,500</td>
-<td>OS/2 HPFS</td>
-</tr>
-</tbody>
-</table>
-<h3 id="networkdistributed-filesystems">Network/Distributed Filesystems<a class="headerlink" href="#networkdistributed-filesystems" title="Permanent link">&para;</a></h3>
-<table>
-<thead>
-<tr>
-<th>Filesystem</th>
-<th>Lines</th>
-<th>Description</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><a href="smbfs/">smbfs</a></td>
-<td>~4,700</td>
-<td>SMB/CIFS client</td>
-</tr>
-<tr>
-<td><a href="fuse/">fuse</a></td>
-<td>~5,500</td>
-<td>Filesystem in Userspace</td>
-</tr>
-</tbody>
-</table>
-<h3 id="specialized-filesystems">Specialized Filesystems<a class="headerlink" href="#specialized-filesystems" title="Permanent link">&para;</a></h3>
-<table>
-<thead>
-<tr>
-<th>Filesystem</th>
-<th>Lines</th>
-<th>Description</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><a href="autofs/">autofs</a></td>
-<td>~1,800</td>
-<td>Automounter filesystem</td>
-</tr>
-<tr>
-<td><a href="dirfs/">dirfs</a></td>
-<td>~3,100</td>
-<td>Directory filesystem (vkernel)</td>
-</tr>
-</tbody>
-</table>
-<h2 id="source-location">Source Location<a class="headerlink" href="#source-location" title="Permanent link">&para;</a></h2>
+<h2 id="architecture">Architecture<a class="headerlink" href="#architecture" title="Permanent link">&para;</a></h2>
+<p>DragonFly's networking stack has several distinguishing features:</p>
+<h3 id="per-cpu-protocol-threads">Per-CPU Protocol Threads<a class="headerlink" href="#per-cpu-protocol-threads" title="Permanent link">&para;</a></h3>
+<p>Unlike traditional BSD networking which processes packets in interrupt context,
+DragonFly uses dedicated per-CPU threads for protocol processing. The network
+ISR (<code>netisr</code>) system dispatches packets to the appropriate CPU based on
+flow hashing.</p>
+<h3 id="message-based-design">Message-Based Design<a class="headerlink" href="#message-based-design" title="Permanent link">&para;</a></h3>
+<p>Network operations use LWKT messages for communication between subsystems,
+enabling lock-free packet processing paths in many cases.</p>
+<h3 id="interface-model">Interface Model<a class="headerlink" href="#interface-model" title="Permanent link">&para;</a></h3>
+<p>Network interfaces are represented by <code>struct ifnet</code>, which contains:</p>
 <ul>
-<li><strong>Source path</strong>: <code>sys/vfs/</code></li>
-<li><strong>Each filesystem</strong>: <code>sys/vfs/&lt;name&gt;/</code></li>
+<li>Interface identification (name, unit, index)</li>
+<li>Hardware capabilities and flags  </li>
+<li>Input/output queues</li>
+<li>Statistics counters</li>
+<li>Method vectors for driver operations</li>
 </ul>
-<h2 id="see-also">See Also<a class="headerlink" href="#see-also" title="Permanent link">&para;</a></h2>
+<h2 id="source-organization">Source Organization<a class="headerlink" href="#source-organization" title="Permanent link">&para;</a></h2>
+<h3 id="core-files">Core Files<a class="headerlink" href="#core-files" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Component</th>
+<th>Files</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a href="interfaces/">Interface Core</a></td>
+<td><code>if.c</code>, <code>if_var.h</code></td>
+<td>Interface management</td>
+</tr>
+<tr>
+<td><a href="netisr/">Network ISR</a></td>
+<td><code>netisr.c</code>, <code>netisr.h</code></td>
+<td>Protocol dispatch</td>
+</tr>
+<tr>
+<td><a href="routing.md">Routing</a></td>
+<td><code>route.c</code>, <code>rtsock.c</code></td>
+<td>Route management</td>
+</tr>
+<tr>
+<td><a href="ethernet.md">Ethernet</a></td>
+<td><code>if_ethersubr.c</code></td>
+<td>Ethernet support</td>
+</tr>
+<tr>
+<td><a href="bpf.md">BPF</a></td>
+<td><code>bpf.c</code></td>
+<td>Packet capture</td>
+</tr>
+<tr>
+<td><a href="pfil.md">Packet Filter Hooks</a></td>
+<td><code>pfil.c</code></td>
+<td>Filter framework</td>
+</tr>
+</tbody>
+</table>
+<h3 id="firewalls">Firewalls<a class="headerlink" href="#firewalls" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Component</th>
+<th>Directory</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a href="pf.md">Packet Filter (pf)</a></td>
+<td><code>pf/</code></td>
+<td>OpenBSD firewall</td>
+</tr>
+<tr>
+<td><a href="ipfw.md">IPFW</a></td>
+<td><code>ipfw/</code></td>
+<td>FreeBSD firewall</td>
+</tr>
+<tr>
+<td><a href="ipfw3.md">IPFW3</a></td>
+<td><code>ipfw3*/</code></td>
+<td>DragonFly modular firewall</td>
+</tr>
+</tbody>
+</table>
+<h3 id="traffic-shaping">Traffic Shaping<a class="headerlink" href="#traffic-shaping" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Component</th>
+<th>Directory</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a href="altq.md">ALTQ</a></td>
+<td><code>altq/</code></td>
+<td>Alternate queueing</td>
+</tr>
+<tr>
+<td><a href="dummynet.md">Dummynet</a></td>
+<td><code>dummynet/</code>, <code>dummynet3/</code></td>
+<td>Traffic shaping</td>
+</tr>
+</tbody>
+</table>
+<h3 id="virtual-interfaces">Virtual Interfaces<a class="headerlink" href="#virtual-interfaces" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Component</th>
+<th>Directory</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a href="tun-tap.md">TUN/TAP</a></td>
+<td><code>tun/</code>, <code>tap/</code></td>
+<td>Virtual interfaces</td>
+</tr>
+<tr>
+<td><a href="vlan.md">VLAN</a></td>
+<td><code>vlan/</code></td>
+<td>802.1Q VLANs</td>
+</tr>
+<tr>
+<td><a href="bridge.md">Bridge</a></td>
+<td><code>bridge/</code></td>
+<td>Layer 2 bridging</td>
+</tr>
+<tr>
+<td><a href="lagg.md">Link Aggregation</a></td>
+<td><code>lagg/</code></td>
+<td>LACP/failover</td>
+</tr>
+<tr>
+<td><a href="loopback.md">Loopback</a></td>
+<td><code>if_loop.c</code></td>
+<td>Loopback interface</td>
+</tr>
+</tbody>
+</table>
+<h3 id="tunneling">Tunneling<a class="headerlink" href="#tunneling" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Component</th>
+<th>Directory</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a href="gif.md">GIF</a></td>
+<td><code>gif/</code></td>
+<td>Generic tunnel</td>
+</tr>
+<tr>
+<td><a href="gre.md">GRE</a></td>
+<td><code>gre/</code></td>
+<td>GRE tunneling</td>
+</tr>
+<tr>
+<td><a href="wireguard.md">WireGuard</a></td>
+<td><code>wg/</code></td>
+<td>WireGuard VPN</td>
+</tr>
+<tr>
+<td><a href="stf.md">6to4</a></td>
+<td><code>stf/</code></td>
+<td>IPv6 transition</td>
+</tr>
+</tbody>
+</table>
+<h3 id="high-performance-io">High-Performance I/O<a class="headerlink" href="#high-performance-io" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Component</th>
+<th>Directory</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a href="netmap.md">Netmap</a></td>
+<td><code>netmap/</code></td>
+<td>Zero-copy packet I/O</td>
+</tr>
+<tr>
+<td><a href="polling.md">Polling</a></td>
+<td><code>if_poll.c</code></td>
+<td>Device polling</td>
+</tr>
+</tbody>
+</table>
+<h3 id="serialppp">Serial/PPP<a class="headerlink" href="#serialppp" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Component</th>
+<th>Directory</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a href="sppp.md">SPPP</a></td>
+<td><code>sppp/</code></td>
+<td>Synchronous PPP</td>
+</tr>
+<tr>
+<td><a href="slip.md">SLIP</a></td>
+<td><code>sl/</code></td>
+<td>Serial Line IP</td>
+</tr>
+</tbody>
+</table>
+<h3 id="multicast">Multicast<a class="headerlink" href="#multicast" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Component</th>
+<th>Directory</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a href="mroute.md">IP Multicast</a></td>
+<td><code>ip_mroute/</code></td>
+<td>Multicast routing</td>
+</tr>
+</tbody>
+</table>
+<h2 id="key-data-structures">Key Data Structures<a class="headerlink" href="#key-data-structures" title="Permanent link">&para;</a></h2>
+<h3 id="struct-ifnet">struct ifnet<a class="headerlink" href="#struct-ifnet" title="Permanent link">&para;</a></h3>
+<p>The central network interface structure:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="k">struct</span><span class="w"> </span><span class="nc">ifnet</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="w">    </span><span class="kt">char</span><span class="w">    </span><span class="n">if_xname</span><span class="p">[</span><span class="n">IFNAMSIZ</span><span class="p">];</span><span class="w">     </span><span class="cm">/* external name */</span>
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="w">    </span><span class="n">TAILQ_ENTRY</span><span class="p">(</span><span class="n">ifnet</span><span class="p">)</span><span class="w"> </span><span class="n">if_link</span><span class="p">;</span><span class="w">    </span><span class="cm">/* all interfaces */</span>
+<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>
+<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a><span class="w">    </span><span class="cm">/* Identification */</span>
+<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a><span class="w">    </span><span class="n">u_short</span><span class="w"> </span><span class="n">if_index</span><span class="p">;</span><span class="w">               </span><span class="cm">/* interface index */</span>
+<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a><span class="w">    </span><span class="n">u_short</span><span class="w"> </span><span class="n">if_type</span><span class="p">;</span><span class="w">                </span><span class="cm">/* IFT_* type */</span>
+<a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a>
+<a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a><span class="w">    </span><span class="cm">/* Capabilities and flags */</span>
+<a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a><span class="w">    </span><span class="kt">int</span><span class="w">     </span><span class="n">if_flags</span><span class="p">;</span><span class="w">               </span><span class="cm">/* IFF_* flags */</span>
+<a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a><span class="w">    </span><span class="kt">int</span><span class="w">     </span><span class="n">if_capabilities</span><span class="p">;</span><span class="w">        </span><span class="cm">/* IFCAP_* */</span>
+<a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a><span class="w">    </span><span class="kt">int</span><span class="w">     </span><span class="n">if_capenable</span><span class="p">;</span><span class="w">           </span><span class="cm">/* enabled capabilities */</span>
+<a id="__codelineno-0-13" name="__codelineno-0-13" href="#__codelineno-0-13"></a>
+<a id="__codelineno-0-14" name="__codelineno-0-14" href="#__codelineno-0-14"></a><span class="w">    </span><span class="cm">/* I/O */</span>
+<a id="__codelineno-0-15" name="__codelineno-0-15" href="#__codelineno-0-15"></a><span class="w">    </span><span class="k">struct</span><span class="w">  </span><span class="nc">ifqueue</span><span class="w"> </span><span class="n">if_snd</span><span class="p">;</span><span class="w">         </span><span class="cm">/* output queue */</span>
+<a id="__codelineno-0-16" name="__codelineno-0-16" href="#__codelineno-0-16"></a><span class="w">    </span><span class="kt">int</span><span class="w">     </span><span class="p">(</span><span class="o">*</span><span class="n">if_output</span><span class="p">)();</span><span class="w">         </span><span class="cm">/* output routine */</span>
+<a id="__codelineno-0-17" name="__codelineno-0-17" href="#__codelineno-0-17"></a><span class="w">    </span><span class="kt">void</span><span class="w">    </span><span class="p">(</span><span class="o">*</span><span class="n">if_input</span><span class="p">)();</span><span class="w">          </span><span class="cm">/* input routine */</span>
+<a id="__codelineno-0-18" name="__codelineno-0-18" href="#__codelineno-0-18"></a><span class="w">    </span><span class="kt">int</span><span class="w">     </span><span class="p">(</span><span class="o">*</span><span class="n">if_ioctl</span><span class="p">)();</span><span class="w">          </span><span class="cm">/* ioctl routine */</span>
+<a id="__codelineno-0-19" name="__codelineno-0-19" href="#__codelineno-0-19"></a><span class="w">    </span><span class="kt">void</span><span class="w">    </span><span class="p">(</span><span class="o">*</span><span class="n">if_start</span><span class="p">)();</span><span class="w">          </span><span class="cm">/* initiate output */</span>
+<a id="__codelineno-0-20" name="__codelineno-0-20" href="#__codelineno-0-20"></a>
+<a id="__codelineno-0-21" name="__codelineno-0-21" href="#__codelineno-0-21"></a><span class="w">    </span><span class="cm">/* Statistics */</span>
+<a id="__codelineno-0-22" name="__codelineno-0-22" href="#__codelineno-0-22"></a><span class="w">    </span><span class="n">u_long</span><span class="w">  </span><span class="n">if_ipackets</span><span class="p">;</span><span class="w">            </span><span class="cm">/* packets received */</span>
+<a id="__codelineno-0-23" name="__codelineno-0-23" href="#__codelineno-0-23"></a><span class="w">    </span><span class="n">u_long</span><span class="w">  </span><span class="n">if_opackets</span><span class="p">;</span><span class="w">            </span><span class="cm">/* packets sent */</span>
+<a id="__codelineno-0-24" name="__codelineno-0-24" href="#__codelineno-0-24"></a><span class="w">    </span><span class="p">...</span>
+<a id="__codelineno-0-25" name="__codelineno-0-25" href="#__codelineno-0-25"></a><span class="p">};</span>
+</code></pre></div>
+<h3 id="struct-route">struct route<a class="headerlink" href="#struct-route" title="Permanent link">&para;</a></h3>
+<p>Route lookup structure:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="k">struct</span><span class="w"> </span><span class="nc">route</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="w">    </span><span class="k">struct</span><span class="w"> </span><span class="nc">rtentry</span><span class="w"> </span><span class="o">*</span><span class="n">ro_rt</span><span class="p">;</span><span class="w">          </span><span class="cm">/* resolved route */</span>
+<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="w">    </span><span class="k">struct</span><span class="w"> </span><span class="nc">sockaddr</span><span class="w"> </span><span class="n">ro_dst</span><span class="p">;</span><span class="w">         </span><span class="cm">/* destination address */</span>
+<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a><span class="p">};</span>
+</code></pre></div>
+<h3 id="struct-rtentry">struct rtentry<a class="headerlink" href="#struct-rtentry" title="Permanent link">&para;</a></h3>
+<p>Routing table entry:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="k">struct</span><span class="w"> </span><span class="nc">rtentry</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="w">    </span><span class="k">struct</span><span class="w"> </span><span class="nc">radix_node</span><span class="w"> </span><span class="n">rt_nodes</span><span class="p">[</span><span class="mi">2</span><span class="p">];</span><span class="w">  </span><span class="cm">/* tree linkage */</span>
+<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="w">    </span><span class="k">struct</span><span class="w"> </span><span class="nc">sockaddr</span><span class="w"> </span><span class="o">*</span><span class="n">rt_gateway</span><span class="p">;</span><span class="w">    </span><span class="cm">/* gateway address */</span>
+<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a><span class="w">    </span><span class="n">u_long</span><span class="w">  </span><span class="n">rt_flags</span><span class="p">;</span><span class="w">               </span><span class="cm">/* RTF_* flags */</span>
+<a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a><span class="w">    </span><span class="k">struct</span><span class="w">  </span><span class="nc">ifnet</span><span class="w"> </span><span class="o">*</span><span class="n">rt_ifp</span><span class="p">;</span><span class="w">          </span><span class="cm">/* output interface */</span>
+<a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a><span class="w">    </span><span class="k">struct</span><span class="w">  </span><span class="nc">rtentry</span><span class="w"> </span><span class="o">*</span><span class="n">rt_gwroute</span><span class="p">;</span><span class="w">    </span><span class="cm">/* gateway route */</span>
+<a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a><span class="w">    </span><span class="k">struct</span><span class="w">  </span><span class="nc">rt_metrics</span><span class="w"> </span><span class="n">rt_rmx</span><span class="p">;</span><span class="w">      </span><span class="cm">/* route metrics */</span>
+<a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a><span class="w">    </span><span class="p">...</span>
+<a id="__codelineno-2-9" name="__codelineno-2-9" href="#__codelineno-2-9"></a><span class="p">};</span>
+</code></pre></div>
+<h2 id="packet-flow">Packet Flow<a class="headerlink" href="#packet-flow" title="Permanent link">&para;</a></h2>
+<h3 id="receive-path">Receive Path<a class="headerlink" href="#receive-path" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>Hardware interrupt
+<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>    |
+<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a>    v
+<a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a>Driver receive handler
+<a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a>    |
+<a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a>    v
+<a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a>ether_input() / interface input
+<a id="__codelineno-3-8" name="__codelineno-3-8" href="#__codelineno-3-8"></a>    |
+<a id="__codelineno-3-9" name="__codelineno-3-9" href="#__codelineno-3-9"></a>    v
+<a id="__codelineno-3-10" name="__codelineno-3-10" href="#__codelineno-3-10"></a>netisr_dispatch() -&gt; per-CPU protocol thread
+<a id="__codelineno-3-11" name="__codelineno-3-11" href="#__codelineno-3-11"></a>    |
+<a id="__codelineno-3-12" name="__codelineno-3-12" href="#__codelineno-3-12"></a>    v
+<a id="__codelineno-3-13" name="__codelineno-3-13" href="#__codelineno-3-13"></a>ip_input() / ip6_input() / etc.
+<a id="__codelineno-3-14" name="__codelineno-3-14" href="#__codelineno-3-14"></a>    |
+<a id="__codelineno-3-15" name="__codelineno-3-15" href="#__codelineno-3-15"></a>    v
+<a id="__codelineno-3-16" name="__codelineno-3-16" href="#__codelineno-3-16"></a>Protocol processing (TCP/UDP/etc.)
+<a id="__codelineno-3-17" name="__codelineno-3-17" href="#__codelineno-3-17"></a>    |
+<a id="__codelineno-3-18" name="__codelineno-3-18" href="#__codelineno-3-18"></a>    v
+<a id="__codelineno-3-19" name="__codelineno-3-19" href="#__codelineno-3-19"></a>Socket receive buffer
+</code></pre></div>
+<h3 id="transmit-path">Transmit Path<a class="headerlink" href="#transmit-path" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>Socket send
+<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>    |
+<a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a>    v
+<a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a>Protocol output (tcp_output, udp_output)
+<a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a>    |
+<a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a>    v
+<a id="__codelineno-4-7" name="__codelineno-4-7" href="#__codelineno-4-7"></a>ip_output() / ip6_output()
+<a id="__codelineno-4-8" name="__codelineno-4-8" href="#__codelineno-4-8"></a>    |
+<a id="__codelineno-4-9" name="__codelineno-4-9" href="#__codelineno-4-9"></a>    v
+<a id="__codelineno-4-10" name="__codelineno-4-10" href="#__codelineno-4-10"></a>Route lookup
+<a id="__codelineno-4-11" name="__codelineno-4-11" href="#__codelineno-4-11"></a>    |
+<a id="__codelineno-4-12" name="__codelineno-4-12" href="#__codelineno-4-12"></a>    v
+<a id="__codelineno-4-13" name="__codelineno-4-13" href="#__codelineno-4-13"></a>ether_output() / interface output
+<a id="__codelineno-4-14" name="__codelineno-4-14" href="#__codelineno-4-14"></a>    |
+<a id="__codelineno-4-15" name="__codelineno-4-15" href="#__codelineno-4-15"></a>    v
+<a id="__codelineno-4-16" name="__codelineno-4-16" href="#__codelineno-4-16"></a>Interface queue (if_snd)
+<a id="__codelineno-4-17" name="__codelineno-4-17" href="#__codelineno-4-17"></a>    |
+<a id="__codelineno-4-18" name="__codelineno-4-18" href="#__codelineno-4-18"></a>    v
+<a id="__codelineno-4-19" name="__codelineno-4-19" href="#__codelineno-4-19"></a>Driver transmit (if_start)
+<a id="__codelineno-4-20" name="__codelineno-4-20" href="#__codelineno-4-20"></a>    |
+<a id="__codelineno-4-21" name="__codelineno-4-21" href="#__codelineno-4-21"></a>    v
+<a id="__codelineno-4-22" name="__codelineno-4-22" href="#__codelineno-4-22"></a>Hardware
+</code></pre></div>
+<h2 id="related-documentation">Related Documentation<a class="headerlink" href="#related-documentation" title="Permanent link">&para;</a></h2>
 <ul>
-<li><a href="../kern/vfs/">VFS Core</a> — VFS layer implementation</li>
-<li><a href="../kern/vfs/buffer-cache/">Buffer Cache</a> — Block I/O caching</li>
-<li><a href="../kern/vfs/mounting/">Mounting</a> — Mount operations</li>
+<li><a href="../kern/ipc/sockets/">Sockets</a> - Socket layer implementation</li>
+<li><a href="../kern/ipc/mbufs/">Mbufs</a> - Network buffer management</li>
+<li><a href="../kern/ipc/protocol-dispatch/">Protocol Dispatch</a> - Protocol registration</li>
+</ul>
+<h2 id="source-reference">Source Reference<a class="headerlink" href="#source-reference" title="Permanent link">&para;</a></h2>
+<ul>
+<li>Source: <code>sys/net/</code></li>
+<li>Headers: <code>sys/net/*.h</code></li>
+<li>Related: <code>sys/netinet/</code> (IPv4), <code>sys/netinet6/</code> (IPv6)</li>
 </ul>
 
 
