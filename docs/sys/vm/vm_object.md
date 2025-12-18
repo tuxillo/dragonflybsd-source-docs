@@ -586,24 +586,25 @@ vm_object_drop(object);
 
 ### Pattern 5: Handling Object Type Transitions
 
-Anonymous objects silently convert to swap-backed when pages are pushed out:
+From `sys/vm/swap_pager.c` - anonymous objects convert to swap-backed when pages are pushed out:
 
 ```c
-/* Initially OBJT_DEFAULT */
-object = vm_object_allocate(OBJT_DEFAULT, size);
-
-/* ... pages faulted in, memory pressure occurs ... */
-
-/* Swap pager converts type when storing first page */
-/* In swap_pager.c: */
-if (object->type == OBJT_DEFAULT) {
-    object->type = OBJT_SWAP;
-    object->un_pager.swp.swp_blks = NULL;
+/* 
+ * swp_pager_meta_convert() - called when first swap block is allocated
+ * The conversion is simple - just change the type field.
+ */
+static void
+swp_pager_meta_convert(vm_object_t object)
+{
+    if (object->type == OBJT_DEFAULT) {
+        object->type = OBJT_SWAP;
+        KKASSERT(object->swblock_count == 0);
+    }
 }
 
-/* Code should handle both types for anonymous memory */
+/* Code checking for anonymous memory should handle both types */
 if (object->type == OBJT_DEFAULT || object->type == OBJT_SWAP) {
-    /* Anonymous memory handling */
+    /* Anonymous memory - may or may not have swap blocks */
 }
 ```
 

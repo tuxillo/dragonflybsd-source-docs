@@ -616,51 +616,54 @@ This section shows how page management functions work together in typical scenar
 
 ### Pattern 1: Page Fault Allocation
 
-When a process accesses unmapped memory, the fault handler allocates and populates a page:
+From `sys/vm/vm_fault.c` - when a process accesses unmapped memory:
 
 ```c
-/* Simplified from vm_fault.c */
-vm_object_hold(object);
-
-/* Try to find existing page */
-m = vm_page_lookup_busy_wait(object, pindex, TRUE, "fault");
-if (m == NULL) {
-    /* Allocate new page - returns BUSY */
-    m = vm_page_alloc(object, pindex, VM_ALLOC_NORMAL);
-    if (m == NULL) {
-        vm_wait_pfault(curproc, fault_flags);  /* Block if low memory */
-        /* retry... */
-    }
-    
-    /* Page is busy, safe to do I/O */
-    error = pager_getpage(object, &m, 1);
-    
-    /* Mark valid after I/O completes */
-    vm_page_set_valid(m, 0, PAGE_SIZE);
+/* Try to find existing page (non-blocking busy try) */
+int error;
+fs->mary[0] = vm_page_lookup_busy_try(fs->ba->object, pindex,
+                                      TRUE, &error);
+if (error) {
+    /* Page exists but is busy - sleep and retry */
+    vm_page_sleep_busy(fs->mary[0], TRUE, "vmpfw");
+    return (KERN_TRY_AGAIN);
 }
 
-/* Wire into page table */
-pmap_enter(pmap, va, m, prot, wired);
+if (fs->mary[0] == NULL) {
+    /* Page doesn't exist - allocate new one (returns BUSY) */
+    fs->mary[0] = vm_page_alloc(fs->ba->object, pindex,
+                                VM_ALLOC_NULL_OK | VM_ALLOC_NORMAL);
+    if (fs->mary[0] == NULL) {
+        vm_wait_pfault();  /* Block if low memory */
+        return (KERN_TRY_AGAIN);
+    }
+    /* Page is busy, safe to do I/O to populate it */
+}
 
-/* Release busy - page now accessible */
-vm_page_wakeup(m);
-vm_object_drop(object);
+/* ... fault handling continues ... */
+
+/* When done, release busy state */
+vm_page_wakeup(fs->mary[0]);
 ```
 
 ### Pattern 2: Pageout Daemon Scanning
 
-The pageout daemon reclaims memory by scanning inactive pages:
+From `sys/vm/vm_pageout.c` - reclaiming inactive pages:
 
 ```c
-/* Simplified from vm_pageout.c */
-TAILQ_FOREACH(m, &vm_page_queues[PQ_INACTIVE + color].pl, pageq) {
-    if (vm_page_busy_try(m, TRUE) != 0)
-        continue;  /* Skip busy pages */
+/* Simplified from vm_pageout_scan_inactive() */
+TAILQ_FOREACH(m, &vm_page_queues[PQ_INACTIVE + q].pl, pageq) {
+    /* Non-blocking busy attempt - skip if can't acquire */
+    if (vm_page_busy_try(m, TRUE))
+        continue;
     
+    /*
+     * Page is now busy - we own it.
+     * Remaining operations run with page busy.
+     */
     if (m->dirty) {
         /* Must clean before freeing */
-        vm_pageout_clean(m);  /* Async write to backing store */
-        vm_page_deactivate(m);
+        count = vm_pageout_clean_helper(m, vmflush_flags);
     } else {
         /* Clean page - move to cache for instant reuse */
         vm_page_cache(m);
