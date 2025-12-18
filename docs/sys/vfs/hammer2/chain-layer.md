@@ -72,6 +72,37 @@ struct hammer2_chain {
 | `error` | Error code set during lock/data resolution |
 | `cache_index` | Heuristic index to speed up repeated lookups |
 
+The following diagram illustrates the key relationships within a chain structure:
+
+```mermaid
+flowchart TB
+    subgraph chain["hammer2_chain_t"]
+        lock["lock (mutex)"]
+        core["core (chain_core_t)"]
+        rbnode["rbnode (RB linkage)"]
+        bref["bref (128-byte blockref)"]
+        parent_ptr["parent pointer"]
+        hmp["hmp (device mount)"]
+        pmp["pmp (PFS mount)"]
+        dio["dio (I/O buffer)"]
+        data["data pointer"]
+        flags["flags, refs, lockcnt"]
+    end
+    
+    parent_chain["Parent Chain"]
+    parent_rbtree["Parent's RB-Tree"]
+    disk_block["Disk Block"]
+    buffer_cache["Buffer Cache"]
+    
+    parent_ptr --> parent_chain
+    rbnode --> parent_rbtree
+    parent_rbtree -.->|"contained in"| parent_chain
+    dio --> buffer_cache
+    buffer_cache --> disk_block
+    data -.->|"points into"| dio
+    bref -.->|"describes"| disk_block
+```
+
 ### hammer2_chain_core_t
 
 The `hammer2_chain_core_t` structure is embedded within each chain and manages the chain's children:
@@ -99,6 +130,43 @@ struct hammer2_chain_core {
 | `live_count` | Number of non-deleted chains in the tree |
 | `chain_count` | Total number of chains (including deleted) in the tree |
 | `generation` | Incremented on insertions; used to detect iteration races |
+
+The chain tree mirrors the on-disk blockref topology. Each chain's embedded `core` contains an RB-tree of its children:
+
+```mermaid
+flowchart TB
+    subgraph root["Root Chain (Inode)"]
+        root_core["core.rbtree"]
+    end
+    
+    subgraph children["Child Chains in RB-Tree"]
+        indirect["Indirect Chain<br/>key=0x0000"]
+        data1["Data Chain<br/>key=0x1000"]
+        data2["Data Chain<br/>key=0x2000"]
+    end
+    
+    subgraph indirect_children["Indirect's Children"]
+        sub1["Data Chain<br/>key=0x0000"]
+        sub2["Data Chain<br/>key=0x0400"]
+        sub3["Data Chain<br/>key=0x0800"]
+    end
+    
+    root_core --> indirect
+    root_core --> data1
+    root_core --> data2
+    indirect --> sub1
+    indirect --> sub2
+    indirect --> sub3
+    
+    note["Each chain's rbnode links<br/>it into parent's rbtree.<br/>Keys determine tree ordering."]
+```
+
+**Key properties:**
+
+- Chains are keyed by `bref.key` and `bref.keybits` (key range)
+- Non-overlapping key ranges ensure unique RB-tree positions  
+- `live_count` tracks non-deleted children; `chain_count` includes deleted
+- `generation` changes on insertion, allowing iteration race detection
 
 ## Chain Flags
 
@@ -276,6 +344,51 @@ Unlocks a chain:
 *Source: `hammer2_chain.c:860-920`*
 
 ## Chain Lifecycle
+
+A chain progresses through several states during its lifetime:
+
+```mermaid
+flowchart TB
+    subgraph alloc["Allocation Phase"]
+        A[hammer2_chain_alloc] --> B["Disconnected Chain<br/>refs=1, ALLOCATED"]
+    end
+    
+    subgraph attach["Attachment Phase"]
+        B --> C[hammer2_chain_insert]
+        C --> D["In Parent's RB-Tree<br/>ONRBTREE set"]
+    end
+    
+    subgraph use["Active Use"]
+        D --> E[hammer2_chain_lock]
+        E --> F["Locked Chain<br/>data resolved"]
+        F --> G{Modification?}
+        G -->|Yes| H[hammer2_chain_modify]
+        H --> I["MODIFIED set<br/>COW if needed"]
+        I --> J[hammer2_chain_unlock]
+        G -->|No| J
+        J --> K["Unlocked<br/>refs maintained"]
+    end
+    
+    subgraph flush["Flush Phase"]
+        K --> L{Flush triggered?}
+        L -->|Yes| M[hammer2_chain_flush]
+        M --> N["Written to disk<br/>MODIFIED cleared"]
+        N --> O["Parent blockref updated"]
+    end
+    
+    subgraph delete["Deletion Phase"]
+        K --> P[hammer2_chain_delete]
+        P --> Q["DELETED set<br/>Removed from RB-tree"]
+    end
+    
+    subgraph free["Deallocation"]
+        Q --> R[hammer2_chain_drop]
+        O --> R
+        R --> S{refs == 0?}
+        S -->|Yes| T["Chain freed"]
+        S -->|No| K
+    end
+```
 
 ### Allocation
 
@@ -459,6 +572,45 @@ Marks a chain as modified, implementing copy-on-write:
 
 *Source: `hammer2_chain.c:1436-1750`*
 
+The following diagram illustrates the copy-on-write modification flow:
+
+```mermaid
+flowchart TB
+    subgraph entry["hammer2_chain_modify Entry"]
+        A[Start] --> B{Already MODIFIED?}
+    end
+    
+    subgraph check["COW Decision"]
+        B -->|No| C{Can overwrite<br/>in place?}
+        B -->|Yes| D[Skip allocation]
+        C -->|Yes| E["Set MODIFIED<br/>Keep same block"]
+        C -->|No| F["Set MODIFIED<br/>Need new block"]
+    end
+    
+    subgraph cow["COW Allocation"]
+        F --> G[hammer2_freemap_alloc]
+        G --> H["Allocate new block"]
+        H --> I["Copy old data → new block"]
+        I --> J["Update bref.data_off"]
+    end
+    
+    subgraph parent_update["Parent Update Chain"]
+        E --> K["Set UPDATE flag"]
+        D --> K
+        J --> K
+        K --> L["Parent's blockref<br/>must be updated"]
+        L --> M["Parent also needs<br/>hammer2_chain_modify"]
+        M --> N["...propagates to root"]
+    end
+    
+    subgraph complete["Completion"]
+        N --> O[setflush on ancestors]
+        O --> P[Return]
+    end
+```
+
+**Why COW propagates upward**: When a chain's block location changes, its parent's blockref entry must be updated to point to the new location. This update modifies the parent, requiring the parent to also undergo COW. This propagation continues until reaching the volume header, which is updated atomically during flush.
+
 ### hammer2_chain_resize()
 
 ```c
@@ -558,6 +710,33 @@ The flusher uses ONFLUSH to efficiently locate modified chains via top-down recu
 
 *Source: `hammer2_chain.c:146-165`*
 
+The following diagram shows how ONFLUSH propagates up the chain tree:
+
+```mermaid
+flowchart TB
+    subgraph tree["Chain Tree"]
+        root["Volume Root"]
+        pfs["PFS Inode<br/>(flush boundary)"]
+        dir["Directory Inode<br/>(flush boundary)"]
+        indirect["Indirect Block"]
+        data["Data Block<br/>(MODIFIED)"]
+    end
+    
+    root --> pfs
+    pfs --> dir
+    dir --> indirect
+    indirect --> data
+    
+    subgraph propagation["setflush Propagation"]
+        data -->|"1. Set ONFLUSH"| step1["data: ONFLUSH ✓"]
+        step1 -->|"2. Walk to parent"| step2["indirect: ONFLUSH ✓"]
+        step2 -->|"3. Walk to parent"| step3["dir (inode): ONFLUSH ✓"]
+        step3 -->|"4. STOP at inode"| stop["Inode is flush<br/>inflection point"]
+    end
+```
+
+**Why inodes are boundaries**: Inodes serve as natural flush boundaries because they represent coherent filesystem objects. The flusher processes inodes via the `sideq` (side-queue) and recursively flushes their children. This allows incremental flushing without traversing the entire tree.
+
 ### Flush-Related Flags
 
 | Flag | Purpose |
@@ -618,6 +797,47 @@ This allows efficient range-based lookups and ensures children don't overlap.
 *Source: `hammer2_chain.c:96-118`*
 
 ## Combined Find
+
+The lookup system must merge two data sources to find the correct chain for a given key:
+
+```mermaid
+flowchart TB
+    subgraph search["hammer2_combined_find"]
+        A["Input: key range<br/>[key_beg, key_end]"]
+        A --> B["Search RB-Tree<br/>(in-memory chains)"]
+        A --> C["Search blockref array<br/>(on-disk references)"]
+    end
+    
+    subgraph rbtree["RB-Tree Results"]
+        B --> D{Found chain?}
+        D -->|Yes| E["chain (may be<br/>MODIFIED or DELETED)"]
+        D -->|No| F["No in-memory<br/>representation"]
+    end
+    
+    subgraph blockref["Blockref Results"]
+        C --> G{Found bref?}
+        G -->|Yes| H["bref from parent's<br/>block table"]
+        G -->|No| I["Not on disk"]
+    end
+    
+    subgraph merge["Merge Logic"]
+        E --> J{Compare results}
+        F --> J
+        H --> J
+        I --> J
+        J --> K["Return best match:<br/>- Prefer in-memory if exists<br/>- Create chain from bref if needed<br/>- Handle DELETED chains specially"]
+    end
+```
+
+**Scenarios handled by combined find:**
+
+| RB-Tree | Blockref | Result |
+|---------|----------|--------|
+| Found (live) | Found | Return in-memory chain |
+| Found (DELETED) | Found | Return bref, skip deleted chain |
+| Not found | Found | Create chain from bref via `hammer2_chain_get()` |
+| Found (new) | Not found | Return in-memory chain (not yet flushed) |
+| Not found | Not found | Key does not exist |
 
 The `hammer2_combined_find()` function merges results from:
 
