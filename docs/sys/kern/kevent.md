@@ -36,49 +36,50 @@ Key design principles:
 
 ### Architecture
 
-```
-    User Space                         Kernel Space
-    +----------+                       +------------------+
-    | kevent() |---------------------->| sys_kevent()     |
-    +----------+                       +------------------+
-         |                                     |
-         v                                     v
-    +-----------+                      +---------------+
-    | changelist|                      | kqueue_register|
-    | eventlist |                      +---------------+
-    +-----------+                              |
-                                               v
-                              +--------------------------------+
-                              |           struct kqueue        |
-                              |  +---------------------------+ |
-                              |  | kq_knlist (active knotes) | |
-                              |  +---------------------------+ |
-                              |  | kq_knpend (pending events)| |
-                              |  +---------------------------+ |
-                              |  | kq_count (pending count)  | |
-                              |  +---------------------------+ |
-                              +--------------------------------+
-                                               |
-                    +--------------------------+---------------------------+
-                    |                          |                           |
-                    v                          v                           v
-             +------------+             +------------+              +------------+
-             | struct     |             | struct     |              | struct     |
-             | knote      |             | knote      |              | knote      |
-             | (EVFILT_   |             | (EVFILT_   |              | (EVFILT_   |
-             |  READ)     |             |  PROC)     |              |  TIMER)    |
-             +------------+             +------------+              +------------+
-                    |                          |                           |
-                    v                          v                           v
-             +------------+             +------------+              +------------+
-             | filterops  |             | filterops  |              | filterops  |
-             | f_attach   |             | f_attach   |              | f_attach   |
-             | f_detach   |             | f_detach   |              | f_detach   |
-             | f_event    |             | f_event    |              | f_event    |
-             +------------+             +------------+              +------------+
-                    |                          |                           |
-                    v                          v                           v
-             [file/socket]              [process]                   [timer callout]
+```mermaid
+flowchart TB
+    subgraph UserSpace["User Space"]
+        kevent["kevent()"]
+        changelist["changelist<br/>eventlist"]
+    end
+    
+    subgraph KernelSpace["Kernel Space"]
+        sys_kevent["sys_kevent()"]
+        kqueue_register["kqueue_register"]
+        
+        subgraph kqueue["struct kqueue"]
+            kq_knlist["kq_knlist (active knotes)"]
+            kq_knpend["kq_knpend (pending events)"]
+            kq_count["kq_count (pending count)"]
+        end
+        
+        subgraph knotes["knotes"]
+            knote1["struct knote<br/>(EVFILT_READ)"]
+            knote2["struct knote<br/>(EVFILT_PROC)"]
+            knote3["struct knote<br/>(EVFILT_TIMER)"]
+        end
+        
+        subgraph filterops["filterops"]
+            fops1["filterops<br/>f_attach<br/>f_detach<br/>f_event"]
+            fops2["filterops<br/>f_attach<br/>f_detach<br/>f_event"]
+            fops3["filterops<br/>f_attach<br/>f_detach<br/>f_event"]
+        end
+        
+        subgraph sources["Event Sources"]
+            src1["file/socket"]
+            src2["process"]
+            src3["timer callout"]
+        end
+    end
+    
+    kevent --> sys_kevent
+    changelist --> kevent
+    sys_kevent --> kqueue_register
+    kqueue_register --> kqueue
+    kqueue --> knote1 & knote2 & knote3
+    knote1 --> fops1 --> src1
+    knote2 --> fops2 --> src2
+    knote3 --> fops3 --> src3
 ```
 
 ## Data Structures

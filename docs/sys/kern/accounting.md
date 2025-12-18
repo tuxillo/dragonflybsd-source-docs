@@ -579,39 +579,34 @@ This is called during controlled shutdown to prevent spurious resets.
 
 ### Architecture
 
-```
-┌─────────────────────────────────────────────────────────┐
-│                    Applications                          │
-│              (monitoring daemons)                        │
-└─────────────────────────────────────────────────────────┘
-                         │ ioctl(WDIOCRESET)
-                         ▼
-┌─────────────────────────────────────────────────────────┐
-│                     /dev/wdog                            │
-│                   (if auto=0)                            │
-└─────────────────────────────────────────────────────────┘
-                         │
-                         ▼
-┌─────────────────────────────────────────────────────────┐
-│              Watchdog Framework                          │
-│   ┌─────────────────────────────────────────────────┐   │
-│   │  wdog_callout (auto reset @ period/2)           │   │
-│   └─────────────────────────────────────────────────┘   │
-│                         │                                │
-│                         ▼                                │
-│   ┌─────────────────────────────────────────────────┐   │
-│   │              wdoglist                            │   │
-│   │  ┌─────────┐  ┌─────────┐  ┌─────────┐         │   │
-│   │  │  ichwd  │──│ amdsbwd │──│  other  │         │   │
-│   │  └─────────┘  └─────────┘  └─────────┘         │   │
-│   └─────────────────────────────────────────────────┘   │
-└─────────────────────────────────────────────────────────┘
-                         │
-                         ▼
-┌─────────────────────────────────────────────────────────┐
-│              Hardware Watchdog Timers                    │
-│     (chipset-specific countdown timers)                  │
-└─────────────────────────────────────────────────────────┘
+```mermaid
+flowchart TB
+    subgraph userspace["User Space"]
+        apps["Applications<br/>(monitoring daemons)"]
+    end
+
+    subgraph devwdog["/dev/wdog (if auto=0)"]
+        wdogdev["ioctl(WDIOCRESET)"]
+    end
+
+    subgraph framework["Watchdog Framework"]
+        callout["wdog_callout<br/>(auto reset @ period/2)"]
+        subgraph wdoglist["wdoglist"]
+            ichwd["ichwd"]
+            amdsbwd["amdsbwd"]
+            other["other"]
+            ichwd --- amdsbwd --- other
+        end
+        callout --> wdoglist
+    end
+
+    subgraph hardware["Hardware Watchdog Timers"]
+        timers["Chipset-specific<br/>countdown timers"]
+    end
+
+    apps --> wdogdev
+    wdogdev --> framework
+    wdoglist --> hardware
 ```
 
 ---

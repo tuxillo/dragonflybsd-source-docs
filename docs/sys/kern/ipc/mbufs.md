@@ -171,31 +171,32 @@ struct mbstat {
 
 ### Mbuf Variants
 
-```
-Plain mbuf (no M_PKTHDR, no M_EXT):
-+------------------+
-| m_hdr            |
-+------------------+
-| m_dat[MLEN]      |  <- m_data points here
-+------------------+
-
-Packet header mbuf (M_PKTHDR, no M_EXT):
-+------------------+
-| m_hdr            |
-+------------------+
-| pkthdr           |
-+------------------+
-| m_pktdat[MHLEN]  |  <- m_data points here
-+------------------+
-
-Mbuf with cluster (M_EXT):
-+------------------+     +--------------------+
-| m_hdr            |     | cluster data       |
-+------------------+     | (MCLBYTES)         |
-| pkthdr (optional)|     |                    |
-+------------------+     |                    |
-| m_ext            |---->|                    |
-+------------------+     +--------------------+
+```mermaid
+block-beta
+    columns 3
+    block:plain["Plain mbuf (no M_PKTHDR, no M_EXT)"]:1
+        columns 1
+        mh1["m_hdr"]
+        md1["m_dat[MLEN]<br/>← m_data points here"]
+    end
+    block:pkthdr["Packet header mbuf (M_PKTHDR, no M_EXT)"]:1
+        columns 1
+        mh2["m_hdr"]
+        ph2["pkthdr"]
+        mpd2["m_pktdat[MHLEN]<br/>← m_data points here"]
+    end
+    block:ext["Mbuf with cluster (M_EXT)"]:1
+        columns 1
+        mh3["m_hdr"]
+        ph3["pkthdr (optional)"]
+        me3["m_ext"]
+    end
+    space:3
+    block:cluster["External Cluster"]:1
+        columns 1
+        cd["cluster data<br/>(MCLBYTES)"]
+    end
+    me3 --> cd
 ```
 
 ## Mbuf Flags

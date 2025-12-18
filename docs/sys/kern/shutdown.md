@@ -14,38 +14,32 @@ The shutdown subsystem provides:
 - **Crash dumps** - Memory dump to disk for post-mortem analysis
 - **Event handlers** - Extensible shutdown hook mechanism
 
-```
-                    System Shutdown Flow
-                    
-    shutdown_nice() ──────────────┐
-           │                      │
-           ▼                      │
-    Signal init(8)                │ (no init)
-    with SIGINT                   │
-           │                      │
-           ▼                      ▼
-    init performs              boot()
-    clean shutdown         (direct reboot)
-           │
-           ▼
-       sys_reboot()
-           │
-           ▼
-        boot()
-           │
-    ┌──────┼──────────────────────────┐
-    │      │                          │
-    ▼      ▼                          ▼
- pre_sync  sync disks             post_sync
-  events   & unmount               events
-           │                          │
-           └──────────┬───────────────┘
-                      ▼
-               shutdown_final
-                      │
-           ┌──────────┼──────────┐
-           ▼          ▼          ▼
-        poweroff    halt       reset
+```mermaid
+flowchart TD
+    subgraph entry["Entry Points"]
+        SN["shutdown_nice()"]
+        DIRECT["Direct boot() call"]
+    end
+    
+    SN -->|"init exists"| SIGINT["Signal init(8)<br/>with SIGINT"]
+    SN -->|"no init"| BOOT
+    
+    SIGINT --> CLEAN["init performs<br/>clean shutdown"]
+    CLEAN --> REBOOT["sys_reboot()"]
+    REBOOT --> BOOT["boot()"]
+    DIRECT --> BOOT
+    
+    BOOT --> PRESYNC["pre_sync events"]
+    BOOT --> SYNC["sync disks<br/>& unmount"]
+    BOOT --> POSTSYNC["post_sync events"]
+    
+    PRESYNC --> FINAL["shutdown_final"]
+    SYNC --> FINAL
+    POSTSYNC --> FINAL
+    
+    FINAL --> POWEROFF["poweroff"]
+    FINAL --> HALT["halt"]
+    FINAL --> RESET["reset"]
 ```
 
 ## Shutdown Events
@@ -172,28 +166,22 @@ The boot sequence performs thorough filesystem synchronization
 
 ### Sync Algorithm
 
-```
-    sys_sync()              Initial async sync
-         │
-         ▼
-    ┌─────────────────┐
-    │ Count busy bufs │◄─────────────────────┐
-    └────────┬────────┘                      │
-             │                               │
-             ▼                               │
-         nbusy == 0?  ───Yes──► zcount++     │
-             │                      │        │
-             No                     │        │
-             │                 zcount >= 3?  │
-             ▼                      │        │
-        iter > 5?         Yes──────┼────► Done
-             │                     No        │
-             Yes                   │         │
-             │              Reset zcount     │
-             ▼                     │         │
-       bio_ops_sync()              │         │
-             │                     │         │
-             └─────────────────────┴─────────┘
+```mermaid
+flowchart TD
+    START["sys_sync()"] --> COUNT["Count busy bufs"]
+    COUNT --> CHECK{nbusy == 0?}
+    
+    CHECK -->|Yes| ZINC["zcount++"]
+    CHECK -->|No| ITER{iter > 5?}
+    
+    ZINC --> ZCHECK{zcount >= 3?}
+    ZCHECK -->|Yes| DONE["Done"]
+    ZCHECK -->|No| RESET["Reset zcount"]
+    RESET --> COUNT
+    
+    ITER -->|Yes| BIOSYNC["bio_ops_sync()"]
+    ITER -->|No| COUNT
+    BIOSYNC --> COUNT
 ```
 
 ### Two-Pass Buffer Counting
@@ -248,44 +236,18 @@ The `panic()` function handles unrecoverable kernel errors
 
 ### Panic Flow
 
-```
-    panic("message")
-          │
-          ▼
-    ┌─────────────────┐
-    │ Acquire panic   │──► Secondary CPUs
-    │ CPU ownership   │    deschedule and spin
-    └────────┬────────┘
-             │
-             ▼
-    ┌─────────────────┐
-    │ Release tokens  │
-    │ & spinlocks     │
-    └────────┬────────┘
-             │
-             ▼
-    ┌─────────────────┐
-    │ Format & print  │
-    │ panic message   │
-    └────────┬────────┘
-             │
-             ▼
-    ┌─────────────────┐
-    │ Save context    │
-    │ for debugger    │
-    └────────┬────────┘
-             │
-             ▼
-    ┌─────────────────┐     Yes    ┌──────────────┐
-    │ debugger_on_    │──────────►│ Enter DDB    │
-    │    panic?       │           │ debugger     │
-    └────────┬────────┘           └──────────────┘
-             │ No
-             ▼
-    ┌─────────────────┐
-    │ Stop other CPUs │
-    │ boot(RB_DUMP)   │
-    └─────────────────┘
+```mermaid
+flowchart TD
+    PANIC["panic(&quot;message&quot;)"] --> ACQUIRE["Acquire panic<br/>CPU ownership"]
+    ACQUIRE -->|"Secondary CPUs"| SPIN["deschedule and spin"]
+    ACQUIRE --> RELEASE["Release tokens<br/>& spinlocks"]
+    
+    RELEASE --> FORMAT["Format & print<br/>panic message"]
+    FORMAT --> SAVE["Save context<br/>for debugger"]
+    SAVE --> DEBUGCHECK{"debugger_on_<br/>panic?"}
+    
+    DEBUGCHECK -->|Yes| DDB["Enter DDB<br/>debugger"]
+    DEBUGCHECK -->|No| STOP["Stop other CPUs<br/>boot(RB_DUMP)"]
 ```
 
 ### Multi-CPU Panic Coordination

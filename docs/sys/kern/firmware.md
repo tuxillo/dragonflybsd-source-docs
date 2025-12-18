@@ -351,14 +351,15 @@ unloadentry(void *unused1, int unused2)
 Modules can contain multiple firmware images. One image (typically named
 after the module) is the parent; others are children:
 
-```
-Module: iwn5000fw.ko
-  |
-  +-- "iwn5000fw" (parent, master image)
-  |
-  +-- "iwn5000init" (child, references parent)
-  |
-  +-- "iwn5000boot" (child, references parent)
+```mermaid
+flowchart TD
+    subgraph Module["Module: iwn5000fw.ko"]
+        P["iwn5000fw<br/>(parent, master image)"]
+        C1["iwn5000init<br/>(child, references parent)"]
+        C2["iwn5000boot<br/>(child, references parent)"]
+    end
+    P --> C1
+    P --> C2
 ```
 
 **Behavior:**

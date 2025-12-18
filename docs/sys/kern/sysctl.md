@@ -18,51 +18,40 @@ the primary interface for runtime kernel configuration in DragonFly BSD.
 
 ## Architecture Overview
 
-```
-┌────────────────────────────────────────────────────────────────────┐
-│                    Sysctl MIB Tree                                 │
-├────────────────────────────────────────────────────────────────────┤
-│  sysctl__children (root)                                           │
-│      │                                                             │
-│      ├── kern (CTL_KERN=1)                                         │
-│      │     ├── ostype          "DragonFly"                         │
-│      │     ├── osrelease       "6.4"                               │
-│      │     ├── hostname        (writable)                          │
-│      │     ├── securelevel     (increasing only)                   │
-│      │     ├── maxproc         (read-only)                         │
-│      │     └── ...                                                 │
-│      │                                                             │
-│      ├── vm (CTL_VM=2)                                             │
-│      │     └── ...                                                 │
-│      │                                                             │
-│      ├── vfs (CTL_VFS=3)                                           │
-│      │     └── ...                                                 │
-│      │                                                             │
-│      ├── net (CTL_NET=4)                                           │
-│      │     └── ...                                                 │
-│      │                                                             │
-│      ├── debug (CTL_DEBUG=5)                                       │
-│      │     ├── sizeof/                                             │
-│      │     └── ktr/                                                │
-│      │                                                             │
-│      ├── hw (CTL_HW=6)                                             │
-│      │     ├── ncpu            Number of CPUs                      │
-│      │     ├── pagesize        PAGE_SIZE                           │
-│      │     ├── machine_arch    "x86_64"                            │
-│      │     └── sensors/        Hardware sensors                    │
-│      │                                                             │
-│      ├── machdep (CTL_MACHDEP=7)                                   │
-│      │     └── ...                                                 │
-│      │                                                             │
-│      ├── user (CTL_USER=8)                                         │
-│      │     └── POSIX.2 limits                                      │
-│      │                                                             │
-│      ├── p1003_1b (CTL_P1003_1B=9)                                 │
-│      │     └── POSIX.4 feature flags                               │
-│      │                                                             │
-│      └── lwkt (CTL_LWKT=10)                                        │
-│            └── LWKT statistics                                     │
-└────────────────────────────────────────────────────────────────────┘
+```mermaid
+flowchart TD
+    subgraph tree["Sysctl MIB Tree"]
+        ROOT["sysctl__children (root)"]
+        
+        ROOT --> KERN["kern (CTL_KERN=1)"]
+        ROOT --> VM["vm (CTL_VM=2)"]
+        ROOT --> VFS["vfs (CTL_VFS=3)"]
+        ROOT --> NET["net (CTL_NET=4)"]
+        ROOT --> DEBUG["debug (CTL_DEBUG=5)"]
+        ROOT --> HW["hw (CTL_HW=6)"]
+        ROOT --> MACHDEP["machdep (CTL_MACHDEP=7)"]
+        ROOT --> USER["user (CTL_USER=8)"]
+        ROOT --> P1003["p1003_1b (CTL_P1003_1B=9)"]
+        ROOT --> LWKT["lwkt (CTL_LWKT=10)"]
+        
+        KERN --> OSTYPE["ostype: 'DragonFly'"]
+        KERN --> OSREL["osrelease: '6.4'"]
+        KERN --> HOST["hostname (writable)"]
+        KERN --> SEC["securelevel (increasing only)"]
+        KERN --> MAXP["maxproc (read-only)"]
+        
+        DEBUG --> SIZEOF["sizeof/"]
+        DEBUG --> KTR["ktr/"]
+        
+        HW --> NCPU["ncpu: Number of CPUs"]
+        HW --> PAGESIZE["pagesize: PAGE_SIZE"]
+        HW --> ARCH["machine_arch: 'x86_64'"]
+        HW --> SENSORS["sensors/: Hardware sensors"]
+        
+        USER --> POSIX2["POSIX.2 limits"]
+        P1003 --> POSIX4["POSIX.4 feature flags"]
+        LWKT --> LWKTSTATS["LWKT statistics"]
+    end
 ```
 
 ---

@@ -225,22 +225,16 @@ This creates a SYSINIT entry that calls `net_add_domain()` during the `SI_SUB_PR
 
 ### Domain Registration Flow
 
-```
-boot
- │
- ├─► SI_SUB_PROTO_DOMAIN phase
- │       │
- │       ├─► net_add_domain(&localdomain)
- │       ├─► net_add_domain(&inetdomain)
- │       ├─► net_add_domain(&inet6domain)
- │       └─► ... (other domains)
- │
- └─► SI_SUB_PROTO_END phase
-         │
-         └─► net_init_domains()
-                 │
-                 └─► For each registered domain:
-                         net_init_domain(dom)
+```mermaid
+flowchart TD
+    boot["boot"] --> PROTO["SI_SUB_PROTO_DOMAIN phase"]
+    PROTO --> add1["net_add_domain(&localdomain)"]
+    PROTO --> add2["net_add_domain(&inetdomain)"]
+    PROTO --> add3["net_add_domain(&inet6domain)"]
+    PROTO --> addN["... (other domains)"]
+    boot --> END["SI_SUB_PROTO_END phase"]
+    END --> init["net_init_domains()"]
+    init --> initdom["For each registered domain:<br/>net_init_domain(dom)"]
 ```
 
 ### net_add_domain()
@@ -403,35 +397,22 @@ Allows wildcard matching for `SOCK_RAW` sockets when exact type match fails.
 
 Socket operations use LWKT messages for thread-safe protocol dispatch:
 
-```
-User Space
-    │
-    ▼
-Socket Layer (sosend, soreceive, etc.)
-    │
-    ▼
-so_pru_*() Wrappers (uipc_msg.c)
-    │
-    ├─► Build netmsg_pru_* structure
-    │
-    ├─► Set dispatch handler (nm_dispatch)
-    │
-    └─► Send to protocol's message port
-            │
-            ├─► lwkt_domsg()     [synchronous]
-            │       └─► Wait for reply
-            │
-            └─► lwkt_sendmsg()   [asynchronous]
-                    └─► Fire and forget
-            │
-            ▼
-Protocol Thread
-    │
-    └─► nm_dispatch(netmsg)
-            │
-            └─► pru_handler(netmsg)
-                    │
-                    └─► lwkt_replymsg() [when done]
+```mermaid
+flowchart TD
+    US["User Space"] --> SL["Socket Layer<br/>(sosend, soreceive, etc.)"]
+    SL --> PRU["so_pru_*() Wrappers<br/>(uipc_msg.c)"]
+    PRU --> BUILD["Build netmsg_pru_* structure"]
+    PRU --> SETDISP["Set dispatch handler (nm_dispatch)"]
+    PRU --> SEND["Send to protocol's message port"]
+    SEND --> SYNC["lwkt_domsg()<br/>[synchronous]"]
+    SEND --> ASYNC["lwkt_sendmsg()<br/>[asynchronous]"]
+    SYNC --> WAIT["Wait for reply"]
+    ASYNC --> FIRE["Fire and forget"]
+    WAIT --> PT["Protocol Thread"]
+    FIRE --> PT
+    PT --> DISP["nm_dispatch(netmsg)"]
+    DISP --> HANDLER["pru_handler(netmsg)"]
+    HANDLER --> REPLY["lwkt_replymsg()<br/>[when done]"]
 ```
 
 ### Synchronous Dispatch
@@ -764,29 +745,23 @@ Using `mycpuid` distributes accepted connections across CPUs for better scaling.
 
 ## Initialization Timeline
 
-```
-boot
- │
- ├─► SI_SUB_KMEM: Memory allocator ready
- │
- ├─► SI_SUB_PROTO_DOMAIN: Domain registration
- │       ├─► net_add_domain(&localdomain)
- │       ├─► net_add_domain(&inetdomain)
- │       └─► ... (other domains)
- │
- ├─► SI_SUB_PRE_DRIVERS: Pre-driver init
- │
- ├─► SI_SUB_PROTO_IF: Network interface init
- │
- ├─► SI_SUB_PROTO_END: Domain initialization
- │       └─► net_init_domains()
- │               ├─► net_init_domain(&localdomain)
- │               │       ├─► pr_usrreqs_init() for each protocol
- │               │       ├─► pr->pr_init() for each protocol
- │               │       └─► dom->dom_init() [unp_init]
- │               └─► ... (other domains)
- │
- └─► System operational
+```mermaid
+flowchart TD
+    boot["boot"] --> KMEM["SI_SUB_KMEM: Memory allocator ready"]
+    KMEM --> PROTO["SI_SUB_PROTO_DOMAIN: Domain registration"]
+    PROTO --> add1["net_add_domain(&localdomain)"]
+    PROTO --> add2["net_add_domain(&inetdomain)"]
+    PROTO --> addN["... (other domains)"]
+    PROTO --> PREDRV["SI_SUB_PRE_DRIVERS: Pre-driver init"]
+    PREDRV --> PROTOIF["SI_SUB_PROTO_IF: Network interface init"]
+    PROTOIF --> PROTOEND["SI_SUB_PROTO_END: Domain initialization"]
+    PROTOEND --> initdoms["net_init_domains()"]
+    initdoms --> initlocal["net_init_domain(&localdomain)"]
+    initlocal --> usrreqs["pr_usrreqs_init() for each protocol"]
+    initlocal --> prinit["pr->pr_init() for each protocol"]
+    initlocal --> dominit["dom->dom_init() [unp_init]"]
+    initdoms --> initother["... (other domains)"]
+    initother --> OP["System operational"]
 ```
 
 ## Error Handling

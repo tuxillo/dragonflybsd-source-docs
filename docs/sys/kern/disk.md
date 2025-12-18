@@ -24,23 +24,14 @@ BSD partitions (within slices).
 
 The disk subsystem implements a three-level hierarchy:
 
-```
-                 +------------------+
-                 |  Whole Disk      |  (e.g., da0)
-                 |  WHOLE_DISK_SLICE|
-                 +--------+---------+
-                          |
-          +---------------+---------------+
-          |               |               |
-    +-----+-----+   +-----+-----+   +-----+-----+
-    |  Slice 0  |   |  Slice 1  |   |  Slice N  |
-    | (s0/compat)|   |  (s1)     |   |  (sN)     |
-    +-----+-----+   +-----+-----+   +-----------+
-          |               |
-    +-----+-----+   +-----+-----+
-    |Partitions |   |Partitions |
-    | (a-p)     |   | (a-p)     |
-    +-----------+   +-----------+
+```mermaid
+flowchart TD
+    WD["Whole Disk<br/>WHOLE_DISK_SLICE<br/>(e.g., da0)"]
+    WD --> S0["Slice 0<br/>(s0/compat)"]
+    WD --> S1["Slice 1<br/>(s1)"]
+    WD --> SN["Slice N<br/>(sN)"]
+    S0 --> P0["Partitions<br/>(a-p)"]
+    S1 --> P1["Partitions<br/>(a-p)"]
 ```
 
 ### Device Naming

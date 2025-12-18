@@ -19,15 +19,17 @@ including:
 The checkpoint file uses the ELF format, leveraging the existing core dump
 infrastructure with extensions for restoration.
 
-```
-+------------------+     SIGCKPT/sys_checkpoint()     +------------------+
-|  Running Process |  --------------------------->    | Checkpoint File  |
-|                  |                                  |   (ELF format)   |
-+------------------+                                  +------------------+
-        ^                                                     |
-        |              checkpt -r file.ckpt                   |
-        +-----------------------------------------------------+
-                          (Restore)
+```mermaid
+flowchart LR
+    subgraph Freeze["Checkpoint (Freeze)"]
+        direction LR
+        P1["Running Process"] -->|"SIGCKPT / sys_checkpoint()"| F1["Checkpoint File<br/>(ELF format)"]
+    end
+    subgraph Thaw["Restore (Thaw)"]
+        direction LR
+        F2["Checkpoint File<br/>(ELF format)"] -->|"checkpt -r file.ckpt"| P2["Running Process"]
+    end
+    Freeze --> Thaw
 ```
 
 ## Architecture
@@ -36,41 +38,48 @@ infrastructure with extensions for restoration.
 
 The checkpoint file is an ELF core file with the following structure:
 
-```
-+------------------------+
-|     ELF Header         |
-|   (e_type = ET_CORE)   |
-+------------------------+
-|   Program Headers      |
-|   (PT_NOTE, PT_LOAD)   |
-+------------------------+
-|     Notes Section      |
-| - NT_PRPSINFO (psinfo) |
-| - NT_PRSTATUS (regs)   |
-| - NT_FPREGSET (fpregs) |
-| - Per-thread state...  |
-+------------------------+
-|     VM Info Section    |
-| - Text/data addresses  |
-| - Segment sizes        |
-+------------------------+
-|   Vnode Headers        |
-| - File handles         |
-| - Memory mappings      |
-+------------------------+
-|   Signal Info          |
-| - Signal actions       |
-| - Signal masks         |
-| - Interval timers      |
-+------------------------+
-|   File Descriptors     |
-| - Open file list       |
-| - File handles         |
-+------------------------+
-|   Memory Segments      |
-| - Writable data        |
-| - Stack contents       |
-+------------------------+
+```mermaid
+block-beta
+    columns 1
+    block:elf["ELF Header (e_type = ET_CORE)"]
+        columns 1
+    end
+    block:phdr["Program Headers (PT_NOTE, PT_LOAD)"]
+        columns 1
+    end
+    block:notes["Notes Section"]
+        columns 1
+        n1["NT_PRPSINFO (psinfo)"]
+        n2["NT_PRSTATUS (regs)"]
+        n3["NT_FPREGSET (fpregs)"]
+        n4["Per-thread state..."]
+    end
+    block:vminfo["VM Info Section"]
+        columns 1
+        v1["Text/data addresses"]
+        v2["Segment sizes"]
+    end
+    block:vnode["Vnode Headers"]
+        columns 1
+        vh1["File handles"]
+        vh2["Memory mappings"]
+    end
+    block:sig["Signal Info"]
+        columns 1
+        s1["Signal actions"]
+        s2["Signal masks"]
+        s3["Interval timers"]
+    end
+    block:fd["File Descriptors"]
+        columns 1
+        f1["Open file list"]
+        f2["File handles"]
+    end
+    block:mem["Memory Segments"]
+        columns 1
+        m1["Writable data"]
+        m2["Stack contents"]
+    end
 ```
 
 ### Key Data Structures
@@ -270,22 +279,14 @@ stty ckpt undef
 
 ### Process Flow
 
-```
-sys_checkpoint(CKPT_FREEZE)
-         |
-         v
-  ckpt_freeze_proc()
-         |
-         +---> proc_stop(p, SCORE)     # Stop all threads
-         |
-         +---> Wait for threads to stop
-         |
-         +---> generic_elf_coredump()  # Write checkpoint
-         |
-         +---> proc_unstop(p, SCORE)   # Resume threads
-         |
-         v
-     Return to caller
+```mermaid
+flowchart TD
+    A["sys_checkpoint(CKPT_FREEZE)"] --> B["ckpt_freeze_proc()"]
+    B --> C["proc_stop(p, SCORE)<br/>Stop all threads"]
+    C --> D["Wait for threads to stop"]
+    D --> E["generic_elf_coredump()<br/>Write checkpoint"]
+    E --> F["proc_unstop(p, SCORE)<br/>Resume threads"]
+    F --> G["Return to caller"]
 ```
 
 ### Freeze Implementation
@@ -387,33 +388,19 @@ checkpoint_signal_handler(struct lwp *lp)
 
 ### Process Flow
 
-```
-checkpt -r file.ckpt
-         |
-         v
-sys_checkpoint(CKPT_THAW)
-         |
-         v
-  ckpt_thaw_proc()
-         |
-         +---> elf_gethdr()        # Read ELF header
-         |
-         +---> elf_getphdrs()      # Read program headers
-         |
-         +---> elf_getnotes()      # Restore register state
-         |
-         +---> elf_gettextvp()     # Restore text mappings
-         |
-         +---> elf_getsigs()       # Restore signal state
-         |
-         +---> elf_getfiles()      # Restore file descriptors
-         |
-         +---> elf_loadphdrs()     # Map memory segments
-         |
-         +---> Set p_textvp        # Mark as checkpoint-restored
-         |
-         v
-   Resume execution with retval
+```mermaid
+flowchart TD
+    A["checkpt -r file.ckpt"] --> B["sys_checkpoint(CKPT_THAW)"]
+    B --> C["ckpt_thaw_proc()"]
+    C --> D["elf_gethdr()<br/>Read ELF header"]
+    D --> E["elf_getphdrs()<br/>Read program headers"]
+    E --> F["elf_getnotes()<br/>Restore register state"]
+    F --> G["elf_gettextvp()<br/>Restore text mappings"]
+    G --> H["elf_getsigs()<br/>Restore signal state"]
+    H --> I["elf_getfiles()<br/>Restore file descriptors"]
+    I --> J["elf_loadphdrs()<br/>Map memory segments"]
+    J --> K["Set p_textvp<br/>Mark as checkpoint-restored"]
+    K --> L["Resume execution with retval"]
 ```
 
 ### Thaw Implementation

@@ -28,16 +28,14 @@ The journaling layer sits between VOP wrappers and the underlying filesystem, tr
 
 ### Layered Design
 
-```
-User/Kernel VFS calls
-        ↓
-VOP Wrappers (vfs_vopops.c)
-        ↓
-Journal Layer (vfs_jops.c) ← If journaling enabled
-        ↓
-Underlying Filesystem
-        ↓
-Disk/Storage
+```mermaid
+flowchart TD
+    USER["User/Kernel VFS calls"] --> VOP["VOP Wrappers<br/>(vfs_vopops.c)"]
+    VOP --> JOURNAL{"Journaling<br/>enabled?"}
+    JOURNAL -->|Yes| JLAYER["Journal Layer<br/>(vfs_jops.c)"]
+    JOURNAL -->|No| FS
+    JLAYER --> FS["Underlying Filesystem"]
+    FS --> DISK["Disk/Storage"]
 ```
 
 When journaling is enabled for a mount point:
@@ -97,17 +95,19 @@ struct journal_rawrecend {
 ```
 
 **Record layout:**
+
+```mermaid
+block-beta
+    columns 1
+    block:header["rawrecbeg (16B) - Header"]
+    end
+    block:payload["Payload data (Variable size)<br/>(subrecords)"]
+    end
+    block:trailer["rawrecend (8B) - Trailer"]
+    end
 ```
-+-------------------+
-| rawrecbeg (16B)   | Header
-+-------------------+
-| Payload data      | Variable size
-| (subrecords)      |
-+-------------------+
-| rawrecend (8B)    | Trailer
-+-------------------+
+
 Total: 16-byte aligned
-```
 
 **Magic numbers:**
 - `JREC_BEGMAGIC (0x1234)` - Valid record ready to write

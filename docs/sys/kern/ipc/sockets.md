@@ -155,23 +155,19 @@ Socket buffer flags (`sys/sys/socketvar.h:90`):
 
 `socreate()` (`sys/kern/uipc_socket.c`) creates a new socket:
 
-```
-socreate(domain, aso, type, proto, td)
-    │
-    ├─► Find protocol via pffindtype() or pffindproto()
-    │
-    ├─► soalloc(1, prp)
-    │       ├─► kmalloc(sizeof(struct socket), M_SOCKET, ...)
-    │       ├─► Initialize TAILQ heads for accept queues
-    │       └─► Initialize ssb_token for both send/receive buffers
-    │
-    ├─► Set so_proto, hold credentials (crhold)
-    │
-    ├─► Assign message port:
-    │       ├─► PR_SYNC_PORT → netisr_sync_port
-    │       └─► Default → netisr_cpuport(0)
-    │
-    └─► so_pru_attach() → Protocol-specific attach
+```mermaid
+flowchart TD
+    A["socreate(domain, aso, type, proto, td)"] --> B["Find protocol via pffindtype() or pffindproto()"]
+    B --> C["soalloc(1, prp)"]
+    C --> C1["kmalloc(sizeof(struct socket), M_SOCKET, ...)"]
+    C --> C2["Initialize TAILQ heads for accept queues"]
+    C --> C3["Initialize ssb_token for both send/receive buffers"]
+    C --> D["Set so_proto, hold credentials (crhold)"]
+    D --> E{"Assign message port"}
+    E -->|"PR_SYNC_PORT"| F1["netisr_sync_port"]
+    E -->|"Default"| F2["netisr_cpuport(0)"]
+    F1 --> G["so_pru_attach() → Protocol-specific attach"]
+    F2 --> G
 ```
 
 Socket allocation uses `kmalloc()` with `M_SOCKET` type. Each socket gets LWKT tokens for its send and receive buffers.
@@ -189,14 +185,11 @@ int sobind(struct socket *so, struct sockaddr *nam, struct thread *td)
 
 **`solisten()`** marks a socket as accepting connections:
 
-```
-solisten(so, backlog, td)
-    │
-    ├─► Reject if already connected
-    │
-    ├─► so_pru_listen() → Protocol-specific listen setup
-    │
-    └─► Set SS_ACCEPTCONN, configure so_qlimit
+```mermaid
+flowchart TD
+    A["solisten(so, backlog, td)"] --> B["Reject if already connected"]
+    B --> C["so_pru_listen() → Protocol-specific listen setup"]
+    C --> D["Set SS_ACCEPTCONN, configure so_qlimit"]
 ```
 
 The backlog parameter sets `so_qlimit`, clamped between 0 and `somaxconn` (default 128).
@@ -207,15 +200,12 @@ The backlog parameter sets `so_qlimit`, clamped between 0 and `somaxconn` (defau
 
 **`soconnect()`** initiates a connection:
 
-```
-soconnect(so, nam, td, sync)
-    │
-    ├─► Verify not already connecting
-    │
-    ├─► soisconnecting(so)
-    │       └─► Set SS_ISCONNECTING, clear SS_ISCONNECTED
-    │
-    └─► so_pru_connect() → Protocol-specific connect
+```mermaid
+flowchart TD
+    A["soconnect(so, nam, td, sync)"] --> B["Verify not already connecting"]
+    B --> C["soisconnecting(so)"]
+    C --> C1["Set SS_ISCONNECTING, clear SS_ISCONNECTED"]
+    C1 --> D["so_pru_connect() → Protocol-specific connect"]
 ```
 
 The `sync` parameter controls whether to wait for completion.
@@ -224,51 +214,39 @@ The `sync` parameter controls whether to wait for completion.
 
 **`sonewconn()`** creates a socket for an incoming connection (`sys/kern/uipc_socket2.c:347`):
 
-```
-sonewconn_faddr(head, connstatus, faddr, keep_ref)
-    │
-    ├─► Check queue limits (so_qlen > 3 * so_qlimit / 2)
-    │
-    ├─► soalloc(1, head->so_proto)
-    │
-    ├─► Assign message port:
-    │       ├─► PR_SYNC_PORT → netisr_sync_port
-    │       └─► Default → netisr_cpuport(mycpuid)
-    │
-    ├─► Inherit options from head socket
-    │
-    ├─► soreserve() → Reserve buffer space
-    │
-    ├─► so_pru_attach_direct() → Protocol attach
-    │
-    ├─► If connstatus (already connected):
-    │       ├─► Insert into so_comp queue
-    │       ├─► Set SS_COMP
-    │       └─► sorwakeup(head) → Wake acceptors
-    │
-    └─► Else (connection in progress):
-            ├─► If so_incomp full, abort oldest
-            ├─► Insert into so_incomp queue
-            └─► Set SS_INCOMP
+```mermaid
+flowchart TD
+    A["sonewconn_faddr(head, connstatus, faddr, keep_ref)"] --> B["Check queue limits<br/>(so_qlen > 3 * so_qlimit / 2)"]
+    B --> C["soalloc(1, head->so_proto)"]
+    C --> D{"Assign message port"}
+    D -->|"PR_SYNC_PORT"| E1["netisr_sync_port"]
+    D -->|"Default"| E2["netisr_cpuport(mycpuid)"]
+    E1 --> F["Inherit options from head socket"]
+    E2 --> F
+    F --> G["soreserve() → Reserve buffer space"]
+    G --> H["so_pru_attach_direct() → Protocol attach"]
+    H --> I{"connstatus?"}
+    I -->|"Yes (already connected)"| J1["Insert into so_comp queue"]
+    J1 --> J2["Set SS_COMP"]
+    J2 --> J3["sorwakeup(head) → Wake acceptors"]
+    I -->|"No (in progress)"| K1["If so_incomp full, abort oldest"]
+    K1 --> K2["Insert into so_incomp queue"]
+    K2 --> K3["Set SS_INCOMP"]
 ```
 
 When a connection completes, `soisconnected()` moves it from `so_incomp` to `so_comp`:
 
-```
-soisconnected(so)
-    │
-    ├─► Get pool token for head socket
-    │
-    ├─► Clear SS_ISCONNECTING, set SS_ISCONNECTED
-    │
-    ├─► If on incomp queue (SS_INCOMP):
-    │       ├─► Check for accept filter
-    │       ├─► TAILQ_REMOVE from so_incomp
-    │       ├─► TAILQ_INSERT_TAIL to so_comp
-    │       ├─► Set SS_COMP, clear SS_INCOMP
-    │       └─► sorwakeup(head) → Wake acceptors
-    │
-    └─► Else: wakeup(&so->so_timeo)
+```mermaid
+flowchart TD
+    A["soisconnected(so)"] --> B["Get pool token for head socket"]
+    B --> C["Clear SS_ISCONNECTING, set SS_ISCONNECTED"]
+    C --> D{"On incomp queue<br/>(SS_INCOMP)?"}
+    D -->|"Yes"| E1["Check for accept filter"]
+    E1 --> E2["TAILQ_REMOVE from so_incomp"]
+    E2 --> E3["TAILQ_INSERT_TAIL to so_comp"]
+    E3 --> E4["Set SS_COMP, clear SS_INCOMP"]
+    E4 --> E5["sorwakeup(head) → Wake acceptors"]
+    D -->|"No"| F["wakeup(&so->so_timeo)"]
 ```
 
 ### Accept
@@ -296,24 +274,19 @@ The accept happens in `kern_accept()` which removes the socket from `so_comp` qu
 
 **`sosend()`** is the generic send function (`sys/kern/uipc_socket.c`):
 
-```
-sosend(so, addr, uio, top, control, flags, td)
-    │
-    ├─► Acquire ssb_lock on send buffer
-    │
-    ├─► Loop while data remains:
-    │       │
-    │       ├─► Wait for space if needed (ssb_wait)
-    │       │
-    │       ├─► Check for errors, signals
-    │       │
-    │       ├─► Allocate mbufs for data:
-    │       │       ├─► m_uiomove() for large transfers
-    │       │       └─► Copy from uio to mbuf chain
-    │       │
-    │       └─► so_pru_send() → Protocol send
-    │
-    └─► Release ssb_lock
+```mermaid
+flowchart TD
+    A["sosend(so, addr, uio, top, control, flags, td)"] --> B["Acquire ssb_lock on send buffer"]
+    B --> C["Loop while data remains"]
+    C --> D["Wait for space if needed (ssb_wait)"]
+    D --> E["Check for errors, signals"]
+    E --> F["Allocate mbufs for data"]
+    F --> F1["m_uiomove() for large transfers"]
+    F --> F2["Copy from uio to mbuf chain"]
+    F1 --> G["so_pru_send() → Protocol send"]
+    F2 --> G
+    G --> C
+    G --> H["Release ssb_lock"]
 ```
 
 Protocol-optimized variants:
@@ -325,25 +298,20 @@ Protocol-optimized variants:
 
 **`soreceive()`** is the generic receive function:
 
-```
-soreceive(so, paddr, uio, sio, controlp, flagsp)
-    │
-    ├─► Acquire ssb_lock on receive buffer
-    │
-    ├─► Handle out-of-band data if MSG_OOB
-    │
-    ├─► Wait for data if needed (ssb_wait)
-    │
-    ├─► Extract address (MT_SONAME) if present
-    │
-    ├─► Extract control data (MT_CONTROL) if present
-    │
-    ├─► Copy data to uio:
-    │       ├─► Handle MSG_PEEK (don't remove data)
-    │       ├─► Track OOB mark position
-    │       └─► sbdrop() to remove consumed data
-    │
-    └─► Release ssb_lock
+```mermaid
+flowchart TD
+    A["soreceive(so, paddr, uio, sio, controlp, flagsp)"] --> B["Acquire ssb_lock on receive buffer"]
+    B --> C["Handle out-of-band data if MSG_OOB"]
+    C --> D["Wait for data if needed (ssb_wait)"]
+    D --> E["Extract address (MT_SONAME) if present"]
+    E --> F["Extract control data (MT_CONTROL) if present"]
+    F --> G["Copy data to uio"]
+    G --> G1["Handle MSG_PEEK (don't remove data)"]
+    G --> G2["Track OOB mark position"]
+    G --> G3["sbdrop() to remove consumed data"]
+    G1 --> H["Release ssb_lock"]
+    G2 --> H
+    G3 --> H
 ```
 
 **`sorecvtcp()`** provides an optimized path for TCP.
@@ -365,34 +333,33 @@ int soshutdown(struct socket *so, int how)
 
 **`soclose()`** fully closes a socket:
 
-```
-soclose(so, fflag)
-    │
-    ├─► If listening: Drop all pending connections
-    │       ├─► For each in so_incomp: soabort_async()
-    │       └─► For each in so_comp: soabort_async()
-    │
-    ├─► If connected and SO_LINGER:
-    │       ├─► sodisconnect()
-    │       └─► Wait up to so_linger time
-    │
-    ├─► Drop protocol attachment
-    │
-    └─► sofree(so)
+```mermaid
+flowchart TD
+    A["soclose(so, fflag)"] --> B{"Listening?"}
+    B -->|"Yes"| C["Drop all pending connections"]
+    C --> C1["For each in so_incomp: soabort_async()"]
+    C --> C2["For each in so_comp: soabort_async()"]
+    C1 --> D{"Connected and SO_LINGER?"}
+    C2 --> D
+    B -->|"No"| D
+    D -->|"Yes"| E1["sodisconnect()"]
+    E1 --> E2["Wait up to so_linger time"]
+    E2 --> F["Drop protocol attachment"]
+    D -->|"No"| F
+    F --> G["sofree(so)"]
 ```
 
 **`sofree()`** handles reference counting and final cleanup:
 
-```
-sofree(so)
-    │
-    ├─► Decrement so_refs atomically
-    │
-    ├─► If refs == 0 and SS_NOFDREF:
-    │       ├─► Remove from head's queue if applicable
-    │       ├─► ssb_release() for both buffers
-    │       ├─► crfree(so_cred)
-    │       └─► kfree(so, M_SOCKET)
+```mermaid
+flowchart TD
+    A["sofree(so)"] --> B["Decrement so_refs atomically"]
+    B --> C{"refs == 0 and SS_NOFDREF?"}
+    C -->|"Yes"| D["Remove from head's queue if applicable"]
+    D --> E["ssb_release() for both buffers"]
+    E --> F["crfree(so_cred)"]
+    F --> G["kfree(so, M_SOCKET)"]
+    C -->|"No"| H["Return"]
 ```
 
 ## Socket Buffers

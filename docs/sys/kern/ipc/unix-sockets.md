@@ -94,10 +94,13 @@ Protocol control block flags (`sys/sys/unpcb.h:102`):
 
 Unix domain sockets use a multi-level token hierarchy (`sys/kern/uipc_usrreq.c:185`):
 
-```
-unp_token (global)
-    └── Per-unpcb pool token (lwkt_token_pool_lookup(unp))
-            └── unp_rights_token (for file descriptor passing)
+```mermaid
+flowchart TD
+    A["unp_token<br/>(global)"]
+    B["Per-unpcb pool token<br/>(lwkt_token_pool_lookup(unp))"]
+    C["unp_rights_token<br/>(for file descriptor passing)"]
+    
+    A --> B --> C
 ```
 
 **Rules:**
@@ -183,54 +186,54 @@ struct pr_usrreqs uipc_usrreqs = {
 
 `unp_attach()` creates the protocol control block (`sys/kern/uipc_usrreq.c:1025`):
 
-```
-unp_attach(so, ai)
-    │
-    ├─► Reserve buffer space based on socket type:
-    │       ├─► SOCK_STREAM: unpst_sendspace/recvspace (65536/65536)
-    │       ├─► SOCK_DGRAM: unpdg_sendspace/recvspace (65536/65536)
-    │       └─► SOCK_SEQPACKET: unpsp_sendspace/recvspace (65536/65536)
-    │
-    ├─► For SOCK_STREAM: Set SSB_STOPSUPP on both buffers
-    │
-    ├─► Allocate unpcb (kmalloc M_UNPCB)
-    │
-    ├─► Initialize:
-    │       ├─► unp_refcnt = 1
-    │       ├─► unp_gencnt = ++unp_gencnt
-    │       ├─► LIST_INIT(&unp->unp_refs)
-    │       ├─► unp_socket = so
-    │       ├─► unp_rvnode = ai->fd_rdir (jail root)
-    │       └─► so->so_pcb = unp
-    │
-    └─► Add to global type-specific list
+```mermaid
+flowchart TD
+    A["unp_attach(so, ai)"] --> B["Reserve buffer space based on socket type"]
+    B --> B1["SOCK_STREAM: unpst_sendspace/recvspace (65536/65536)"]
+    B --> B2["SOCK_DGRAM: unpdg_sendspace/recvspace (65536/65536)"]
+    B --> B3["SOCK_SEQPACKET: unpsp_sendspace/recvspace (65536/65536)"]
+    
+    B1 --> C["For SOCK_STREAM: Set SSB_STOPSUPP on both buffers"]
+    B2 --> C
+    B3 --> C
+    
+    C --> D["Allocate unpcb (kmalloc M_UNPCB)"]
+    
+    D --> E["Initialize"]
+    E --> E1["unp_refcnt = 1"]
+    E --> E2["unp_gencnt = ++unp_gencnt"]
+    E --> E3["LIST_INIT(&unp->unp_refs)"]
+    E --> E4["unp_socket = so"]
+    E --> E5["unp_rvnode = ai->fd_rdir (jail root)"]
+    E --> E6["so->so_pcb = unp"]
+    
+    E1 --> F["Add to global type-specific list"]
+    E2 --> F
+    E3 --> F
+    E4 --> F
+    E5 --> F
+    E6 --> F
 ```
 
 ### Bind
 
 `unp_bind()` binds a socket to a filesystem path (`sys/kern/uipc_usrreq.c:1124`):
 
-```
-unp_bind(unp, nam, td)
-    │
-    ├─► Check unp_vnode == NULL (not already bound)
-    │
-    ├─► Extract and null-terminate path from sockaddr_un
-    │
-    ├─► nlookup_init() with NLC_LOCKVP | NLC_CREATE | NLC_REFDVP
-    │
-    ├─► nlookup() → Find parent directory
-    │
-    ├─► Check path doesn't exist (EADDRINUSE)
-    │
-    ├─► VOP_NCREATE() → Create VSOCK vnode
-    │       ├─► vattr.va_type = VSOCK
-    │       └─► vattr.va_mode = ACCESSPERMS & ~cmask
-    │
-    └─► Link vnode to socket:
-            ├─► vp->v_socket = unp->unp_socket
-            ├─► unp->unp_vnode = vp
-            └─► unp->unp_addr = dup_sockaddr(nam)
+```mermaid
+flowchart TD
+    A["unp_bind(unp, nam, td)"] --> B["Check unp_vnode == NULL<br/>(not already bound)"]
+    B --> C["Extract and null-terminate path from sockaddr_un"]
+    C --> D["nlookup_init() with<br/>NLC_LOCKVP | NLC_CREATE | NLC_REFDVP"]
+    D --> E["nlookup() → Find parent directory"]
+    E --> F["Check path doesn't exist<br/>(EADDRINUSE)"]
+    F --> G["VOP_NCREATE() → Create VSOCK vnode"]
+    G --> G1["vattr.va_type = VSOCK"]
+    G --> G2["vattr.va_mode = ACCESSPERMS & ~cmask"]
+    G1 --> H["Link vnode to socket"]
+    G2 --> H
+    H --> H1["vp->v_socket = unp->unp_socket"]
+    H --> H2["unp->unp_vnode = vp"]
+    H --> H3["unp->unp_addr = dup_sockaddr(nam)"]
 ```
 
 ### Listen
@@ -256,37 +259,35 @@ The cached credentials are later copied to connecting clients.
 
 `unp_connect()` establishes a connection (`sys/kern/uipc_usrreq.c:1177`):
 
-```
-unp_connect(so, nam, td)
-    │
-    ├─► Get socket token, check attached
-    │
-    ├─► Check not already connecting or connected
-    │
-    ├─► Set UNP_CONNECTING flag
-    │
-    ├─► unp_find_lockref() → Find and lock target unpcb
-    │       ├─► nlookup() the path
-    │       ├─► Check vnode type == VSOCK
-    │       ├─► VOP_EACCESS() for VWRITE permission
-    │       └─► Lock and reference target unpcb
-    │
-    ├─► For connection-oriented (STREAM/SEQPACKET):
-    │       │
-    │       ├─► Check target has SO_ACCEPTCONN and UNP_HAVEPCCACHED
-    │       │
-    │       ├─► sonewconn_faddr() → Create new socket for connection
-    │       │
-    │       ├─► Copy server's bound address to new socket
-    │       │
-    │       ├─► Exchange credentials:
-    │       │       ├─► Client creds → new socket's unp_peercred
-    │       │       └─► Server's cached creds → client's unp_peercred
-    │       │
-    │       └─► unp_connect_pair(unp, unp3)
-    │
-    └─► For connectionless (DGRAM):
-            └─► unp_connect_pair(unp, unp2)
+```mermaid
+flowchart TD
+    A["unp_connect(so, nam, td)"] --> B["Get socket token, check attached"]
+    B --> C["Check not already connecting or connected"]
+    C --> D["Set UNP_CONNECTING flag"]
+    D --> E["unp_find_lockref() → Find and lock target unpcb"]
+    E --> E1["nlookup() the path"]
+    E --> E2["Check vnode type == VSOCK"]
+    E --> E3["VOP_EACCESS() for VWRITE permission"]
+    E --> E4["Lock and reference target unpcb"]
+    
+    E1 --> F{Socket Type?}
+    E2 --> F
+    E3 --> F
+    E4 --> F
+    
+    F -->|STREAM/SEQPACKET| G["Connection-oriented"]
+    F -->|DGRAM| H["Connectionless"]
+    
+    G --> G1["Check target has SO_ACCEPTCONN<br/>and UNP_HAVEPCCACHED"]
+    G1 --> G2["sonewconn_faddr() →<br/>Create new socket for connection"]
+    G2 --> G3["Copy server's bound address to new socket"]
+    G3 --> G4["Exchange credentials"]
+    G4 --> G4a["Client creds → new socket's unp_peercred"]
+    G4 --> G4b["Server's cached creds → client's unp_peercred"]
+    G4a --> G5["unp_connect_pair(unp, unp3)"]
+    G4b --> G5
+    
+    H --> H1["unp_connect_pair(unp, unp2)"]
 ```
 
 ### Connect Pair
@@ -326,45 +327,38 @@ unp_connect_pair(struct unpcb *unp, struct unpcb *unp2)
 
 #### Datagram Send
 
-```
-uipc_send() [SOCK_DGRAM]
-    │
-    ├─► If address provided:
-    │       ├─► Check not already connected
-    │       └─► unp_find_lockref() → Find destination
-    │
-    ├─► If SO_PASSCRED on receiver:
-    │       └─► Add SCM_CREDS control message
-    │
-    ├─► Get receiver's ssb_token
-    │
-    ├─► ssb_appendaddr() → Append with source address
-    │
-    └─► sorwakeup(so2)
+```mermaid
+flowchart TD
+    A["uipc_send() [SOCK_DGRAM]"] --> B{"Address provided?"}
+    B -->|Yes| C["Check not already connected"]
+    C --> D["unp_find_lockref() → Find destination"]
+    B -->|No| E["Use existing unp_conn"]
+    D --> F{"SO_PASSCRED on receiver?"}
+    E --> F
+    F -->|Yes| G["Add SCM_CREDS control message"]
+    F -->|No| H["Get receiver's ssb_token"]
+    G --> H
+    H --> I["ssb_appendaddr() → Append with source address"]
+    I --> J["sorwakeup(so2)"]
 ```
 
 #### Stream/Seqpacket Send
 
-```
-uipc_send() [SOCK_STREAM/SOCK_SEQPACKET]
-    │
-    ├─► Connect if not connected and address provided
-    │
-    ├─► Check SS_CANTSENDMORE
-    │
-    ├─► Get peer's so_rcv.ssb_token
-    │
-    ├─► Transfer data directly to peer's receive buffer:
-    │       ├─► With control: ssb_appendcontrol()
-    │       ├─► SEQPACKET: sbappendrecord() (preserve boundaries)
-    │       └─► STREAM: sbappend() (byte stream)
-    │
-    ├─► Apply backpressure if needed:
-    │       │   if (so2->so_rcv.ssb_cc >= so->so_snd.ssb_hiwat ||
-    │       │       so2->so_rcv.ssb_mbcnt >= so->so_snd.ssb_mbmax)
-    │       └─► atomic_set_int(&so->so_snd.ssb_flags, SSB_STOP)
-    │
-    └─► sorwakeup(so2)
+```mermaid
+flowchart TD
+    A["uipc_send() [SOCK_STREAM/SOCK_SEQPACKET]"] --> B["Connect if not connected and address provided"]
+    B --> C["Check SS_CANTSENDMORE"]
+    C --> D["Get peer's so_rcv.ssb_token"]
+    D --> E["Transfer data directly to peer's receive buffer"]
+    E --> E1["With control: ssb_appendcontrol()"]
+    E --> E2["SEQPACKET: sbappendrecord()<br/>(preserve boundaries)"]
+    E --> E3["STREAM: sbappend()<br/>(byte stream)"]
+    E1 --> F{"Backpressure needed?"}
+    E2 --> F
+    E3 --> F
+    F -->|"so2->so_rcv.ssb_cc >= so->so_snd.ssb_hiwat OR<br/>so2->so_rcv.ssb_mbcnt >= so->so_snd.ssb_mbmax"| G["atomic_set_int(&so->so_snd.ssb_flags, SSB_STOP)"]
+    F -->|No| H["sorwakeup(so2)"]
+    G --> H
 ```
 
 ### Receive Notification
@@ -402,60 +396,55 @@ Unix domain sockets can transfer file descriptors between processes using ancill
 
 `unp_internalize()` converts user FDs to kernel file pointers (`sys/kern/uipc_usrreq.c:1701`):
 
-```
-unp_internalize(control, td)
-    │
-    ├─► Validate control message (SCM_RIGHTS or SCM_CREDS)
-    │
-    ├─► For SCM_CREDS: Fill in sender credentials and return
-    │
-    ├─► Calculate number of FDs: (cmsg_len - CMSG_LEN(0)) / sizeof(int)
-    │
-    ├─► Expand mbuf if needed for larger struct file pointers
-    │
-    ├─► Lock unp_rights_token and fd_spin
-    │
-    ├─► Validate all FDs:
-    │       ├─► Check fd < fd_nfiles
-    │       ├─► Check fd_files[fd].fp != NULL
-    │       └─► Reject kqueues (EOPNOTSUPP)
-    │
-    ├─► Convert FDs to file pointers (reverse order):
-    │       for (i = oldfds-1; i >= 0; i--) {
-    │           fp = fdescp->fd_files[fdp[i]].fp;
-    │           rp[i] = fp;
-    │           fhold(fp);
-    │           unp_add_right(fp);  /* Track in-flight FDs */
-    │       }
-    │
-    └─► Update cmsg_len for pointer size
+```mermaid
+flowchart TD
+    A["unp_internalize(control, td)"] --> B["Validate control message<br/>(SCM_RIGHTS or SCM_CREDS)"]
+    B --> C{"Message type?"}
+    C -->|SCM_CREDS| D["Fill in sender credentials and return"]
+    C -->|SCM_RIGHTS| E["Calculate number of FDs:<br/>(cmsg_len - CMSG_LEN(0)) / sizeof(int)"]
+    E --> F["Expand mbuf if needed for<br/>larger struct file pointers"]
+    F --> G["Lock unp_rights_token and fd_spin"]
+    G --> H["Validate all FDs"]
+    H --> H1["Check fd < fd_nfiles"]
+    H --> H2["Check fd_files[fd].fp != NULL"]
+    H --> H3["Reject kqueues (EOPNOTSUPP)"]
+    H1 --> I["Convert FDs to file pointers (reverse order)"]
+    H2 --> I
+    H3 --> I
+    I --> I1["fp = fdescp->fd_files[fdp[i]].fp"]
+    I --> I2["rp[i] = fp"]
+    I --> I3["fhold(fp)"]
+    I --> I4["unp_add_right(fp) - Track in-flight FDs"]
+    I1 --> J["Update cmsg_len for pointer size"]
+    I2 --> J
+    I3 --> J
+    I4 --> J
 ```
 
 ### Externalize (Receive Side)
 
 `unp_externalize()` converts kernel file pointers to user FDs (`sys/kern/uipc_usrreq.c:1542`):
 
-```
-unp_externalize(rights, flags)
-    │
-    ├─► Calculate number of file pointers
-    │
-    ├─► Check fdavail() for enough FD slots
-    │
-    ├─► Hold revoke_token (shared) to catch revoked files
-    │
-    ├─► For each file pointer:
-    │       ├─► fdalloc() → Allocate new FD
-    │       │
-    │       └─► unp_fp_externalize():
-    │               ├─► Handle FREVOKED files specially
-    │               ├─► Apply MSG_CMSG_CLOEXEC → UF_EXCLOSE
-    │               ├─► Apply MSG_CMSG_CLOFORK → UF_FOCLOSE
-    │               ├─► fsetfd() → Install in process FD table
-    │               ├─► unp_del_right(fp) → Remove from in-flight count
-    │               └─► fdrop(fp)
-    │
-    └─► Adjust cmsg_len for int size
+```mermaid
+flowchart TD
+    A["unp_externalize(rights, flags)"] --> B["Calculate number of file pointers"]
+    B --> C["Check fdavail() for enough FD slots"]
+    C --> D["Hold revoke_token (shared)<br/>to catch revoked files"]
+    D --> E["For each file pointer"]
+    E --> F["fdalloc() → Allocate new FD"]
+    F --> G["unp_fp_externalize()"]
+    G --> G1["Handle FREVOKED files specially"]
+    G --> G2["Apply MSG_CMSG_CLOEXEC → UF_EXCLOSE"]
+    G --> G3["Apply MSG_CMSG_CLOFORK → UF_FOCLOSE"]
+    G --> G4["fsetfd() → Install in process FD table"]
+    G --> G5["unp_del_right(fp) → Remove from in-flight count"]
+    G --> G6["fdrop(fp)"]
+    G1 --> H["Adjust cmsg_len for int size"]
+    G2 --> H
+    G3 --> H
+    G4 --> H
+    G5 --> H
+    G6 --> H
 ```
 
 ### In-Flight Tracking
@@ -568,29 +557,25 @@ File descriptors passed over Unix domain sockets can form unreachable cycles:
 
 The garbage collector runs when `unp_rights > 0` and a socket is detached (`sys/kern/uipc_usrreq.c:2144`):
 
-```
-unp_gc()
-    │
-    ├─► Clear all gcflags from previous runs
-    │
-    ├─► Mark phase (iterate until no new marks):
-    │       │
-    │       ├─► For each unpcb:
-    │       │       │
-    │       │       ├─► If already has UNPGC_REF: skip
-    │       │       │
-    │       │       ├─► If potentially in cycle (all refs from messages):
-    │       │       │       └─► Mark UNPGC_DEAD, increment unp_unreachable
-    │       │       │
-    │       │       └─► Otherwise: scan receive buffer
-    │       │               └─► Mark referenced sockets with UNPGC_REF
-    │       │
-    │       └─► Repeat until unp_marked == 0
-    │
-    └─► Sweep phase:
-            ├─► Collect sockets marked UNPGC_DEAD
-            ├─► sorflush() each to release rights
-            └─► fdrop() to release extra reference
+```mermaid
+flowchart TD
+    A["unp_gc()"] --> B["Clear all gcflags from previous runs"]
+    B --> C["Mark phase (iterate until no new marks)"]
+    C --> D["For each unpcb"]
+    D --> E{"Already has UNPGC_REF?"}
+    E -->|Yes| F["skip"]
+    E -->|No| G{"Potentially in cycle?<br/>(all refs from messages)"}
+    G -->|Yes| H["Mark UNPGC_DEAD,<br/>increment unp_unreachable"]
+    G -->|No| I["Scan receive buffer"]
+    I --> J["Mark referenced sockets with UNPGC_REF"]
+    F --> K{"unp_marked == 0?"}
+    H --> K
+    J --> K
+    K -->|No| D
+    K -->|Yes| L["Sweep phase"]
+    L --> M["Collect sockets marked UNPGC_DEAD"]
+    M --> N["sorflush() each to release rights"]
+    N --> O["fdrop() to release extra reference"]
 ```
 
 ### GC Flags
@@ -680,21 +665,15 @@ unp_disconnect(struct unpcb *unp, int error)
 
 `unp_drop()` removes a socket from the system (`sys/kern/uipc_usrreq.c:2521`):
 
-```
-unp_drop(unp, error)
-    │
-    ├─► Mark UNP_DETACHED
-    │
-    ├─► Remove from global list (stream/dgram/seqpkt)
-    │
-    ├─► unp_disconnect() → Break connection
-    │
-    ├─► For each socket referencing us (DGRAM):
-    │       └─► unp_disconnect(unp2, ECONNRESET)
-    │
-    ├─► Mark UNP_DROPPED
-    │
-    └─► unp_free() → Try to free
+```mermaid
+flowchart TD
+    A["unp_drop(unp, error)"] --> B["Mark UNP_DETACHED"]
+    B --> C["Remove from global list<br/>(stream/dgram/seqpkt)"]
+    C --> D["unp_disconnect() → Break connection"]
+    D --> E["For each socket referencing us (DGRAM)"]
+    E --> F["unp_disconnect(unp2, ECONNRESET)"]
+    F --> G["Mark UNP_DROPPED"]
+    G --> H["unp_free() → Try to free"]
 ```
 
 ### Detach

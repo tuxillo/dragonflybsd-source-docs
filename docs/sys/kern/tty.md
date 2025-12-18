@@ -22,36 +22,13 @@ teletypes to modern pseudo-terminals, see
 
 ## Architecture Overview
 
-```
-    User Process
-         |
-    read()/write()
-         |
-         v
-  +-----------------+
-  |   /dev/ttyXX    |  Device node (or /dev/tty, /dev/console)
-  +-----------------+
-         |
-         v
-  +-----------------+
-  |  Line Discipline|  Input/output processing (canonical, raw, etc.)
-  |    (linesw)     |
-  +-----------------+
-         |
-         v
-  +-----------------+
-  |   struct tty    |  Per-terminal state and queues
-  |   (t_rawq,      |
-  |    t_canq,      |
-  |    t_outq)      |
-  +-----------------+
-         |
-    t_oproc()       Hardware-specific output
-         |
-         v
-  +-----------------+
-  |  Hardware/PTY   |  Physical device or pseudo-terminal
-  +-----------------+
+```mermaid
+flowchart TD
+    USER["User Process"]
+    USER -->|"read()/write()"| DEV["/dev/ttyXX<br/>(or /dev/tty, /dev/console)"]
+    DEV --> LDISC["Line Discipline<br/>(linesw)<br/>Input/output processing"]
+    LDISC --> TTY["struct tty<br/>(t_rawq, t_canq, t_outq)"]
+    TTY -->|"t_oproc()<br/>Hardware-specific output"| HW["Hardware/PTY<br/>Physical device or pseudo-terminal"]
 ```
 
 ## Core Data Structures
@@ -212,27 +189,17 @@ applications, handling special characters, line editing, and flow control.
 
 ### Input Character Flow
 
-```
-Hardware Interrupt
-        |
-        v
-   ttyinput()              Receive single character
-        |
-   +----+----+
-   |         |
-   v         v
-ICANON=0  ICANON=1
-   |         |
-   v         v
-t_rawq    Line editing (erase, kill, etc.)
-   |         |
-   |         v
-   |      t_canq (when line complete)
-   |         |
-   +----+----+
-        |
-        v
-    ttread()              Process reads from queue
+```mermaid
+flowchart TD
+    HW["Hardware Interrupt"] --> INPUT["ttyinput()<br/>Receive single character"]
+    INPUT --> CHECK{ICANON?}
+    
+    CHECK -->|"ICANON=0"| RAWQ1["t_rawq"]
+    CHECK -->|"ICANON=1"| EDIT["Line editing<br/>(erase, kill, etc.)"]
+    EDIT --> CANQ["t_canq<br/>(when line complete)"]
+    
+    RAWQ1 --> READ["ttread()<br/>Process reads from queue"]
+    CANQ --> READ
 ```
 
 ### The ttyinput() Function
@@ -740,26 +707,11 @@ system console, abstracting the underlying hardware (VGA, serial, etc.).
 
 ### Console Architecture
 
-```
-  kprintf() / printf()
-         |
-         v
-    +---------+
-    | cnputc()|     Kernel console output
-    +---------+
-         |
-         v
-    +---------+
-    | cn_tab  |     Active console driver
-    +---------+
-         |
-    cn_putc()       Hardware-specific output
-         |
-         v
-    +---------+
-    |  VGA /  |
-    | Serial  |
-    +---------+
+```mermaid
+flowchart TD
+    KPRINTF["kprintf() / printf()"] --> CNPUTC["cnputc()<br/>Kernel console output"]
+    CNPUTC --> CNTAB["cn_tab<br/>Active console driver"]
+    CNTAB -->|"cn_putc()<br/>Hardware-specific output"| HW["VGA /<br/>Serial"]
 ```
 
 ### Console Device Structure

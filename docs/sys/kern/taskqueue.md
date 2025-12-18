@@ -31,40 +31,30 @@ Task queues solve several common kernel programming challenges:
 
 ### Architecture
 
-```
-                    +---------------------+
-                    |    Task Producer    |
-                    | (interrupt, syscall)|
-                    +---------------------+
-                              |
-                    taskqueue_enqueue()
-                              |
-                              v
-                    +---------------------+
-                    |    struct task      |
-                    |  - ta_func          |
-                    |  - ta_context       |
-                    |  - ta_priority      |
-                    |  - ta_pending       |
-                    +---------------------+
-                              |
-                              v
-    +--------------------------------------------------------+
-    |                   struct taskqueue                      |
-    |  +--------------------------------------------------+  |
-    |  |  Priority-ordered STAILQ of pending tasks        |  |
-    |  +--------------------------------------------------+  |
-    |  | tq_enqueue() callback  |  tq_threads[]           |  |
-    +--------------------------------------------------------+
-                              |
-                    taskqueue_run()
-                              |
-                              v
-                    +---------------------+
-                    |   Task Consumer     |
-                    | (dedicated thread   |
-                    |  or SWI handler)    |
-                    +---------------------+
+```mermaid
+flowchart TD
+    subgraph producer["Task Producer"]
+        PROD["interrupt, syscall"]
+    end
+    
+    PROD -->|"taskqueue_enqueue()"| TASK
+    
+    subgraph task["struct task"]
+        TASK["ta_func<br/>ta_context<br/>ta_priority<br/>ta_pending"]
+    end
+    
+    TASK --> TQ
+    
+    subgraph tq["struct taskqueue"]
+        QUEUE["Priority-ordered STAILQ<br/>of pending tasks"]
+        TQMETA["tq_enqueue() callback | tq_threads[]"]
+    end
+    
+    TQ -->|"taskqueue_run()"| CONSUMER
+    
+    subgraph consumer["Task Consumer"]
+        CONSUMER["dedicated thread<br/>or SWI handler"]
+    end
 ```
 
 ## Traditional Task Queue

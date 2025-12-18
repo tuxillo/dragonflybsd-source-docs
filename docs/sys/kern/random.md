@@ -30,27 +30,45 @@ conditions.
 
 ### Architecture
 
-```
-    Entropy Sources                    Processing                   Output
-    +--------------+
-    | Keyboard     |----+
-    +--------------+    |
-    +--------------+    |          +-------------------+
-    | Interrupts   |----|          |  Per-CPU State    |
-    +--------------+    |          |  +--------------+ |       +----------+
-    +--------------+    +--------->|  | IBAA CSPRNG | |------>| /dev/    |
-    | TSC timing   |----|          |  +--------------+ |       | random   |
-    +--------------+    |          |  +--------------+ |       +----------+
-    +--------------+    |          |  | L15 Stream   | |
-    | RDRAND       |----|          |  +--------------+ |       +----------+
-    +--------------+    |          |  +--------------+ |------>| /dev/    |
-    +--------------+    |          |  | Fortuna/     | |       | urandom  |
-    | Hardware RNG |----|          |  | ChaCha20     | |       +----------+
-    +--------------+    |          |  +--------------+ |
-    +--------------+    |          +-------------------+       +----------+
-    | System stats |----|                                ----->| Kernel   |
-    +--------------+                                           | APIs     |
-                                                               +----------+
+```mermaid
+flowchart LR
+    subgraph Sources["Entropy Sources"]
+        KB["Keyboard"]
+        INT["Interrupts"]
+        TSC["TSC timing"]
+        RD["RDRAND"]
+        HW["Hardware RNG"]
+        STATS["System stats"]
+    end
+    
+    subgraph Processing["Per-CPU State"]
+        IBAA["IBAA CSPRNG"]
+        L15["L15 Stream"]
+        FORT["Fortuna/<br/>ChaCha20"]
+    end
+    
+    subgraph Output["Output"]
+        DEV_RAND["/dev/random"]
+        DEV_URAND["/dev/urandom"]
+        KAPI["Kernel APIs"]
+    end
+    
+    KB --> Processing
+    INT --> Processing
+    TSC --> Processing
+    RD --> Processing
+    HW --> Processing
+    STATS --> Processing
+    
+    IBAA --> DEV_RAND
+    L15 --> DEV_RAND
+    FORT --> DEV_RAND
+    IBAA --> DEV_URAND
+    L15 --> DEV_URAND
+    FORT --> DEV_URAND
+    IBAA --> KAPI
+    L15 --> KAPI
+    FORT --> KAPI
 ```
 
 ### Random Modes

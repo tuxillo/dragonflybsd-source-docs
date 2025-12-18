@@ -49,17 +49,26 @@ struct cpu_node {
 
 The system builds a tree representing CPU relationships:
 
-```
-                  PACKAGE (root)
-                       │
-         ┌─────────────┼─────────────┐
-         │             │             │
-      CHIP 0        CHIP 1        CHIP 2
-         │             │             │
-    ┌────┴────┐   ┌────┴────┐   ┌────┴────┐
-  CORE 0   CORE 1 CORE 0  CORE 1 CORE 0  CORE 1
-    │         │     │       │     │       │
-  THR 0,1  THR 0,1 ...     ...   ...     ...
+```mermaid
+flowchart TD
+    ROOT["PACKAGE (root)"]
+    ROOT --> CHIP0["CHIP 0"]
+    ROOT --> CHIP1["CHIP 1"]
+    ROOT --> CHIP2["CHIP 2"]
+    
+    CHIP0 --> CORE00["CORE 0"]
+    CHIP0 --> CORE01["CORE 1"]
+    CHIP1 --> CORE10["CORE 0"]
+    CHIP1 --> CORE11["CORE 1"]
+    CHIP2 --> CORE20["CORE 0"]
+    CHIP2 --> CORE21["CORE 1"]
+    
+    CORE00 --> THR00["THR 0,1"]
+    CORE01 --> THR01["THR 0,1"]
+    CORE10 --> THR10["..."]
+    CORE11 --> THR11["..."]
+    CORE20 --> THR20["..."]
+    CORE21 --> THR21["..."]
 ```
 
 ### API Functions

@@ -26,22 +26,27 @@ throughout the kernel for debugging and performance analysis.
 
 ### Architecture
 
-```
-┌─────────────────────────────────────────────────────────────┐
-│                    KTR Architecture                         │
-├─────────────────────────────────────────────────────────────┤
-│  CPU 0           CPU 1           CPU 2           CPU N      │
-│  ┌─────────┐     ┌─────────┐     ┌─────────┐     ┌─────────┐│
-│  │ktr_cpu  │     │ktr_cpu  │     │ktr_cpu  │     │ktr_cpu  ││
-│  │ ktr_buf─┼──┐  │ ktr_buf─┼──┐  │ ktr_buf─┼──┐  │ ktr_buf─┼┤
-│  │ ktr_idx │  │  │ ktr_idx │  │  │ ktr_idx │  │  │ ktr_idx ││
-│  └─────────┘  │  └─────────┘  │  └─────────┘  │  └─────────┘│
-│               ▼               ▼               ▼             │
-│          ┌────────┐      ┌────────┐      ┌────────┐         │
-│          │entries │      │entries │      │entries │         │
-│          │[0..N]  │      │[0..N]  │      │[0..N]  │         │
-│          └────────┘      └────────┘      └────────┘         │
-└─────────────────────────────────────────────────────────────┘
+```mermaid
+flowchart TD
+    subgraph arch["KTR Architecture"]
+        subgraph cpu0["CPU 0"]
+            KC0["ktr_cpu<br/>ktr_buf<br/>ktr_idx"]
+        end
+        subgraph cpu1["CPU 1"]
+            KC1["ktr_cpu<br/>ktr_buf<br/>ktr_idx"]
+        end
+        subgraph cpu2["CPU 2"]
+            KC2["ktr_cpu<br/>ktr_buf<br/>ktr_idx"]
+        end
+        subgraph cpuN["CPU N"]
+            KCN["ktr_cpu<br/>ktr_buf<br/>ktr_idx"]
+        end
+        
+        KC0 --> E0["entries[0..N]"]
+        KC1 --> E1["entries[0..N]"]
+        KC2 --> E2["entries[0..N]"]
+        KCN --> EN["entries[0..N]"]
+    end
 ```
 
 Each CPU maintains its own trace buffer to avoid lock contention.
@@ -242,27 +247,34 @@ with `kdump(1)`.
 
 ### Architecture
 
-```
-┌──────────────────────────────────────────────────────────────┐
-│                    ktrace Architecture                        │
-├──────────────────────────────────────────────────────────────┤
-│   Process                        Trace File                  │
-│  ┌────────────┐                 ┌──────────────┐             │
-│  │ p_traceflag├─── flags ───────│              │             │
-│  │ p_tracenode├─── ref ────────►│ ktrace_node  │             │
-│  └────────────┘                 │  kn_vp ──────┼──► vnode    │
-│       │                         │  kn_refs     │             │
-│       │ syscall/signal/etc      └──────────────┘             │
-│       ▼                                │                     │
-│  ┌────────────┐                        │                     │
-│  │ ktrsyscall │──── write ─────────────┘                     │
-│  │ ktrsysret  │                                              │
-│  │ ktrnamei   │     ┌─────────────────────────┐              │
-│  │ ktrgenio   │────►│ ktr_header + event data │              │
-│  │ ktrpsig    │     └─────────────────────────┘              │
-│  │ ktrcsw     │                                              │
-│  └────────────┘                                              │
-└──────────────────────────────────────────────────────────────┘
+```mermaid
+flowchart TD
+    subgraph proc["Process"]
+        FLAG["p_traceflag"]
+        NODE["p_tracenode"]
+    end
+    
+    FLAG -->|flags| KN
+    NODE -->|ref| KN
+    
+    subgraph kn["ktrace_node"]
+        KN["kn_vp<br/>kn_refs"]
+    end
+    
+    KN --> VNODE["vnode<br/>(trace file)"]
+    
+    subgraph events["Trace Events"]
+        SYSCALL["ktrsyscall"]
+        SYSRET["ktrsysret"]
+        NAMEI["ktrnamei"]
+        GENIO["ktrgenio"]
+        PSIG["ktrpsig"]
+        CSW["ktrcsw"]
+    end
+    
+    proc -->|"syscall/signal/etc"| events
+    events -->|write| RECORD["ktr_header + event data"]
+    RECORD --> VNODE
 ```
 
 ### Data Structures

@@ -507,51 +507,50 @@ jail.jailed    - Is current process jailed?
 
 ### Jail Lifecycle
 
-```
-┌───────────────────────────────────────────────────────────────┐
-│                        jail() syscall                          │
-│  1. Allocate prison structure                                  │
-│  2. Parse jail version (v0 single IP, v1 multi-IP)            │
-│  3. Copy hostname and IP addresses                             │
-│  4. Setup root namecache reference                             │
-│  5. Assign unique jail ID                                      │
-│  6. Create per-jail sysctl tree                               │
-│  7. Call kern_jail_attach()                                   │
-└───────────────────────────────────────────────────────────────┘
-                              │
-                              ▼
-┌───────────────────────────────────────────────────────────────┐
-│                    kern_jail_attach()                          │
-│  1. Find prison by ID                                         │
-│  2. chroot to prison root                                     │
-│  3. Hold prison reference                                     │
-│  4. Set cr_prison in credentials                              │
-│  5. Set P_JAILED flag                                         │
-│  6. Apply SYSCAP_RESTRICTEDROOT restrictions                  │
-└───────────────────────────────────────────────────────────────┘
-                              │
-                              ▼
-┌───────────────────────────────────────────────────────────────┐
-│                    Jailed Process Runs                         │
-│  - Filesystem confined to jail root                           │
-│  - IP addresses restricted to jail IPs                        │
-│  - Syscap checks filtered through prison_priv_check()        │
-│  - Per-jail capabilities control allowed operations          │
-└───────────────────────────────────────────────────────────────┘
-                              │
-                              ▼
-┌───────────────────────────────────────────────────────────────┐
-│                      prison_free()                             │
-│  1. Decrement reference count                                 │
-│  2. On last reference:                                        │
-│     - Remove from global list                                 │
-│     - Free IP address list                                    │
-│     - Free Linux emulation data                               │
-│     - Clean varsymset                                         │
-│     - Free sysctl tree                                        │
-│     - Drop root namecache reference                           │
-│     - Free prison structure                                   │
-└───────────────────────────────────────────────────────────────┘
+```mermaid
+flowchart TD
+    subgraph jail_syscall["jail() syscall"]
+        J1["1. Allocate prison structure"]
+        J2["2. Parse jail version (v0 single IP, v1 multi-IP)"]
+        J3["3. Copy hostname and IP addresses"]
+        J4["4. Setup root namecache reference"]
+        J5["5. Assign unique jail ID"]
+        J6["6. Create per-jail sysctl tree"]
+        J7["7. Call kern_jail_attach()"]
+        J1 --> J2 --> J3 --> J4 --> J5 --> J6 --> J7
+    end
+    
+    subgraph kern_attach["kern_jail_attach()"]
+        A1["1. Find prison by ID"]
+        A2["2. chroot to prison root"]
+        A3["3. Hold prison reference"]
+        A4["4. Set cr_prison in credentials"]
+        A5["5. Set P_JAILED flag"]
+        A6["6. Apply SYSCAP_RESTRICTEDROOT restrictions"]
+        A1 --> A2 --> A3 --> A4 --> A5 --> A6
+    end
+    
+    subgraph jailed_run["Jailed Process Runs"]
+        R1["Filesystem confined to jail root"]
+        R2["IP addresses restricted to jail IPs"]
+        R3["Syscap checks filtered through prison_priv_check()"]
+        R4["Per-jail capabilities control allowed operations"]
+    end
+    
+    subgraph prison_free["prison_free()"]
+        F1["1. Decrement reference count"]
+        F2["2. On last reference:"]
+        F3["- Remove from global list"]
+        F4["- Free IP address list"]
+        F5["- Free Linux emulation data"]
+        F6["- Clean varsymset"]
+        F7["- Free sysctl tree"]
+        F8["- Drop root namecache reference"]
+        F9["- Free prison structure"]
+        F1 --> F2 --> F3 --> F4 --> F5 --> F6 --> F7 --> F8 --> F9
+    end
+    
+    jail_syscall --> kern_attach --> jailed_run --> prison_free
 ```
 
 ### Security Considerations

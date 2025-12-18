@@ -57,18 +57,29 @@ Defined in `sys/kern/sysv_msg.c:104-108`.
 
 Messages are stored in a segmented buffer pool:
 
+```mermaid
+block-beta
+    columns 5
+    
+    block:pool:5
+        seg0["seg 0"]
+        seg1["seg 1"]
+        seg2["seg 2"]
+        seg3["seg 3"]
+        segN["..."]
+    end
+    
+    space:5
+    
+    msgmaps["msgmaps[] - tracks segment linkage via indices"]:5
+    msghdrs["msghdrs[] - preallocated message headers"]:5
+    msqids["msqids[] - preallocated queue descriptors"]:5
+    
+    msgmaps --> seg0
+    msgmaps --> seg1
 ```
-msgpool (MSGMAX bytes)
-+--------+--------+--------+--------+-----+
-| seg 0  | seg 1  | seg 2  | seg 3  | ... |
-+--------+--------+--------+--------+-----+
-   ^         ^
-   |         |
-msgmaps[] tracks segment linkage via indices
 
-msghdrs[] - preallocated message headers
-msqids[]  - preallocated queue descriptors
-```
+The `msgpool` contains MSGMAX bytes divided into segments.
 
 Each segment is `MSGSSZ` bytes (default 8, must be power of 2 between 8-1024).
 Segments are linked via `msgmaps[].next` forming a free list or per-message chain.

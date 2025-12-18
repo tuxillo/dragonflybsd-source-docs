@@ -16,70 +16,49 @@ For background on pseudo-terminals and their role in terminal emulation, see
 
 ## Architecture Overview
 
-```
-  Terminal Emulator (xterm, ssh, etc.)
-         |
-    open("/dev/ptmx")
-         |
-         v
-  +------------------+
-  | PTY Master (ptc) |  /dev/ptm/N or /dev/ptyXX
-  |   ptcread()      |  Reads slave's output
-  |   ptcwrite()     |  Writes to slave's input
-  +------------------+
-         |
-    Internal queues (t_outq, t_rawq, t_canq)
-         |
-         v
-  +------------------+
-  | PTY Slave (pts)  |  /dev/pts/N or /dev/ttyXX
-  |   ptsread()      |  Reads processed input
-  |   ptswrite()     |  Writes to output queue
-  +------------------+
-         |
-    Line discipline processing
-         |
-         v
-  Shell / Application Process
+```mermaid
+flowchart TD
+    EMU["Terminal Emulator<br/>(xterm, ssh, etc.)"]
+    EMU -->|"open('/dev/ptmx')"| MASTER
+    
+    subgraph master["PTY Master (ptc)"]
+        MASTER["/dev/ptm/N or /dev/ptyXX<br/>ptcread() - Reads slave's output<br/>ptcwrite() - Writes to slave's input"]
+    end
+    
+    MASTER <-->|"Internal queues<br/>(t_outq, t_rawq, t_canq)"| SLAVE
+    
+    subgraph slave["PTY Slave (pts)"]
+        SLAVE["/dev/pts/N or /dev/ttyXX<br/>ptsread() - Reads processed input<br/>ptswrite() - Writes to output queue"]
+    end
+    
+    SLAVE -->|"Line discipline<br/>processing"| APP["Shell / Application Process"]
 ```
 
 ## Data Flow
 
 ### Master to Slave (Input)
 
-```
-ptcwrite()                 Master writes data
-    |
-    v
-l_rint() for each char     Line discipline input processing
-    |
-    +-- Canonical mode --> t_rawq --> t_canq (on line completion)
-    |
-    +-- Raw mode -------> t_rawq
-    |
-    v
-ptsread()                  Slave reads processed data
+```mermaid
+flowchart TD
+    PW["ptcwrite()"] -->|"Master writes data"| LRINT["l_rint() for each char"]
+    LRINT -->|"Canonical mode"| RAWQ1["t_rawq"]
+    RAWQ1 -->|"on line completion"| CANQ["t_canq"]
+    LRINT -->|"Raw mode"| RAWQ2["t_rawq"]
+    CANQ --> PSR["ptsread()"]
+    RAWQ2 --> PSR
+    PSR -->|"Slave reads processed data"| OUT1["Output"]
 ```
 
 ### Slave to Master (Output)
 
-```
-ptswrite()                 Slave writes data
-    |
-    v
-l_write()                  Line discipline output processing
-    |
-    v
-ttyoutput()                Output post-processing (OPOST)
-    |
-    v
-t_outq                     Output queue
-    |
-    v
-ptsstart()                 Start output (wakes master)
-    |
-    v
-ptcread()                  Master reads slave's output
+```mermaid
+flowchart TD
+    PSW["ptswrite()"] -->|"Slave writes data"| LWRITE["l_write()"]
+    LWRITE -->|"Line discipline output processing"| TTYOUT["ttyoutput()"]
+    TTYOUT -->|"Output post-processing (OPOST)"| OUTQ["t_outq"]
+    OUTQ -->|"Output queue"| PTSSTART["ptsstart()"]
+    PTSSTART -->|"Start output (wakes master)"| PTCREAD["ptcread()"]
+    PTCREAD -->|"Master reads slave's output"| OUT2["Output"]
 ```
 
 ## Data Structures

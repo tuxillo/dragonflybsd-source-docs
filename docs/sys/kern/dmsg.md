@@ -15,18 +15,18 @@ The dmsg protocol provides:
 - Service advertisement via SPAN protocol
 - Block device and filesystem protocol extensions
 
-```
-                           Cluster Controller
-                          (hammer2 service daemon)
-                                   |
-              +--------------------+--------------------+
-              |                    |                    |
-         LNK_CONN              LNK_CONN             LNK_CONN
-              |                    |                    |
-       +------+------+      +------+------+      +------+------+
-       |             |      |             |      |             |
-   HAMMER2       xdisk   HAMMER2     Client   HAMMER2      xdisk
-    Mount        Device   Mount               Mount        Device
+```mermaid
+flowchart TD
+    CC["Cluster Controller<br/>(hammer2 service daemon)"]
+    CC --> LC1["LNK_CONN"]
+    CC --> LC2["LNK_CONN"]
+    CC --> LC3["LNK_CONN"]
+    LC1 --> H1["HAMMER2<br/>Mount"]
+    LC1 --> X1["xdisk<br/>Device"]
+    LC2 --> H2["HAMMER2<br/>Mount"]
+    LC2 --> CL["Client"]
+    LC3 --> H3["HAMMER2<br/>Mount"]
+    LC3 --> X2["xdisk<br/>Device"]
 ```
 
 ## Architecture
@@ -45,17 +45,24 @@ The dmsg protocol operates in layers:
 
 ### Connection Model
 
-```
-           Node A                              Node B
-    +------------------+                +------------------+
-    |   kdmsg_iocom    |                |   kdmsg_iocom    |
-    |                  |     Socket     |                  |
-    |  msgrd_td -------|----------------|----> rcvmsg()    |
-    |  msgwr_td <------|----------------|------ msgq       |
-    |                  |                |                  |
-    |  staterd_tree    |                |  statewr_tree    |
-    |  statewr_tree    |                |  staterd_tree    |
-    +------------------+                +------------------+
+```mermaid
+flowchart LR
+    subgraph NodeA["Node A"]
+        iocomA["kdmsg_iocom"]
+        msgrdA["msgrd_td"]
+        msgwrA["msgwr_td"]
+        stateA1["staterd_tree"]
+        stateA2["statewr_tree"]
+    end
+    subgraph NodeB["Node B"]
+        iocomB["kdmsg_iocom"]
+        rcvB["rcvmsg()"]
+        msgqB["msgq"]
+        stateB1["statewr_tree"]
+        stateB2["staterd_tree"]
+    end
+    msgrdA -->|"Socket"| rcvB
+    msgqB -->|"Socket"| msgwrA
 ```
 
 Each connection (`kdmsg_iocom`) has:
@@ -239,21 +246,17 @@ build a mesh network. The `dist` field tracks hop count for path selection.
 
 ### Message Flow
 
-```
-Initiator                                   Responder
-    |                                           |
-    |  -------- CREATE ---------------------->  |
-    |                                           |
-    |  <------- CREATE | REPLY ---------------  |
-    |                                           |
-    |  -------- (data messages) ------------>  |
-    |  <------- (data messages) -------------  |
-    |                                           |
-    |  -------- DELETE ---------------------->  |
-    |                                           |
-    |  <------- DELETE | REPLY ---------------  |
-    |                                           |
-   (transaction closed)                   (transaction closed)
+```mermaid
+sequenceDiagram
+    participant I as Initiator
+    participant R as Responder
+    I->>R: CREATE
+    R->>I: CREATE | REPLY
+    I->>R: (data messages)
+    R->>I: (data messages)
+    I->>R: DELETE
+    R->>I: DELETE | REPLY
+    Note over I,R: Transaction closed
 ```
 
 ### State Transitions

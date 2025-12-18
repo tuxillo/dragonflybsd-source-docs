@@ -342,32 +342,42 @@ error = exec_copyout_strings(imgp, &stack_base);
 
 This function constructs the user stack in this order (growing downward):
 
-```
-High addresses
-+------------------+
-| envp strings     |
-+------------------+
-| argv strings     |
-+------------------+
-| exec path        |
-+------------------+
-| padding          |  (for alignment)
-+------------------+
-| auxv vector      |  (auxiliary vector, ELF only)
-+------------------+
-| NULL             |
-| envp[n-1]        |  (pointers to env strings)
-| ...              |
-| envp[0]          |
-+------------------+
-| NULL             |
-| argv[n-1]        |  (pointers to arg strings)
-| ...              |
-| argv[0]          |
-+------------------+
-| argc             |  (argument count)
-+------------------+  <- stack pointer at program entry
-Low addresses
+```mermaid
+block-beta
+    columns 1
+    
+    block:high["High addresses"]
+        envp_strings["envp strings"]
+    end
+    block:argv[""]
+        argv_strings["argv strings"]
+    end
+    block:exec[""]
+        exec_path["exec path"]
+    end
+    block:pad[""]
+        padding["padding (for alignment)"]
+    end
+    block:auxv[""]
+        auxv_vector["auxv vector (ELF only)"]
+    end
+    block:envp_ptrs[""]
+        env_null["NULL"]
+        envp_n["envp[n-1] (pointers to env strings)"]
+        envp_dots["..."]
+        envp_0["envp[0]"]
+    end
+    block:argv_ptrs[""]
+        argv_null["NULL"]
+        argv_n["argv[n-1] (pointers to arg strings)"]
+        argv_dots["..."]
+        argv_0["argv[0]"]
+    end
+    block:argc_block[""]
+        argc["argc (argument count)"]
+    end
+    block:low["Low addresses (stack pointer at program entry)"]
+    end
 ```
 
 **Stack gap randomization:**
@@ -829,17 +839,14 @@ This allows kernel threads to be paused for maintenance operations or shutdown.
 
 **State transitions:**
 
-```
-     fork1()          start_forked_proc()
-NULL --------> SIDL ----------------------> SACTIVE
-                                               |
-                                               | exit1()
-                                               v
-                                            SZOMB -----> freed
-                                               ^      wait4()
-                                               |
-                                           SSTOP
-                                        (via signal)
+```mermaid
+stateDiagram-v2
+    [*] --> SIDL : fork1()
+    SIDL --> SACTIVE : start_forked_proc()
+    SACTIVE --> SZOMB : exit1()
+    SACTIVE --> SSTOP : via signal
+    SSTOP --> SZOMB : exit1()
+    SZOMB --> [*] : wait4()
 ```
 
 ### LWP States (lwp_stat)
@@ -854,16 +861,15 @@ NULL --------> SIDL ----------------------> SACTIVE
 
 **Typical LWP lifecycle:**
 
-```
-     lwp_fork2()      scheduler        sleep event
-NULL -----------> LSSTOP --------> LSRUN -----------> LSSLEEP
-                           ^                             |
-                           |        wakeup               |
-                           +-----------------------------+
-                           
-                  lwp_exit()
-              ---------------> LSZOMB -----> freed
-                                        (deferred)
+```mermaid
+stateDiagram-v2
+    [*] --> LSSTOP : lwp_fork2()
+    LSSTOP --> LSRUN : scheduler
+    LSRUN --> LSSLEEP : sleep event
+    LSSLEEP --> LSRUN : wakeup
+    LSRUN --> LSZOMB : lwp_exit()
+    LSSLEEP --> LSZOMB : lwp_exit()
+    LSZOMB --> [*] : deferred free
 ```
 
 ### Thread States (td_flags)
@@ -926,19 +932,24 @@ struct session {
 
 **Hierarchy:**
 
-```
-Session
-  |
-  +-- Process Group 1
-  |     |
-  |     +-- Process A (leader)
-  |     +-- Process B
-  |     +-- Process C
-  |
-  +-- Process Group 2
-        |
-        +-- Process D (leader)
-        +-- Process E
+```mermaid
+flowchart TD
+    Session["Session"]
+    PG1["Process Group 1"]
+    PG2["Process Group 2"]
+    PA["Process A (leader)"]
+    PB["Process B"]
+    PC["Process C"]
+    PD["Process D (leader)"]
+    PE["Process E"]
+    
+    Session --> PG1
+    Session --> PG2
+    PG1 --> PA
+    PG1 --> PB
+    PG1 --> PC
+    PG2 --> PD
+    PG2 --> PE
 ```
 
 **Purpose:**
@@ -973,15 +984,18 @@ Reapers provide a mechanism for process supervision:
 
 Example hierarchy:
 
-```
-init (PID 1)
-  |
-  +-- reaper_daemon (reaper for container)
-        |
-        +-- container_process_1
-        +-- container_process_2
-              |
-              +-- child_process
+```mermaid
+flowchart TD
+    init["init (PID 1)"]
+    reaper["reaper_daemon<br/>(reaper for container)"]
+    cp1["container_process_1"]
+    cp2["container_process_2"]
+    child["child_process"]
+    
+    init --> reaper
+    reaper --> cp1
+    reaper --> cp2
+    cp2 --> child
 ```
 
 If `container_process_2` exits, `child_process` is reparented to `reaper_daemon`, not init.
