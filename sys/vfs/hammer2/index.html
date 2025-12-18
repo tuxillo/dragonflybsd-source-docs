@@ -2380,27 +2380,24 @@
 </table>
 <h2 id="transaction-model">Transaction Model<a class="headerlink" href="#transaction-model" title="Permanent link">¶</a></h2>
 <p>HAMMER2 uses a transaction-based model where modifications are staged in memory and atomically committed to disk:</p>
-<pre class="mermaid"><code>flowchart LR
-    subgraph memory["In-Memory"]
-        M1[Modify chains]
-        M2[Mark MODIFIED]
-        M3[Add to flush list]
+<pre class="mermaid"><code>flowchart TB
+    subgraph memory["In-Memory Stage"]
+        M1[Modify chains] --&gt; M2[Mark MODIFIED]
+        M2 --&gt; M3[Add to flush list]
     end
 
     subgraph flush["Flush Transaction"]
-        F1[Acquire trans lock]
-        F2[Allocate new blocks]
-        F3[Write modified chains]
-        F4[Update blockrefs]
+        F1[Acquire trans lock] --&gt; F2[Allocate new blocks]
+        F2 --&gt; F3[Write modified chains]
+        F3 --&gt; F4[Update blockrefs]
     end
 
     subgraph commit["Commit"]
-        C1[Write volume header]
-        C2[Increment mirror_tid]
-        C3[Release old blocks]
+        C1[Write volume header] --&gt; C2[Increment mirror_tid]
+        C2 --&gt; C3[Release old blocks]
     end
 
-    M1 --&gt; M2 --&gt; M3 --&gt; F1 --&gt; F2 --&gt; F3 --&gt; F4 --&gt; C1 --&gt; C2 --&gt; C3
+    memory --&gt; flush --&gt; commit
 </code></pre>
 <p>Key transaction concepts:</p>
 <ul>
