@@ -2165,24 +2165,30 @@
 <p>HAMMER2 never overwrites existing data. When a block is modified:</p>
 <pre class="mermaid"><code>flowchart TB
     subgraph before["Before Modification"]
-        P1[Parent Block] --&gt; D1[Data Block A]
-        P1 --&gt; D2[Data Block B]
+        P1[Parent Block] --&gt; A1[Data Block A]
+        P1 --&gt; B1[Data Block B]
     end
 
     subgraph after["After Modifying Block A"]
-        P2[New Parent Block] --&gt; D1new[New Data Block A']
-        P2 --&gt; D2
-        P1old[Old Parent Block] -.-&gt; D1old[Old Data Block A]
-        P1old -.-&gt; D2
+        P2[New Parent] --&gt; A2[New Block A']
+        P2 --&gt; B1
+        P1 -.-&gt;|old| A1
     end
 
-    before --&gt; |"COW"| after
+    before --&gt;|"COW"| after
 
-    style D1old fill:#faa,stroke:#333
-    style P1old fill:#faa,stroke:#333
-    style D1new fill:#afa,stroke:#333
+    style A1 fill:#faa,stroke:#333
+    style P1 fill:#faa,stroke:#333
+    style A2 fill:#afa,stroke:#333
     style P2 fill:#afa,stroke:#333
 </code></pre>
+<p><strong>Key points:</strong></p>
+<ul>
+<li>Block A is modified → new Block A' is allocated (green)</li>
+<li>Parent must update its blockref → new Parent is allocated (green)  </li>
+<li>Block B is unchanged → both old and new parent reference the same B</li>
+<li>Old blocks (red) remain valid for snapshots until explicitly freed</li>
+</ul>
 <p>This propagates up the tree — modifying any block requires allocating new copies of all ancestor blocks up to the root. The old blocks remain valid for snapshots and crash recovery.</p>
 <h3 id="block-references-blockrefs">Block References (Blockrefs)<a class="headerlink" href="#block-references-blockrefs" title="Permanent link">¶</a></h3>
 <p>The 128-byte blockref is HAMMER2's fundamental unit. Every piece of data — files, directories, indirect blocks, freemap nodes — is referenced through a blockref.</p>
@@ -2242,6 +2248,28 @@
 </ul>
 <h3 id="chains-in-memory-block-representation">Chains: In-Memory Block Representation<a class="headerlink" href="#chains-in-memory-block-representation" title="Permanent link">¶</a></h3>
 <p>Chains (<code>hammer2_chain_t</code>) are the in-memory representation of blockrefs. They form a cached topology tree that mirrors the on-disk structure:</p>
+<pre class="mermaid"><code>flowchart TB
+    subgraph ondisk["On-Disk (Persistent)"]
+        BREF1[Blockref in<br/>Parent Block]
+        BLOCK1[(Data Block<br/>on Disk)]
+        BREF1 --&gt;|"data_off"| BLOCK1
+    end
+
+    subgraph inmem["In-Memory (Cached)"]
+        CHAIN[hammer2_chain_t]
+        BREF_COPY["bref (copy)"]
+        DIO[DIO Buffer]
+        DATA[data pointer]
+
+        CHAIN --&gt; BREF_COPY
+        CHAIN --&gt; DIO
+        CHAIN --&gt; DATA
+        DIO --&gt;|"wraps"| BLOCK1
+        DATA -.-&gt;|"points into"| DIO
+    end
+
+    BREF1 -.-&gt;|"loaded into"| BREF_COPY
+</code></pre>
 <table>
 <thead>
 <tr>
@@ -2288,34 +2316,29 @@
 
     subgraph vfs["VFS Layer"]
         VOP[VOP Interface]
-        VNODE[Vnode Operations]
     end
 
-    subgraph frontend["HAMMER2 Frontend"]
-        INODE[Inode Layer<br/>hammer2_inode.c]
-        VNOPS[VNode Ops<br/>hammer2_vnops.c]
-    end
+    subgraph hammer2["HAMMER2"]
+        direction TB
+        subgraph frontend["Frontend"]
+            VNOPS[VNode Ops]
+            INODE[Inode Layer]
+        end
 
-    subgraph core["HAMMER2 Core"]
-        CHAIN[Chain Layer<br/>hammer2_chain.c]
-        CLUSTER[Cluster<br/>hammer2_cluster.c]
-    end
+        subgraph core["Core"]
+            CHAIN[Chain Layer]
+            XOP[XOP System]
+        end
 
-    subgraph backend["HAMMER2 Backend"]
-        XOP[XOP System<br/>hammer2_xops.c]
-        ADMIN[Thread Pool<br/>hammer2_admin.c]
-    end
+        subgraph io["I/O"]
+            DIO[DIO Layer]
+            STRAT[Strategy]
+        end
 
-    subgraph io["I/O Subsystem"]
-        DIO[DIO Layer<br/>hammer2_io.c]
-        STRAT[Strategy<br/>hammer2_strategy.c]
-        COMP[Compression<br/>hammer2_lz4.c]
-    end
-
-    subgraph storage["Storage Management"]
-        FREEMAP[Freemap<br/>hammer2_freemap.c]
-        FLUSH[Flush/Sync<br/>hammer2_flush.c]
-        BULK[Bulkfree<br/>hammer2_bulkfree.c]
+        subgraph storage["Storage Mgmt"]
+            FREEMAP[Freemap]
+            FLUSH[Flush]
+        end
     end
 
     subgraph disk["Storage"]
@@ -2323,21 +2346,16 @@
     end
 
     APP --&gt; VOP
-    VOP --&gt; VNODE
-    VNODE --&gt; VNOPS
+    VOP --&gt; VNOPS
     VNOPS --&gt; INODE
     INODE --&gt; CHAIN
-    CHAIN --&gt; CLUSTER
-    CLUSTER --&gt; XOP
-    XOP --&gt; ADMIN
-    ADMIN --&gt; DIO
+    CHAIN --&gt; XOP
+    XOP --&gt; DIO
     DIO --&gt; STRAT
-    STRAT --&gt; COMP
     STRAT --&gt; DEV
     CHAIN --&gt; FREEMAP
     CHAIN --&gt; FLUSH
     FLUSH --&gt; DIO
-    BULK --&gt; FREEMAP
 </code></pre>
 <h3 id="layer-responsibilities">Layer Responsibilities<a class="headerlink" href="#layer-responsibilities" title="Permanent link">¶</a></h3>
 <table>
@@ -2415,31 +2433,30 @@
 <li><strong>No fsck Required</strong> — Mount always succeeds by using the most recent valid volume header</li>
 </ol>
 <pre class="mermaid"><code>flowchart TB
-    subgraph mount["Mount Process"]
-        A[Read all 4 volume headers] --&gt; B[Select highest valid mirror_tid]
-        B --&gt; C{Freemap current?}
-        C --&gt;|Yes| D[Normal mount]
-        C --&gt;|No| E[Scan topology]
-        E --&gt; F[Re-mark allocated blocks]
-        F --&gt; D
-    end
+    A[Read all 4 volume headers] --&gt; B[Select highest valid mirror_tid]
+    B --&gt; C{Freemap current?}
+    C --&gt;|Yes| D[Normal mount]
+    C --&gt;|No| E[Scan topology]
+    E --&gt; F[Re-mark allocated blocks]
+    F --&gt; D
 </code></pre>
 <h2 id="snapshots">Snapshots<a class="headerlink" href="#snapshots" title="Permanent link">¶</a></h2>
 <p>Snapshots are instant and free due to COW:</p>
 <pre class="mermaid"><code>flowchart TB
-    subgraph snap["Snapshot Creation"]
+    subgraph creation["Snapshot Creation"]
         A[Original PFS Root] --&gt; B[Create snapshot PFS]
         B --&gt; C[Copy root blockref]
         C --&gt; D[Done - no data copied]
     end
 
     subgraph diverge["After Modifications"]
-        E[Original: new blocks allocated]
-        F[Snapshot: references original blocks]
-        E -.-&gt; |"shared unchanged blocks"| F
+        E[Original PFS]
+        F[Snapshot PFS]
+        G[(Shared Blocks)]
+        E --&gt; G
+        F --&gt; G
+        E --&gt; H[(New Blocks)]
     end
-
-    snap --&gt; diverge
 </code></pre>
 <ul>
 <li><strong>Creation</strong>: Copy the root blockref to a new PFS entry</li>
