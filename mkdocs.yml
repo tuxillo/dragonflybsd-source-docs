@@ -147,5 +147,9 @@ nav:
       - FUSE: sys/vfs/fuse.md
       - autofs: sys/vfs/autofs.md
       - dirfs: sys/vfs/dirfs.md
+    - net/:
+      - Overview: sys/net/index.md
+      - Network Interfaces: sys/net/interfaces.md
+      - Network ISR: sys/net/netisr.md
     - cpu/x86_64/:
       - Overview: sys/cpu/x86_64/index.md
