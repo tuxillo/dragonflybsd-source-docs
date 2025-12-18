@@ -4,10 +4,102 @@ VM objects are the fundamental abstraction for managing virtual memory contents 
 
 **Source file:** `sys/vm/vm_object.c` (~2,034 lines)
 
+---
+
+## Why VM Objects Matter
+
+Every byte of virtual memory in the system—whether it's a mapped file, heap allocation, or shared library—is ultimately backed by a VM object. Objects are the kernel's answer to several fundamental questions:
+
+**What happens when two processes map the same file?**
+
+Without a unifying abstraction, each process would have its own copy of the file's pages, wasting memory and creating consistency nightmares. VM objects solve this: a single `OBJT_VNODE` object holds all pages for a file, and multiple processes simply reference the same object. Modify page 5 in one process, and every other mapping sees it immediately.
+
+**How does the kernel know where to get a page's contents?**
+
+When a page fault occurs, the kernel needs to know: is this page in memory? On disk? In a swap file? Part of a device? The VM object knows. Its `type` field determines the *pager*—the mechanism for populating missing pages. Each object type has different rules:
+
+| Object Type | Where Pages Come From | When Used |
+|-------------|----------------------|-----------|
+| `OBJT_VNODE` | Read from file via vnode | `mmap(file)`, executables, shared libraries |
+| `OBJT_SWAP` | Read from swap partition | Heap memory under pressure, `shm_open()` |
+| `OBJT_DEFAULT` | Zero-filled on demand | Fresh `malloc()`, new stack pages |
+| `OBJT_DEVICE` | Device provides pages | GPU memory, framebuffers |
+| `OBJT_MGTDEVICE` | Device manages page lifecycle | Modern GPU drivers |
+
+**How does copy-on-write work efficiently?**
+
+When `fork()` creates a child process, copying all memory would be prohibitively slow. Instead, the child's `vm_map_backing` structures point to the *same* objects as the parent. Pages are marked read-only; only when either process writes does the kernel copy the page. The object is the shared foundation that makes COW possible.
+
+**How does the kernel track dirty pages for writeback?**
+
+The filesystem syncer needs to know which files have modified pages. Rather than scanning all pages in the system, it checks `OBJ_MIGHTBEDIRTY` on vnode objects. Objects aggregate page state, making system-wide operations tractable.
+
+---
+
+## The Life of an Object
+
+Objects transition through different types and states during their lifetime:
+
+```mermaid
+flowchart TB
+    ALLOC["vm_object_allocate()<br/>Create new object"]
+    TYPE{"Object Type?"}
+    DEFAULT["OBJT_DEFAULT<br/>Anonymous memory"]
+    VNODE["OBJT_VNODE<br/>File-backed"]
+    DEVICE["OBJT_DEVICE<br/>Device memory"]
+    ACTIVE["Active Use<br/>ref_count > 0, pages in rb_memq"]
+    PRESSURE["Memory Pressure<br/>Pageout daemon active"]
+    SWAP["OBJT_DEFAULT → OBJT_SWAP<br/>Pages pushed to swap"]
+    CLEAN["vm_object_page_clean()<br/>Dirty pages written"]
+    TERMINATE["vm_object_terminate()<br/>OBJ_DEAD set"]
+    WAIT["Wait for paging_in_progress = 0"]
+    FREE["Object freed<br/>hold_count = 0"]
+    
+    ALLOC --> TYPE
+    TYPE --> DEFAULT
+    TYPE --> VNODE
+    TYPE --> DEVICE
+    DEFAULT --> ACTIVE
+    VNODE --> ACTIVE
+    DEVICE --> ACTIVE
+    ACTIVE --> PRESSURE
+    PRESSURE --> SWAP
+    PRESSURE --> CLEAN
+    SWAP --> ACTIVE
+    CLEAN --> ACTIVE
+    ACTIVE -->|"ref_count drops to 0"| TERMINATE
+    TERMINATE --> WAIT
+    WAIT --> FREE
+```
+
+**Key transitions:**
+
+1. **DEFAULT → SWAP**: When memory pressure forces an anonymous page to swap, the object silently converts from `OBJT_DEFAULT` to `OBJT_SWAP`. The first `swp_pager_meta_build()` call triggers this.
+
+2. **Active → Dead**: When `ref_count` drops to zero, `vm_object_terminate()` sets `OBJ_DEAD` and begins teardown. The object can't accept new references.
+
+3. **Dead → Freed**: The object waits for `paging_in_progress` to reach zero (no pending I/O), frees all pages, notifies the pager, and finally frees itself when `hold_count` reaches zero.
+
+---
+
+## Key Design Principles
+
+| Problem | Without Objects | DragonFly's Solution |
+|---------|----------------|---------------------|
+| **Shared file mappings** | Each process has separate pages; no coherence | Single object per vnode; all mappings share pages |
+| **Page fault handling** | Fault handler needs to know backing store type | Object's `type` field selects appropriate pager |
+| **Copy-on-write** | Full copy on fork (slow, wasteful) | Child references same objects; COW on write |
+| **Dirty page tracking** | Scan all pages to find dirty ones | `OBJ_MIGHTBEDIRTY` flag aggregates state |
+| **Lock contention** | Single lock for all pages | Per-object LWKT token; operations on different objects don't contend |
+| **Reference counting races** | Complex locking for ref count changes | Atomic ops + hold_count pattern for safe access |
+| **Page lookup** | Linear scan or hash table | Per-object RB tree; O(log n) by page index |
+
+---
+
 ## Where Objects Fit in the VM Hierarchy
 
 ```mermaid
-flowchart LR
+flowchart TB
     subgraph User["USER PROCESS"]
         mmap["ptr = mmap(file)"]
     end
@@ -407,6 +499,125 @@ DDB commands for object inspection:
 | `show vmochk` | Verify internal objects are mapped |
 | `show object <addr>` | Print object details and pages |
 | `show vmopag` | Print page runs for all objects |
+
+---
+
+## Common Usage Patterns
+
+### Pattern 1: Allocating an Anonymous Object
+
+When kernel code needs a private, anonymous memory region (e.g., for a new process's stack):
+
+```c
+vm_object_t object;
+
+/* Allocate a 16-page anonymous object */
+object = vm_object_allocate(OBJT_DEFAULT, 16);
+
+/* Object starts with ref_count=1, no pages yet */
+/* Pages will be zero-filled on first fault */
+
+/* Later, when done: */
+vm_object_deallocate(object);
+```
+
+### Pattern 2: Working with an Object Safely
+
+The hold/drop pattern ensures an object won't disappear while you're using it:
+
+```c
+vm_object_t object = /* obtained from somewhere */;
+
+/* Acquire hold + exclusive token (may block) */
+vm_object_hold(object);
+
+/* Safe to access object fields and pages */
+if (object->resident_page_count > 0) {
+    vm_page_t p;
+    /* Iterate pages in RB tree */
+    RB_FOREACH(p, vm_page_rb_tree, &object->rb_memq) {
+        /* Process page */
+    }
+}
+
+/* Release hold + token */
+vm_object_drop(object);
+```
+
+### Pattern 3: Cleaning Dirty Pages Before Unmount
+
+Filesystems call this to flush modified pages back to disk:
+
+```c
+vm_object_t object = vp->v_object;
+
+if (object != NULL) {
+    vm_object_hold(object);
+    
+    /* Synchronously clean all pages, invalidate after */
+    vm_object_page_clean(object, 
+                         0,                  /* start page index */
+                         object->size,       /* end page index */
+                         OBJPC_SYNC | OBJPC_INVAL);
+    
+    vm_object_drop(object);
+}
+```
+
+### Pattern 4: Looking Up a Page in an Object
+
+Finding a specific page by its index within an object:
+
+```c
+vm_object_hold(object);
+
+vm_page_t page = vm_page_lookup(object, pindex);
+if (page != NULL) {
+    /* Page exists in object's rb_memq */
+    if (page->valid == VM_PAGE_BITS_ALL) {
+        /* Page is fully valid, can be used */
+    }
+} else {
+    /* Page not resident - would need fault or explicit alloc */
+}
+
+vm_object_drop(object);
+```
+
+### Pattern 5: Handling Object Type Transitions
+
+Anonymous objects silently convert to swap-backed when pages are pushed out:
+
+```c
+/* Initially OBJT_DEFAULT */
+object = vm_object_allocate(OBJT_DEFAULT, size);
+
+/* ... pages faulted in, memory pressure occurs ... */
+
+/* Swap pager converts type when storing first page */
+/* In swap_pager.c: */
+if (object->type == OBJT_DEFAULT) {
+    object->type = OBJT_SWAP;
+    object->un_pager.swp.swp_blks = NULL;
+}
+
+/* Code should handle both types for anonymous memory */
+if (object->type == OBJT_DEFAULT || object->type == OBJT_SWAP) {
+    /* Anonymous memory handling */
+}
+```
+
+---
+
+## Further Reading
+
+- **"The Design and Implementation of the 4.4BSD Operating System"** (McKusick et al.) - Chapter 5 covers the VM system design that DragonFly inherited and evolved
+- **"Design elements of the FreeBSD VM system"** - [FreeBSD Architecture Handbook](https://docs.freebsd.org/en/books/arch-handbook/vm/) - DragonFly's VM has diverged but shares heritage
+- **DragonFly commit history for vm_object.c** - Shows evolution of LWKT tokens, backing_list, and other DragonFly-specific changes
+- [vm_page.md](vm_page.md) - Physical page management, closely related to object page operations
+- [vm_fault.md](vm_fault.md) - How page faults interact with objects to populate pages
+
+---
 
 ## See Also
 
