@@ -36,24 +36,30 @@ HAMMER2 never overwrites existing data. When a block is modified:
 ```mermaid
 flowchart TB
     subgraph before["Before Modification"]
-        P1[Parent Block] --> D1[Data Block A]
-        P1 --> D2[Data Block B]
+        P1[Parent Block] --> A1[Data Block A]
+        P1 --> B1[Data Block B]
     end
     
     subgraph after["After Modifying Block A"]
-        P2[New Parent Block] --> D1new[New Data Block A']
-        P2 --> D2
-        P1old[Old Parent Block] -.-> D1old[Old Data Block A]
-        P1old -.-> D2
+        P2[New Parent] --> A2[New Block A']
+        P2 --> B1
+        P1 -.->|old| A1
     end
     
-    before --> |"COW"| after
+    before -->|"COW"| after
     
-    style D1old fill:#faa,stroke:#333
-    style P1old fill:#faa,stroke:#333
-    style D1new fill:#afa,stroke:#333
+    style A1 fill:#faa,stroke:#333
+    style P1 fill:#faa,stroke:#333
+    style A2 fill:#afa,stroke:#333
     style P2 fill:#afa,stroke:#333
 ```
+
+**Key points:**
+
+- Block A is modified → new Block A' is allocated (green)
+- Parent must update its blockref → new Parent is allocated (green)  
+- Block B is unchanged → both old and new parent reference the same B
+- Old blocks (red) remain valid for snapshots until explicitly freed
 
 This propagates up the tree — modifying any block requires allocating new copies of all ancestor blocks up to the root. The old blocks remain valid for snapshots and crash recovery.
 
@@ -126,6 +132,30 @@ Each PFS:
 
 Chains (`hammer2_chain_t`) are the in-memory representation of blockrefs. They form a cached topology tree that mirrors the on-disk structure:
 
+```mermaid
+flowchart TB
+    subgraph ondisk["On-Disk (Persistent)"]
+        BREF1[Blockref in<br/>Parent Block]
+        BLOCK1[(Data Block<br/>on Disk)]
+        BREF1 -->|"data_off"| BLOCK1
+    end
+    
+    subgraph inmem["In-Memory (Cached)"]
+        CHAIN[hammer2_chain_t]
+        BREF_COPY["bref (copy)"]
+        DIO[DIO Buffer]
+        DATA[data pointer]
+        
+        CHAIN --> BREF_COPY
+        CHAIN --> DIO
+        CHAIN --> DATA
+        DIO -->|"wraps"| BLOCK1
+        DATA -.->|"points into"| DIO
+    end
+    
+    BREF1 -.->|"loaded into"| BREF_COPY
+```
+
 | On-Disk | In-Memory | Purpose |
 |---------|-----------|---------|
 | Blockref | Chain | Reference to any block |
@@ -150,34 +180,29 @@ flowchart TB
     
     subgraph vfs["VFS Layer"]
         VOP[VOP Interface]
-        VNODE[Vnode Operations]
     end
     
-    subgraph frontend["HAMMER2 Frontend"]
-        INODE[Inode Layer<br/>hammer2_inode.c]
-        VNOPS[VNode Ops<br/>hammer2_vnops.c]
-    end
-    
-    subgraph core["HAMMER2 Core"]
-        CHAIN[Chain Layer<br/>hammer2_chain.c]
-        CLUSTER[Cluster<br/>hammer2_cluster.c]
-    end
-    
-    subgraph backend["HAMMER2 Backend"]
-        XOP[XOP System<br/>hammer2_xops.c]
-        ADMIN[Thread Pool<br/>hammer2_admin.c]
-    end
-    
-    subgraph io["I/O Subsystem"]
-        DIO[DIO Layer<br/>hammer2_io.c]
-        STRAT[Strategy<br/>hammer2_strategy.c]
-        COMP[Compression<br/>hammer2_lz4.c]
-    end
-    
-    subgraph storage["Storage Management"]
-        FREEMAP[Freemap<br/>hammer2_freemap.c]
-        FLUSH[Flush/Sync<br/>hammer2_flush.c]
-        BULK[Bulkfree<br/>hammer2_bulkfree.c]
+    subgraph hammer2["HAMMER2"]
+        direction TB
+        subgraph frontend["Frontend"]
+            VNOPS[VNode Ops]
+            INODE[Inode Layer]
+        end
+        
+        subgraph core["Core"]
+            CHAIN[Chain Layer]
+            XOP[XOP System]
+        end
+        
+        subgraph io["I/O"]
+            DIO[DIO Layer]
+            STRAT[Strategy]
+        end
+        
+        subgraph storage["Storage Mgmt"]
+            FREEMAP[Freemap]
+            FLUSH[Flush]
+        end
     end
     
     subgraph disk["Storage"]
@@ -185,21 +210,16 @@ flowchart TB
     end
     
     APP --> VOP
-    VOP --> VNODE
-    VNODE --> VNOPS
+    VOP --> VNOPS
     VNOPS --> INODE
     INODE --> CHAIN
-    CHAIN --> CLUSTER
-    CLUSTER --> XOP
-    XOP --> ADMIN
-    ADMIN --> DIO
+    CHAIN --> XOP
+    XOP --> DIO
     DIO --> STRAT
-    STRAT --> COMP
     STRAT --> DEV
     CHAIN --> FREEMAP
     CHAIN --> FLUSH
     FLUSH --> DIO
-    BULK --> FREEMAP
 ```
 
 ### Layer Responsibilities
@@ -257,14 +277,12 @@ HAMMER2's COW design provides inherent crash safety:
 
 ```mermaid
 flowchart TB
-    subgraph mount["Mount Process"]
-        A[Read all 4 volume headers] --> B[Select highest valid mirror_tid]
-        B --> C{Freemap current?}
-        C -->|Yes| D[Normal mount]
-        C -->|No| E[Scan topology]
-        E --> F[Re-mark allocated blocks]
-        F --> D
-    end
+    A[Read all 4 volume headers] --> B[Select highest valid mirror_tid]
+    B --> C{Freemap current?}
+    C -->|Yes| D[Normal mount]
+    C -->|No| E[Scan topology]
+    E --> F[Re-mark allocated blocks]
+    F --> D
 ```
 
 ## Snapshots
@@ -273,19 +291,20 @@ Snapshots are instant and free due to COW:
 
 ```mermaid
 flowchart TB
-    subgraph snap["Snapshot Creation"]
+    subgraph creation["Snapshot Creation"]
         A[Original PFS Root] --> B[Create snapshot PFS]
         B --> C[Copy root blockref]
         C --> D[Done - no data copied]
     end
     
     subgraph diverge["After Modifications"]
-        E[Original: new blocks allocated]
-        F[Snapshot: references original blocks]
-        E -.-> |"shared unchanged blocks"| F
+        E[Original PFS]
+        F[Snapshot PFS]
+        G[(Shared Blocks)]
+        E --> G
+        F --> G
+        E --> H[(New Blocks)]
     end
-    
-    snap --> diverge
 ```
 
 - **Creation**: Copy the root blockref to a new PFS entry
