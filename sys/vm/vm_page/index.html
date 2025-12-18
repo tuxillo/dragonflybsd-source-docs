@@ -2517,30 +2517,30 @@
 <hr/>
 <h2 id="the-life-of-a-page">The Life of a Page<a class="headerlink" href="#the-life-of-a-page" title="Permanent link">¶</a></h2>
 <p>Before diving into data structures, it helps to understand the typical journey of a physical page:</p>
-<pre class="mermaid"><code>flowchart LR
+<pre class="mermaid"><code>flowchart TB
     subgraph BIRTH["Birth"]
         BOOT["System boot"]
-        FREE1["Page added to<br/>PQ_FREE queue"]
+        FREE1["Page added to PQ_FREE queue"]
     end
 
     subgraph LIFE["Active Life"]
-        ALLOC["vm_page_alloc()<br/>Page assigned to object"]
-        ACTIVE["PQ_ACTIVE<br/>Recently used"]
-        INACTIVE["PQ_INACTIVE<br/>Aging, candidate<br/>for reclaim"]
+        ALLOC["vm_page_alloc() - Page assigned to object"]
+        ACTIVE["PQ_ACTIVE - Recently used"]
+        INACTIVE["PQ_INACTIVE - Aging, candidate for reclaim"]
     end
 
     subgraph DEATH["Reclamation"]
-        CACHE["PQ_CACHE<br/>Clean, unmapped,<br/>quickly reusable"]
-        FREE2["PQ_FREE<br/>Available again"]
+        CACHE["PQ_CACHE - Clean, unmapped, quickly reusable"]
+        FREE2["PQ_FREE - Available again"]
     end
 
     BOOT --&gt; FREE1
-    FREE1 --&gt;|"fault or<br/>explicit alloc"| ALLOC
+    FREE1 --&gt;|"fault or explicit alloc"| ALLOC
     ALLOC --&gt; ACTIVE
-    ACTIVE --&gt;|"not referenced<br/>recently"| INACTIVE
-    INACTIVE --&gt;|"cleaned by<br/>pageout"| CACHE
-    INACTIVE --&gt;|"referenced<br/>again"| ACTIVE
-    CACHE --&gt;|"stolen for<br/>new alloc"| FREE2
+    ACTIVE --&gt;|"not referenced recently"| INACTIVE
+    INACTIVE --&gt;|"cleaned by pageout"| CACHE
+    INACTIVE --&gt;|"referenced again"| ACTIVE
+    CACHE --&gt;|"stolen for new alloc"| FREE2
     FREE2 --&gt;|"new fault"| ALLOC
 </code></pre>
 <p><strong>1. Birth (Boot):</strong> During system startup, <code>vm_page_startup()</code> creates a <code>struct vm_page</code> for every physical page and places them on <code>PQ_FREE</code> queues.</p>
