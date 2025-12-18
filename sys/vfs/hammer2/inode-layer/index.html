@@ -2586,10 +2586,505 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#inode-structure" class="md-nav__link">
+  <a href="#core-data-structures" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Inode Structure
+        Core Data Structures
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Core Data Structures">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#hammer2_inode_t" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        hammer2_inode_t
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#inode-flags" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Inode Flags
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#hammer2_depend_t" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        hammer2_depend_t
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#inode-hash-table" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Inode Hash Table
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Inode Hash Table">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#initialization" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Initialization
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#lookup" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Lookup
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#reference-counting" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Reference Counting
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Reference Counting">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#adding-references" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Adding References
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#dropping-references" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Dropping References
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#locking" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Locking
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Locking">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#basic-locking" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Basic Locking
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#multi-inode-locking" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Multi-Inode Locking
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#lock-upgradedowngrade" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Lock Upgrade/Downgrade
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#temporary-releaserestore" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Temporary Release/Restore
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#vnode-association" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Vnode Association
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Vnode Association">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#getting-a-vnode-for-an-inode" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Getting a Vnode for an Inode
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#inode-creation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Inode Creation
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Inode Creation">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#creating-normal-inodes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Creating Normal Inodes
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#creating-pfs-inodes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Creating PFS Inodes
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#creating-directory-entries" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Creating Directory Entries
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#inode-lookup-and-caching" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Inode Lookup and Caching
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Inode Lookup and Caching">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#hammer2_inode_get" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        hammer2_inode_get
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#cluster-repointing" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Cluster Repointing
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Cluster Repointing">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#full-cluster-repoint" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Full Cluster Repoint
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#single-chain-repoint" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Single Chain Repoint
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#modification-and-synchronization" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Modification and Synchronization
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Modification and Synchronization">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#marking-inodes-modified" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Marking Inodes Modified
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#syncing-to-chains" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Syncing to Chains
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#inserting-chains" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Inserting Chains
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#deleting-chains" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Deleting Chains
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#flushing-to-media" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Flushing to Media
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#unlink-handling" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Unlink Handling
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Unlink Handling">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#finishing-unlink" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Finishing Unlink
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#vnode-recycling" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Vnode Recycling
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#flush-dependency-management" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Flush Dependency Management
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Flush Dependency Management">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#sideq-and-syncq" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        SIDEQ and SYNCQ
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#dependency-groups" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Dependency Groups
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#adding-to-sideq" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Adding to SIDEQ
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#statistics" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Statistics
       
     </span>
   </a>
@@ -2597,10 +3092,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#directory-operations" class="md-nav__link">
+  <a href="#chain-access" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Directory Operations
+        Chain Access
       
     </span>
   </a>
@@ -2608,10 +3103,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#file-operations" class="md-nav__link">
+  <a href="#lifecycle-summary" class="md-nav__link">
     <span class="md-ellipsis">
       
-        File Operations
+        Lifecycle Summary
       
     </span>
   </a>
@@ -3725,10 +4220,505 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#inode-structure" class="md-nav__link">
+  <a href="#core-data-structures" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Inode Structure
+        Core Data Structures
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Core Data Structures">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#hammer2_inode_t" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        hammer2_inode_t
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#inode-flags" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Inode Flags
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#hammer2_depend_t" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        hammer2_depend_t
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#inode-hash-table" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Inode Hash Table
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Inode Hash Table">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#initialization" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Initialization
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#lookup" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Lookup
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#reference-counting" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Reference Counting
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Reference Counting">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#adding-references" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Adding References
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#dropping-references" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Dropping References
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#locking" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Locking
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Locking">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#basic-locking" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Basic Locking
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#multi-inode-locking" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Multi-Inode Locking
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#lock-upgradedowngrade" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Lock Upgrade/Downgrade
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#temporary-releaserestore" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Temporary Release/Restore
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#vnode-association" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Vnode Association
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Vnode Association">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#getting-a-vnode-for-an-inode" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Getting a Vnode for an Inode
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#inode-creation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Inode Creation
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Inode Creation">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#creating-normal-inodes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Creating Normal Inodes
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#creating-pfs-inodes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Creating PFS Inodes
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#creating-directory-entries" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Creating Directory Entries
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#inode-lookup-and-caching" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Inode Lookup and Caching
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Inode Lookup and Caching">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#hammer2_inode_get" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        hammer2_inode_get
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#cluster-repointing" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Cluster Repointing
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Cluster Repointing">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#full-cluster-repoint" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Full Cluster Repoint
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#single-chain-repoint" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Single Chain Repoint
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#modification-and-synchronization" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Modification and Synchronization
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Modification and Synchronization">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#marking-inodes-modified" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Marking Inodes Modified
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#syncing-to-chains" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Syncing to Chains
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#inserting-chains" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Inserting Chains
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#deleting-chains" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Deleting Chains
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#flushing-to-media" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Flushing to Media
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#unlink-handling" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Unlink Handling
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Unlink Handling">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#finishing-unlink" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Finishing Unlink
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#vnode-recycling" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Vnode Recycling
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#flush-dependency-management" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Flush Dependency Management
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Flush Dependency Management">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#sideq-and-syncq" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        SIDEQ and SYNCQ
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#dependency-groups" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Dependency Groups
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#adding-to-sideq" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Adding to SIDEQ
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#statistics" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Statistics
       
     </span>
   </a>
@@ -3736,10 +4726,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#directory-operations" class="md-nav__link">
+  <a href="#chain-access" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Directory Operations
+        Chain Access
       
     </span>
   </a>
@@ -3747,10 +4737,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#file-operations" class="md-nav__link">
+  <a href="#lifecycle-summary" class="md-nav__link">
     <span class="md-ellipsis">
       
-        File Operations
+        Lifecycle Summary
       
     </span>
   </a>
@@ -3789,23 +4779,521 @@
 
 
 <h1 id="hammer2-inode-layer">HAMMER2 Inode Layer<a class="headerlink" href="#hammer2-inode-layer" title="Permanent link">&para;</a></h1>
-<div class="admonition note">
-<p class="admonition-title">Documentation Status</p>
-<p>This page documents the inode layer based on <code>hammer2_inode.c</code>.</p>
+<div class="admonition abstract">
+<p class="admonition-title">Source Reference</p>
+<p>Primary source: <code>sys/vfs/hammer2/hammer2_inode.c</code><br />
+Header definitions: <code>sys/vfs/hammer2/hammer2.h</code> (lines 673-767)</p>
 </div>
 <h2 id="overview">Overview<a class="headerlink" href="#overview" title="Permanent link">&para;</a></h2>
-<p>The inode layer provides the high-level file and directory abstraction built on top of the chain layer.</p>
-<h2 id="inode-structure">Inode Structure<a class="headerlink" href="#inode-structure" title="Permanent link">&para;</a></h2>
-<p><em>Documentation in progress — will cover hammer2_inode_t structure.</em></p>
-<h2 id="directory-operations">Directory Operations<a class="headerlink" href="#directory-operations" title="Permanent link">&para;</a></h2>
-<p><em>Documentation in progress — will cover directory lookup, creation, deletion.</em></p>
-<h2 id="file-operations">File Operations<a class="headerlink" href="#file-operations" title="Permanent link">&para;</a></h2>
-<p><em>Documentation in progress — will cover file data management.</em></p>
+<p>The inode layer provides the high-level file and directory abstraction built on top of the <a href="../chain-layer/">chain layer</a>. It manages in-memory inode structures (<code>hammer2_inode_t</code>), their association with vnodes, reference counting, locking semantics, and synchronization with the underlying chain topology.</p>
+<p>Key responsibilities:</p>
+<ul>
+<li><strong>Inode lifecycle management</strong> — creation, lookup, reference counting, and destruction</li>
+<li><strong>Vnode association</strong> — bridging between VFS vnodes and HAMMER2 inodes</li>
+<li><strong>Locking with SYNCQ semantics</strong> — coordinating with the filesystem syncer</li>
+<li><strong>Flush dependency tracking</strong> — ensuring related inodes are flushed together</li>
+<li><strong>Metadata synchronization</strong> — propagating in-memory changes to on-disk chains</li>
+</ul>
+<h2 id="core-data-structures">Core Data Structures<a class="headerlink" href="#core-data-structures" title="Permanent link">&para;</a></h2>
+<h3 id="hammer2_inode_t">hammer2_inode_t<a class="headerlink" href="#hammer2_inode_t" title="Permanent link">&para;</a></h3>
+<p>The main in-memory inode structure (<code>hammer2.h:690-710</code>):</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="k">struct</span><span class="w"> </span><span class="nc">hammer2_inode</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="w">    </span><span class="k">struct</span><span class="w"> </span><span class="nc">hammer2_inode</span><span class="w"> </span><span class="o">*</span><span class="n">next</span><span class="p">;</span><span class="w">         </span><span class="cm">/* hash chain linkage */</span>
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="w">    </span><span class="n">TAILQ_ENTRY</span><span class="p">(</span><span class="n">hammer2_inode</span><span class="p">)</span><span class="w"> </span><span class="n">entry</span><span class="p">;</span><span class="w">   </span><span class="cm">/* SYNCQ/SIDEQ queue entry */</span>
+<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="w">    </span><span class="n">hammer2_depend_t</span><span class="w">    </span><span class="o">*</span><span class="n">depend</span><span class="p">;</span><span class="w">        </span><span class="cm">/* flush dependency (non-NULL if SIDEQ) */</span>
+<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a><span class="w">    </span><span class="n">hammer2_depend_t</span><span class="w">    </span><span class="n">depend_static</span><span class="p">;</span><span class="w">  </span><span class="cm">/* in-place allocation for depend */</span>
+<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a><span class="w">    </span><span class="n">hammer2_mtx_t</span><span class="w">       </span><span class="n">lock</span><span class="p">;</span><span class="w">           </span><span class="cm">/* inode lock */</span>
+<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a><span class="w">    </span><span class="n">hammer2_mtx_t</span><span class="w">       </span><span class="n">truncate_lock</span><span class="p">;</span><span class="w">  </span><span class="cm">/* prevent truncates during I/O */</span>
+<a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a><span class="w">    </span><span class="k">struct</span><span class="w"> </span><span class="nc">hammer2_pfs</span><span class="w">  </span><span class="o">*</span><span class="n">pmp</span><span class="p">;</span><span class="w">           </span><span class="cm">/* PFS mount point */</span>
+<a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a><span class="w">    </span><span class="k">struct</span><span class="w"> </span><span class="nc">vnode</span><span class="w">        </span><span class="o">*</span><span class="n">vp</span><span class="p">;</span><span class="w">            </span><span class="cm">/* associated vnode (may be NULL) */</span>
+<a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a><span class="w">    </span><span class="n">hammer2_spin_t</span><span class="w">      </span><span class="n">cluster_spin</span><span class="p">;</span><span class="w">   </span><span class="cm">/* protects cluster updates */</span>
+<a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a><span class="w">    </span><span class="n">hammer2_cluster_t</span><span class="w">   </span><span class="n">cluster</span><span class="p">;</span><span class="w">        </span><span class="cm">/* embedded cluster of chains */</span>
+<a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a><span class="w">    </span><span class="n">hammer2_cluster_item_t</span><span class="w"> </span><span class="n">ccache</span><span class="p">[</span><span class="n">HAMMER2_MAXCLUSTER</span><span class="p">];</span><span class="w"> </span><span class="cm">/* cached data chains */</span>
+<a id="__codelineno-0-13" name="__codelineno-0-13" href="#__codelineno-0-13"></a><span class="w">    </span><span class="kt">int</span><span class="w">                 </span><span class="n">ccache_nchains</span><span class="p">;</span><span class="w"> </span><span class="cm">/* number of cached chains */</span>
+<a id="__codelineno-0-14" name="__codelineno-0-14" href="#__codelineno-0-14"></a><span class="w">    </span><span class="k">struct</span><span class="w"> </span><span class="nc">lockf</span><span class="w">        </span><span class="n">advlock</span><span class="p">;</span><span class="w">        </span><span class="cm">/* advisory lock state */</span>
+<a id="__codelineno-0-15" name="__codelineno-0-15" href="#__codelineno-0-15"></a><span class="w">    </span><span class="n">u_int</span><span class="w">               </span><span class="n">flags</span><span class="p">;</span><span class="w">          </span><span class="cm">/* state flags */</span>
+<a id="__codelineno-0-16" name="__codelineno-0-16" href="#__codelineno-0-16"></a><span class="w">    </span><span class="n">u_int</span><span class="w">               </span><span class="n">refs</span><span class="p">;</span><span class="w">           </span><span class="cm">/* reference count */</span>
+<a id="__codelineno-0-17" name="__codelineno-0-17" href="#__codelineno-0-17"></a><span class="w">    </span><span class="kt">int</span><span class="w">                 </span><span class="n">ihash</span><span class="p">;</span><span class="w">          </span><span class="cm">/* XOP worker distribution hash */</span>
+<a id="__codelineno-0-18" name="__codelineno-0-18" href="#__codelineno-0-18"></a><span class="w">    </span><span class="kt">uint8_t</span><span class="w">             </span><span class="n">comp_heuristic</span><span class="p">;</span><span class="w"> </span><span class="cm">/* compression heuristic */</span>
+<a id="__codelineno-0-19" name="__codelineno-0-19" href="#__codelineno-0-19"></a><span class="w">    </span><span class="n">hammer2_inode_meta_t</span><span class="w"> </span><span class="n">meta</span><span class="p">;</span><span class="w">          </span><span class="cm">/* copy of on-disk metadata */</span>
+<a id="__codelineno-0-20" name="__codelineno-0-20" href="#__codelineno-0-20"></a><span class="w">    </span><span class="n">hammer2_off_t</span><span class="w">       </span><span class="n">osize</span><span class="p">;</span><span class="w">          </span><span class="cm">/* original size (for RESIZED) */</span>
+<a id="__codelineno-0-21" name="__codelineno-0-21" href="#__codelineno-0-21"></a><span class="p">};</span>
+</code></pre></div>
+<p>Key fields:</p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>next</code></td>
+<td>Hash chain linkage for inode number lookup</td>
+</tr>
+<tr>
+<td><code>entry</code></td>
+<td>Queue entry for SYNCQ (sync in progress) or SIDEQ (dirty, needs sync)</td>
+</tr>
+<tr>
+<td><code>depend</code></td>
+<td>Flush dependency group pointer</td>
+</tr>
+<tr>
+<td><code>lock</code></td>
+<td>Primary inode lock (shared/exclusive)</td>
+</tr>
+<tr>
+<td><code>truncate_lock</code></td>
+<td>Prevents truncates during read/write operations</td>
+</tr>
+<tr>
+<td><code>pmp</code></td>
+<td>Back-pointer to the PFS mount structure</td>
+</tr>
+<tr>
+<td><code>vp</code></td>
+<td>Associated vnode (NULL if no vnode attached)</td>
+</tr>
+<tr>
+<td><code>cluster</code></td>
+<td>Embedded cluster linking to underlying chains</td>
+</tr>
+<tr>
+<td><code>flags</code></td>
+<td>State flags (see below)</td>
+</tr>
+<tr>
+<td><code>refs</code></td>
+<td>Reference count (includes vnode ref, flush refs)</td>
+</tr>
+<tr>
+<td><code>meta</code></td>
+<td>In-memory copy of on-disk inode metadata</td>
+</tr>
+</tbody>
+</table>
+<h3 id="inode-flags">Inode Flags<a class="headerlink" href="#inode-flags" title="Permanent link">&para;</a></h3>
+<p>Defined in <code>hammer2.h:747-767</code>:</p>
+<table>
+<thead>
+<tr>
+<th>Flag</th>
+<th>Value</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>HAMMER2_INODE_MODIFIED</code></td>
+<td>0x0001</td>
+<td>Inode metadata has been modified</td>
+</tr>
+<tr>
+<td><code>HAMMER2_INODE_ONHASH</code></td>
+<td>0x0008</td>
+<td>Inode is in the inum hash table</td>
+</tr>
+<tr>
+<td><code>HAMMER2_INODE_RESIZED</code></td>
+<td>0x0010</td>
+<td>File size changed, requires chain sync</td>
+</tr>
+<tr>
+<td><code>HAMMER2_INODE_ISUNLINKED</code></td>
+<td>0x0040</td>
+<td>Inode has been unlinked (nlinks → 0)</td>
+</tr>
+<tr>
+<td><code>HAMMER2_INODE_SIDEQ</code></td>
+<td>0x0100</td>
+<td>On side processing queue (dirty, awaiting sync)</td>
+</tr>
+<tr>
+<td><code>HAMMER2_INODE_NOSIDEQ</code></td>
+<td>0x0200</td>
+<td>Disable SIDEQ operations</td>
+</tr>
+<tr>
+<td><code>HAMMER2_INODE_DIRTYDATA</code></td>
+<td>0x0400</td>
+<td>Has dirty data, interlocks flush</td>
+</tr>
+<tr>
+<td><code>HAMMER2_INODE_SYNCQ</code></td>
+<td>0x0800</td>
+<td>Currently being synced (on sync queue)</td>
+</tr>
+<tr>
+<td><code>HAMMER2_INODE_DELETING</code></td>
+<td>0x1000</td>
+<td>Marked for deletion during sync</td>
+</tr>
+<tr>
+<td><code>HAMMER2_INODE_CREATING</code></td>
+<td>0x2000</td>
+<td>Chains not yet inserted into media topology</td>
+</tr>
+<tr>
+<td><code>HAMMER2_INODE_SYNCQ_WAKEUP</code></td>
+<td>0x4000</td>
+<td>Wakeup requested when SYNCQ clears</td>
+</tr>
+<tr>
+<td><code>HAMMER2_INODE_SYNCQ_PASS2</code></td>
+<td>0x8000</td>
+<td>Force retry delay during sync</td>
+</tr>
+</tbody>
+</table>
+<p>The <code>HAMMER2_INODE_DIRTY</code> macro combines flags indicating the inode needs flushing:
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="cp">#define HAMMER2_INODE_DIRTY  (HAMMER2_INODE_MODIFIED | \</span>
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="cp">                              HAMMER2_INODE_DIRTYDATA | \</span>
+<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="cp">                              HAMMER2_INODE_DELETING | \</span>
+<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a><span class="cp">                              HAMMER2_INODE_CREATING)</span>
+</code></pre></div></p>
+<h3 id="hammer2_depend_t">hammer2_depend_t<a class="headerlink" href="#hammer2_depend_t" title="Permanent link">&para;</a></h3>
+<p>Flush dependency structure (<code>hammer2.h:673-679</code>):</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="k">struct</span><span class="w"> </span><span class="nc">hammer2_depend</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="w">    </span><span class="n">TAILQ_ENTRY</span><span class="p">(</span><span class="n">hammer2_depend</span><span class="p">)</span><span class="w"> </span><span class="n">entry</span><span class="p">;</span><span class="w">  </span><span class="cm">/* pmp-&gt;depq linkage */</span>
+<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="w">    </span><span class="k">struct</span><span class="w"> </span><span class="nc">inoq_head</span><span class="w">    </span><span class="n">sideq</span><span class="p">;</span><span class="w">          </span><span class="cm">/* list of dependent inodes */</span>
+<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a><span class="w">    </span><span class="kt">long</span><span class="w">                </span><span class="n">count</span><span class="p">;</span><span class="w">          </span><span class="cm">/* number of inodes in group */</span>
+<a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a><span class="w">    </span><span class="kt">int</span><span class="w">                 </span><span class="n">pass2</span><span class="p">;</span><span class="w">          </span><span class="cm">/* requires second pass */</span>
+<a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a><span class="w">    </span><span class="kt">int</span><span class="w">                 </span><span class="n">unused01</span><span class="p">;</span>
+<a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a><span class="p">};</span>
+</code></pre></div>
+<p>Dependencies group related inodes (e.g., directory and its entries) to ensure they are flushed together, maintaining filesystem consistency.</p>
+<h2 id="inode-hash-table">Inode Hash Table<a class="headerlink" href="#inode-hash-table" title="Permanent link">&para;</a></h2>
+<p>Inodes are indexed by inode number in a per-PFS hash table for fast lookup.</p>
+<h3 id="initialization">Initialization<a class="headerlink" href="#initialization" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="kt">void</span><span class="w"> </span><span class="nf">hammer2_inum_hash_init</span><span class="p">(</span><span class="n">hammer2_pfs_t</span><span class="w"> </span><span class="o">*</span><span class="n">pmp</span><span class="p">);</span>
+</code></pre></div>
+<p>Source: <code>hammer2_inode.c:50-60</code></p>
+<p>Initializes the inode hash table spinlocks for a PFS. Called during PFS mount.</p>
+<h3 id="lookup">Lookup<a class="headerlink" href="#lookup" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="n">hammer2_inode_t</span><span class="w"> </span><span class="o">*</span><span class="nf">hammer2_inode_lookup</span><span class="p">(</span><span class="n">hammer2_pfs_t</span><span class="w"> </span><span class="o">*</span><span class="n">pmp</span><span class="p">,</span><span class="w"> </span><span class="n">hammer2_tid_t</span><span class="w"> </span><span class="n">inum</span><span class="p">);</span>
+</code></pre></div>
+<p>Source: <code>hammer2_inode.c:548-569</code></p>
+<p>Looks up an inode by inode number. Returns a referenced inode or NULL if not found in memory. The hash function uses the low bits of the inode number:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="k">static</span><span class="w"> </span><span class="kr">__inline</span><span class="w"> </span><span class="n">hammer2_inum_hash_t</span><span class="w"> </span><span class="o">*</span>
+<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a><span class="nf">inumhash</span><span class="p">(</span><span class="n">hammer2_pfs_t</span><span class="w"> </span><span class="o">*</span><span class="n">pmp</span><span class="p">,</span><span class="w"> </span><span class="n">hammer2_tid_t</span><span class="w"> </span><span class="n">inum</span><span class="p">)</span>
+<a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a><span class="p">{</span>
+<a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a><span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="n">hv</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="kt">int</span><span class="p">)</span><span class="n">inum</span><span class="p">;</span>
+<a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="p">(</span><span class="o">&amp;</span><span class="n">pmp</span><span class="o">-&gt;</span><span class="n">inumhash</span><span class="p">[</span><span class="n">hv</span><span class="w"> </span><span class="o">&amp;</span><span class="w"> </span><span class="n">HAMMER2_INUMHASH_MASK</span><span class="p">]);</span>
+<a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a><span class="p">}</span>
+</code></pre></div>
+<h2 id="reference-counting">Reference Counting<a class="headerlink" href="#reference-counting" title="Permanent link">&para;</a></h2>
+<h3 id="adding-references">Adding References<a class="headerlink" href="#adding-references" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="kt">void</span><span class="w"> </span><span class="nf">hammer2_inode_ref</span><span class="p">(</span><span class="n">hammer2_inode_t</span><span class="w"> </span><span class="o">*</span><span class="n">ip</span><span class="p">);</span>
+</code></pre></div>
+<p>Source: <code>hammer2_inode.c:577-585</code></p>
+<p>Atomically increments the reference count. The inode must already have at least one reference. Can be called with spinlocks held.</p>
+<h3 id="dropping-references">Dropping References<a class="headerlink" href="#dropping-references" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="kt">void</span><span class="w"> </span><span class="nf">hammer2_inode_drop</span><span class="p">(</span><span class="n">hammer2_inode_t</span><span class="w"> </span><span class="o">*</span><span class="n">ip</span><span class="p">);</span>
+</code></pre></div>
+<p>Source: <code>hammer2_inode.c:591-656</code></p>
+<p>Decrements the reference count. When the count reaches zero:</p>
+<ol>
+<li>Acquires the hash bucket spinlock</li>
+<li>Removes the inode from the hash table (if <code>ONHASH</code> flag set)</li>
+<li>Cleans out the embedded cluster via <code>hammer2_inode_repoint(ip, NULL)</code></li>
+<li>Frees the inode structure</li>
+</ol>
+<p>The transition to zero is protected by <code>atomic_cmpset_int()</code> to handle races.</p>
+<h2 id="locking">Locking<a class="headerlink" href="#locking" title="Permanent link">&para;</a></h2>
+<p>HAMMER2 provides shared and exclusive locks on inodes with special SYNCQ semantics.</p>
+<h3 id="basic-locking">Basic Locking<a class="headerlink" href="#basic-locking" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a><span class="kt">void</span><span class="w"> </span><span class="nf">hammer2_inode_lock</span><span class="p">(</span><span class="n">hammer2_inode_t</span><span class="w"> </span><span class="o">*</span><span class="n">ip</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">how</span><span class="p">);</span>
+<a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a><span class="kt">void</span><span class="w"> </span><span class="nf">hammer2_inode_unlock</span><span class="p">(</span><span class="n">hammer2_inode_t</span><span class="w"> </span><span class="o">*</span><span class="n">ip</span><span class="p">);</span>
+</code></pre></div>
+<p>Source: <code>hammer2_inode.c:226-375</code></p>
+<p>The <code>how</code> parameter accepts flags:</p>
+<table>
+<thead>
+<tr>
+<th>Flag</th>
+<th>Effect</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>HAMMER2_RESOLVE_SHARED</code></td>
+<td>Acquire shared lock (no SYNCQ wait)</td>
+</tr>
+<tr>
+<td><code>HAMMER2_RESOLVE_ALWAYS</code></td>
+<td>Ensure inode metadata is resolved</td>
+</tr>
+<tr>
+<td><code>HAMMER2_RESOLVE_NEVER</code></td>
+<td>Don't require metadata resolution</td>
+</tr>
+</tbody>
+</table>
+<p><strong>SYNCQ Semantics</strong>: When acquiring an exclusive lock, if the inode is on the SYNCQ (being synced), the caller must wait for the sync to complete. This prevents metadata dependencies from being split across flushes. To reduce stall time, the inode is moved to the head of the syncq before blocking:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a><span class="k">while</span><span class="w"> </span><span class="p">((</span><span class="n">ip</span><span class="o">-&gt;</span><span class="n">flags</span><span class="w"> </span><span class="o">&amp;</span><span class="w"> </span><span class="n">HAMMER2_INODE_SYNCQ</span><span class="p">)</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">pmp</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a><span class="w">    </span><span class="cm">/* Move to head of syncq and sleep */</span>
+<a id="__codelineno-9-3" name="__codelineno-9-3" href="#__codelineno-9-3"></a><span class="w">    </span><span class="n">TAILQ_REMOVE</span><span class="p">(</span><span class="o">&amp;</span><span class="n">pmp</span><span class="o">-&gt;</span><span class="n">syncq</span><span class="p">,</span><span class="w"> </span><span class="n">ip</span><span class="p">,</span><span class="w"> </span><span class="n">entry</span><span class="p">);</span>
+<a id="__codelineno-9-4" name="__codelineno-9-4" href="#__codelineno-9-4"></a><span class="w">    </span><span class="n">TAILQ_INSERT_HEAD</span><span class="p">(</span><span class="o">&amp;</span><span class="n">pmp</span><span class="o">-&gt;</span><span class="n">syncq</span><span class="p">,</span><span class="w"> </span><span class="n">ip</span><span class="p">,</span><span class="w"> </span><span class="n">entry</span><span class="p">);</span>
+<a id="__codelineno-9-5" name="__codelineno-9-5" href="#__codelineno-9-5"></a><span class="w">    </span><span class="n">hammer2_mtx_unlock</span><span class="p">(</span><span class="o">&amp;</span><span class="n">ip</span><span class="o">-&gt;</span><span class="n">lock</span><span class="p">);</span>
+<a id="__codelineno-9-6" name="__codelineno-9-6" href="#__codelineno-9-6"></a><span class="w">    </span><span class="n">tsleep</span><span class="p">(</span><span class="o">&amp;</span><span class="n">ip</span><span class="o">-&gt;</span><span class="n">flags</span><span class="p">,</span><span class="w"> </span><span class="n">PINTERLOCKED</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;h2sync&quot;</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">);</span>
+<a id="__codelineno-9-7" name="__codelineno-9-7" href="#__codelineno-9-7"></a><span class="w">    </span><span class="n">hammer2_mtx_ex</span><span class="p">(</span><span class="o">&amp;</span><span class="n">ip</span><span class="o">-&gt;</span><span class="n">lock</span><span class="p">);</span>
+<a id="__codelineno-9-8" name="__codelineno-9-8" href="#__codelineno-9-8"></a><span class="p">}</span>
+</code></pre></div>
+<h3 id="multi-inode-locking">Multi-Inode Locking<a class="headerlink" href="#multi-inode-locking" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a><span class="kt">void</span><span class="w"> </span><span class="nf">hammer2_inode_lock4</span><span class="p">(</span><span class="n">hammer2_inode_t</span><span class="w"> </span><span class="o">*</span><span class="n">ip1</span><span class="p">,</span><span class="w"> </span><span class="n">hammer2_inode_t</span><span class="w"> </span><span class="o">*</span><span class="n">ip2</span><span class="p">,</span>
+<a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a><span class="w">                         </span><span class="n">hammer2_inode_t</span><span class="w"> </span><span class="o">*</span><span class="n">ip3</span><span class="p">,</span><span class="w"> </span><span class="n">hammer2_inode_t</span><span class="w"> </span><span class="o">*</span><span class="n">ip4</span><span class="p">);</span>
+</code></pre></div>
+<p>Source: <code>hammer2_inode.c:281-358</code></p>
+<p>Exclusively locks up to four inodes simultaneously, establishing a flush dependency between them. Used for operations like rename that span multiple inodes. The function:</p>
+<ol>
+<li>References and locks all inodes in order</li>
+<li>Establishes flush dependencies via <code>hammer2_inode_setdepend_locked()</code></li>
+<li>If any inode is on SYNCQ, unlocks all and retries after sleeping</li>
+</ol>
+<h3 id="lock-upgradedowngrade">Lock Upgrade/Downgrade<a class="headerlink" href="#lock-upgradedowngrade" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a><span class="kt">int</span><span class="w"> </span><span class="nf">hammer2_inode_lock_upgrade</span><span class="p">(</span><span class="n">hammer2_inode_t</span><span class="w"> </span><span class="o">*</span><span class="n">ip</span><span class="p">);</span>
+<a id="__codelineno-11-2" name="__codelineno-11-2" href="#__codelineno-11-2"></a><span class="kt">void</span><span class="w"> </span><span class="nf">hammer2_inode_lock_downgrade</span><span class="p">(</span><span class="n">hammer2_inode_t</span><span class="w"> </span><span class="o">*</span><span class="n">ip</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">wasexclusive</span><span class="p">);</span>
+</code></pre></div>
+<p>Source: <code>hammer2_inode.c:508-533</code></p>
+<p>Upgrades a shared lock to exclusive, or downgrades back. The <code>wasexclusive</code> return value tracks whether the lock was already exclusive.</p>
+<h3 id="temporary-releaserestore">Temporary Release/Restore<a class="headerlink" href="#temporary-releaserestore" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a><span class="n">hammer2_mtx_state_t</span><span class="w"> </span><span class="nf">hammer2_inode_lock_temp_release</span><span class="p">(</span><span class="n">hammer2_inode_t</span><span class="w"> </span><span class="o">*</span><span class="n">ip</span><span class="p">);</span>
+<a id="__codelineno-12-2" name="__codelineno-12-2" href="#__codelineno-12-2"></a><span class="kt">void</span><span class="w"> </span><span class="nf">hammer2_inode_lock_temp_restore</span><span class="p">(</span><span class="n">hammer2_inode_t</span><span class="w"> </span><span class="o">*</span><span class="n">ip</span><span class="p">,</span><span class="w"> </span><span class="n">hammer2_mtx_state_t</span><span class="w"> </span><span class="n">ostate</span><span class="p">);</span>
+</code></pre></div>
+<p>Source: <code>hammer2_inode.c:487-497</code></p>
+<p>Temporarily releases a lock (to avoid deadlocks) and restores it later. Used by <code>hammer2_igetv()</code> when calling into the vnode layer.</p>
+<h2 id="vnode-association">Vnode Association<a class="headerlink" href="#vnode-association" title="Permanent link">&para;</a></h2>
+<h3 id="getting-a-vnode-for-an-inode">Getting a Vnode for an Inode<a class="headerlink" href="#getting-a-vnode-for-an-inode" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a><span class="k">struct</span><span class="w"> </span><span class="nc">vnode</span><span class="w"> </span><span class="o">*</span><span class="n">hammer2_igetv</span><span class="p">(</span><span class="n">hammer2_inode_t</span><span class="w"> </span><span class="o">*</span><span class="n">ip</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="o">*</span><span class="n">errorp</span><span class="p">);</span>
+</code></pre></div>
+<p>Source: <code>hammer2_inode.c:669-816</code></p>
+<p>Returns an exclusively locked vnode for the given inode, allocating one if necessary. The caller must hold the inode locked.</p>
+<p><strong>Algorithm</strong>:</p>
+<ol>
+<li>If <code>ip-&gt;vp</code> is non-NULL, attempt to reuse the existing vnode via <code>vget()</code></li>
+<li>If vget fails (lost reclaim race), retry</li>
+<li>If no vnode exists, allocate via <code>getnewvnode()</code></li>
+<li>Set vnode type based on <code>ip-&gt;meta.type</code>:</li>
+<li><code>HAMMER2_OBJTYPE_DIRECTORY</code> → <code>VDIR</code></li>
+<li><code>HAMMER2_OBJTYPE_REGFILE</code> → <code>VREG</code> (with buffer cache)</li>
+<li><code>HAMMER2_OBJTYPE_SOFTLINK</code> → <code>VLNK</code></li>
+<li><code>HAMMER2_OBJTYPE_CDEV/BDEV</code> → <code>VCHR/VBLK</code></li>
+<li><code>HAMMER2_OBJTYPE_FIFO</code> → <code>VFIFO</code></li>
+<li><code>HAMMER2_OBJTYPE_SOCKET</code> → <code>VSOCK</code></li>
+<li>Link vnode and inode: <code>vp-&gt;v_data = ip; ip-&gt;vp = vp;</code></li>
+<li>Add reference for vnode association</li>
+</ol>
+<p><strong>Deadlock Avoidance</strong>: The inode lock must be temporarily released during <code>vget()</code> to avoid deadlocking against vnode reclaim:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-14-1" name="__codelineno-14-1" href="#__codelineno-14-1"></a><span class="n">vhold</span><span class="p">(</span><span class="n">vp</span><span class="p">);</span>
+<a id="__codelineno-14-2" name="__codelineno-14-2" href="#__codelineno-14-2"></a><span class="n">ostate</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">hammer2_inode_lock_temp_release</span><span class="p">(</span><span class="n">ip</span><span class="p">);</span>
+<a id="__codelineno-14-3" name="__codelineno-14-3" href="#__codelineno-14-3"></a><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">vget</span><span class="p">(</span><span class="n">vp</span><span class="p">,</span><span class="w"> </span><span class="n">LK_EXCLUSIVE</span><span class="p">))</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="cm">/* retry */</span><span class="w"> </span><span class="p">}</span>
+<a id="__codelineno-14-4" name="__codelineno-14-4" href="#__codelineno-14-4"></a><span class="n">hammer2_inode_lock_temp_restore</span><span class="p">(</span><span class="n">ip</span><span class="p">,</span><span class="w"> </span><span class="n">ostate</span><span class="p">);</span>
+<a id="__codelineno-14-5" name="__codelineno-14-5" href="#__codelineno-14-5"></a><span class="n">vdrop</span><span class="p">(</span><span class="n">vp</span><span class="p">);</span>
+</code></pre></div>
+<h2 id="inode-creation">Inode Creation<a class="headerlink" href="#inode-creation" title="Permanent link">&para;</a></h2>
+<h3 id="creating-normal-inodes">Creating Normal Inodes<a class="headerlink" href="#creating-normal-inodes" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-15-1" name="__codelineno-15-1" href="#__codelineno-15-1"></a><span class="n">hammer2_inode_t</span><span class="w"> </span><span class="o">*</span>
+<a id="__codelineno-15-2" name="__codelineno-15-2" href="#__codelineno-15-2"></a><span class="nf">hammer2_inode_create_normal</span><span class="p">(</span><span class="n">hammer2_inode_t</span><span class="w"> </span><span class="o">*</span><span class="n">pip</span><span class="p">,</span><span class="w"> </span><span class="k">struct</span><span class="w"> </span><span class="nc">vattr</span><span class="w"> </span><span class="o">*</span><span class="n">vap</span><span class="p">,</span>
+<a id="__codelineno-15-3" name="__codelineno-15-3" href="#__codelineno-15-3"></a><span class="w">                            </span><span class="k">struct</span><span class="w"> </span><span class="nc">ucred</span><span class="w"> </span><span class="o">*</span><span class="n">cred</span><span class="p">,</span><span class="w"> </span><span class="n">hammer2_key_t</span><span class="w"> </span><span class="n">inum</span><span class="p">,</span>
+<a id="__codelineno-15-4" name="__codelineno-15-4" href="#__codelineno-15-4"></a><span class="w">                            </span><span class="kt">int</span><span class="w"> </span><span class="o">*</span><span class="n">errorp</span><span class="p">);</span>
+</code></pre></div>
+<p>Source: <code>hammer2_inode.c:1121-1263</code></p>
+<p>Creates a new inode (file, directory, symlink, device, etc.) as a child of the parent inode <code>pip</code>. The function:</p>
+<ol>
+<li>Allocates an in-memory inode via <code>hammer2_inode_get()</code></li>
+<li>Sets <code>HAMMER2_INODE_CREATING</code> flag (chains not yet in media topology)</li>
+<li>Initializes metadata from <code>vattr</code> and parent attributes</li>
+<li>Inherits compression/checksum algorithms from parent</li>
+<li>Creates detached media chains via <code>hammer2_inode_create_det_desc</code> XOP</li>
+<li>Associates chains with inode via <code>hammer2_inode_repoint()</code></li>
+</ol>
+<p><strong>Note</strong>: The chains are created detached (not inserted into the on-disk tree). They will be inserted during the next filesystem sync when <code>hammer2_inode_chain_ins()</code> is called.</p>
+<h3 id="creating-pfs-inodes">Creating PFS Inodes<a class="headerlink" href="#creating-pfs-inodes" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-16-1" name="__codelineno-16-1" href="#__codelineno-16-1"></a><span class="n">hammer2_inode_t</span><span class="w"> </span><span class="o">*</span>
+<a id="__codelineno-16-2" name="__codelineno-16-2" href="#__codelineno-16-2"></a><span class="nf">hammer2_inode_create_pfs</span><span class="p">(</span><span class="n">hammer2_pfs_t</span><span class="w"> </span><span class="o">*</span><span class="n">spmp</span><span class="p">,</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="n">name</span><span class="p">,</span>
+<a id="__codelineno-16-3" name="__codelineno-16-3" href="#__codelineno-16-3"></a><span class="w">                         </span><span class="kt">size_t</span><span class="w"> </span><span class="n">name_len</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="o">*</span><span class="n">errorp</span><span class="p">);</span>
+</code></pre></div>
+<p>Source: <code>hammer2_inode.c:988-1112</code></p>
+<p>Creates a PFS (Pseudo File System) root inode under the superroot. Unlike normal inodes, PFS inodes are inserted immediately (requires flush transaction).</p>
+<h3 id="creating-directory-entries">Creating Directory Entries<a class="headerlink" href="#creating-directory-entries" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-17-1" name="__codelineno-17-1" href="#__codelineno-17-1"></a><span class="kt">int</span><span class="w"> </span><span class="nf">hammer2_dirent_create</span><span class="p">(</span><span class="n">hammer2_inode_t</span><span class="w"> </span><span class="o">*</span><span class="n">dip</span><span class="p">,</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="n">name</span><span class="p">,</span>
+<a id="__codelineno-17-2" name="__codelineno-17-2" href="#__codelineno-17-2"></a><span class="w">                          </span><span class="kt">size_t</span><span class="w"> </span><span class="n">name_len</span><span class="p">,</span><span class="w"> </span><span class="n">hammer2_key_t</span><span class="w"> </span><span class="n">inum</span><span class="p">,</span>
+<a id="__codelineno-17-3" name="__codelineno-17-3" href="#__codelineno-17-3"></a><span class="w">                          </span><span class="kt">uint8_t</span><span class="w"> </span><span class="n">type</span><span class="p">);</span>
+</code></pre></div>
+<p>Source: <code>hammer2_inode.c:1273-1352</code></p>
+<p>Creates a directory entry linking a name to an inode number. Handles hash collisions by scanning for an unused key in the collision space:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-18-1" name="__codelineno-18-1" href="#__codelineno-18-1"></a><span class="n">lhc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">hammer2_dirhash</span><span class="p">(</span><span class="n">name</span><span class="p">,</span><span class="w"> </span><span class="n">name_len</span><span class="p">);</span>
+<a id="__codelineno-18-2" name="__codelineno-18-2" href="#__codelineno-18-2"></a><span class="cm">/* Scan for unused key if collision */</span>
+<a id="__codelineno-18-3" name="__codelineno-18-3" href="#__codelineno-18-3"></a><span class="k">while</span><span class="w"> </span><span class="p">(</span><span class="n">hammer2_xop_collect</span><span class="p">(</span><span class="o">&amp;</span><span class="n">sxop</span><span class="o">-&gt;</span><span class="n">head</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-18-4" name="__codelineno-18-4" href="#__codelineno-18-4"></a><span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">lhc</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="n">sxop</span><span class="o">-&gt;</span><span class="n">head</span><span class="p">.</span><span class="n">cluster</span><span class="p">.</span><span class="n">focus</span><span class="o">-&gt;</span><span class="n">bref</span><span class="p">.</span><span class="n">key</span><span class="p">)</span>
+<a id="__codelineno-18-5" name="__codelineno-18-5" href="#__codelineno-18-5"></a><span class="w">        </span><span class="k">break</span><span class="p">;</span>
+<a id="__codelineno-18-6" name="__codelineno-18-6" href="#__codelineno-18-6"></a><span class="w">    </span><span class="o">++</span><span class="n">lhc</span><span class="p">;</span><span class="w">  </span><span class="cm">/* Try next slot */</span>
+<a id="__codelineno-18-7" name="__codelineno-18-7" href="#__codelineno-18-7"></a><span class="p">}</span>
+</code></pre></div>
+<h2 id="inode-lookup-and-caching">Inode Lookup and Caching<a class="headerlink" href="#inode-lookup-and-caching" title="Permanent link">&para;</a></h2>
+<h3 id="hammer2_inode_get">hammer2_inode_get<a class="headerlink" href="#hammer2_inode_get" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-19-1" name="__codelineno-19-1" href="#__codelineno-19-1"></a><span class="n">hammer2_inode_t</span><span class="w"> </span><span class="o">*</span>
+<a id="__codelineno-19-2" name="__codelineno-19-2" href="#__codelineno-19-2"></a><span class="nf">hammer2_inode_get</span><span class="p">(</span><span class="n">hammer2_pfs_t</span><span class="w"> </span><span class="o">*</span><span class="n">pmp</span><span class="p">,</span><span class="w"> </span><span class="n">hammer2_xop_head_t</span><span class="w"> </span><span class="o">*</span><span class="n">xop</span><span class="p">,</span>
+<a id="__codelineno-19-3" name="__codelineno-19-3" href="#__codelineno-19-3"></a><span class="w">                  </span><span class="n">hammer2_tid_t</span><span class="w"> </span><span class="n">inum</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">idx</span><span class="p">);</span>
+</code></pre></div>
+<p>Source: <code>hammer2_inode.c:845-979</code></p>
+<p>Gets or creates an inode structure. If <code>xop</code> is provided, synchronizes the inode's cluster with the XOP's cluster. The function:</p>
+<ol>
+<li>Looks up existing inode via <code>hammer2_inode_lookup()</code></li>
+<li>If found, repoints cluster chains and returns</li>
+<li>If not found, allocates new <code>hammer2_inode_t</code></li>
+<li>Initializes cluster, metadata, locks</li>
+<li>Attempts to insert into hash table (handles races)</li>
+</ol>
+<h2 id="cluster-repointing">Cluster Repointing<a class="headerlink" href="#cluster-repointing" title="Permanent link">&para;</a></h2>
+<h3 id="full-cluster-repoint">Full Cluster Repoint<a class="headerlink" href="#full-cluster-repoint" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-20-1" name="__codelineno-20-1" href="#__codelineno-20-1"></a><span class="kt">void</span><span class="w"> </span><span class="nf">hammer2_inode_repoint</span><span class="p">(</span><span class="n">hammer2_inode_t</span><span class="w"> </span><span class="o">*</span><span class="n">ip</span><span class="p">,</span><span class="w"> </span><span class="n">hammer2_cluster_t</span><span class="w"> </span><span class="o">*</span><span class="n">cluster</span><span class="p">);</span>
+</code></pre></div>
+<p>Source: <code>hammer2_inode.c:1364-1463</code></p>
+<p>Replaces all chains in the inode's embedded cluster with chains from the provided cluster. Also clears any cached data chains. Pass <code>NULL</code> to clean out all chains.</p>
+<h3 id="single-chain-repoint">Single Chain Repoint<a class="headerlink" href="#single-chain-repoint" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-21-1" name="__codelineno-21-1" href="#__codelineno-21-1"></a><span class="kt">void</span><span class="w"> </span><span class="nf">hammer2_inode_repoint_one</span><span class="p">(</span><span class="n">hammer2_inode_t</span><span class="w"> </span><span class="o">*</span><span class="n">ip</span><span class="p">,</span><span class="w"> </span><span class="n">hammer2_cluster_t</span><span class="w"> </span><span class="o">*</span><span class="n">cluster</span><span class="p">,</span>
+<a id="__codelineno-21-2" name="__codelineno-21-2" href="#__codelineno-21-2"></a><span class="w">                               </span><span class="kt">int</span><span class="w"> </span><span class="n">idx</span><span class="p">);</span>
+</code></pre></div>
+<p>Source: <code>hammer2_inode.c:1470-1529</code></p>
+<p>Repoints a single chain element. Used by synchronization threads for piecemeal updates.</p>
+<h2 id="modification-and-synchronization">Modification and Synchronization<a class="headerlink" href="#modification-and-synchronization" title="Permanent link">&para;</a></h2>
+<h3 id="marking-inodes-modified">Marking Inodes Modified<a class="headerlink" href="#marking-inodes-modified" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-22-1" name="__codelineno-22-1" href="#__codelineno-22-1"></a><span class="kt">void</span><span class="w"> </span><span class="nf">hammer2_inode_modify</span><span class="p">(</span><span class="n">hammer2_inode_t</span><span class="w"> </span><span class="o">*</span><span class="n">ip</span><span class="p">);</span>
+</code></pre></div>
+<p>Source: <code>hammer2_inode.c:1674-1682</code></p>
+<p>Marks an inode as modified:</p>
+<ol>
+<li>Sets <code>HAMMER2_INODE_MODIFIED</code> flag</li>
+<li>Marks associated vnode dirty via <code>vsetisdirty()</code></li>
+<li>Adds inode to SIDEQ via <code>hammer2_inode_delayed_sideq()</code> (unless NOSIDEQ)</li>
+</ol>
+<p>Can be called with shared or exclusive lock.</p>
+<h3 id="syncing-to-chains">Syncing to Chains<a class="headerlink" href="#syncing-to-chains" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-23-1" name="__codelineno-23-1" href="#__codelineno-23-1"></a><span class="kt">int</span><span class="w"> </span><span class="nf">hammer2_inode_chain_sync</span><span class="p">(</span><span class="n">hammer2_inode_t</span><span class="w"> </span><span class="o">*</span><span class="n">ip</span><span class="p">);</span>
+</code></pre></div>
+<p>Source: <code>hammer2_inode.c:1694-1736</code></p>
+<p>Synchronizes the inode's frontend state with the chain state. Called before explicit flush or strategy write. Uses the <code>hammer2_inode_chain_sync_desc</code> XOP to propagate metadata changes.</p>
+<p>Handles <code>RESIZED</code> flag specially — if file grew past embedded bytes, clears <code>DIRECTDATA</code> flag.</p>
+<h3 id="inserting-chains">Inserting Chains<a class="headerlink" href="#inserting-chains" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-24-1" name="__codelineno-24-1" href="#__codelineno-24-1"></a><span class="kt">int</span><span class="w"> </span><span class="nf">hammer2_inode_chain_ins</span><span class="p">(</span><span class="n">hammer2_inode_t</span><span class="w"> </span><span class="o">*</span><span class="n">ip</span><span class="p">);</span>
+</code></pre></div>
+<p>Source: <code>hammer2_inode.c:1742-1767</code></p>
+<p>Inserts the inode's chains into the on-media tree. Called during sync for inodes with <code>INODE_CREATING</code> flag. Clears the flag upon success.</p>
+<h3 id="deleting-chains">Deleting Chains<a class="headerlink" href="#deleting-chains" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-25-1" name="__codelineno-25-1" href="#__codelineno-25-1"></a><span class="kt">int</span><span class="w"> </span><span class="nf">hammer2_inode_chain_des</span><span class="p">(</span><span class="n">hammer2_inode_t</span><span class="w"> </span><span class="o">*</span><span class="n">ip</span><span class="p">);</span>
+</code></pre></div>
+<p>Source: <code>hammer2_inode.c:1781-1806</code></p>
+<p>Removes the inode's chains from the media topology. Called during sync for inodes with <code>INODE_DELETING</code> flag. Clears both <code>DELETING</code> and <code>ISUNLINKED</code> flags.</p>
+<h3 id="flushing-to-media">Flushing to Media<a class="headerlink" href="#flushing-to-media" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-26-1" name="__codelineno-26-1" href="#__codelineno-26-1"></a><span class="kt">int</span><span class="w"> </span><span class="nf">hammer2_inode_chain_flush</span><span class="p">(</span><span class="n">hammer2_inode_t</span><span class="w"> </span><span class="o">*</span><span class="n">ip</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">flags</span><span class="p">);</span>
+</code></pre></div>
+<p>Source: <code>hammer2_inode.c:1816-1831</code></p>
+<p>Flushes the inode's chain and sub-topology to media. Clears <code>DIRTYDATA</code> flag before flush. Uses <code>hammer2_inode_flush_desc</code> XOP.</p>
+<h2 id="unlink-handling">Unlink Handling<a class="headerlink" href="#unlink-handling" title="Permanent link">&para;</a></h2>
+<h3 id="finishing-unlink">Finishing Unlink<a class="headerlink" href="#finishing-unlink" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-27-1" name="__codelineno-27-1" href="#__codelineno-27-1"></a><span class="kt">int</span><span class="w"> </span><span class="nf">hammer2_inode_unlink_finisher</span><span class="p">(</span><span class="n">hammer2_inode_t</span><span class="w"> </span><span class="o">*</span><span class="n">ip</span><span class="p">,</span><span class="w"> </span><span class="k">struct</span><span class="w"> </span><span class="nc">vnode</span><span class="w"> </span><span class="o">**</span><span class="n">vprecyclep</span><span class="p">);</span>
+</code></pre></div>
+<p>Source: <code>hammer2_inode.c:1567-1631</code></p>
+<p>Called after <code>xop_unlink</code> to decrement nlinks and handle final deletion:</p>
+<ol>
+<li>If <code>nlinks &gt; 1</code>, just decrement and update ctime</li>
+<li>If <code>nlinks &lt;= 1</code>:</li>
+<li>Sets <code>ISUNLINKED</code> flag</li>
+<li>If no vnode, sets <code>DELETING</code> and adds to SIDEQ</li>
+<li>If vnode exists, defers vnode recycling to VOP completion</li>
+<li>Updates metadata via <code>hammer2_inode_modify()</code></li>
+</ol>
+<h3 id="vnode-recycling">Vnode Recycling<a class="headerlink" href="#vnode-recycling" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-28-1" name="__codelineno-28-1" href="#__codelineno-28-1"></a><span class="kt">void</span><span class="w"> </span><span class="nf">hammer2_inode_vprecycle</span><span class="p">(</span><span class="k">struct</span><span class="w"> </span><span class="nc">vnode</span><span class="w"> </span><span class="o">*</span><span class="n">vp</span><span class="p">);</span>
+</code></pre></div>
+<p>Source: <code>hammer2_inode.c:1641-1652</code></p>
+<p>Aggressively recycles a vnode after file deletion. Called at the end of VOPs that remove files. Without this, deleted files can linger with nlinks==0 until random system activity reclaims the vnode.</p>
+<h2 id="flush-dependency-management">Flush Dependency Management<a class="headerlink" href="#flush-dependency-management" title="Permanent link">&para;</a></h2>
+<h3 id="sideq-and-syncq">SIDEQ and SYNCQ<a class="headerlink" href="#sideq-and-syncq" title="Permanent link">&para;</a></h3>
+<p>Inodes that need flushing are managed through two queues:</p>
+<ul>
+<li><strong>SIDEQ</strong> (Side Queue): Dirty inodes awaiting the next sync. Inodes without an attached vnode go here to ensure they're not missed by the vnode-based syncer.</li>
+<li><strong>SYNCQ</strong> (Sync Queue): Inodes currently being synced. During sync, inodes are moved from SIDEQ to SYNCQ.</li>
+</ul>
+<h3 id="dependency-groups">Dependency Groups<a class="headerlink" href="#dependency-groups" title="Permanent link">&para;</a></h3>
+<p>Related inodes are grouped via <code>hammer2_depend_t</code> structures to ensure atomic flushing:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-29-1" name="__codelineno-29-1" href="#__codelineno-29-1"></a><span class="kt">void</span><span class="w"> </span><span class="nf">hammer2_inode_depend</span><span class="p">(</span><span class="n">hammer2_inode_t</span><span class="w"> </span><span class="o">*</span><span class="n">ip1</span><span class="p">,</span><span class="w"> </span><span class="n">hammer2_inode_t</span><span class="w"> </span><span class="o">*</span><span class="n">ip2</span><span class="p">);</span>
+</code></pre></div>
+<p>Source: <code>hammer2_inode.c:389-400</code></p>
+<p>Merges two inodes into a single dependency group. Used to ensure directory entries and their target inodes are flushed together.</p>
+<h3 id="adding-to-sideq">Adding to SIDEQ<a class="headerlink" href="#adding-to-sideq" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-30-1" name="__codelineno-30-1" href="#__codelineno-30-1"></a><span class="kt">void</span><span class="w"> </span><span class="nf">hammer2_inode_delayed_sideq</span><span class="p">(</span><span class="n">hammer2_inode_t</span><span class="w"> </span><span class="o">*</span><span class="n">ip</span><span class="p">);</span>
+</code></pre></div>
+<p>Source: <code>hammer2_inode.c:176-189</code></p>
+<p>Adds a dirty inode to the SIDEQ. Called from <code>hammer2_inode_modify()</code> and other places that dirty an inode.</p>
+<h2 id="statistics">Statistics<a class="headerlink" href="#statistics" title="Permanent link">&para;</a></h2>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-31-1" name="__codelineno-31-1" href="#__codelineno-31-1"></a><span class="n">hammer2_key_t</span><span class="w"> </span><span class="nf">hammer2_inode_data_count</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="n">hammer2_inode_t</span><span class="w"> </span><span class="o">*</span><span class="n">ip</span><span class="p">);</span>
+<a id="__codelineno-31-2" name="__codelineno-31-2" href="#__codelineno-31-2"></a><span class="n">hammer2_key_t</span><span class="w"> </span><span class="nf">hammer2_inode_inode_count</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="n">hammer2_inode_t</span><span class="w"> </span><span class="o">*</span><span class="n">ip</span><span class="p">);</span>
+</code></pre></div>
+<p>Source: <code>hammer2_inode.c:1531-1561</code></p>
+<p>Returns the maximum data/inode count across all chains in the inode's cluster. Used for filesystem statistics.</p>
+<h2 id="chain-access">Chain Access<a class="headerlink" href="#chain-access" title="Permanent link">&para;</a></h2>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-32-1" name="__codelineno-32-1" href="#__codelineno-32-1"></a><span class="n">hammer2_chain_t</span><span class="w"> </span><span class="o">*</span><span class="nf">hammer2_inode_chain</span><span class="p">(</span><span class="n">hammer2_inode_t</span><span class="w"> </span><span class="o">*</span><span class="n">ip</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">clindex</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">how</span><span class="p">);</span>
+</code></pre></div>
+<p>Source: <code>hammer2_inode.c:407-427</code></p>
+<p>Selects and locks a chain from the inode's cluster. The inode doesn't need to be locked. Returns a referenced and locked chain.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-33-1" name="__codelineno-33-1" href="#__codelineno-33-1"></a><span class="n">hammer2_chain_t</span><span class="w"> </span><span class="o">*</span>
+<a id="__codelineno-33-2" name="__codelineno-33-2" href="#__codelineno-33-2"></a><span class="nf">hammer2_inode_chain_and_parent</span><span class="p">(</span><span class="n">hammer2_inode_t</span><span class="w"> </span><span class="o">*</span><span class="n">ip</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">clindex</span><span class="p">,</span>
+<a id="__codelineno-33-3" name="__codelineno-33-3" href="#__codelineno-33-3"></a><span class="w">                               </span><span class="n">hammer2_chain_t</span><span class="w"> </span><span class="o">**</span><span class="n">parentp</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">how</span><span class="p">);</span>
+</code></pre></div>
+<p>Source: <code>hammer2_inode.c:429-478</code></p>
+<p>Returns both a chain and its parent, properly locked. Handles lock ordering (parent before chain) and retries if the topology changes during locking.</p>
+<h2 id="lifecycle-summary">Lifecycle Summary<a class="headerlink" href="#lifecycle-summary" title="Permanent link">&para;</a></h2>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-34-1" name="__codelineno-34-1" href="#__codelineno-34-1"></a>                    ┌─────────────────┐
+<a id="__codelineno-34-2" name="__codelineno-34-2" href="#__codelineno-34-2"></a>                    │ hammer2_inode_  │
+<a id="__codelineno-34-3" name="__codelineno-34-3" href="#__codelineno-34-3"></a>                    │ create_normal() │
+<a id="__codelineno-34-4" name="__codelineno-34-4" href="#__codelineno-34-4"></a>                    └────────┬────────┘
+<a id="__codelineno-34-5" name="__codelineno-34-5" href="#__codelineno-34-5"></a>                             │ allocate + CREATING flag
+<a id="__codelineno-34-6" name="__codelineno-34-6" href="#__codelineno-34-6"></a>                             ▼
+<a id="__codelineno-34-7" name="__codelineno-34-7" href="#__codelineno-34-7"></a>                    ┌─────────────────┐
+<a id="__codelineno-34-8" name="__codelineno-34-8" href="#__codelineno-34-8"></a>                    │   In-Memory     │◄──── hammer2_inode_get()
+<a id="__codelineno-34-9" name="__codelineno-34-9" href="#__codelineno-34-9"></a>                    │     Inode       │       (lookup/create)
+<a id="__codelineno-34-10" name="__codelineno-34-10" href="#__codelineno-34-10"></a>                    └────────┬────────┘
+<a id="__codelineno-34-11" name="__codelineno-34-11" href="#__codelineno-34-11"></a>                             │
+<a id="__codelineno-34-12" name="__codelineno-34-12" href="#__codelineno-34-12"></a>            ┌────────────────┼────────────────┐
+<a id="__codelineno-34-13" name="__codelineno-34-13" href="#__codelineno-34-13"></a>            │                │                │
+<a id="__codelineno-34-14" name="__codelineno-34-14" href="#__codelineno-34-14"></a>            ▼                ▼                ▼
+<a id="__codelineno-34-15" name="__codelineno-34-15" href="#__codelineno-34-15"></a>    ┌───────────────┐ ┌────────────┐ ┌───────────────┐
+<a id="__codelineno-34-16" name="__codelineno-34-16" href="#__codelineno-34-16"></a>    │hammer2_igetv()│ │ modify()   │ │ unlink_       │
+<a id="__codelineno-34-17" name="__codelineno-34-17" href="#__codelineno-34-17"></a>    │  (get vnode)  │ │ (→SIDEQ)   │ │ finisher()    │
+<a id="__codelineno-34-18" name="__codelineno-34-18" href="#__codelineno-34-18"></a>    └───────────────┘ └─────┬──────┘ └───────┬───────┘
+<a id="__codelineno-34-19" name="__codelineno-34-19" href="#__codelineno-34-19"></a>                            │                │
+<a id="__codelineno-34-20" name="__codelineno-34-20" href="#__codelineno-34-20"></a>                            ▼                ▼
+<a id="__codelineno-34-21" name="__codelineno-34-21" href="#__codelineno-34-21"></a>                    ┌─────────────────┐  ISUNLINKED
+<a id="__codelineno-34-22" name="__codelineno-34-22" href="#__codelineno-34-22"></a>                    │   Filesystem    │  DELETING
+<a id="__codelineno-34-23" name="__codelineno-34-23" href="#__codelineno-34-23"></a>                    │      Sync       │      │
+<a id="__codelineno-34-24" name="__codelineno-34-24" href="#__codelineno-34-24"></a>                    └────────┬────────┘      │
+<a id="__codelineno-34-25" name="__codelineno-34-25" href="#__codelineno-34-25"></a>                             │               │
+<a id="__codelineno-34-26" name="__codelineno-34-26" href="#__codelineno-34-26"></a>        ┌────────────────────┼───────────────┤
+<a id="__codelineno-34-27" name="__codelineno-34-27" href="#__codelineno-34-27"></a>        │                    │               │
+<a id="__codelineno-34-28" name="__codelineno-34-28" href="#__codelineno-34-28"></a>        ▼                    ▼               ▼
+<a id="__codelineno-34-29" name="__codelineno-34-29" href="#__codelineno-34-29"></a>┌───────────────┐   ┌───────────────┐ ┌──────────────┐
+<a id="__codelineno-34-30" name="__codelineno-34-30" href="#__codelineno-34-30"></a>│chain_ins()    │   │chain_sync()   │ │chain_des()   │
+<a id="__codelineno-34-31" name="__codelineno-34-31" href="#__codelineno-34-31"></a>│(insert chains)│   │(sync metadata)│ │(delete chains)│
+<a id="__codelineno-34-32" name="__codelineno-34-32" href="#__codelineno-34-32"></a>└───────────────┘   └───────────────┘ └──────────────┘
+<a id="__codelineno-34-33" name="__codelineno-34-33" href="#__codelineno-34-33"></a>        │                    │               │
+<a id="__codelineno-34-34" name="__codelineno-34-34" href="#__codelineno-34-34"></a>        └────────────────────┼───────────────┘
+<a id="__codelineno-34-35" name="__codelineno-34-35" href="#__codelineno-34-35"></a>                             ▼
+<a id="__codelineno-34-36" name="__codelineno-34-36" href="#__codelineno-34-36"></a>                    ┌─────────────────┐
+<a id="__codelineno-34-37" name="__codelineno-34-37" href="#__codelineno-34-37"></a>                    │ chain_flush()   │
+<a id="__codelineno-34-38" name="__codelineno-34-38" href="#__codelineno-34-38"></a>                    │ (write to disk) │
+<a id="__codelineno-34-39" name="__codelineno-34-39" href="#__codelineno-34-39"></a>                    └─────────────────┘
+</code></pre></div>
 <h2 id="see-also">See Also<a class="headerlink" href="#see-also" title="Permanent link">&para;</a></h2>
 <ul>
-<li><a href="../">HAMMER2 Overview</a></li>
-<li><a href="../chain-layer/">Chain Layer</a> — Underlying chain abstraction</li>
-<li><a href="../vfs-integration/">VFS Integration</a> — VFS interface</li>
+<li><a href="../">HAMMER2 Overview</a> — Filesystem architecture</li>
+<li><a href="../chain-layer/">Chain Layer</a> — Underlying block management</li>
+<li><a href="../vfs-integration/">VFS Integration</a> — VFS operations implementation</li>
+<li><a href="../xop-system/">XOP System</a> — Cross-cluster operations</li>
+<li><a href="../flush-sync/">Flush and Sync</a> — Synchronization mechanisms</li>
 </ul>
 
 
