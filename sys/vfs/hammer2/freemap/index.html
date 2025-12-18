@@ -1,231 +1,119 @@
 
-<!doctype html>
-<html lang="en" class="no-js">
-  <head>
-    
-      <meta charset="utf-8">
-      <meta name="viewport" content="width=device-width,initial-scale=1">
-      
-        <meta name="description" content="Comprehensive documentation for the DragonFly BSD kernel source code">
-      
-      
-        <meta name="author" content="DragonFly BSD Community">
-      
-      
-      
-        <link rel="prev" href="../flush-sync/">
-      
-      
-        <link rel="next" href="../xop-system/">
-      
-      
-        
-      
-      
-      <link rel="icon" href="../../../../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.1">
-    
-    
-      
-        <title>Freemap - DragonFly BSD Kernel Documentation</title>
-      
-    
-    
-      <link rel="stylesheet" href="../../../../assets/stylesheets/main.484c7ddc.min.css">
-      
-        
-        <link rel="stylesheet" href="../../../../assets/stylesheets/palette.ab4e12ef.min.css">
-      
-      
+<!DOCTYPE html>
 
-
-    
-    
-      
-    
-    
-      
-        
-        
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
-        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
-      
-    
-    
-    <script>__md_scope=new URL("../../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
-    
-      
-
-    
-    
-  </head>
-  
-  
-    
-    
-      
-    
-    
-    
-    
-    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
-  
-    
-    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
-    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
-    <label class="md-overlay" for="__drawer"></label>
-    <div data-md-component="skip">
-      
-        
-        <a href="#hammer2-freemap" class="md-skip">
+<html class="no-js" lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width,initial-scale=1" name="viewport"/>
+<meta content="Comprehensive documentation for the DragonFly BSD kernel source code" name="description"/>
+<meta content="DragonFly BSD Community" name="author"/>
+<link href="../flush-sync/" rel="prev"/>
+<link href="../xop-system/" rel="next"/>
+<link href="../../../../assets/images/favicon.png" rel="icon"/>
+<meta content="mkdocs-1.6.1, mkdocs-material-9.7.1" name="generator"/>
+<title>Freemap - DragonFly BSD Kernel Documentation</title>
+<link href="../../../../assets/stylesheets/main.484c7ddc.min.css" rel="stylesheet"/>
+<link href="../../../../assets/stylesheets/palette.ab4e12ef.min.css" rel="stylesheet"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&amp;display=fallback" rel="stylesheet"/>
+<style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+<script>__md_scope=new URL("../../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+</head>
+<body data-md-color-accent="indigo" data-md-color-primary="indigo" data-md-color-scheme="default" dir="ltr">
+<input autocomplete="off" class="md-toggle" data-md-toggle="drawer" id="__drawer" type="checkbox"/>
+<input autocomplete="off" class="md-toggle" data-md-toggle="search" id="__search" type="checkbox"/>
+<label class="md-overlay" for="__drawer"></label>
+<div data-md-component="skip">
+<a class="md-skip" href="#hammer2-freemap">
           Skip to content
         </a>
-      
-    </div>
-    <div data-md-component="announce">
-      
-    </div>
-    
-    
-      
-
+</div>
+<div data-md-component="announce">
+</div>
 <header class="md-header" data-md-component="header">
-  <nav class="md-header__inner md-grid" aria-label="Header">
-    <a href="../../../.." title="DragonFly BSD Kernel Documentation" class="md-header__button md-logo" aria-label="DragonFly BSD Kernel Documentation" data-md-component="logo">
-      
-  
-  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
-
-    </a>
-    <label class="md-header__button md-icon" for="__drawer">
-      
-      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
-    </label>
-    <div class="md-header__title" data-md-component="header-title">
-      <div class="md-header__ellipsis">
-        <div class="md-header__topic">
-          <span class="md-ellipsis">
+<nav aria-label="Header" class="md-header__inner md-grid">
+<a aria-label="DragonFly BSD Kernel Documentation" class="md-header__button md-logo" data-md-component="logo" href="../../../.." title="DragonFly BSD Kernel Documentation">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"></path></svg>
+</a>
+<label class="md-header__button md-icon" for="__drawer">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"></path></svg>
+</label>
+<div class="md-header__title" data-md-component="header-title">
+<div class="md-header__ellipsis">
+<div class="md-header__topic">
+<span class="md-ellipsis">
             DragonFly BSD Kernel Documentation
           </span>
-        </div>
-        <div class="md-header__topic" data-md-component="header-topic">
-          <span class="md-ellipsis">
+</div>
+<div class="md-header__topic" data-md-component="header-topic">
+<span class="md-ellipsis">
             
               Freemap
             
           </span>
-        </div>
-      </div>
-    </div>
-    
-      
-        <form class="md-header__option" data-md-component="palette">
-  
-    
-    
-    
-    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
-    
-      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
-      </label>
-    
-  
-    
-    
-    
-    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
-    
-      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
-      </label>
-    
-  
+</div>
+</div>
+</div>
+<form class="md-header__option" data-md-component="palette">
+<input aria-label="Switch to dark mode" class="md-option" data-md-color-accent="indigo" data-md-color-media="" data-md-color-primary="indigo" data-md-color-scheme="default" id="__palette_0" name="__palette" type="radio"/>
+<label class="md-header__button md-icon" for="__palette_1" hidden="" title="Switch to dark mode">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"></path></svg>
+</label>
+<input aria-label="Switch to light mode" class="md-option" data-md-color-accent="indigo" data-md-color-media="" data-md-color-primary="indigo" data-md-color-scheme="slate" id="__palette_1" name="__palette" type="radio"/>
+<label class="md-header__button md-icon" for="__palette_0" hidden="" title="Switch to light mode">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"></path></svg>
+</label>
 </form>
-      
-    
-    
-      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
-    
-    
-    
-      
-      
-        <label class="md-header__button md-icon" for="__search">
-          
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
-        </label>
-        <div class="md-search" data-md-component="search" role="dialog">
-  <label class="md-search__overlay" for="__search"></label>
-  <div class="md-search__inner" role="search">
-    <form class="md-search__form" name="search">
-      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
-      <label class="md-search__icon md-icon" for="__search">
-        
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
-        
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
-      </label>
-      <nav class="md-search__options" aria-label="Search">
-        
-        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
-          
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
-        </button>
-      </nav>
-      
-        <div class="md-search__suggest" data-md-component="search-suggest"></div>
-      
-    </form>
-    <div class="md-search__output">
-      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
-        <div class="md-search-result" data-md-component="search-result">
-          <div class="md-search-result__meta">
+<script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+<label class="md-header__button md-icon" for="__search">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"></path></svg>
+</label>
+<div class="md-search" data-md-component="search" role="dialog">
+<label class="md-search__overlay" for="__search"></label>
+<div class="md-search__inner" role="search">
+<form class="md-search__form" name="search">
+<input aria-label="Search" autocapitalize="off" autocomplete="off" autocorrect="off" class="md-search__input" data-md-component="search-query" name="query" placeholder="Search" required="" spellcheck="false" type="text"/>
+<label class="md-search__icon md-icon" for="__search">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"></path></svg>
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"></path></svg>
+</label>
+<nav aria-label="Search" class="md-search__options">
+<button aria-label="Clear" class="md-search__icon md-icon" tabindex="-1" title="Clear" type="reset">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"></path></svg>
+</button>
+</nav>
+<div class="md-search__suggest" data-md-component="search-suggest"></div>
+</form>
+<div class="md-search__output">
+<div class="md-search__scrollwrap" data-md-scrollfix="" tabindex="0">
+<div class="md-search-result" data-md-component="search-result">
+<div class="md-search-result__meta">
             Initializing search
           </div>
-          <ol class="md-search-result__list" role="presentation"></ol>
-        </div>
-      </div>
-    </div>
-  </div>
+<ol class="md-search-result__list" role="presentation"></ol>
 </div>
-      
-    
-    
-      <div class="md-header__source">
-        <a href="https://github.com/tuxillo/dragonflybsd-source-docs" title="Go to repository" class="md-source" data-md-component="source">
-  <div class="md-source__icon md-icon">
-    
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
-  </div>
-  <div class="md-source__repository">
+</div>
+</div>
+</div>
+</div>
+<div class="md-header__source">
+<a class="md-source" data-md-component="source" href="https://github.com/tuxillo/dragonflybsd-source-docs" title="Go to repository">
+<div class="md-source__icon md-icon">
+<svg viewbox="0 0 448 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"></path></svg>
+</div>
+<div class="md-source__repository">
     tuxillo/dragonflybsd-source-docs
   </div>
 </a>
-      </div>
-    
-  </nav>
-  
+</div>
+</nav>
 </header>
-    
-    <div class="md-container" data-md-component="container">
-      
-      
-        
-          
-            
-<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
-  <div class="md-grid">
-    <ul class="md-tabs__list">
-      
-        
-  
-  
-  
-  
-    <li class="md-tabs__item">
-      <a href="../../../.." class="md-tabs__link">
+<div class="md-container" data-md-component="container">
+<nav aria-label="Tabs" class="md-tabs" data-md-component="tabs">
+<div class="md-grid">
+<ul class="md-tabs__list">
+<li class="md-tabs__item">
+<a class="md-tabs__link" href="../../../..">
         
   
   
@@ -234,17 +122,9 @@
   Home
 
       </a>
-    </li>
-  
-
-      
-        
-  
-  
-  
-  
-    <li class="md-tabs__item">
-      <a href="../../../../getting-started/" class="md-tabs__link">
+</li>
+<li class="md-tabs__item">
+<a class="md-tabs__link" href="../../../../getting-started/">
         
   
   
@@ -253,89 +133,45 @@
   Getting Started
 
       </a>
-    </li>
-  
-
-      
-        
-  
-  
-  
-    
-  
-  
-    
-    
-      <li class="md-tabs__item md-tabs__item--active">
-        <a href="../../../" class="md-tabs__link">
+</li>
+<li class="md-tabs__item md-tabs__item--active">
+<a class="md-tabs__link" href="../../../">
           
   
   
   Kernel Subsystems
 
         </a>
-      </li>
-    
-  
-
-      
-    </ul>
-  </div>
+</li>
+</ul>
+</div>
 </nav>
-          
-        
-      
-      <main class="md-main" data-md-component="main">
-        <div class="md-main__inner md-grid">
-          
-            
-              
-              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
-                <div class="md-sidebar__scrollwrap">
-                  <div class="md-sidebar__inner">
-                    
-
-
-  
-
-
-<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
-  <label class="md-nav__title" for="__drawer">
-    <a href="../../../.." title="DragonFly BSD Kernel Documentation" class="md-nav__button md-logo" aria-label="DragonFly BSD Kernel Documentation" data-md-component="logo">
-      
-  
-  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
-
-    </a>
+<main class="md-main" data-md-component="main">
+<div class="md-main__inner md-grid">
+<div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation">
+<div class="md-sidebar__scrollwrap">
+<div class="md-sidebar__inner">
+<nav aria-label="Navigation" class="md-nav md-nav--primary md-nav--lifted" data-md-level="0">
+<label class="md-nav__title" for="__drawer">
+<a aria-label="DragonFly BSD Kernel Documentation" class="md-nav__button md-logo" data-md-component="logo" href="../../../.." title="DragonFly BSD Kernel Documentation">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"></path></svg>
+</a>
     DragonFly BSD Kernel Documentation
   </label>
-  
-    <div class="md-nav__source">
-      <a href="https://github.com/tuxillo/dragonflybsd-source-docs" title="Go to repository" class="md-source" data-md-component="source">
-  <div class="md-source__icon md-icon">
-    
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
-  </div>
-  <div class="md-source__repository">
+<div class="md-nav__source">
+<a class="md-source" data-md-component="source" href="https://github.com/tuxillo/dragonflybsd-source-docs" title="Go to repository">
+<div class="md-source__icon md-icon">
+<svg viewbox="0 0 448 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"></path></svg>
+</div>
+<div class="md-source__repository">
     tuxillo/dragonflybsd-source-docs
   </div>
 </a>
-    </div>
-  
-  <ul class="md-nav__list" data-md-scrollfix>
-    
-      
-      
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../../.." class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
+</div>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../../..">
+<span class="md-ellipsis">
     
   
     Home
@@ -343,26 +179,11 @@
 
     
   </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-    
-      
-      
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../../../getting-started/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../../../getting-started/">
+<span class="md-ellipsis">
     
   
     Getting Started
@@ -370,47 +191,12 @@
 
     
   </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-    
-      
-      
-  
-  
-    
-  
-  
-  
-    
-    
-    
-    
-      
-        
-        
-      
-      
-        
-      
-    
-    
-    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
-      
-        
-        
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" checked>
-        
-          
-          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="">
-            
-  
-  
-  <span class="md-ellipsis">
+</a>
+</li>
+<li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+<input checked="" class="md-nav__toggle md-toggle" id="__nav_3" type="checkbox"/>
+<label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="">
+<span class="md-ellipsis">
     
   
     Kernel Subsystems
@@ -418,35 +204,21 @@
 
     
   </span>
-  
-  
-
-            <span class="md-nav__icon md-icon"></span>
-          </label>
-        
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="true">
-          <label class="md-nav__title" for="__nav_3">
-            <span class="md-nav__icon md-icon"></span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="true" aria-labelledby="__nav_3_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_3">
+<span class="md-nav__icon md-icon"></span>
             
   
     Kernel Subsystems
   
 
           </label>
-          <ul class="md-nav__list" data-md-scrollfix>
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../../" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../../">
+<span class="md-ellipsis">
     
   
     Overview
@@ -454,48 +226,12 @@
 
     
   </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    
-    
-    
-    
-      
-      
-        
-          
-          
-        
-      
-    
-    
-    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
-      
-        
-        
-          
-        
-        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_3_2" >
-        
-          
-          <label class="md-nav__link" for="__nav_3_2" id="__nav_3_2_label" tabindex="">
-            
-  
-  
-  <span class="md-ellipsis">
+</a>
+</li>
+<li class="md-nav__item md-nav__item--section md-nav__item--nested">
+<input class="md-nav__toggle md-toggle md-toggle--indeterminate" id="__nav_3_2" type="checkbox"/>
+<label class="md-nav__link" for="__nav_3_2" id="__nav_3_2_label" tabindex="">
+<span class="md-ellipsis">
     
   
     kern/
@@ -503,35 +239,21 @@
 
     
   </span>
-  
-  
-
-            <span class="md-nav__icon md-icon"></span>
-          </label>
-        
-        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_2_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_3_2">
-            <span class="md-nav__icon md-icon"></span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="false" aria-labelledby="__nav_3_2_label" class="md-nav" data-md-level="2">
+<label class="md-nav__title" for="__nav_3_2">
+<span class="md-nav__icon md-icon"></span>
             
   
     kern/
   
 
           </label>
-          <ul class="md-nav__list" data-md-scrollfix>
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../../kern/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../../kern/">
+<span class="md-ellipsis">
     
   
     Overview
@@ -539,27 +261,11 @@
 
     
   </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../../kern/lwkt/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../../kern/lwkt/">
+<span class="md-ellipsis">
     
   
     LWKT Threading
@@ -567,27 +273,11 @@
 
     
   </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../../kern/synchronization/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../../kern/synchronization/">
+<span class="md-ellipsis">
     
   
     Synchronization
@@ -595,55 +285,23 @@
 
     
   </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../../kern/time/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../../kern/time/">
+<span class="md-ellipsis">
     
   
-    Time & Timers
+    Time &amp; Timers
   
 
     
   </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../../kern/memory/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../../kern/memory/">
+<span class="md-ellipsis">
     
   
     Memory Management
@@ -651,111 +309,47 @@
 
     
   </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../../kern/initialization/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../../kern/initialization/">
+<span class="md-ellipsis">
     
   
-    Initialization & Bootstrap
+    Initialization &amp; Bootstrap
   
 
     
   </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../../kern/processes/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../../kern/processes/">
+<span class="md-ellipsis">
     
   
-    Processes & Threads
+    Processes &amp; Threads
   
 
     
   </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../../kern/resources/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../../kern/resources/">
+<span class="md-ellipsis">
     
   
-    Process Resources & Credentials
+    Process Resources &amp; Credentials
   
 
     
   </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../../kern/signals/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../../kern/signals/">
+<span class="md-ellipsis">
     
   
     Signals
@@ -763,27 +357,11 @@
 
     
   </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../../kern/scheduling/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../../kern/scheduling/">
+<span class="md-ellipsis">
     
   
     Scheduling
@@ -791,45 +369,12 @@
 
     
   </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    
-    
-    
-    
-      
-      
-        
-      
-    
-    
-    <li class="md-nav__item md-nav__item--nested">
-      
-        
-        
-          
-        
-        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_3_2_11" >
-        
-          
-          <label class="md-nav__link" for="__nav_3_2_11" id="__nav_3_2_11_label" tabindex="0">
-            
-  
-  
-  <span class="md-ellipsis">
+</a>
+</li>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle md-toggle--indeterminate" id="__nav_3_2_11" type="checkbox"/>
+<label class="md-nav__link" for="__nav_3_2_11" id="__nav_3_2_11_label" tabindex="0">
+<span class="md-ellipsis">
     
   
     Virtual Filesystem
@@ -837,35 +382,21 @@
 
     
   </span>
-  
-  
-
-            <span class="md-nav__icon md-icon"></span>
-          </label>
-        
-        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_3_2_11_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_3_2_11">
-            <span class="md-nav__icon md-icon"></span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="false" aria-labelledby="__nav_3_2_11_label" class="md-nav" data-md-level="3">
+<label class="md-nav__title" for="__nav_3_2_11">
+<span class="md-nav__icon md-icon"></span>
             
   
     Virtual Filesystem
   
 
           </label>
-          <ul class="md-nav__list" data-md-scrollfix>
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../../kern/vfs/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../../kern/vfs/">
+<span class="md-ellipsis">
     
   
     Overview
@@ -873,111 +404,47 @@
 
     
   </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../../kern/vfs/namecache/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../../kern/vfs/namecache/">
+<span class="md-ellipsis">
     
   
-    Name Lookup & Caching
+    Name Lookup &amp; Caching
   
 
     
   </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../../kern/vfs/mounting/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../../kern/vfs/mounting/">
+<span class="md-ellipsis">
     
   
-    Mounting & Unmounting
+    Mounting &amp; Unmounting
   
 
     
   </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../../kern/vfs/buffer-cache/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../../kern/vfs/buffer-cache/">
+<span class="md-ellipsis">
     
   
-    Buffer Cache & I/O
+    Buffer Cache &amp; I/O
   
 
     
   </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../../kern/vfs/vfs-operations/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../../kern/vfs/vfs-operations/">
+<span class="md-ellipsis">
     
   
     VFS Operations Framework
@@ -985,27 +452,11 @@
 
     
   </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../../kern/vfs/journaling/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../../kern/vfs/journaling/">
+<span class="md-ellipsis">
     
   
     Journaling System
@@ -1013,145 +464,61 @@
 
     
   </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../../kern/vfs/vfs-locking/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../../kern/vfs/vfs-locking/">
+<span class="md-ellipsis">
     
   
-    Vnode Locking & Lifecycle
+    Vnode Locking &amp; Lifecycle
   
 
     
   </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../../kern/vfs/vfs-extensions/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../../kern/vfs/vfs-extensions/">
+<span class="md-ellipsis">
     
   
-    VFS Extensions & Helpers
+    VFS Extensions &amp; Helpers
   
 
     
   </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-          </ul>
-        </nav>
-      
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    
-    
-    
-    
-      
-      
-        
-      
-    
-    
-    <li class="md-nav__item md-nav__item--nested">
-      
-        
-        
-          
-        
-        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_3_2_12" >
-        
-          
-          <label class="md-nav__link" for="__nav_3_2_12" id="__nav_3_2_12_label" tabindex="0">
-            
-  
-  
-  <span class="md-ellipsis">
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle md-toggle--indeterminate" id="__nav_3_2_12" type="checkbox"/>
+<label class="md-nav__link" for="__nav_3_2_12" id="__nav_3_2_12_label" tabindex="0">
+<span class="md-ellipsis">
     
   
-    IPC & Sockets
+    IPC &amp; Sockets
   
 
     
   </span>
-  
-  
-
-            <span class="md-nav__icon md-icon"></span>
-          </label>
-        
-        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_3_2_12_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_3_2_12">
-            <span class="md-nav__icon md-icon"></span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="false" aria-labelledby="__nav_3_2_12_label" class="md-nav" data-md-level="3">
+<label class="md-nav__title" for="__nav_3_2_12">
+<span class="md-nav__icon md-icon"></span>
             
   
-    IPC & Sockets
+    IPC &amp; Sockets
   
 
           </label>
-          <ul class="md-nav__list" data-md-scrollfix>
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../../kern/ipc/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../../kern/ipc/">
+<span class="md-ellipsis">
     
   
     Overview
@@ -1159,27 +526,11 @@
 
     
   </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../../kern/ipc/mbufs/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../../kern/ipc/mbufs/">
+<span class="md-ellipsis">
     
   
     Mbufs
@@ -1187,27 +538,11 @@
 
     
   </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../../kern/ipc/sockets/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../../kern/ipc/sockets/">
+<span class="md-ellipsis">
     
   
     Sockets
@@ -1215,27 +550,11 @@
 
     
   </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../../kern/ipc/unix-sockets/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../../kern/ipc/unix-sockets/">
+<span class="md-ellipsis">
     
   
     Unix Domain Sockets
@@ -1243,27 +562,11 @@
 
     
   </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../../kern/ipc/protocol-dispatch/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../../kern/ipc/protocol-dispatch/">
+<span class="md-ellipsis">
     
   
     Protocol Dispatch
@@ -1271,27 +574,11 @@
 
     
   </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../../kern/ipc/pipes/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../../kern/ipc/pipes/">
+<span class="md-ellipsis">
     
   
     Pipes
@@ -1299,27 +586,11 @@
 
     
   </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../../kern/ipc/mqueue/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../../kern/ipc/mqueue/">
+<span class="md-ellipsis">
     
   
     POSIX Message Queues
@@ -1327,27 +598,11 @@
 
     
   </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../../kern/ipc/sysv-msg/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../../kern/ipc/sysv-msg/">
+<span class="md-ellipsis">
     
   
     System V Message Queues
@@ -1355,27 +610,11 @@
 
     
   </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../../kern/ipc/sysv-sem/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../../kern/ipc/sysv-sem/">
+<span class="md-ellipsis">
     
   
     System V Semaphores
@@ -1383,27 +622,11 @@
 
     
   </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../../kern/ipc/sysv-shm/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../../kern/ipc/sysv-shm/">
+<span class="md-ellipsis">
     
   
     System V Shared Memory
@@ -1411,63 +634,26 @@
 
     
   </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-          </ul>
-        </nav>
-      
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../../kern/devices/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../../kern/devices/">
+<span class="md-ellipsis">
     
   
-    Devices & Drivers
+    Devices &amp; Drivers
   
 
     
   </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../../kern/newbus/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../../kern/newbus/">
+<span class="md-ellipsis">
     
   
     NewBus Framework
@@ -1475,55 +661,23 @@
 
     
   </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../../kern/bus-resources/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../../kern/bus-resources/">
+<span class="md-ellipsis">
     
   
-    Bus Resources & DMA
+    Bus Resources &amp; DMA
   
 
     
   </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../../kern/disk/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../../kern/disk/">
+<span class="md-ellipsis">
     
   
     Disk Subsystem
@@ -1531,27 +685,11 @@
 
     
   </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../../kern/firmware/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../../kern/firmware/">
+<span class="md-ellipsis">
     
   
     Firmware Loading
@@ -1559,27 +697,11 @@
 
     
   </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../../kern/syscalls/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../../kern/syscalls/">
+<span class="md-ellipsis">
     
   
     System Calls
@@ -1587,27 +709,11 @@
 
     
   </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../../kern/kld/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../../kern/kld/">
+<span class="md-ellipsis">
     
   
     Kernel Linker (KLD)
@@ -1615,55 +721,23 @@
 
     
   </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../../kern/tracing/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../../kern/tracing/">
+<span class="md-ellipsis">
     
   
-    Tracing & Debugging
+    Tracing &amp; Debugging
   
 
     
   </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../../kern/sysctl/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../../kern/sysctl/">
+<span class="md-ellipsis">
     
   
     Sysctl Framework
@@ -1671,55 +745,23 @@
 
     
   </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../../kern/accounting/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../../kern/accounting/">
+<span class="md-ellipsis">
     
   
-    Accounting & Sensors
+    Accounting &amp; Sensors
   
 
     
   </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../../kern/security/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../../kern/security/">
+<span class="md-ellipsis">
     
   
     Security
@@ -1727,27 +769,11 @@
 
     
   </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../../kern/tty/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../../kern/tty/">
+<span class="md-ellipsis">
     
   
     TTY Subsystem
@@ -1755,27 +781,11 @@
 
     
   </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../../kern/tty-pty/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../../kern/tty-pty/">
+<span class="md-ellipsis">
     
   
     Pseudo-Terminals (PTY)
@@ -1783,27 +793,11 @@
 
     
   </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../../kern/kevent/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../../kern/kevent/">
+<span class="md-ellipsis">
     
   
     Event Notification (kevent)
@@ -1811,27 +805,11 @@
 
     
   </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../../kern/taskqueue/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../../kern/taskqueue/">
+<span class="md-ellipsis">
     
   
     Task Queues
@@ -1839,27 +817,11 @@
 
     
   </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../../kern/random/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../../kern/random/">
+<span class="md-ellipsis">
     
   
     Random Number Generation
@@ -1867,27 +829,11 @@
 
     
   </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../../kern/checkpoint/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../../kern/checkpoint/">
+<span class="md-ellipsis">
     
   
     Process Checkpoint/Restart
@@ -1895,27 +841,11 @@
 
     
   </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../../kern/dmsg/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../../kern/dmsg/">
+<span class="md-ellipsis">
     
   
     Distributed Messaging (dmsg)
@@ -1923,55 +853,23 @@
 
     
   </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../../kern/shutdown/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../../kern/shutdown/">
+<span class="md-ellipsis">
     
   
-    Shutdown & Panic
+    Shutdown &amp; Panic
   
 
     
   </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../../kern/utilities/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../../kern/utilities/">
+<span class="md-ellipsis">
     
   
     Kernel Utilities
@@ -1979,56 +877,15 @@
 
     
   </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-          </ul>
-        </nav>
-      
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    
-    
-    
-    
-      
-      
-        
-          
-          
-        
-      
-    
-    
-    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
-      
-        
-        
-          
-        
-        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_3_3" >
-        
-          
-          <label class="md-nav__link" for="__nav_3_3" id="__nav_3_3_label" tabindex="">
-            
-  
-  
-  <span class="md-ellipsis">
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--section md-nav__item--nested">
+<input class="md-nav__toggle md-toggle md-toggle--indeterminate" id="__nav_3_3" type="checkbox"/>
+<label class="md-nav__link" for="__nav_3_3" id="__nav_3_3_label" tabindex="">
+<span class="md-ellipsis">
     
   
     vm/
@@ -2036,35 +893,21 @@
 
     
   </span>
-  
-  
-
-            <span class="md-nav__icon md-icon"></span>
-          </label>
-        
-        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_3_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_3_3">
-            <span class="md-nav__icon md-icon"></span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="false" aria-labelledby="__nav_3_3_label" class="md-nav" data-md-level="2">
+<label class="md-nav__title" for="__nav_3_3">
+<span class="md-nav__icon md-icon"></span>
             
   
     vm/
   
 
           </label>
-          <ul class="md-nav__list" data-md-scrollfix>
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../../vm/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../../vm/">
+<span class="md-ellipsis">
     
   
     Overview
@@ -2072,27 +915,11 @@
 
     
   </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../../vm/concepts/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../../vm/concepts/">
+<span class="md-ellipsis">
     
   
     Concepts
@@ -2100,27 +927,11 @@
 
     
   </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../../vm/vm_page/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../../vm/vm_page/">
+<span class="md-ellipsis">
     
   
     Physical Pages
@@ -2128,27 +939,11 @@
 
     
   </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../../vm/vm_object/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../../vm/vm_object/">
+<span class="md-ellipsis">
     
   
     VM Objects
@@ -2156,27 +951,11 @@
 
     
   </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../../vm/vm_map/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../../vm/vm_map/">
+<span class="md-ellipsis">
     
   
     Address Space
@@ -2184,27 +963,11 @@
 
     
   </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../../vm/vm_fault/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../../vm/vm_fault/">
+<span class="md-ellipsis">
     
   
     Page Faults
@@ -2212,55 +975,23 @@
 
     
   </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../../vm/vm_pageout/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../../vm/vm_pageout/">
+<span class="md-ellipsis">
     
   
-    Pageout & Swap
+    Pageout &amp; Swap
   
 
     
   </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../../vm/vm_mmap/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../../vm/vm_mmap/">
+<span class="md-ellipsis">
     
   
     Memory Mapping
@@ -2268,56 +999,15 @@
 
     
   </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-          </ul>
-        </nav>
-      
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-    
-  
-  
-  
-    
-    
-    
-    
-      
-      
-        
-          
-          
-        
-      
-    
-    
-    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
-      
-        
-        
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_4" checked>
-        
-          
-          <label class="md-nav__link" for="__nav_3_4" id="__nav_3_4_label" tabindex="">
-            
-  
-  
-  <span class="md-ellipsis">
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+<input checked="" class="md-nav__toggle md-toggle" id="__nav_3_4" type="checkbox"/>
+<label class="md-nav__link" for="__nav_3_4" id="__nav_3_4_label" tabindex="">
+<span class="md-ellipsis">
     
   
     vfs/
@@ -2325,35 +1015,21 @@
 
     
   </span>
-  
-  
-
-            <span class="md-nav__icon md-icon"></span>
-          </label>
-        
-        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_4_label" aria-expanded="true">
-          <label class="md-nav__title" for="__nav_3_4">
-            <span class="md-nav__icon md-icon"></span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="true" aria-labelledby="__nav_3_4_label" class="md-nav" data-md-level="2">
+<label class="md-nav__title" for="__nav_3_4">
+<span class="md-nav__icon md-icon"></span>
             
   
     vfs/
   
 
           </label>
-          <ul class="md-nav__list" data-md-scrollfix>
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../">
+<span class="md-ellipsis">
     
   
     Overview
@@ -2361,45 +1037,12 @@
 
     
   </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-    
-  
-  
-  
-    
-    
-    
-    
-      
-      
-        
-      
-    
-    
-    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
-      
-        
-        
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_4_2" checked>
-        
-          
-          <label class="md-nav__link" for="__nav_3_4_2" id="__nav_3_4_2_label" tabindex="0">
-            
-  
-  
-  <span class="md-ellipsis">
+</a>
+</li>
+<li class="md-nav__item md-nav__item--active md-nav__item--nested">
+<input checked="" class="md-nav__toggle md-toggle" id="__nav_3_4_2" type="checkbox"/>
+<label class="md-nav__link" for="__nav_3_4_2" id="__nav_3_4_2_label" tabindex="0">
+<span class="md-ellipsis">
     
   
     HAMMER2
@@ -2407,35 +1050,21 @@
 
     
   </span>
-  
-  
-
-            <span class="md-nav__icon md-icon"></span>
-          </label>
-        
-        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_3_4_2_label" aria-expanded="true">
-          <label class="md-nav__title" for="__nav_3_4_2">
-            <span class="md-nav__icon md-icon"></span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="true" aria-labelledby="__nav_3_4_2_label" class="md-nav" data-md-level="3">
+<label class="md-nav__title" for="__nav_3_4_2">
+<span class="md-nav__icon md-icon"></span>
             
   
     HAMMER2
   
 
           </label>
-          <ul class="md-nav__list" data-md-scrollfix>
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../">
+<span class="md-ellipsis">
     
   
     Overview
@@ -2443,27 +1072,11 @@
 
     
   </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../on-disk-format/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../on-disk-format/">
+<span class="md-ellipsis">
     
   
     On-Disk Format
@@ -2471,27 +1084,11 @@
 
     
   </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../chain-layer/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../chain-layer/">
+<span class="md-ellipsis">
     
   
     Chain Layer
@@ -2499,27 +1096,11 @@
 
     
   </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../inode-layer/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../inode-layer/">
+<span class="md-ellipsis">
     
   
     Inode Layer
@@ -2527,27 +1108,11 @@
 
     
   </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../io-subsystem/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../io-subsystem/">
+<span class="md-ellipsis">
     
   
     I/O Subsystem
@@ -2555,64 +1120,24 @@
 
     
   </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../flush-sync/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../flush-sync/">
+<span class="md-ellipsis">
     
   
-    Flush & Sync
+    Flush &amp; Sync
   
 
     
   </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-    
-  
-  
-  
-    <li class="md-nav__item md-nav__item--active">
-      
-      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
-      
-      
-        
-      
-      
-        <label class="md-nav__link md-nav__link--active" for="__toc">
-          
-  
-  
-  <span class="md-ellipsis">
+</a>
+</li>
+<li class="md-nav__item md-nav__item--active">
+<input class="md-nav__toggle md-toggle" id="__toc" type="checkbox"/>
+<label class="md-nav__link md-nav__link--active" for="__toc">
+<span class="md-ellipsis">
     
   
     Freemap
@@ -2620,17 +1145,10 @@
 
     
   </span>
-  
-  
-
-          <span class="md-nav__icon md-icon"></span>
-        </label>
-      
-      <a href="./" class="md-nav__link md-nav__link--active">
-        
-  
-  
-  <span class="md-ellipsis">
+<span class="md-nav__icon md-icon"></span>
+</label>
+<a class="md-nav__link md-nav__link--active" href="./">
+<span class="md-ellipsis">
     
   
     Freemap
@@ -2638,102 +1156,415 @@
 
     
   </span>
-  
-  
-
-      </a>
-      
-        
-
-<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
-  
-  
-  
-    
-  
-  
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
+</a>
+<nav aria-label="Table of contents" class="md-nav md-nav--secondary">
+<label class="md-nav__title" for="__toc">
+<span class="md-nav__icon md-icon"></span>
       Table of contents
     </label>
-    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#overview" class="md-nav__link">
-    <span class="md-ellipsis">
+<ul class="md-nav__list" data-md-component="toc" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#overview">
+<span class="md-ellipsis">
       
         Overview
       
     </span>
-  </a>
-  
+</a>
 </li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#zone-layout">
+<span class="md-ellipsis">
       
-        <li class="md-nav__item">
-  <a href="#freemap-structure" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Freemap Structure
+        Zone Layout
       
     </span>
-  </a>
-  
-</li>
+</a>
+<nav aria-label="Zone Layout" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#zone-structure">
+<span class="md-ellipsis">
       
-        <li class="md-nav__item">
-  <a href="#allocation" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Allocation
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#bulk-free" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Bulk Free
+        Zone Structure
       
     </span>
-  </a>
-  
+</a>
 </li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#freemap-block-rotation">
+<span class="md-ellipsis">
       
-        <li class="md-nav__item">
-  <a href="#see-also" class="md-nav__link">
-    <span class="md-ellipsis">
+        Freemap Block Rotation
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#freemap-tree-structure">
+<span class="md-ellipsis">
+      
+        Freemap Tree Structure
+      
+    </span>
+</a>
+<nav aria-label="Freemap Tree Structure" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#level-hierarchy">
+<span class="md-ellipsis">
+      
+        Level Hierarchy
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#tree-visualization">
+<span class="md-ellipsis">
+      
+        Tree Visualization
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#freemap-nodeleaf-size">
+<span class="md-ellipsis">
+      
+        Freemap Node/Leaf Size
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#bitmap-organization">
+<span class="md-ellipsis">
+      
+        Bitmap Organization
+      
+    </span>
+</a>
+<nav aria-label="Bitmap Organization" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#bmap_data-structure">
+<span class="md-ellipsis">
+      
+        bmap_data Structure
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#bitmap-encoding">
+<span class="md-ellipsis">
+      
+        Bitmap Encoding
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#bitmap-constants">
+<span class="md-ellipsis">
+      
+        Bitmap Constants
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#linear-allocator">
+<span class="md-ellipsis">
+      
+        Linear Allocator
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#allocation-algorithm">
+<span class="md-ellipsis">
+      
+        Allocation Algorithm
+      
+    </span>
+</a>
+<nav aria-label="Allocation Algorithm" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#allocation-flow">
+<span class="md-ellipsis">
+      
+        Allocation Flow
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#heuristic-hints">
+<span class="md-ellipsis">
+      
+        Heuristic Hints
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#try-allocation">
+<span class="md-ellipsis">
+      
+        Try Allocation
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#bmap-allocation">
+<span class="md-ellipsis">
+      
+        Bmap Allocation
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#class-based-allocation">
+<span class="md-ellipsis">
+      
+        Class-Based Allocation
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#relaxed-mode">
+<span class="md-ellipsis">
+      
+        Relaxed Mode
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#freemap-initialization">
+<span class="md-ellipsis">
+      
+        Freemap Initialization
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#freemap-recovery">
+<span class="md-ellipsis">
+      
+        Freemap Recovery
+      
+    </span>
+</a>
+<nav aria-label="Freemap Recovery" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#recovery-via-adjust">
+<span class="md-ellipsis">
+      
+        Recovery via Adjust
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#recovery-flow">
+<span class="md-ellipsis">
+      
+        Recovery Flow
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#bulkfree-operation">
+<span class="md-ellipsis">
+      
+        Bulkfree Operation
+      
+    </span>
+</a>
+<nav aria-label="Bulkfree Operation" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#bulkfree-algorithm">
+<span class="md-ellipsis">
+      
+        Bulkfree Algorithm
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#double-transition-safety">
+<span class="md-ellipsis">
+      
+        Double-Transition Safety
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#bulkfree-implementation">
+<span class="md-ellipsis">
+      
+        Bulkfree Implementation
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#bulkfree-info-structure">
+<span class="md-ellipsis">
+      
+        Bulkfree Info Structure
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#memory-bounded-scanning">
+<span class="md-ellipsis">
+      
+        Memory-Bounded Scanning
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#bulkfree-thread">
+<span class="md-ellipsis">
+      
+        Bulkfree Thread
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#freemap-and-volume-header">
+<span class="md-ellipsis">
+      
+        Freemap and Volume Header
+      
+    </span>
+</a>
+<nav aria-label="Freemap and Volume Header" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#freemap-flush-coordination">
+<span class="md-ellipsis">
+      
+        Freemap Flush Coordination
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#blockref-check-field">
+<span class="md-ellipsis">
+      
+        Blockref Check Field
+      
+    </span>
+</a>
+<nav aria-label="Blockref Check Field" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#bigmask-optimization">
+<span class="md-ellipsis">
+      
+        Bigmask Optimization
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#performance-considerations">
+<span class="md-ellipsis">
+      
+        Performance Considerations
+      
+    </span>
+</a>
+<nav aria-label="Performance Considerations" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#allocation-locality">
+<span class="md-ellipsis">
+      
+        Allocation Locality
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#avoiding-read-before-write">
+<span class="md-ellipsis">
+      
+        Avoiding Read-Before-Write
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#deduplication-integration">
+<span class="md-ellipsis">
+      
+        Deduplication Integration
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#see-also">
+<span class="md-ellipsis">
       
         See Also
       
     </span>
-  </a>
-  
+</a>
 </li>
-      
-    </ul>
-  
+</ul>
 </nav>
-      
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../xop-system/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../xop-system/">
+<span class="md-ellipsis">
     
   
     XOP System
@@ -2741,27 +1572,11 @@
 
     
   </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../vfs-integration/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../vfs-integration/">
+<span class="md-ellipsis">
     
   
     VFS Integration
@@ -2769,27 +1584,11 @@
 
     
   </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../compression/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../compression/">
+<span class="md-ellipsis">
     
   
     Compression
@@ -2797,27 +1596,11 @@
 
     
   </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../snapshots/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../snapshots/">
+<span class="md-ellipsis">
     
   
     Snapshots
@@ -2825,27 +1608,11 @@
 
     
   </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../clustering/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../clustering/">
+<span class="md-ellipsis">
     
   
     Clustering
@@ -2853,35 +1620,14 @@
 
     
   </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-          </ul>
-        </nav>
-      
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../hammer/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../hammer/">
+<span class="md-ellipsis">
     
   
     HAMMER
@@ -2889,27 +1635,11 @@
 
     
   </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../devfs/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../devfs/">
+<span class="md-ellipsis">
     
   
     devfs
@@ -2917,27 +1647,11 @@
 
     
   </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../procfs/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../procfs/">
+<span class="md-ellipsis">
     
   
     procfs
@@ -2945,27 +1659,11 @@
 
     
   </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../tmpfs/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../tmpfs/">
+<span class="md-ellipsis">
     
   
     tmpfs
@@ -2973,27 +1671,11 @@
 
     
   </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../nullfs/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../nullfs/">
+<span class="md-ellipsis">
     
   
     nullfs
@@ -3001,27 +1683,11 @@
 
     
   </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../fifofs/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../fifofs/">
+<span class="md-ellipsis">
     
   
     fifofs
@@ -3029,27 +1695,11 @@
 
     
   </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../deadfs/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../deadfs/">
+<span class="md-ellipsis">
     
   
     deadfs
@@ -3057,27 +1707,11 @@
 
     
   </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../mfs/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../mfs/">
+<span class="md-ellipsis">
     
   
     mfs
@@ -3085,27 +1719,11 @@
 
     
   </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../ufs/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../ufs/">
+<span class="md-ellipsis">
     
   
     UFS
@@ -3113,27 +1731,11 @@
 
     
   </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../nfs/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../nfs/">
+<span class="md-ellipsis">
     
   
     NFS
@@ -3141,27 +1743,11 @@
 
     
   </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../ext2fs/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../ext2fs/">
+<span class="md-ellipsis">
     
   
     ext2fs
@@ -3169,27 +1755,11 @@
 
     
   </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../msdosfs/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../msdosfs/">
+<span class="md-ellipsis">
     
   
     msdosfs
@@ -3197,27 +1767,11 @@
 
     
   </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../ntfs/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../ntfs/">
+<span class="md-ellipsis">
     
   
     NTFS
@@ -3225,27 +1779,11 @@
 
     
   </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../isofs/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../isofs/">
+<span class="md-ellipsis">
     
   
     ISO9660
@@ -3253,27 +1791,11 @@
 
     
   </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../udf/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../udf/">
+<span class="md-ellipsis">
     
   
     UDF
@@ -3281,27 +1803,11 @@
 
     
   </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../hpfs/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../hpfs/">
+<span class="md-ellipsis">
     
   
     HPFS
@@ -3309,27 +1815,11 @@
 
     
   </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../smbfs/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../smbfs/">
+<span class="md-ellipsis">
     
   
     smbfs
@@ -3337,27 +1827,11 @@
 
     
   </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../fuse/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../fuse/">
+<span class="md-ellipsis">
     
   
     FUSE
@@ -3365,27 +1839,11 @@
 
     
   </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../autofs/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../autofs/">
+<span class="md-ellipsis">
     
   
     autofs
@@ -3393,27 +1851,11 @@
 
     
   </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../dirfs/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../dirfs/">
+<span class="md-ellipsis">
     
   
     dirfs
@@ -3421,56 +1863,15 @@
 
     
   </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-          </ul>
-        </nav>
-      
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    
-    
-    
-    
-      
-      
-        
-          
-          
-        
-      
-    
-    
-    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
-      
-        
-        
-          
-        
-        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_3_5" >
-        
-          
-          <label class="md-nav__link" for="__nav_3_5" id="__nav_3_5_label" tabindex="">
-            
-  
-  
-  <span class="md-ellipsis">
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--section md-nav__item--nested">
+<input class="md-nav__toggle md-toggle md-toggle--indeterminate" id="__nav_3_5" type="checkbox"/>
+<label class="md-nav__link" for="__nav_3_5" id="__nav_3_5_label" tabindex="">
+<span class="md-ellipsis">
     
   
     net/
@@ -3478,35 +1879,21 @@
 
     
   </span>
-  
-  
-
-            <span class="md-nav__icon md-icon"></span>
-          </label>
-        
-        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_5_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_3_5">
-            <span class="md-nav__icon md-icon"></span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="false" aria-labelledby="__nav_3_5_label" class="md-nav" data-md-level="2">
+<label class="md-nav__title" for="__nav_3_5">
+<span class="md-nav__icon md-icon"></span>
             
   
     net/
   
 
           </label>
-          <ul class="md-nav__list" data-md-scrollfix>
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../../net/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../../net/">
+<span class="md-ellipsis">
     
   
     Overview
@@ -3514,27 +1901,11 @@
 
     
   </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../../net/interfaces/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../../net/interfaces/">
+<span class="md-ellipsis">
     
   
     Network Interfaces
@@ -3542,27 +1913,11 @@
 
     
   </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../../net/netisr/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../../net/netisr/">
+<span class="md-ellipsis">
     
   
     Network ISR
@@ -3570,56 +1925,15 @@
 
     
   </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-          </ul>
-        </nav>
-      
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    
-    
-    
-    
-      
-      
-        
-          
-          
-        
-      
-    
-    
-    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
-      
-        
-        
-          
-        
-        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_3_6" >
-        
-          
-          <label class="md-nav__link" for="__nav_3_6" id="__nav_3_6_label" tabindex="">
-            
-  
-  
-  <span class="md-ellipsis">
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--section md-nav__item--nested">
+<input class="md-nav__toggle md-toggle md-toggle--indeterminate" id="__nav_3_6" type="checkbox"/>
+<label class="md-nav__link" for="__nav_3_6" id="__nav_3_6_label" tabindex="">
+<span class="md-ellipsis">
     
   
     cpu/x86_64/
@@ -3627,35 +1941,21 @@
 
     
   </span>
-  
-  
-
-            <span class="md-nav__icon md-icon"></span>
-          </label>
-        
-        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_6_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_3_6">
-            <span class="md-nav__icon md-icon"></span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="false" aria-labelledby="__nav_3_6_label" class="md-nav" data-md-level="2">
+<label class="md-nav__title" for="__nav_3_6">
+<span class="md-nav__icon md-icon"></span>
             
   
     cpu/x86_64/
   
 
           </label>
-          <ul class="md-nav__list" data-md-scrollfix>
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../../cpu/x86_64/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../../cpu/x86_64/">
+<span class="md-ellipsis">
     
   
     Overview
@@ -3663,210 +1963,1055 @@
 
     
   </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-          </ul>
-        </nav>
-      
-    </li>
-  
-
-              
-            
-          </ul>
-        </nav>
-      
-    </li>
-  
-
-    
-  </ul>
+</a>
+</li>
+</ul>
 </nav>
-                  </div>
-                </div>
-              </div>
-            
-            
-              
-              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
-                <div class="md-sidebar__scrollwrap">
-                  <div class="md-sidebar__inner">
-                    
-
-<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
-  
-  
-  
-    
-  
-  
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
+</li>
+</ul>
+</nav>
+</li>
+</ul>
+</nav>
+</div>
+</div>
+</div>
+<div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc">
+<div class="md-sidebar__scrollwrap">
+<div class="md-sidebar__inner">
+<nav aria-label="Table of contents" class="md-nav md-nav--secondary">
+<label class="md-nav__title" for="__toc">
+<span class="md-nav__icon md-icon"></span>
       Table of contents
     </label>
-    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#overview" class="md-nav__link">
-    <span class="md-ellipsis">
+<ul class="md-nav__list" data-md-component="toc" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#overview">
+<span class="md-ellipsis">
       
         Overview
       
     </span>
-  </a>
-  
+</a>
 </li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#zone-layout">
+<span class="md-ellipsis">
       
-        <li class="md-nav__item">
-  <a href="#freemap-structure" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Freemap Structure
+        Zone Layout
       
     </span>
-  </a>
-  
-</li>
+</a>
+<nav aria-label="Zone Layout" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#zone-structure">
+<span class="md-ellipsis">
       
-        <li class="md-nav__item">
-  <a href="#allocation" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Allocation
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#bulk-free" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Bulk Free
+        Zone Structure
       
     </span>
-  </a>
-  
+</a>
 </li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#freemap-block-rotation">
+<span class="md-ellipsis">
       
-        <li class="md-nav__item">
-  <a href="#see-also" class="md-nav__link">
-    <span class="md-ellipsis">
+        Freemap Block Rotation
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#freemap-tree-structure">
+<span class="md-ellipsis">
+      
+        Freemap Tree Structure
+      
+    </span>
+</a>
+<nav aria-label="Freemap Tree Structure" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#level-hierarchy">
+<span class="md-ellipsis">
+      
+        Level Hierarchy
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#tree-visualization">
+<span class="md-ellipsis">
+      
+        Tree Visualization
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#freemap-nodeleaf-size">
+<span class="md-ellipsis">
+      
+        Freemap Node/Leaf Size
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#bitmap-organization">
+<span class="md-ellipsis">
+      
+        Bitmap Organization
+      
+    </span>
+</a>
+<nav aria-label="Bitmap Organization" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#bmap_data-structure">
+<span class="md-ellipsis">
+      
+        bmap_data Structure
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#bitmap-encoding">
+<span class="md-ellipsis">
+      
+        Bitmap Encoding
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#bitmap-constants">
+<span class="md-ellipsis">
+      
+        Bitmap Constants
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#linear-allocator">
+<span class="md-ellipsis">
+      
+        Linear Allocator
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#allocation-algorithm">
+<span class="md-ellipsis">
+      
+        Allocation Algorithm
+      
+    </span>
+</a>
+<nav aria-label="Allocation Algorithm" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#allocation-flow">
+<span class="md-ellipsis">
+      
+        Allocation Flow
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#heuristic-hints">
+<span class="md-ellipsis">
+      
+        Heuristic Hints
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#try-allocation">
+<span class="md-ellipsis">
+      
+        Try Allocation
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#bmap-allocation">
+<span class="md-ellipsis">
+      
+        Bmap Allocation
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#class-based-allocation">
+<span class="md-ellipsis">
+      
+        Class-Based Allocation
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#relaxed-mode">
+<span class="md-ellipsis">
+      
+        Relaxed Mode
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#freemap-initialization">
+<span class="md-ellipsis">
+      
+        Freemap Initialization
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#freemap-recovery">
+<span class="md-ellipsis">
+      
+        Freemap Recovery
+      
+    </span>
+</a>
+<nav aria-label="Freemap Recovery" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#recovery-via-adjust">
+<span class="md-ellipsis">
+      
+        Recovery via Adjust
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#recovery-flow">
+<span class="md-ellipsis">
+      
+        Recovery Flow
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#bulkfree-operation">
+<span class="md-ellipsis">
+      
+        Bulkfree Operation
+      
+    </span>
+</a>
+<nav aria-label="Bulkfree Operation" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#bulkfree-algorithm">
+<span class="md-ellipsis">
+      
+        Bulkfree Algorithm
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#double-transition-safety">
+<span class="md-ellipsis">
+      
+        Double-Transition Safety
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#bulkfree-implementation">
+<span class="md-ellipsis">
+      
+        Bulkfree Implementation
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#bulkfree-info-structure">
+<span class="md-ellipsis">
+      
+        Bulkfree Info Structure
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#memory-bounded-scanning">
+<span class="md-ellipsis">
+      
+        Memory-Bounded Scanning
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#bulkfree-thread">
+<span class="md-ellipsis">
+      
+        Bulkfree Thread
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#freemap-and-volume-header">
+<span class="md-ellipsis">
+      
+        Freemap and Volume Header
+      
+    </span>
+</a>
+<nav aria-label="Freemap and Volume Header" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#freemap-flush-coordination">
+<span class="md-ellipsis">
+      
+        Freemap Flush Coordination
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#blockref-check-field">
+<span class="md-ellipsis">
+      
+        Blockref Check Field
+      
+    </span>
+</a>
+<nav aria-label="Blockref Check Field" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#bigmask-optimization">
+<span class="md-ellipsis">
+      
+        Bigmask Optimization
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#performance-considerations">
+<span class="md-ellipsis">
+      
+        Performance Considerations
+      
+    </span>
+</a>
+<nav aria-label="Performance Considerations" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#allocation-locality">
+<span class="md-ellipsis">
+      
+        Allocation Locality
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#avoiding-read-before-write">
+<span class="md-ellipsis">
+      
+        Avoiding Read-Before-Write
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#deduplication-integration">
+<span class="md-ellipsis">
+      
+        Deduplication Integration
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#see-also">
+<span class="md-ellipsis">
       
         See Also
       
     </span>
-  </a>
-  
+</a>
 </li>
-      
-    </ul>
-  
-</nav>
-                  </div>
-                </div>
-              </div>
-            
-          
-          
-            <div class="md-content" data-md-component="content">
-              
-              <article class="md-content__inner md-typeset">
-                
-                  
-
-
-  
-  
-
-
-<h1 id="hammer2-freemap">HAMMER2 Freemap<a class="headerlink" href="#hammer2-freemap" title="Permanent link">&para;</a></h1>
-<div class="admonition note">
-<p class="admonition-title">Documentation Status</p>
-<p>This page documents freemap management based on <code>hammer2_freemap.c</code> and <code>hammer2_bulkfree.c</code>.</p>
-</div>
-<h2 id="overview">Overview<a class="headerlink" href="#overview" title="Permanent link">&para;</a></h2>
-<p>The freemap manages free space allocation in HAMMER2, using a multi-level radix tree structure.</p>
-<h2 id="freemap-structure">Freemap Structure<a class="headerlink" href="#freemap-structure" title="Permanent link">&para;</a></h2>
-<p><em>Documentation in progress — will cover freemap organization.</em></p>
-<h2 id="allocation">Allocation<a class="headerlink" href="#allocation" title="Permanent link">&para;</a></h2>
-<p><em>Documentation in progress — will cover block allocation.</em></p>
-<h2 id="bulk-free">Bulk Free<a class="headerlink" href="#bulk-free" title="Permanent link">&para;</a></h2>
-<p><em>Documentation in progress — will cover bulk free scanning.</em></p>
-<h2 id="see-also">See Also<a class="headerlink" href="#see-also" title="Permanent link">&para;</a></h2>
-<ul>
-<li><a href="../">HAMMER2 Overview</a></li>
-<li><a href="../on-disk-format/">On-Disk Format</a> — Freemap on-disk layout</li>
-<li><a href="../chain-layer/">Chain Layer</a> — Freemap chain management</li>
 </ul>
+</nav>
+</div>
+</div>
+</div>
+<div class="md-content" data-md-component="content">
+<article class="md-content__inner md-typeset">
+<h1 id="hammer2-freemap">HAMMER2 Freemap<a class="headerlink" href="#hammer2-freemap" title="Permanent link">¶</a></h1>
+<p>This document describes HAMMER2's freemap, a hierarchical structure that manages
+free space allocation across the filesystem.</p>
+<h2 id="overview">Overview<a class="headerlink" href="#overview" title="Permanent link">¶</a></h2>
+<p>The freemap is a radix tree that tracks which blocks are allocated or free. Key
+characteristics:</p>
+<ul>
+<li><strong>Copy-on-write</strong> — Freemap blocks themselves use copy-on-write with 8-way rotation</li>
+<li><strong>Hierarchical</strong> — 6 levels covering from 16KB blocks to 16EB total</li>
+<li><strong>Reserved area</strong> — Each 2GB zone reserves 4MB for freemap metadata</li>
+<li><strong>Bitmap-based</strong> — Leaf nodes use 2-bit entries per 16KB block</li>
+<li><strong>Lazy freeing</strong> — Blocks transition through staged states before final free</li>
+</ul>
+<p>The freemap is rooted at <code>hmp-&gt;fchain</code> and flushed independently of the main
+topology (though coordinated via <code>mirror_tid</code>).</p>
+<h2 id="zone-layout">Zone Layout<a class="headerlink" href="#zone-layout" title="Permanent link">¶</a></h2>
+<p>HAMMER2 divides storage into 2GB zones. Each zone reserves the first 4MB for
+metadata including freemap blocks.</p>
+<h3 id="zone-structure">Zone Structure<a class="headerlink" href="#zone-structure" title="Permanent link">¶</a></h3>
+<div class="highlight"><pre><span></span><code><a href="#__codelineno-0-1" id="__codelineno-0-1" name="__codelineno-0-1"></a>Zone (2GB)
+<a href="#__codelineno-0-2" id="__codelineno-0-2" name="__codelineno-0-2"></a>+------------------+---------------------------------------------+
+<a href="#__codelineno-0-3" id="__codelineno-0-3" name="__codelineno-0-3"></a>| Reserved (4MB)   | User Data (~2044MB)                         |
+<a href="#__codelineno-0-4" id="__codelineno-0-4" name="__codelineno-0-4"></a>+------------------+---------------------------------------------+
+</code></pre></div>
+<p>The reserved 4MB area contains:</p>
+<table>
+<thead>
+<tr>
+<th>Offset (64KB blocks)</th>
+<th>Content</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>0</td>
+<td>Volume header (one of 4 copies)</td>
+</tr>
+<tr>
+<td>1-5</td>
+<td>Freemap set 0 (levels 1-5)</td>
+</tr>
+<tr>
+<td>6-10</td>
+<td>Freemap set 1</td>
+</tr>
+<tr>
+<td>11-15</td>
+<td>Freemap set 2</td>
+</tr>
+<tr>
+<td>16-20</td>
+<td>Freemap set 3</td>
+</tr>
+<tr>
+<td>21-25</td>
+<td>Freemap set 4</td>
+</tr>
+<tr>
+<td>26-30</td>
+<td>Freemap set 5</td>
+</tr>
+<tr>
+<td>31-35</td>
+<td>Freemap set 6</td>
+</tr>
+<tr>
+<td>36-40</td>
+<td>Freemap set 7</td>
+</tr>
+<tr>
+<td>41-63</td>
+<td>Reserved/unused</td>
+</tr>
+</tbody>
+</table>
+<p>Source: <code>hammer2_disk.h:277-313</code></p>
+<div class="highlight"><pre><span></span><code><a href="#__codelineno-1-1" id="__codelineno-1-1" name="__codelineno-1-1"></a><span class="cp">#define HAMMER2_ZONE_BYTES64        (2LLU * 1024 * 1024 * 1024)</span>
+<a href="#__codelineno-1-2" id="__codelineno-1-2" name="__codelineno-1-2"></a><span class="cp">#define HAMMER2_ZONE_SEG            (4 * 1024 * 1024)</span>
+<a href="#__codelineno-1-3" id="__codelineno-1-3" name="__codelineno-1-3"></a><span class="cp">#define HAMMER2_NFREEMAPS           8   </span><span class="cm">/* 8 freemap rotation sets */</span>
+<a href="#__codelineno-1-4" id="__codelineno-1-4" name="__codelineno-1-4"></a>
+<a href="#__codelineno-1-5" id="__codelineno-1-5" name="__codelineno-1-5"></a><span class="cp">#define HAMMER2_ZONE_VOLHDR         0   </span><span class="cm">/* Volume header */</span>
+<a href="#__codelineno-1-6" id="__codelineno-1-6" name="__codelineno-1-6"></a><span class="cp">#define HAMMER2_ZONE_FREEMAP_00     1   </span><span class="cm">/* Freemap set 0 */</span>
+<a href="#__codelineno-1-7" id="__codelineno-1-7" name="__codelineno-1-7"></a><span class="cp">#define HAMMER2_ZONE_FREEMAP_INC    5   </span><span class="cm">/* 5 blocks per set */</span>
+</code></pre></div>
+<h3 id="freemap-block-rotation">Freemap Block Rotation<a class="headerlink" href="#freemap-block-rotation" title="Permanent link">¶</a></h3>
+<p>Freemap blocks rotate through 8 copies (sets 0-7) on each modification. This
+provides crash recovery capability — on mount, the filesystem can fall back to
+an older freemap if the latest is corrupted.</p>
+<pre class="mermaid"><code>flowchart TB
+    subgraph rotation["Freemap Rotation (per zone)"]
+        S0[Set 0] --&gt; S1[Set 1]
+        S1 --&gt; S2[Set 2]
+        S2 --&gt; S3[Set 3]
+        S3 --&gt; S4[Set 4]
+        S4 --&gt; S5[Set 5]
+        S5 --&gt; S6[Set 6]
+        S6 --&gt; S7[Set 7]
+        S7 --&gt; S0
+    end
+</code></pre>
+<p>The rotation is calculated in <code>hammer2_freemap_reserve()</code> (<code>hammer2_freemap.c:76-168</code>):</p>
+<div class="highlight"><pre><span></span><code><a href="#__codelineno-2-1" id="__codelineno-2-1" name="__codelineno-2-1"></a><span class="cm">/* Calculate next rotation index */</span>
+<a href="#__codelineno-2-2" id="__codelineno-2-2" name="__codelineno-2-2"></a><span class="k">if</span><span class="w"> </span><span class="p">((</span><span class="n">bref</span><span class="o">-&gt;</span><span class="n">data_off</span><span class="w"> </span><span class="o">&amp;</span><span class="w"> </span><span class="o">~</span><span class="n">HAMMER2_OFF_MASK_RADIX</span><span class="p">)</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<a href="#__codelineno-2-3" id="__codelineno-2-3" name="__codelineno-2-3"></a><span class="w">    </span><span class="n">index</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w">  </span><span class="cm">/* First allocation */</span>
+<a href="#__codelineno-2-4" id="__codelineno-2-4" name="__codelineno-2-4"></a><span class="p">}</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="p">{</span>
+<a href="#__codelineno-2-5" id="__codelineno-2-5" name="__codelineno-2-5"></a><span class="w">    </span><span class="cm">/* Extract current index from data_off, increment */</span>
+<a href="#__codelineno-2-6" id="__codelineno-2-6" name="__codelineno-2-6"></a><span class="w">    </span><span class="n">index</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="n">current_index</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="o">%</span><span class="w"> </span><span class="n">HAMMER2_NFREEMAPS</span><span class="p">;</span>
+<a href="#__codelineno-2-7" id="__codelineno-2-7" name="__codelineno-2-7"></a><span class="p">}</span>
+</code></pre></div>
+<h2 id="freemap-tree-structure">Freemap Tree Structure<a class="headerlink" href="#freemap-tree-structure" title="Permanent link">¶</a></h2>
+<p>The freemap is organized as a 6-level radix tree, with each level covering
+progressively larger address ranges.</p>
+<h3 id="level-hierarchy">Level Hierarchy<a class="headerlink" href="#level-hierarchy" title="Permanent link">¶</a></h3>
+<table>
+<thead>
+<tr>
+<th>Level</th>
+<th>Radix</th>
+<th>Coverage</th>
+<th>Block Type</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>6</td>
+<td>64</td>
+<td>16EB</td>
+<td>Volume header blockset</td>
+</tr>
+<tr>
+<td>5</td>
+<td>62</td>
+<td>4EB</td>
+<td><code>FREEMAP_NODE</code></td>
+</tr>
+<tr>
+<td>4</td>
+<td>54</td>
+<td>16PB</td>
+<td><code>FREEMAP_NODE</code></td>
+</tr>
+<tr>
+<td>3</td>
+<td>46</td>
+<td>64TB</td>
+<td><code>FREEMAP_NODE</code></td>
+</tr>
+<tr>
+<td>2</td>
+<td>38</td>
+<td>256GB</td>
+<td><code>FREEMAP_NODE</code></td>
+</tr>
+<tr>
+<td>1</td>
+<td>30</td>
+<td>1GB</td>
+<td><code>FREEMAP_LEAF</code></td>
+</tr>
+<tr>
+<td>0</td>
+<td>22</td>
+<td>4MB</td>
+<td>Bitmap entry (within leaf)</td>
+</tr>
+</tbody>
+</table>
+<p>Source: <code>hammer2_disk.h:335-356</code></p>
+<div class="highlight"><pre><span></span><code><a href="#__codelineno-3-1" id="__codelineno-3-1" name="__codelineno-3-1"></a><span class="cp">#define HAMMER2_FREEMAP_LEVEL6_RADIX    64  </span><span class="cm">/* 16EB (root) */</span>
+<a href="#__codelineno-3-2" id="__codelineno-3-2" name="__codelineno-3-2"></a><span class="cp">#define HAMMER2_FREEMAP_LEVEL5_RADIX    62  </span><span class="cm">/* 4EB */</span>
+<a href="#__codelineno-3-3" id="__codelineno-3-3" name="__codelineno-3-3"></a><span class="cp">#define HAMMER2_FREEMAP_LEVEL4_RADIX    54  </span><span class="cm">/* 16PB */</span>
+<a href="#__codelineno-3-4" id="__codelineno-3-4" name="__codelineno-3-4"></a><span class="cp">#define HAMMER2_FREEMAP_LEVEL3_RADIX    46  </span><span class="cm">/* 64TB */</span>
+<a href="#__codelineno-3-5" id="__codelineno-3-5" name="__codelineno-3-5"></a><span class="cp">#define HAMMER2_FREEMAP_LEVEL2_RADIX    38  </span><span class="cm">/* 256GB */</span>
+<a href="#__codelineno-3-6" id="__codelineno-3-6" name="__codelineno-3-6"></a><span class="cp">#define HAMMER2_FREEMAP_LEVEL1_RADIX    30  </span><span class="cm">/* 1GB */</span>
+<a href="#__codelineno-3-7" id="__codelineno-3-7" name="__codelineno-3-7"></a><span class="cp">#define HAMMER2_FREEMAP_LEVEL0_RADIX    22  </span><span class="cm">/* 4MB */</span>
+</code></pre></div>
+<h3 id="tree-visualization">Tree Visualization<a class="headerlink" href="#tree-visualization" title="Permanent link">¶</a></h3>
+<pre class="mermaid"><code>flowchart TB
+    subgraph root["Level 6: Volume Header"]
+        VH[freemap_blockset<br/>4 blockrefs]
+    end
 
+    subgraph l5["Level 5: 4EB nodes"]
+        N5[FREEMAP_NODE]
+    end
 
+    subgraph l4["Level 4: 16PB nodes"]
+        N4[FREEMAP_NODE]
+    end
 
+    subgraph l3["Level 3: 64TB nodes"]
+        N3[FREEMAP_NODE]
+    end
 
+    subgraph l2["Level 2: 256GB nodes"]
+        N2[FREEMAP_NODE]
+    end
 
+    subgraph l1["Level 1: 1GB leaves"]
+        L1[FREEMAP_LEAF<br/>256 x bmap_data]
+    end
 
+    subgraph l0["Level 0: 4MB entries"]
+        B0[bmap_data<br/>bitmap + metadata]
+    end
 
+    VH --&gt; N5
+    N5 --&gt; N4
+    N4 --&gt; N3
+    N3 --&gt; N2
+    N2 --&gt; L1
+    L1 --&gt; B0
+</code></pre>
+<h3 id="freemap-nodeleaf-size">Freemap Node/Leaf Size<a class="headerlink" href="#freemap-nodeleaf-size" title="Permanent link">¶</a></h3>
+<p>All freemap nodes and leaves are 32KB:</p>
+<div class="highlight"><pre><span></span><code><a href="#__codelineno-4-1" id="__codelineno-4-1" name="__codelineno-4-1"></a><span class="cp">#define HAMMER2_FREEMAP_LEVELN_PSIZE    32768   </span><span class="cm">/* 32KB */</span>
+</code></pre></div>
+<p>A 32KB block holds 256 blockrefs (128 bytes each) for nodes, or 256 <code>bmap_data</code>
+structures for leaves.</p>
+<h2 id="bitmap-organization">Bitmap Organization<a class="headerlink" href="#bitmap-organization" title="Permanent link">¶</a></h2>
+<p>Each <code>FREEMAP_LEAF</code> contains 256 <code>hammer2_bmap_data_t</code> structures, with each
+structure tracking a 4MB region.</p>
+<h3 id="bmap_data-structure">bmap_data Structure<a class="headerlink" href="#bmap_data-structure" title="Permanent link">¶</a></h3>
+<div class="highlight"><pre><span></span><code><a href="#__codelineno-5-1" id="__codelineno-5-1" name="__codelineno-5-1"></a><span class="k">struct</span><span class="w"> </span><span class="nc">hammer2_bmap_data</span><span class="w"> </span><span class="p">{</span>
+<a href="#__codelineno-5-2" id="__codelineno-5-2" name="__codelineno-5-2"></a><span class="w">    </span><span class="kt">int32_t</span><span class="w">     </span><span class="n">linear</span><span class="p">;</span><span class="w">         </span><span class="cm">/* Linear allocation offset */</span>
+<a href="#__codelineno-5-3" id="__codelineno-5-3" name="__codelineno-5-3"></a><span class="w">    </span><span class="kt">uint16_t</span><span class="w">    </span><span class="n">class</span><span class="p">;</span><span class="w">          </span><span class="cm">/* Allocation class */</span>
+<a href="#__codelineno-5-4" id="__codelineno-5-4" name="__codelineno-5-4"></a><span class="w">    </span><span class="kt">uint16_t</span><span class="w">    </span><span class="n">reserved</span><span class="p">;</span>
+<a href="#__codelineno-5-5" id="__codelineno-5-5" name="__codelineno-5-5"></a><span class="w">    </span><span class="kt">uint32_t</span><span class="w">    </span><span class="n">reserved2</span><span class="p">;</span>
+<a href="#__codelineno-5-6" id="__codelineno-5-6" name="__codelineno-5-6"></a><span class="w">    </span><span class="n">hammer2_bitmap_t</span><span class="w"> </span><span class="n">bitmapq</span><span class="p">[</span><span class="n">HAMMER2_BMAP_ELEMENTS</span><span class="p">];</span><span class="w">  </span><span class="cm">/* 8 x 64-bit */</span>
+<a href="#__codelineno-5-7" id="__codelineno-5-7" name="__codelineno-5-7"></a><span class="w">    </span><span class="n">hammer2_off_t</span><span class="w">    </span><span class="n">avail</span><span class="p">;</span><span class="w">     </span><span class="cm">/* Available bytes in this 4MB region */</span>
+<a href="#__codelineno-5-8" id="__codelineno-5-8" name="__codelineno-5-8"></a><span class="p">};</span>
+</code></pre></div>
+<h3 id="bitmap-encoding">Bitmap Encoding<a class="headerlink" href="#bitmap-encoding" title="Permanent link">¶</a></h3>
+<p>Each 4MB region is divided into 256 x 16KB blocks. The bitmap uses 2 bits per
+block:</p>
+<table>
+<thead>
+<tr>
+<th>Value</th>
+<th>State</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>00</td>
+<td>FREE</td>
+<td>Block is available</td>
+</tr>
+<tr>
+<td>01</td>
+<td>Reserved</td>
+<td>(Currently unused)</td>
+</tr>
+<tr>
+<td>10</td>
+<td>STAGED</td>
+<td>Possibly free, pending bulkfree</td>
+</tr>
+<tr>
+<td>11</td>
+<td>ALLOCATED</td>
+<td>Block is in use</td>
+</tr>
+</tbody>
+</table>
+<p>The 8 x 64-bit <code>bitmapq[]</code> array covers 256 blocks:</p>
+<div class="highlight"><pre><span></span><code><a href="#__codelineno-6-1" id="__codelineno-6-1" name="__codelineno-6-1"></a>bitmapq[0]: blocks 0-31   (64 bits / 2 = 32 blocks)
+<a href="#__codelineno-6-2" id="__codelineno-6-2" name="__codelineno-6-2"></a>bitmapq[1]: blocks 32-63
+<a href="#__codelineno-6-3" id="__codelineno-6-3" name="__codelineno-6-3"></a>...
+<a href="#__codelineno-6-4" id="__codelineno-6-4" name="__codelineno-6-4"></a>bitmapq[7]: blocks 224-255
+</code></pre></div>
+<h3 id="bitmap-constants">Bitmap Constants<a class="headerlink" href="#bitmap-constants" title="Permanent link">¶</a></h3>
+<div class="highlight"><pre><span></span><code><a href="#__codelineno-7-1" id="__codelineno-7-1" name="__codelineno-7-1"></a><span class="cp">#define HAMMER2_FREEMAP_BLOCK_RADIX     14      </span><span class="cm">/* 16KB granularity */</span>
+<a href="#__codelineno-7-2" id="__codelineno-7-2" name="__codelineno-7-2"></a><span class="cp">#define HAMMER2_FREEMAP_BLOCK_SIZE      16384   </span><span class="cm">/* 16KB */</span>
+<a href="#__codelineno-7-3" id="__codelineno-7-3" name="__codelineno-7-3"></a><span class="cp">#define HAMMER2_BMAP_ELEMENTS           8       </span><span class="cm">/* 8 x 64-bit elements */</span>
+<a href="#__codelineno-7-4" id="__codelineno-7-4" name="__codelineno-7-4"></a><span class="cp">#define HAMMER2_BMAP_BITS_PER_ELEMENT   64</span>
+</code></pre></div>
+<h3 id="linear-allocator">Linear Allocator<a class="headerlink" href="#linear-allocator" title="Permanent link">¶</a></h3>
+<p>The <code>linear</code> field in <code>bmap_data</code> tracks sub-16KB allocations. When allocating
+blocks smaller than 16KB:</p>
+<ol>
+<li>If <code>linear</code> is mid-block, allocate from the current position</li>
+<li>Advance <code>linear</code> by the allocation size</li>
+<li>When <code>linear</code> reaches a 16KB boundary, search bitmap for next free block</li>
+</ol>
+<p>This allows efficient packing of small allocations (1KB minimum) within 16KB
+blocks.</p>
+<h2 id="allocation-algorithm">Allocation Algorithm<a class="headerlink" href="#allocation-algorithm" title="Permanent link">¶</a></h2>
+<p>Block allocation is performed by <code>hammer2_freemap_alloc()</code> (<code>hammer2_freemap.c:182-270</code>).</p>
+<h3 id="allocation-flow">Allocation Flow<a class="headerlink" href="#allocation-flow" title="Permanent link">¶</a></h3>
+<pre class="mermaid"><code>flowchart TB
+    subgraph entry["Entry"]
+        A[hammer2_freemap_alloc] --&gt; B{bytes == 0?}
+        B --&gt;|Yes| C[Clear data_off, return]
+        B --&gt;|No| D{Freemap block?}
+        D --&gt;|Yes| E[hammer2_freemap_reserve]
+        D --&gt;|No| F[Get heuristic hint]
+    end
 
+    subgraph search["Search Loop"]
+        F --&gt; G[Lock fchain]
+        G --&gt; H[hammer2_freemap_try_alloc]
+        H --&gt; I{EAGAIN?}
+        I --&gt;|Yes| J[hammer2_freemap_iterate]
+        J --&gt; H
+        I --&gt;|No| K{Error?}
+    end
 
-
-
-
-                
-              </article>
-            </div>
-          
-          
+    subgraph result["Result"]
+        K --&gt;|No| L[Set bref.data_off]
+        K --&gt;|Yes| M[Return error]
+        L --&gt; N[Update heuristic]
+        N --&gt; O[Unlock fchain]
+        M --&gt; O
+    end
+</code></pre>
+<h3 id="heuristic-hints">Heuristic Hints<a class="headerlink" href="#heuristic-hints" title="Permanent link">¶</a></h3>
+<p>The allocator uses per-type hints to improve locality:</p>
+<div class="highlight"><pre><span></span><code><a href="#__codelineno-8-1" id="__codelineno-8-1" name="__codelineno-8-1"></a><span class="cm">/* hammer2_freemap.c:229-238 */</span>
+<a href="#__codelineno-8-2" id="__codelineno-8-2" name="__codelineno-8-2"></a><span class="n">hindex</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">HAMMER2_PBUFRADIX</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">HAMMER2_LBUFRADIX</span><span class="p">;</span>
+<a href="#__codelineno-8-3" id="__codelineno-8-3" name="__codelineno-8-3"></a><span class="n">hindex</span><span class="w"> </span><span class="o">+=</span><span class="w"> </span><span class="n">bref</span><span class="o">-&gt;</span><span class="n">type</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">HAMMER2_FREEMAP_HEUR_NRADIX</span><span class="p">;</span>
+<a href="#__codelineno-8-4" id="__codelineno-8-4" name="__codelineno-8-4"></a><span class="n">iter</span><span class="p">.</span><span class="n">bpref</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">hmp</span><span class="o">-&gt;</span><span class="n">heur_freemap</span><span class="p">[</span><span class="n">hindex</span><span class="p">];</span>
+</code></pre></div>
+<p>After allocation, the hint is updated to the next expected position.</p>
+<h3 id="try-allocation">Try Allocation<a class="headerlink" href="#try-allocation" title="Permanent link">¶</a></h3>
+<p><code>hammer2_freemap_try_alloc()</code> searches within a 1GB leaf (<code>hammer2_freemap.c:272-525</code>):</p>
+<ol>
+<li><strong>Lookup leaf</strong> — Find or create the <code>FREEMAP_LEAF</code> for the target address</li>
+<li><strong>Check bigmask</strong> — Skip if leaf indicates no space for requested size</li>
+<li><strong>Scan bmap entries</strong> — Search forward and backward from hint position</li>
+<li><strong>Call bmap_alloc</strong> — Allocate from matching bmap entry</li>
+</ol>
+<h3 id="bmap-allocation">Bmap Allocation<a class="headerlink" href="#bmap-allocation" title="Permanent link">¶</a></h3>
+<p><code>hammer2_bmap_alloc()</code> allocates within a 4MB region (<code>hammer2_freemap.c:543-798</code>):</p>
+<pre class="mermaid"><code>flowchart TB
+    A[hammer2_bmap_alloc] --&gt; B{Linear mid-block?}
+    B --&gt;|Yes| C[Use linear position]
+    B --&gt;|No| D{Try key-based index?}
+    D --&gt;|Yes| E[Calculate from sub_key]
+    D --&gt;|No| F[Scan bitmap]
+    E --&gt; G{Position free?}
+    G --&gt;|Yes| H[Use position]
+    G --&gt;|No| F
+    F --&gt; I{Found free?}
+    I --&gt;|Yes| H
+    I --&gt;|No| J[Return ENOSPC]
+    C --&gt; K[Mark bits allocated]
+    H --&gt; K
+    K --&gt; L[Update avail]
+    L --&gt; M[Update voldata.allocator_free]
+</code></pre>
+<h3 id="class-based-allocation">Class-Based Allocation<a class="headerlink" href="#class-based-allocation" title="Permanent link">¶</a></h3>
+<p>Allocations are grouped by class (block type + radix) to improve locality:</p>
+<div class="highlight"><pre><span></span><code><a href="#__codelineno-9-1" id="__codelineno-9-1" name="__codelineno-9-1"></a><span class="n">class</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="n">bref</span><span class="o">-&gt;</span><span class="n">type</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="mi">8</span><span class="p">)</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">HAMMER2_PBUFRADIX</span><span class="p">;</span>
+</code></pre></div>
+<p>A bmap entry preferentially accepts allocations of the same class, unless in
+"relaxed mode" (when space is tight).</p>
+<h3 id="relaxed-mode">Relaxed Mode<a class="headerlink" href="#relaxed-mode" title="Permanent link">¶</a></h3>
+<p>When allocation fails in normal mode, the allocator enters relaxed mode:</p>
+<div class="highlight"><pre><span></span><code><a href="#__codelineno-10-1" id="__codelineno-10-1" name="__codelineno-10-1"></a><span class="cm">/* hammer2_freemap.c:897-902 */</span>
+<a href="#__codelineno-10-2" id="__codelineno-10-2" name="__codelineno-10-2"></a><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">++</span><span class="n">iter</span><span class="o">-&gt;</span><span class="n">loops</span><span class="w"> </span><span class="o">&gt;=</span><span class="w"> </span><span class="mi">2</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<a href="#__codelineno-10-3" id="__codelineno-10-3" name="__codelineno-10-3"></a><span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">iter</span><span class="o">-&gt;</span><span class="n">relaxed</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span>
+<a href="#__codelineno-10-4" id="__codelineno-10-4" name="__codelineno-10-4"></a><span class="w">        </span><span class="n">iter</span><span class="o">-&gt;</span><span class="n">relaxed</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span><span class="w">  </span><span class="cm">/* Enter relaxed mode */</span>
+<a href="#__codelineno-10-5" id="__codelineno-10-5" name="__codelineno-10-5"></a><span class="w">    </span><span class="k">else</span>
+<a href="#__codelineno-10-6" id="__codelineno-10-6" name="__codelineno-10-6"></a><span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="p">(</span><span class="n">HAMMER2_ERROR_ENOSPC</span><span class="p">);</span><span class="w">  </span><span class="cm">/* Truly out of space */</span>
+<a href="#__codelineno-10-7" id="__codelineno-10-7" name="__codelineno-10-7"></a><span class="p">}</span>
+</code></pre></div>
+<p>In relaxed mode, allocations can use any bmap class, not just matching ones.</p>
+<h2 id="freemap-initialization">Freemap Initialization<a class="headerlink" href="#freemap-initialization" title="Permanent link">¶</a></h2>
+<p>When a new 1GB region is first accessed, its freemap leaf is initialized by
+<code>hammer2_freemap_init()</code> (<code>hammer2_freemap.c:801-873</code>):</p>
+<div class="highlight"><pre><span></span><code><a href="#__codelineno-11-1" id="__codelineno-11-1" name="__codelineno-11-1"></a><span class="kt">void</span><span class="w"> </span><span class="nf">hammer2_freemap_init</span><span class="p">(</span><span class="n">hammer2_dev_t</span><span class="w"> </span><span class="o">*</span><span class="n">hmp</span><span class="p">,</span><span class="w"> </span><span class="n">hammer2_key_t</span><span class="w"> </span><span class="n">key</span><span class="p">,</span>
+<a href="#__codelineno-11-2" id="__codelineno-11-2" name="__codelineno-11-2"></a><span class="w">                          </span><span class="n">hammer2_chain_t</span><span class="w"> </span><span class="o">*</span><span class="n">chain</span><span class="p">)</span>
+<a href="#__codelineno-11-3" id="__codelineno-11-3" name="__codelineno-11-3"></a><span class="p">{</span>
+<a href="#__codelineno-11-4" id="__codelineno-11-4" name="__codelineno-11-4"></a><span class="w">    </span><span class="cm">/* Mark reserved areas (first 4MB of each 2GB zone) as allocated */</span>
+<a href="#__codelineno-11-5" id="__codelineno-11-5" name="__codelineno-11-5"></a><span class="w">    </span><span class="n">lokey</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">H2FMZONEBASE</span><span class="p">(</span><span class="n">key</span><span class="p">)</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">HAMMER2_ZONE_SEG64</span><span class="p">;</span>
+<a href="#__codelineno-11-6" id="__codelineno-11-6" name="__codelineno-11-6"></a>
+<a href="#__codelineno-11-7" id="__codelineno-11-7" name="__codelineno-11-7"></a><span class="w">    </span><span class="cm">/* Mark areas beyond volume end as allocated */</span>
+<a href="#__codelineno-11-8" id="__codelineno-11-8" name="__codelineno-11-8"></a><span class="w">    </span><span class="n">hikey</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">min</span><span class="p">(</span><span class="n">key</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">HAMMER2_FREEMAP_LEVEL1_SIZE</span><span class="p">,</span><span class="w"> </span><span class="n">hmp</span><span class="o">-&gt;</span><span class="n">total_size</span><span class="p">);</span>
+<a href="#__codelineno-11-9" id="__codelineno-11-9" name="__codelineno-11-9"></a>
+<a href="#__codelineno-11-10" id="__codelineno-11-10" name="__codelineno-11-10"></a><span class="w">    </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="n">count</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">count</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">HAMMER2_FREEMAP_COUNT</span><span class="p">;</span><span class="w"> </span><span class="o">++</span><span class="n">count</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<a href="#__codelineno-11-11" id="__codelineno-11-11" name="__codelineno-11-11"></a><span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">key</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">lokey</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="n">key</span><span class="w"> </span><span class="o">&gt;=</span><span class="w"> </span><span class="n">hikey</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<a href="#__codelineno-11-12" id="__codelineno-11-12" name="__codelineno-11-12"></a><span class="w">            </span><span class="cm">/* Mark as fully allocated */</span>
+<a href="#__codelineno-11-13" id="__codelineno-11-13" name="__codelineno-11-13"></a><span class="w">            </span><span class="n">memset</span><span class="p">(</span><span class="n">bmap</span><span class="o">-&gt;</span><span class="n">bitmapq</span><span class="p">,</span><span class="w"> </span><span class="mi">-1</span><span class="p">,</span><span class="w"> </span><span class="k">sizeof</span><span class="p">(</span><span class="n">bmap</span><span class="o">-&gt;</span><span class="n">bitmapq</span><span class="p">));</span>
+<a href="#__codelineno-11-14" id="__codelineno-11-14" name="__codelineno-11-14"></a><span class="w">            </span><span class="n">bmap</span><span class="o">-&gt;</span><span class="n">avail</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+<a href="#__codelineno-11-15" id="__codelineno-11-15" name="__codelineno-11-15"></a><span class="w">        </span><span class="p">}</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="p">{</span>
+<a href="#__codelineno-11-16" id="__codelineno-11-16" name="__codelineno-11-16"></a><span class="w">            </span><span class="cm">/* Mark as fully free */</span>
+<a href="#__codelineno-11-17" id="__codelineno-11-17" name="__codelineno-11-17"></a><span class="w">            </span><span class="n">bmap</span><span class="o">-&gt;</span><span class="n">avail</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">HAMMER2_FREEMAP_LEVEL0_SIZE</span><span class="p">;</span>
+<a href="#__codelineno-11-18" id="__codelineno-11-18" name="__codelineno-11-18"></a><span class="w">        </span><span class="p">}</span>
+<a href="#__codelineno-11-19" id="__codelineno-11-19" name="__codelineno-11-19"></a><span class="w">    </span><span class="p">}</span>
+<a href="#__codelineno-11-20" id="__codelineno-11-20" name="__codelineno-11-20"></a><span class="p">}</span>
+</code></pre></div>
+<h2 id="freemap-recovery">Freemap Recovery<a class="headerlink" href="#freemap-recovery" title="Permanent link">¶</a></h2>
+<p>On mount, HAMMER2 may need to recover the freemap if blocks were allocated but
+the freemap wasn't flushed before a crash.</p>
+<h3 id="recovery-via-adjust">Recovery via Adjust<a class="headerlink" href="#recovery-via-adjust" title="Permanent link">¶</a></h3>
+<p><code>hammer2_freemap_adjust()</code> marks blocks as allocated during recovery
+(<code>hammer2_freemap.c:920-1214</code>):</p>
+<div class="highlight"><pre><span></span><code><a href="#__codelineno-12-1" id="__codelineno-12-1" name="__codelineno-12-1"></a><span class="kt">void</span><span class="w"> </span><span class="nf">hammer2_freemap_adjust</span><span class="p">(</span><span class="n">hammer2_dev_t</span><span class="w"> </span><span class="o">*</span><span class="n">hmp</span><span class="p">,</span><span class="w"> </span><span class="n">hammer2_blockref_t</span><span class="w"> </span><span class="o">*</span><span class="n">bref</span><span class="p">,</span>
+<a href="#__codelineno-12-2" id="__codelineno-12-2" name="__codelineno-12-2"></a><span class="w">                            </span><span class="kt">int</span><span class="w"> </span><span class="n">how</span><span class="p">)</span>
+<a href="#__codelineno-12-3" id="__codelineno-12-3" name="__codelineno-12-3"></a><span class="p">{</span>
+<a href="#__codelineno-12-4" id="__codelineno-12-4" name="__codelineno-12-4"></a><span class="w">    </span><span class="n">KKASSERT</span><span class="p">(</span><span class="n">how</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">HAMMER2_FREEMAP_DORECOVER</span><span class="p">);</span>
+<a href="#__codelineno-12-5" id="__codelineno-12-5" name="__codelineno-12-5"></a>
+<a href="#__codelineno-12-6" id="__codelineno-12-6" name="__codelineno-12-6"></a><span class="w">    </span><span class="cm">/* Find or create the freemap leaf */</span>
+<a href="#__codelineno-12-7" id="__codelineno-12-7" name="__codelineno-12-7"></a><span class="w">    </span><span class="n">chain</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">hammer2_chain_lookup</span><span class="p">(...);</span>
+<a href="#__codelineno-12-8" id="__codelineno-12-8" name="__codelineno-12-8"></a><span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">chain</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="nb">NULL</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<a href="#__codelineno-12-9" id="__codelineno-12-9" name="__codelineno-12-9"></a><span class="w">        </span><span class="n">hammer2_chain_create</span><span class="p">(...);</span><span class="w">  </span><span class="cm">/* Create missing leaf */</span>
+<a href="#__codelineno-12-10" id="__codelineno-12-10" name="__codelineno-12-10"></a><span class="w">        </span><span class="n">hammer2_freemap_init</span><span class="p">(</span><span class="n">hmp</span><span class="p">,</span><span class="w"> </span><span class="n">key</span><span class="p">,</span><span class="w"> </span><span class="n">chain</span><span class="p">);</span>
+<a href="#__codelineno-12-11" id="__codelineno-12-11" name="__codelineno-12-11"></a><span class="w">    </span><span class="p">}</span>
+<a href="#__codelineno-12-12" id="__codelineno-12-12" name="__codelineno-12-12"></a>
+<a href="#__codelineno-12-13" id="__codelineno-12-13" name="__codelineno-12-13"></a><span class="w">    </span><span class="cm">/* Mark bits as allocated (11) */</span>
+<a href="#__codelineno-12-14" id="__codelineno-12-14" name="__codelineno-12-14"></a><span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">((</span><span class="o">*</span><span class="n">bitmap</span><span class="w"> </span><span class="o">&amp;</span><span class="w"> </span><span class="n">bmmask11</span><span class="p">)</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="n">bmmask11</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<a href="#__codelineno-12-15" id="__codelineno-12-15" name="__codelineno-12-15"></a><span class="w">        </span><span class="o">*</span><span class="n">bitmap</span><span class="w"> </span><span class="o">|=</span><span class="w"> </span><span class="n">bmmask11</span><span class="p">;</span>
+<a href="#__codelineno-12-16" id="__codelineno-12-16" name="__codelineno-12-16"></a><span class="w">        </span><span class="n">bmap</span><span class="o">-&gt;</span><span class="n">avail</span><span class="w"> </span><span class="o">-=</span><span class="w"> </span><span class="n">HAMMER2_FREEMAP_BLOCK_SIZE</span><span class="p">;</span>
+<a href="#__codelineno-12-17" id="__codelineno-12-17" name="__codelineno-12-17"></a><span class="w">    </span><span class="p">}</span>
+<a href="#__codelineno-12-18" id="__codelineno-12-18" name="__codelineno-12-18"></a><span class="p">}</span>
+</code></pre></div>
+<h3 id="recovery-flow">Recovery Flow<a class="headerlink" href="#recovery-flow" title="Permanent link">¶</a></h3>
+<pre class="mermaid"><code>flowchart TB
+    A[Mount filesystem] --&gt; B[Read volume header]
+    B --&gt; C[Compare mirror_tid]
+    C --&gt; D{Freemap behind?}
+    D --&gt;|No| E[Normal mount]
+    D --&gt;|Yes| F[Scan topology]
+    F --&gt; G[For each blockref]
+    G --&gt; H[hammer2_freemap_adjust]
+    H --&gt; I[Mark as allocated]
+    I --&gt; G
+    G --&gt;|Done| J[Flush freemap]
+    J --&gt; E
+</code></pre>
+<h2 id="bulkfree-operation">Bulkfree Operation<a class="headerlink" href="#bulkfree-operation" title="Permanent link">¶</a></h2>
+<p>Since HAMMER2 doesn't free blocks in real-time (due to snapshots and
+copy-on-write complexity), it uses a background <strong>bulkfree</strong> scan to reclaim
+space.</p>
+<h3 id="bulkfree-algorithm">Bulkfree Algorithm<a class="headerlink" href="#bulkfree-algorithm" title="Permanent link">¶</a></h3>
+<p>The bulkfree process runs in three stages:</p>
+<div class="highlight"><pre><span></span><code><a href="#__codelineno-13-1" id="__codelineno-13-1" name="__codelineno-13-1"></a>Stage 1: ALLOCATED (11) -&gt; STAGED (10)
+<a href="#__codelineno-13-2" id="__codelineno-13-2" name="__codelineno-13-2"></a>         Mark all potentially free blocks as staged
+<a href="#__codelineno-13-3" id="__codelineno-13-3" name="__codelineno-13-3"></a>
+<a href="#__codelineno-13-4" id="__codelineno-13-4" name="__codelineno-13-4"></a>Stage 2: Scan topology
+<a href="#__codelineno-13-5" id="__codelineno-13-5" name="__codelineno-13-5"></a>         STAGED (10) -&gt; ALLOCATED (11) for blocks still in use
+<a href="#__codelineno-13-6" id="__codelineno-13-6" name="__codelineno-13-6"></a>
+<a href="#__codelineno-13-7" id="__codelineno-13-7" name="__codelineno-13-7"></a>Stage 3: STAGED (10) -&gt; FREE (00)
+<a href="#__codelineno-13-8" id="__codelineno-13-8" name="__codelineno-13-8"></a>         Finalize blocks that remained staged
+</code></pre></div>
+<p>Source: <code>hammer2_freemap.c:1216-1251</code></p>
+<h3 id="double-transition-safety">Double-Transition Safety<a class="headerlink" href="#double-transition-safety" title="Permanent link">¶</a></h3>
+<p>The two-stage free (11 -&gt; 10 -&gt; 00) ensures crash safety:</p>
+<ul>
+<li>A crash between stage 1 and stage 2 leaves blocks as STAGED (10)</li>
+<li>On remount, STAGED blocks are treated as allocated</li>
+<li>Only after a complete bulkfree cycle do blocks become FREE</li>
+</ul>
+<h3 id="bulkfree-implementation">Bulkfree Implementation<a class="headerlink" href="#bulkfree-implementation" title="Permanent link">¶</a></h3>
+<p>The bulkfree scan is implemented in <code>hammer2_bulkfree.c</code>:</p>
+<div class="highlight"><pre><span></span><code><a href="#__codelineno-14-1" id="__codelineno-14-1" name="__codelineno-14-1"></a><span class="cm">/* hammer2_bulkfree.c:414-423 */</span>
+<a href="#__codelineno-14-2" id="__codelineno-14-2" name="__codelineno-14-2"></a><span class="cm">/*</span>
+<a href="#__codelineno-14-3" id="__codelineno-14-3" name="__codelineno-14-3"></a><span class="cm"> * Bulkfree algorithm:</span>
+<a href="#__codelineno-14-4" id="__codelineno-14-4" name="__codelineno-14-4"></a><span class="cm"> * Repeat {</span>
+<a href="#__codelineno-14-5" id="__codelineno-14-5" name="__codelineno-14-5"></a><span class="cm"> *     Scan topology - build in-memory freemap (mark 11)</span>
+<a href="#__codelineno-14-6" id="__codelineno-14-6" name="__codelineno-14-6"></a><span class="cm"> *     Reconcile in-memory vs on-disk freemap:</span>
+<a href="#__codelineno-14-7" id="__codelineno-14-7" name="__codelineno-14-7"></a><span class="cm"> *         ondisk xx -&gt; ondisk 11 (if allocated in-memory)</span>
+<a href="#__codelineno-14-8" id="__codelineno-14-8" name="__codelineno-14-8"></a><span class="cm"> *         ondisk 11 -&gt; ondisk 10 (if free in-memory)</span>
+<a href="#__codelineno-14-9" id="__codelineno-14-9" name="__codelineno-14-9"></a><span class="cm"> *         ondisk 10 -&gt; ondisk 00 (if free in-memory) - next pass</span>
+<a href="#__codelineno-14-10" id="__codelineno-14-10" name="__codelineno-14-10"></a><span class="cm"> * }</span>
+<a href="#__codelineno-14-11" id="__codelineno-14-11" name="__codelineno-14-11"></a><span class="cm"> */</span>
+</code></pre></div>
+<h3 id="bulkfree-info-structure">Bulkfree Info Structure<a class="headerlink" href="#bulkfree-info-structure" title="Permanent link">¶</a></h3>
+<div class="highlight"><pre><span></span><code><a href="#__codelineno-15-1" id="__codelineno-15-1" name="__codelineno-15-1"></a><span class="k">typedef</span><span class="w"> </span><span class="k">struct</span><span class="w"> </span><span class="nc">hammer2_bulkfree_info</span><span class="w"> </span><span class="p">{</span>
+<a href="#__codelineno-15-2" id="__codelineno-15-2" name="__codelineno-15-2"></a><span class="w">    </span><span class="n">hammer2_dev_t</span><span class="w">       </span><span class="o">*</span><span class="n">hmp</span><span class="p">;</span>
+<a href="#__codelineno-15-3" id="__codelineno-15-3" name="__codelineno-15-3"></a><span class="w">    </span><span class="n">hammer2_bmap_data_t</span><span class="w"> </span><span class="o">*</span><span class="n">bmap</span><span class="p">;</span><span class="w">      </span><span class="cm">/* In-memory freemap */</span>
+<a href="#__codelineno-15-4" id="__codelineno-15-4" name="__codelineno-15-4"></a><span class="w">    </span><span class="n">hammer2_off_t</span><span class="w">       </span><span class="n">sbase</span><span class="p">;</span><span class="w">      </span><span class="cm">/* Current scan base */</span>
+<a href="#__codelineno-15-5" id="__codelineno-15-5" name="__codelineno-15-5"></a><span class="w">    </span><span class="n">hammer2_off_t</span><span class="w">       </span><span class="n">sstop</span><span class="p">;</span><span class="w">      </span><span class="cm">/* Current scan stop */</span>
+<a href="#__codelineno-15-6" id="__codelineno-15-6" name="__codelineno-15-6"></a><span class="w">    </span><span class="kt">long</span><span class="w">                </span><span class="n">count_10_00</span><span class="p">;</span><span class="w"> </span><span class="cm">/* Staged -&gt; Free */</span>
+<a href="#__codelineno-15-7" id="__codelineno-15-7" name="__codelineno-15-7"></a><span class="w">    </span><span class="kt">long</span><span class="w">                </span><span class="n">count_11_10</span><span class="p">;</span><span class="w"> </span><span class="cm">/* Allocated -&gt; Staged */</span>
+<a href="#__codelineno-15-8" id="__codelineno-15-8" name="__codelineno-15-8"></a><span class="w">    </span><span class="n">hammer2_off_t</span><span class="w">       </span><span class="n">adj_free</span><span class="p">;</span><span class="w">   </span><span class="cm">/* Free space adjustment */</span>
+<a href="#__codelineno-15-9" id="__codelineno-15-9" name="__codelineno-15-9"></a><span class="w">    </span><span class="cm">/* ... */</span>
+<a href="#__codelineno-15-10" id="__codelineno-15-10" name="__codelineno-15-10"></a><span class="p">}</span><span class="w"> </span><span class="n">hammer2_bulkfree_info_t</span><span class="p">;</span>
+</code></pre></div>
+<h3 id="memory-bounded-scanning">Memory-Bounded Scanning<a class="headerlink" href="#memory-bounded-scanning" title="Permanent link">¶</a></h3>
+<p>Bulkfree uses bounded memory. Each 32KB of RAM represents 1GB of storage:</p>
+<div class="highlight"><pre><span></span><code><a href="#__codelineno-16-1" id="__codelineno-16-1" name="__codelineno-16-1"></a><span class="cm">/* hammer2_bulkfree.c:549-550 */</span>
+<a href="#__codelineno-16-2" id="__codelineno-16-2" name="__codelineno-16-2"></a><span class="cp">#define HAMMER2_FREEMAP_SIZEDIV \</span>
+<a href="#__codelineno-16-3" id="__codelineno-16-3" name="__codelineno-16-3"></a><span class="cp">    (HAMMER2_FREEMAP_LEVEL1_SIZE / HAMMER2_FREEMAP_LEVELN_PSIZE)</span>
+</code></pre></div>
+<p>If memory is insufficient to cover the entire volume, multiple passes are made.</p>
+<h3 id="bulkfree-thread">Bulkfree Thread<a class="headerlink" href="#bulkfree-thread" title="Permanent link">¶</a></h3>
+<p>A background thread periodically runs bulkfree (<code>hammer2_bulkfree.c:468-510</code>):</p>
+<div class="highlight"><pre><span></span><code><a href="#__codelineno-17-1" id="__codelineno-17-1" name="__codelineno-17-1"></a><span class="k">static</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="nf">hammer2_bulkfree_thread</span><span class="p">(</span><span class="kt">void</span><span class="w"> </span><span class="o">*</span><span class="n">arg</span><span class="p">)</span>
+<a href="#__codelineno-17-2" id="__codelineno-17-2" name="__codelineno-17-2"></a><span class="p">{</span>
+<a href="#__codelineno-17-3" id="__codelineno-17-3" name="__codelineno-17-3"></a><span class="w">    </span><span class="k">for</span><span class="w"> </span><span class="p">(;;)</span><span class="w"> </span><span class="p">{</span>
+<a href="#__codelineno-17-4" id="__codelineno-17-4" name="__codelineno-17-4"></a><span class="w">        </span><span class="n">hammer2_thr_wait_any</span><span class="p">(</span><span class="n">thr</span><span class="p">,</span><span class="w"> </span><span class="p">...,</span><span class="w"> </span><span class="n">hz</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mi">60</span><span class="p">);</span><span class="w">  </span><span class="cm">/* Wake every 60 sec */</span>
+<a href="#__codelineno-17-5" id="__codelineno-17-5" name="__codelineno-17-5"></a>
+<a href="#__codelineno-17-6" id="__codelineno-17-6" name="__codelineno-17-6"></a><span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">flags</span><span class="w"> </span><span class="o">&amp;</span><span class="w"> </span><span class="n">HAMMER2_THREAD_REMASTER</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<a href="#__codelineno-17-7" id="__codelineno-17-7" name="__codelineno-17-7"></a><span class="w">            </span><span class="n">bfi</span><span class="p">.</span><span class="n">size</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">8192</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mi">1024</span><span class="p">;</span><span class="w">  </span><span class="cm">/* 8MB buffer */</span>
+<a href="#__codelineno-17-8" id="__codelineno-17-8" name="__codelineno-17-8"></a><span class="w">            </span><span class="n">hammer2_bulkfree_pass</span><span class="p">(</span><span class="n">hmp</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">bfi</span><span class="p">);</span>
+<a href="#__codelineno-17-9" id="__codelineno-17-9" name="__codelineno-17-9"></a><span class="w">        </span><span class="p">}</span>
+<a href="#__codelineno-17-10" id="__codelineno-17-10" name="__codelineno-17-10"></a><span class="w">    </span><span class="p">}</span>
+<a href="#__codelineno-17-11" id="__codelineno-17-11" name="__codelineno-17-11"></a><span class="p">}</span>
+</code></pre></div>
+<h2 id="freemap-and-volume-header">Freemap and Volume Header<a class="headerlink" href="#freemap-and-volume-header" title="Permanent link">¶</a></h2>
+<p>The freemap's state is recorded in the volume header:</p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>freemap_tid</code></td>
+<td>Transaction ID of last freemap flush</td>
+</tr>
+<tr>
+<td><code>allocator_free</code></td>
+<td>Total free space (bitmap granularity)</td>
+</tr>
+<tr>
+<td><code>allocator_beg</code></td>
+<td>Start of allocatable space</td>
+</tr>
+</tbody>
+</table>
+<h3 id="freemap-flush-coordination">Freemap Flush Coordination<a class="headerlink" href="#freemap-flush-coordination" title="Permanent link">¶</a></h3>
+<p>The freemap (<code>fchain</code>) is flushed before the volume chain (<code>vchain</code>) to ensure
+consistency:</p>
+<div class="highlight"><pre><span></span><code><a href="#__codelineno-18-1" id="__codelineno-18-1" name="__codelineno-18-1"></a><span class="cm">/* hammer2_flush.c:1432-1441 */</span>
+<a href="#__codelineno-18-2" id="__codelineno-18-2" name="__codelineno-18-2"></a><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">hmp</span><span class="o">-&gt;</span><span class="n">fchain</span><span class="p">.</span><span class="n">flags</span><span class="w"> </span><span class="o">&amp;</span><span class="w"> </span><span class="n">HAMMER2_CHAIN_FLUSH_MASK</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<a href="#__codelineno-18-3" id="__codelineno-18-3" name="__codelineno-18-3"></a><span class="w">    </span><span class="n">hammer2_voldata_modify</span><span class="p">(</span><span class="n">hmp</span><span class="p">);</span>
+<a href="#__codelineno-18-4" id="__codelineno-18-4" name="__codelineno-18-4"></a><span class="w">    </span><span class="n">chain</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="o">&amp;</span><span class="n">hmp</span><span class="o">-&gt;</span><span class="n">fchain</span><span class="p">;</span>
+<a href="#__codelineno-18-5" id="__codelineno-18-5" name="__codelineno-18-5"></a><span class="w">    </span><span class="n">flush_error</span><span class="w"> </span><span class="o">|=</span><span class="w"> </span><span class="n">hammer2_flush</span><span class="p">(</span><span class="n">chain</span><span class="p">,</span><span class="w"> </span><span class="n">HAMMER2_FLUSH_TOP</span><span class="p">);</span>
+<a href="#__codelineno-18-6" id="__codelineno-18-6" name="__codelineno-18-6"></a><span class="p">}</span>
+<a href="#__codelineno-18-7" id="__codelineno-18-7" name="__codelineno-18-7"></a><span class="cm">/* Then flush vchain */</span>
+</code></pre></div>
+<p>When flushing <code>fchain</code>, the volume header's <code>freemap_tid</code> is updated:</p>
+<div class="highlight"><pre><span></span><code><a href="#__codelineno-19-1" id="__codelineno-19-1" name="__codelineno-19-1"></a><span class="cm">/* hammer2_flush.c:766-768 */</span>
+<a href="#__codelineno-19-2" id="__codelineno-19-2" name="__codelineno-19-2"></a><span class="k">case</span><span class="w"> </span><span class="no">HAMMER2_BREF_TYPE_FREEMAP</span><span class="p">:</span>
+<a href="#__codelineno-19-3" id="__codelineno-19-3" name="__codelineno-19-3"></a><span class="w">    </span><span class="n">hmp</span><span class="o">-&gt;</span><span class="n">voldata</span><span class="p">.</span><span class="n">freemap_tid</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">chain</span><span class="o">-&gt;</span><span class="n">bref</span><span class="p">.</span><span class="n">mirror_tid</span><span class="p">;</span>
+<a href="#__codelineno-19-4" id="__codelineno-19-4" name="__codelineno-19-4"></a><span class="w">    </span><span class="k">break</span><span class="p">;</span>
+</code></pre></div>
+<h2 id="blockref-check-field">Blockref Check Field<a class="headerlink" href="#blockref-check-field" title="Permanent link">¶</a></h2>
+<p>Freemap blockrefs use the check field to store hints:</p>
+<div class="highlight"><pre><span></span><code><a href="#__codelineno-20-1" id="__codelineno-20-1" name="__codelineno-20-1"></a><span class="k">struct</span><span class="w"> </span><span class="p">{</span>
+<a href="#__codelineno-20-2" id="__codelineno-20-2" name="__codelineno-20-2"></a><span class="w">    </span><span class="kt">uint32_t</span><span class="w"> </span><span class="n">icrc32</span><span class="p">;</span><span class="w">    </span><span class="cm">/* Integrity check */</span>
+<a href="#__codelineno-20-3" id="__codelineno-20-3" name="__codelineno-20-3"></a><span class="w">    </span><span class="kt">uint32_t</span><span class="w"> </span><span class="n">bigmask</span><span class="p">;</span><span class="w">   </span><span class="cm">/* Available radixes (bitmask) */</span>
+<a href="#__codelineno-20-4" id="__codelineno-20-4" name="__codelineno-20-4"></a><span class="w">    </span><span class="kt">uint64_t</span><span class="w"> </span><span class="n">avail</span><span class="p">;</span><span class="w">     </span><span class="cm">/* Available bytes */</span>
+<a href="#__codelineno-20-5" id="__codelineno-20-5" name="__codelineno-20-5"></a><span class="w">    </span><span class="kt">char</span><span class="w"> </span><span class="n">reserved</span><span class="p">[</span><span class="mi">48</span><span class="p">];</span>
+<a href="#__codelineno-20-6" id="__codelineno-20-6" name="__codelineno-20-6"></a><span class="p">}</span><span class="w"> </span><span class="n">freemap</span><span class="p">;</span>
+</code></pre></div>
+<h3 id="bigmask-optimization">Bigmask Optimization<a class="headerlink" href="#bigmask-optimization" title="Permanent link">¶</a></h3>
+<p>The <code>bigmask</code> field indicates which allocation sizes might succeed:</p>
+<div class="highlight"><pre><span></span><code><a href="#__codelineno-21-1" id="__codelineno-21-1" name="__codelineno-21-1"></a><span class="cm">/* Bit N set = allocations of (1 &lt;&lt; N) bytes might succeed */</span>
+<a href="#__codelineno-21-2" id="__codelineno-21-2" name="__codelineno-21-2"></a><span class="n">chain</span><span class="o">-&gt;</span><span class="n">bref</span><span class="p">.</span><span class="n">check</span><span class="p">.</span><span class="n">freemap</span><span class="p">.</span><span class="n">bigmask</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="kt">uint32_t</span><span class="p">)</span><span class="mi">-1</span><span class="p">;</span><span class="w">  </span><span class="cm">/* All sizes possible */</span>
+<a href="#__codelineno-21-3" id="__codelineno-21-3" name="__codelineno-21-3"></a>
+<a href="#__codelineno-21-4" id="__codelineno-21-4" name="__codelineno-21-4"></a><span class="cm">/* Clear bit when a scan confirms no space for that size */</span>
+<a href="#__codelineno-21-5" id="__codelineno-21-5" name="__codelineno-21-5"></a><span class="n">chain</span><span class="o">-&gt;</span><span class="n">bref</span><span class="p">.</span><span class="n">check</span><span class="p">.</span><span class="n">freemap</span><span class="p">.</span><span class="n">bigmask</span><span class="w"> </span><span class="o">&amp;=</span><span class="w"> </span><span class="o">~</span><span class="p">((</span><span class="kt">size_t</span><span class="p">)</span><span class="mi">1</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">radix</span><span class="p">);</span>
+</code></pre></div>
+<p>This allows quick rejection of allocations that cannot possibly succeed.</p>
+<h2 id="performance-considerations">Performance Considerations<a class="headerlink" href="#performance-considerations" title="Permanent link">¶</a></h2>
+<h3 id="allocation-locality">Allocation Locality<a class="headerlink" href="#allocation-locality" title="Permanent link">¶</a></h3>
+<p>The allocator tries to maintain locality through:</p>
+<ol>
+<li><strong>Heuristic hints</strong> — Per-type next-allocation hints</li>
+<li><strong>Class grouping</strong> — Same-type allocations in same bmap entries</li>
+<li><strong>Key-based indexing</strong> — Data blocks indexed by file offset</li>
+</ol>
+<h3 id="avoiding-read-before-write">Avoiding Read-Before-Write<a class="headerlink" href="#avoiding-read-before-write" title="Permanent link">¶</a></h3>
+<p>When allocating new blocks, the allocator may pre-initialize buffers to avoid
+unnecessary reads:</p>
+<div class="highlight"><pre><span></span><code><a href="#__codelineno-22-1" id="__codelineno-22-1" name="__codelineno-22-1"></a><span class="cm">/* hammer2_freemap.c:702-732 */</span>
+<a href="#__codelineno-22-2" id="__codelineno-22-2" name="__codelineno-22-2"></a><span class="k">if</span><span class="w"> </span><span class="p">((</span><span class="n">bmap</span><span class="o">-&gt;</span><span class="n">bitmapq</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="w"> </span><span class="o">&amp;</span><span class="w"> </span><span class="n">pbmmask</span><span class="p">)</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<a href="#__codelineno-22-3" id="__codelineno-22-3" name="__codelineno-22-3"></a><span class="w">    </span><span class="cm">/* Entire physical buffer is new, skip read */</span>
+<a href="#__codelineno-22-4" id="__codelineno-22-4" name="__codelineno-22-4"></a><span class="w">    </span><span class="n">hammer2_io_newnz</span><span class="p">(</span><span class="n">hmp</span><span class="p">,</span><span class="w"> </span><span class="n">class</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="mi">8</span><span class="p">,</span><span class="w"> </span><span class="n">offset</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">pradix</span><span class="p">,</span><span class="w"> </span><span class="n">psize</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">dio</span><span class="p">);</span>
+<a href="#__codelineno-22-5" id="__codelineno-22-5" name="__codelineno-22-5"></a><span class="w">    </span><span class="n">hammer2_io_putblk</span><span class="p">(</span><span class="o">&amp;</span><span class="n">dio</span><span class="p">);</span>
+<a href="#__codelineno-22-6" id="__codelineno-22-6" name="__codelineno-22-6"></a><span class="p">}</span>
+</code></pre></div>
+<h3 id="deduplication-integration">Deduplication Integration<a class="headerlink" href="#deduplication-integration" title="Permanent link">¶</a></h3>
+<p>The freemap tracks deduplication candidates:</p>
+<div class="highlight"><pre><span></span><code><a href="#__codelineno-23-1" id="__codelineno-23-1" name="__codelineno-23-1"></a><span class="cm">/* hammer2_freemap.c:502-503 */</span>
+<a href="#__codelineno-23-2" id="__codelineno-23-2" name="__codelineno-23-2"></a><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">bref</span><span class="o">-&gt;</span><span class="n">type</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">HAMMER2_BREF_TYPE_DATA</span><span class="p">)</span>
+<a href="#__codelineno-23-3" id="__codelineno-23-3" name="__codelineno-23-3"></a><span class="w">    </span><span class="n">hammer2_io_dedup_set</span><span class="p">(</span><span class="n">hmp</span><span class="p">,</span><span class="w"> </span><span class="n">bref</span><span class="p">);</span>
+</code></pre></div>
+<p>Dedup bits are cleared during bulkfree's 11-&gt;10 transition.</p>
+<h2 id="see-also">See Also<a class="headerlink" href="#see-also" title="Permanent link">¶</a></h2>
+<ul>
+<li><a href="../">HAMMER2 Overview</a> — Filesystem architecture</li>
+<li><a href="../on-disk-format/">On-Disk Format</a> — Volume header and blockref structures</li>
+<li><a href="../chain-layer/">Chain Layer</a> — Freemap chain management</li>
+<li><a href="../flush-sync/">Flush &amp; Sync</a> — Freemap flush coordination</li>
+</ul>
+</article>
+</div>
 <script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
-        </div>
-        
-          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
-  
-  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+</div>
+<button class="md-top md-icon" data-md-component="top" hidden="" type="button">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"></path></svg>
   Back to top
 </button>
-        
-      </main>
-      
-        <footer class="md-footer">
-  
-  <div class="md-footer-meta md-typeset">
-    <div class="md-footer-meta__inner md-grid">
-      <div class="md-copyright">
+</main>
+<footer class="md-footer">
+<div class="md-footer-meta md-typeset">
+<div class="md-footer-meta__inner md-grid">
+<div class="md-copyright">
   
   
     Made with
-    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+    <a href="https://squidfunk.github.io/mkdocs-material/" rel="noopener" target="_blank">
       Material for MkDocs
     </a>
-  
 </div>
-      
-    </div>
-  </div>
+</div>
+</div>
 </footer>
-      
-    </div>
-    <div class="md-dialog" data-md-component="dialog">
-      <div class="md-dialog__inner md-typeset"></div>
-    </div>
-    
-    
-    
-      
-      
-      <script id="__config" type="application/json">{"annotate": null, "base": "../../../..", "features": ["navigation.tabs", "navigation.sections", "navigation.expand", "navigation.top", "search.suggest", "search.highlight", "content.code.copy"], "search": "../../../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
-    
-    
-      <script src="../../../../assets/javascripts/bundle.79ae519e.min.js"></script>
-      
-    
-  </body>
+</div>
+<div class="md-dialog" data-md-component="dialog">
+<div class="md-dialog__inner md-typeset"></div>
+</div>
+<script id="__config" type="application/json">{"annotate": null, "base": "../../../..", "features": ["navigation.tabs", "navigation.sections", "navigation.expand", "navigation.top", "search.suggest", "search.highlight", "content.code.copy"], "search": "../../../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+<script src="../../../../assets/javascripts/bundle.79ae519e.min.js"></script>
+<script type="module">import mermaid from "https://unpkg.com/mermaid@10.4.0/dist/mermaid.esm.min.mjs";
+window.mermaidConfig = {default: {
+    startOnLoad: false
+}};</script></body>
 </html>
