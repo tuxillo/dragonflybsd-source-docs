@@ -983,6 +983,33 @@
     </label>
 <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix="">
 <li class="md-nav__item">
+<a class="md-nav__link" href="#why-address-space-management-matters">
+<span class="md-ellipsis">
+      
+        Why Address Space Management Matters
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#the-life-of-a-mapping">
+<span class="md-ellipsis">
+      
+        The Life of a Mapping
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#key-design-principles">
+<span class="md-ellipsis">
+      
+        Key Design Principles
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
 <a class="md-nav__link" href="#common-operations">
 <span class="md-ellipsis">
       
@@ -1402,6 +1429,73 @@
 <span class="md-ellipsis">
       
         Debugging
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#common-usage-patterns">
+<span class="md-ellipsis">
+      
+        Common Usage Patterns
+      
+    </span>
+</a>
+<nav aria-label="Common Usage Patterns" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#pattern-1-creating-a-mapping-in-kernel-code">
+<span class="md-ellipsis">
+      
+        Pattern 1: Creating a Mapping in Kernel Code
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#pattern-2-looking-up-an-entry-for-ptrace">
+<span class="md-ellipsis">
+      
+        Pattern 2: Looking Up an Entry for ptrace
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#pattern-3-temporarily-changing-protection-for-ptrace-write">
+<span class="md-ellipsis">
+      
+        Pattern 3: Temporarily Changing Protection for ptrace Write
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#pattern-4-wiring-pages-for-mlock">
+<span class="md-ellipsis">
+      
+        Pattern 4: Wiring Pages for mlock
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#pattern-5-removing-a-mapping">
+<span class="md-ellipsis">
+      
+        Pattern 5: Removing a Mapping
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#further-reading">
+<span class="md-ellipsis">
+      
+        Further Reading
       
     </span>
 </a>
@@ -1513,6 +1607,33 @@
     </label>
 <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix="">
 <li class="md-nav__item">
+<a class="md-nav__link" href="#why-address-space-management-matters">
+<span class="md-ellipsis">
+      
+        Why Address Space Management Matters
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#the-life-of-a-mapping">
+<span class="md-ellipsis">
+      
+        The Life of a Mapping
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#key-design-principles">
+<span class="md-ellipsis">
+      
+        Key Design Principles
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
 <a class="md-nav__link" href="#common-operations">
 <span class="md-ellipsis">
       
@@ -1937,6 +2058,73 @@
 </a>
 </li>
 <li class="md-nav__item">
+<a class="md-nav__link" href="#common-usage-patterns">
+<span class="md-ellipsis">
+      
+        Common Usage Patterns
+      
+    </span>
+</a>
+<nav aria-label="Common Usage Patterns" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#pattern-1-creating-a-mapping-in-kernel-code">
+<span class="md-ellipsis">
+      
+        Pattern 1: Creating a Mapping in Kernel Code
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#pattern-2-looking-up-an-entry-for-ptrace">
+<span class="md-ellipsis">
+      
+        Pattern 2: Looking Up an Entry for ptrace
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#pattern-3-temporarily-changing-protection-for-ptrace-write">
+<span class="md-ellipsis">
+      
+        Pattern 3: Temporarily Changing Protection for ptrace Write
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#pattern-4-wiring-pages-for-mlock">
+<span class="md-ellipsis">
+      
+        Pattern 4: Wiring Pages for mlock
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#pattern-5-removing-a-mapping">
+<span class="md-ellipsis">
+      
+        Pattern 5: Removing a Mapping
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#further-reading">
+<span class="md-ellipsis">
+      
+        Further Reading
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
 <a class="md-nav__link" href="#see-also">
 <span class="md-ellipsis">
       
@@ -1955,6 +2143,120 @@
 <h1 id="address-space-management">Address Space Management<a class="headerlink" href="#address-space-management" title="Permanent link">¶</a></h1>
 <p>The VM map subsystem manages virtual address spaces in DragonFly BSD. It handles address range mappings, copy-on-write (COW), process forking, stack management, and the relationship between virtual addresses and backing objects.</p>
 <p><strong>Source file:</strong> <code>sys/vm/vm_map.c</code> (~4,781 lines)</p>
+<hr/>
+<h2 id="why-address-space-management-matters">Why Address Space Management Matters<a class="headerlink" href="#why-address-space-management-matters" title="Permanent link">¶</a></h2>
+<p>Every process sees its own private, contiguous address space—from address 0 to the maximum virtual address. But this is an illusion. Physical memory is fragmented, shared between processes, and far smaller than the virtual range. The VM map subsystem creates and maintains this illusion.</p>
+<p><strong>How does the kernel know what's at a virtual address?</strong></p>
+<p>When a process accesses address <code>0x7fff12340000</code>, the hardware triggers a page fault. The kernel must answer: Is this address valid? What protection does it have? Where does its data come from? The <code>vm_map</code> answers all these questions. It's a sorted tree of <code>vm_map_entry</code> structures, each describing a contiguous range with uniform properties.</p>
+<p><strong>How does <code>fork()</code> create a child without copying gigabytes of memory?</strong></p>
+<p>Copy-on-write (COW) is the answer, but implementing it efficiently is complex. The parent and child must share physical pages until one writes. DragonFly's <code>vm_map_backing</code> chains track these sharing relationships without modifying the underlying <code>vm_object</code>—a key architectural difference from traditional BSD.</p>
+<p><strong>How do you efficiently find free space in a sparse address space?</strong></p>
+<p>With thousands of mappings and huge address ranges, finding a suitable hole for <code>mmap()</code> could be expensive. DragonFly uses a freehint cache that provides O(1) lookup for common allocation patterns, falling back to RB tree traversal only when necessary.</p>
+<p><strong>Why can multiple threads fault on different parts of the same mapping concurrently?</strong></p>
+<p>Large anonymous mappings (like a process's heap) could serialize all faults through a single lock. DragonFly's 32MB entry partitioning allows different threads to fault on different partitions simultaneously, dramatically improving multi-threaded scalability.</p>
+<hr/>
+<h2 id="the-life-of-a-mapping">The Life of a Mapping<a class="headerlink" href="#the-life-of-a-mapping" title="Permanent link">¶</a></h2>
+<p>A mapping's journey from creation through active use to destruction:</p>
+<pre class="mermaid"><code>flowchart TB
+    MMAP["mmap() syscall"]
+    FINDSPACE["vm_map_findspace()<br/>Find suitable hole"]
+    INSERT["vm_map_insert()<br/>Create vm_map_entry"]
+    ACTIVE["Active Mapping<br/>Entry in RB tree"]
+    FAULT["Page fault on access"]
+    LOOKUP["vm_map_lookup()<br/>Find entry, check protection"]
+    COW{"Write to<br/>COW page?"}
+    SHADOW["vm_map_entry_shadow()<br/>Create shadow chain"]
+    VMFAULT["vm_fault()<br/>Populate page"]
+    PROTECT["mprotect() / mlock()"]
+    MODIFY["vm_map_protect()<br/>vm_map_user_wiring()"]
+    FORK["fork()"]
+    COPY["vm_map_copy_entry()<br/>Set up COW sharing"]
+    MUNMAP["munmap() syscall"]
+    DELETE["vm_map_delete()<br/>Remove entry, clean up"]
+
+    MMAP --&gt; FINDSPACE
+    FINDSPACE --&gt; INSERT
+    INSERT --&gt; ACTIVE
+    ACTIVE --&gt; FAULT
+    FAULT --&gt; LOOKUP
+    LOOKUP --&gt; COW
+    COW --&gt;|yes| SHADOW
+    SHADOW --&gt; VMFAULT
+    COW --&gt;|no| VMFAULT
+    VMFAULT --&gt; ACTIVE
+    ACTIVE --&gt; PROTECT
+    PROTECT --&gt; MODIFY
+    MODIFY --&gt; ACTIVE
+    ACTIVE --&gt; FORK
+    FORK --&gt; COPY
+    COPY --&gt; ACTIVE
+    ACTIVE --&gt; MUNMAP
+    MUNMAP --&gt; DELETE
+</code></pre>
+<p><strong>Key transitions:</strong></p>
+<ol>
+<li>
+<p><strong>Creation</strong>: <code>mmap()</code> → <code>vm_map_findspace()</code> finds a hole → <code>vm_map_insert()</code> creates the entry. The mapping exists but has no pages yet.</p>
+</li>
+<li>
+<p><strong>First Access</strong>: A page fault triggers <code>vm_map_lookup()</code> which finds the entry and checks permissions. Then <code>vm_fault()</code> populates the page from the backing object or zero-fills it.</p>
+</li>
+<li>
+<p><strong>COW Fault</strong>: If a process writes to a shared page (after <code>fork()</code>), <code>vm_map_entry_shadow()</code> creates a shadow chain, and the write goes to a private copy.</p>
+</li>
+<li>
+<p><strong>Destruction</strong>: <code>munmap()</code> → <code>vm_map_delete()</code> removes pmap mappings, releases object references, and frees the entry.</p>
+</li>
+</ol>
+<hr/>
+<h2 id="key-design-principles">Key Design Principles<a class="headerlink" href="#key-design-principles" title="Permanent link">¶</a></h2>
+<table>
+<thead>
+<tr>
+<th>Problem</th>
+<th>Traditional Approach</th>
+<th>DragonFly's Solution</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>COW tracking</strong></td>
+<td>Modify vm_object shadow chains</td>
+<td><code>vm_map_backing</code> chains—objects unchanged when shadowed</td>
+</tr>
+<tr>
+<td><strong>Finding free space</strong></td>
+<td>O(n) scan or complex data structures</td>
+<td>Freehint cache for O(1) common case, RB tree fallback</td>
+</tr>
+<tr>
+<td><strong>Large mapping contention</strong></td>
+<td>Single entry = single lock</td>
+<td>32MB partitioning for concurrent faults</td>
+</tr>
+<tr>
+<td><strong>Process exit cleanup</strong></td>
+<td>Synchronous, heavyweight</td>
+<td>Two-stage termination (stage-1 while runnable)</td>
+</tr>
+<tr>
+<td><strong>Entry allocation in fault path</strong></td>
+<td>Zone allocator (may block)</td>
+<td>Per-CPU entry cache, pre-reserved entries</td>
+</tr>
+<tr>
+<td><strong>Shadow chain explosion</strong></td>
+<td>Unbounded depth from repeated forks</td>
+<td><code>vm_map_backing_limit</code> (default 5) with auto-collapse</td>
+</tr>
+<tr>
+<td><strong>Submap overhead</strong></td>
+<td>Separate map structure</td>
+<td>Embedded in entry via <code>VM_MAPTYPE_SUBMAP</code></td>
+</tr>
+</tbody>
+</table>
+<hr/>
 <h2 id="common-operations">Common Operations<a class="headerlink" href="#common-operations" title="Permanent link">¶</a></h2>
 <p>Understanding when this code runs helps navigate the 4,781 lines. Here's what happens for common scenarios:</p>
 <table>
@@ -2011,7 +2313,7 @@
 </tr>
 </tbody>
 </table>
-<pre class="mermaid"><code>flowchart LR
+<pre class="mermaid"><code>flowchart TB
     subgraph User["USER"]
         mmap["mmap(NULL, 4096, ...)"]
         access["*ptr = 42"]
@@ -2664,6 +2966,105 @@
 </tr>
 </tbody>
 </table>
+<hr/>
+<h2 id="common-usage-patterns">Common Usage Patterns<a class="headerlink" href="#common-usage-patterns" title="Permanent link">¶</a></h2>
+<h3 id="pattern-1-creating-a-mapping-in-kernel-code">Pattern 1: Creating a Mapping in Kernel Code<a class="headerlink" href="#pattern-1-creating-a-mapping-in-kernel-code" title="Permanent link">¶</a></h3>
+<p>From <code>sys/kern/init_main.c</code> - allocating the initial stack for init:</p>
+<div class="highlight"><pre><span></span><code><a href="#__codelineno-26-1" id="__codelineno-26-1" name="__codelineno-26-1"></a><span class="n">vm_offset_t</span><span class="w"> </span><span class="n">addr</span><span class="p">;</span>
+<a href="#__codelineno-26-2" id="__codelineno-26-2" name="__codelineno-26-2"></a><span class="kt">int</span><span class="w"> </span><span class="n">error</span><span class="p">;</span>
+<a href="#__codelineno-26-3" id="__codelineno-26-3" name="__codelineno-26-3"></a>
+<a href="#__codelineno-26-4" id="__codelineno-26-4" name="__codelineno-26-4"></a><span class="cm">/* Allocate one page at a specific address (fitit=FALSE) */</span>
+<a href="#__codelineno-26-5" id="__codelineno-26-5" name="__codelineno-26-5"></a><span class="n">addr</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">trunc_page</span><span class="p">(</span><span class="n">USRSTACK</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">PAGE_SIZE</span><span class="p">);</span>
+<a href="#__codelineno-26-6" id="__codelineno-26-6" name="__codelineno-26-6"></a><span class="n">error</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">vm_map_find</span><span class="p">(</span><span class="o">&amp;</span><span class="n">p</span><span class="o">-&gt;</span><span class="n">p_vmspace</span><span class="o">-&gt;</span><span class="n">vm_map</span><span class="p">,</span>
+<a href="#__codelineno-26-7" id="__codelineno-26-7" name="__codelineno-26-7"></a><span class="w">                    </span><span class="nb">NULL</span><span class="p">,</span><span class="w"> </span><span class="nb">NULL</span><span class="p">,</span><span class="w">         </span><span class="cm">/* object, aux_info (anonymous) */</span>
+<a href="#__codelineno-26-8" id="__codelineno-26-8" name="__codelineno-26-8"></a><span class="w">                    </span><span class="mi">0</span><span class="p">,</span><span class="w">                  </span><span class="cm">/* offset */</span>
+<a href="#__codelineno-26-9" id="__codelineno-26-9" name="__codelineno-26-9"></a><span class="w">                    </span><span class="o">&amp;</span><span class="n">addr</span><span class="p">,</span><span class="w">              </span><span class="cm">/* address (in/out) */</span>
+<a href="#__codelineno-26-10" id="__codelineno-26-10" name="__codelineno-26-10"></a><span class="w">                    </span><span class="n">PAGE_SIZE</span><span class="p">,</span><span class="w">          </span><span class="cm">/* length */</span>
+<a href="#__codelineno-26-11" id="__codelineno-26-11" name="__codelineno-26-11"></a><span class="w">                    </span><span class="n">PAGE_SIZE</span><span class="p">,</span><span class="w">          </span><span class="cm">/* alignment */</span>
+<a href="#__codelineno-26-12" id="__codelineno-26-12" name="__codelineno-26-12"></a><span class="w">                    </span><span class="n">FALSE</span><span class="p">,</span><span class="w">              </span><span class="cm">/* fitit=FALSE: use exact address */</span>
+<a href="#__codelineno-26-13" id="__codelineno-26-13" name="__codelineno-26-13"></a><span class="w">                    </span><span class="n">VM_MAPTYPE_NORMAL</span><span class="p">,</span>
+<a href="#__codelineno-26-14" id="__codelineno-26-14" name="__codelineno-26-14"></a><span class="w">                    </span><span class="n">VM_SUBSYS_INIT</span><span class="p">,</span>
+<a href="#__codelineno-26-15" id="__codelineno-26-15" name="__codelineno-26-15"></a><span class="w">                    </span><span class="n">VM_PROT_ALL</span><span class="p">,</span>
+<a href="#__codelineno-26-16" id="__codelineno-26-16" name="__codelineno-26-16"></a><span class="w">                    </span><span class="n">VM_PROT_ALL</span><span class="p">,</span>
+<a href="#__codelineno-26-17" id="__codelineno-26-17" name="__codelineno-26-17"></a><span class="w">                    </span><span class="mi">0</span><span class="p">);</span><span class="w">                 </span><span class="cm">/* cow flags */</span>
+</code></pre></div>
+<h3 id="pattern-2-looking-up-an-entry-for-ptrace">Pattern 2: Looking Up an Entry for ptrace<a class="headerlink" href="#pattern-2-looking-up-an-entry-for-ptrace" title="Permanent link">¶</a></h3>
+<p>From <code>sys/kern/sys_process.c</code> - reading process memory:</p>
+<div class="highlight"><pre><span></span><code><a href="#__codelineno-27-1" id="__codelineno-27-1" name="__codelineno-27-1"></a><span class="n">vm_map_t</span><span class="w"> </span><span class="n">tmap</span><span class="p">;</span>
+<a href="#__codelineno-27-2" id="__codelineno-27-2" name="__codelineno-27-2"></a><span class="n">vm_map_entry_t</span><span class="w"> </span><span class="n">out_entry</span><span class="p">;</span>
+<a href="#__codelineno-27-3" id="__codelineno-27-3" name="__codelineno-27-3"></a><span class="n">vm_map_backing_t</span><span class="w"> </span><span class="n">ba</span><span class="p">;</span>
+<a href="#__codelineno-27-4" id="__codelineno-27-4" name="__codelineno-27-4"></a><span class="n">vm_object_t</span><span class="w"> </span><span class="n">object</span><span class="p">;</span>
+<a href="#__codelineno-27-5" id="__codelineno-27-5" name="__codelineno-27-5"></a><span class="n">vm_pindex_t</span><span class="w"> </span><span class="n">pindex</span><span class="p">,</span><span class="w"> </span><span class="n">pcount</span><span class="p">;</span>
+<a href="#__codelineno-27-6" id="__codelineno-27-6" name="__codelineno-27-6"></a><span class="n">vm_prot_t</span><span class="w"> </span><span class="n">out_prot</span><span class="p">;</span>
+<a href="#__codelineno-27-7" id="__codelineno-27-7" name="__codelineno-27-7"></a><span class="kt">int</span><span class="w"> </span><span class="n">wflags</span><span class="p">;</span>
+<a href="#__codelineno-27-8" id="__codelineno-27-8" name="__codelineno-27-8"></a><span class="kt">int</span><span class="w"> </span><span class="n">rv</span><span class="p">;</span>
+<a href="#__codelineno-27-9" id="__codelineno-27-9" name="__codelineno-27-9"></a>
+<a href="#__codelineno-27-10" id="__codelineno-27-10" name="__codelineno-27-10"></a><span class="n">tmap</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">map</span><span class="p">;</span><span class="w">  </span><span class="cm">/* vm_map_lookup may change the map pointer */</span>
+<a href="#__codelineno-27-11" id="__codelineno-27-11" name="__codelineno-27-11"></a><span class="n">rv</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">vm_map_lookup</span><span class="p">(</span><span class="o">&amp;</span><span class="n">tmap</span><span class="p">,</span><span class="w"> </span><span class="n">pageno</span><span class="p">,</span><span class="w"> </span><span class="n">VM_PROT_READ</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">out_entry</span><span class="p">,</span>
+<a href="#__codelineno-27-12" id="__codelineno-27-12" name="__codelineno-27-12"></a><span class="w">                   </span><span class="o">&amp;</span><span class="n">ba</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">pindex</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">pcount</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">out_prot</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">wflags</span><span class="p">);</span>
+<a href="#__codelineno-27-13" id="__codelineno-27-13" name="__codelineno-27-13"></a>
+<a href="#__codelineno-27-14" id="__codelineno-27-14" name="__codelineno-27-14"></a><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">ba</span><span class="p">)</span>
+<a href="#__codelineno-27-15" id="__codelineno-27-15" name="__codelineno-27-15"></a><span class="w">    </span><span class="n">object</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ba</span><span class="o">-&gt;</span><span class="n">object</span><span class="p">;</span>
+<a href="#__codelineno-27-16" id="__codelineno-27-16" name="__codelineno-27-16"></a><span class="k">else</span>
+<a href="#__codelineno-27-17" id="__codelineno-27-17" name="__codelineno-27-17"></a><span class="w">    </span><span class="n">object</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">NULL</span><span class="p">;</span>
+<a href="#__codelineno-27-18" id="__codelineno-27-18" name="__codelineno-27-18"></a>
+<a href="#__codelineno-27-19" id="__codelineno-27-19" name="__codelineno-27-19"></a><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">rv</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="n">KERN_SUCCESS</span><span class="p">)</span>
+<a href="#__codelineno-27-20" id="__codelineno-27-20" name="__codelineno-27-20"></a><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">EINVAL</span><span class="p">;</span>
+<a href="#__codelineno-27-21" id="__codelineno-27-21" name="__codelineno-27-21"></a>
+<a href="#__codelineno-27-22" id="__codelineno-27-22" name="__codelineno-27-22"></a><span class="n">vm_map_lookup_done</span><span class="p">(</span><span class="n">tmap</span><span class="p">,</span><span class="w"> </span><span class="n">out_entry</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">);</span>
+</code></pre></div>
+<h3 id="pattern-3-temporarily-changing-protection-for-ptrace-write">Pattern 3: Temporarily Changing Protection for ptrace Write<a class="headerlink" href="#pattern-3-temporarily-changing-protection-for-ptrace-write" title="Permanent link">¶</a></h3>
+<p>From <code>sys/kern/sys_process.c</code> - writing to read-only memory:</p>
+<div class="highlight"><pre><span></span><code><a href="#__codelineno-28-1" id="__codelineno-28-1" name="__codelineno-28-1"></a><span class="n">vm_map_t</span><span class="w"> </span><span class="n">map</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="o">&amp;</span><span class="n">procp</span><span class="o">-&gt;</span><span class="n">p_vmspace</span><span class="o">-&gt;</span><span class="n">vm_map</span><span class="p">;</span>
+<a href="#__codelineno-28-2" id="__codelineno-28-2" name="__codelineno-28-2"></a><span class="n">boolean_t</span><span class="w"> </span><span class="n">fix_prot</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+<a href="#__codelineno-28-3" id="__codelineno-28-3" name="__codelineno-28-3"></a>
+<a href="#__codelineno-28-4" id="__codelineno-28-4" name="__codelineno-28-4"></a><span class="cm">/* Check if page is writable */</span>
+<a href="#__codelineno-28-5" id="__codelineno-28-5" name="__codelineno-28-5"></a><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">vm_map_check_protection</span><span class="p">(</span><span class="n">map</span><span class="p">,</span><span class="w"> </span><span class="n">pageno</span><span class="p">,</span><span class="w"> </span><span class="n">pageno</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">PAGE_SIZE</span><span class="p">,</span>
+<a href="#__codelineno-28-6" id="__codelineno-28-6" name="__codelineno-28-6"></a><span class="w">                            </span><span class="n">VM_PROT_WRITE</span><span class="p">,</span><span class="w"> </span><span class="n">FALSE</span><span class="p">)</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">FALSE</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<a href="#__codelineno-28-7" id="__codelineno-28-7" name="__codelineno-28-7"></a><span class="w">    </span><span class="n">fix_prot</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span>
+<a href="#__codelineno-28-8" id="__codelineno-28-8" name="__codelineno-28-8"></a><span class="w">    </span><span class="cm">/* Temporarily make it writable */</span>
+<a href="#__codelineno-28-9" id="__codelineno-28-9" name="__codelineno-28-9"></a><span class="w">    </span><span class="n">rv</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">vm_map_protect</span><span class="p">(</span><span class="n">map</span><span class="p">,</span><span class="w"> </span><span class="n">pageno</span><span class="p">,</span><span class="w"> </span><span class="n">pageno</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">PAGE_SIZE</span><span class="p">,</span>
+<a href="#__codelineno-28-10" id="__codelineno-28-10" name="__codelineno-28-10"></a><span class="w">                        </span><span class="n">VM_PROT_ALL</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">);</span>
+<a href="#__codelineno-28-11" id="__codelineno-28-11" name="__codelineno-28-11"></a><span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">rv</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="n">KERN_SUCCESS</span><span class="p">)</span>
+<a href="#__codelineno-28-12" id="__codelineno-28-12" name="__codelineno-28-12"></a><span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">EFAULT</span><span class="p">;</span>
+<a href="#__codelineno-28-13" id="__codelineno-28-13" name="__codelineno-28-13"></a><span class="p">}</span>
+<a href="#__codelineno-28-14" id="__codelineno-28-14" name="__codelineno-28-14"></a>
+<a href="#__codelineno-28-15" id="__codelineno-28-15" name="__codelineno-28-15"></a><span class="cm">/* ... do the write ... */</span>
+<a href="#__codelineno-28-16" id="__codelineno-28-16" name="__codelineno-28-16"></a>
+<a href="#__codelineno-28-17" id="__codelineno-28-17" name="__codelineno-28-17"></a><span class="cm">/* Restore original protection */</span>
+<a href="#__codelineno-28-18" id="__codelineno-28-18" name="__codelineno-28-18"></a><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">fix_prot</span><span class="p">)</span>
+<a href="#__codelineno-28-19" id="__codelineno-28-19" name="__codelineno-28-19"></a><span class="w">    </span><span class="n">vm_map_protect</span><span class="p">(</span><span class="n">map</span><span class="p">,</span><span class="w"> </span><span class="n">pageno</span><span class="p">,</span><span class="w"> </span><span class="n">pageno</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">PAGE_SIZE</span><span class="p">,</span>
+<a href="#__codelineno-28-20" id="__codelineno-28-20" name="__codelineno-28-20"></a><span class="w">                   </span><span class="n">VM_PROT_READ</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">VM_PROT_EXECUTE</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">);</span>
+</code></pre></div>
+<h3 id="pattern-4-wiring-pages-for-mlock">Pattern 4: Wiring Pages for mlock<a class="headerlink" href="#pattern-4-wiring-pages-for-mlock" title="Permanent link">¶</a></h3>
+<p>From <code>sys/vm/vm_mmap.c</code> - implementing mlock/munlock:</p>
+<div class="highlight"><pre><span></span><code><a href="#__codelineno-29-1" id="__codelineno-29-1" name="__codelineno-29-1"></a><span class="cm">/* mlock: wire the pages (new_pageable=FALSE) */</span>
+<a href="#__codelineno-29-2" id="__codelineno-29-2" name="__codelineno-29-2"></a><span class="n">error</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">vm_map_user_wiring</span><span class="p">(</span><span class="o">&amp;</span><span class="n">p</span><span class="o">-&gt;</span><span class="n">p_vmspace</span><span class="o">-&gt;</span><span class="n">vm_map</span><span class="p">,</span>
+<a href="#__codelineno-29-3" id="__codelineno-29-3" name="__codelineno-29-3"></a><span class="w">                           </span><span class="n">addr</span><span class="p">,</span><span class="w"> </span><span class="n">addr</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">size</span><span class="p">,</span><span class="w"> </span><span class="n">FALSE</span><span class="p">);</span>
+<a href="#__codelineno-29-4" id="__codelineno-29-4" name="__codelineno-29-4"></a>
+<a href="#__codelineno-29-5" id="__codelineno-29-5" name="__codelineno-29-5"></a><span class="cm">/* munlock: unwire the pages (new_pageable=TRUE) */</span>
+<a href="#__codelineno-29-6" id="__codelineno-29-6" name="__codelineno-29-6"></a><span class="n">error</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">vm_map_user_wiring</span><span class="p">(</span><span class="o">&amp;</span><span class="n">p</span><span class="o">-&gt;</span><span class="n">p_vmspace</span><span class="o">-&gt;</span><span class="n">vm_map</span><span class="p">,</span>
+<a href="#__codelineno-29-7" id="__codelineno-29-7" name="__codelineno-29-7"></a><span class="w">                           </span><span class="n">addr</span><span class="p">,</span><span class="w"> </span><span class="n">addr</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">size</span><span class="p">,</span><span class="w"> </span><span class="n">TRUE</span><span class="p">);</span>
+</code></pre></div>
+<h3 id="pattern-5-removing-a-mapping">Pattern 5: Removing a Mapping<a class="headerlink" href="#pattern-5-removing-a-mapping" title="Permanent link">¶</a></h3>
+<p>From <code>sys/kern/kern_exec.c</code> - clearing address space before exec:</p>
+<div class="highlight"><pre><span></span><code><a href="#__codelineno-30-1" id="__codelineno-30-1" name="__codelineno-30-1"></a><span class="cm">/* Remove all user mappings */</span>
+<a href="#__codelineno-30-2" id="__codelineno-30-2" name="__codelineno-30-2"></a><span class="n">vm_map_remove</span><span class="p">(</span><span class="n">map</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="n">VM_MAX_USER_ADDRESS</span><span class="p">);</span>
+</code></pre></div>
+<p>From <code>sys/kern/sys_process.c</code> - cleaning up temporary kernel mapping:</p>
+<div class="highlight"><pre><span></span><code><a href="#__codelineno-31-1" id="__codelineno-31-1" name="__codelineno-31-1"></a><span class="cm">/* Remove temporary kernel mapping after use */</span>
+<a href="#__codelineno-31-2" id="__codelineno-31-2" name="__codelineno-31-2"></a><span class="n">vm_map_remove</span><span class="p">(</span><span class="n">kernel_map</span><span class="p">,</span><span class="w"> </span><span class="n">kva</span><span class="p">,</span><span class="w"> </span><span class="n">kva</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">PAGE_SIZE</span><span class="p">);</span>
+</code></pre></div>
+<hr/>
+<h2 id="further-reading">Further Reading<a class="headerlink" href="#further-reading" title="Permanent link">¶</a></h2>
+<ul>
+<li><strong>"The Design and Implementation of the 4.4BSD Operating System"</strong> (McKusick et al.) - Chapter 5 covers VM system design including maps and entries</li>
+<li><strong>"Design elements of the FreeBSD VM system"</strong> - <a href="https://docs.freebsd.org/en/books/arch-handbook/vm/">FreeBSD Architecture Handbook</a> - DragonFly's heritage, though backing chains differ significantly</li>
+<li><strong>DragonFly commit history</strong> - Search for "vm_map_backing" to see the evolution from shadow objects to backing chains</li>
+<li><a href="../vm_fault/">vm_fault.md</a> - How faults use <code>vm_map_lookup()</code> results</li>
+<li><a href="../vm_object/">vm_object.md</a> - Objects that back map entries</li>
+</ul>
+<hr/>
 <h2 id="see-also">See Also<a class="headerlink" href="#see-also" title="Permanent link">¶</a></h2>
 <ul>
 <li><a href="../">VM Subsystem Overview</a> - Architecture overview</li>
