@@ -1,231 +1,119 @@
 
-<!doctype html>
-<html lang="en" class="no-js">
-  <head>
-    
-      <meta charset="utf-8">
-      <meta name="viewport" content="width=device-width,initial-scale=1">
-      
-        <meta name="description" content="Comprehensive documentation for the DragonFly BSD kernel source code">
-      
-      
-        <meta name="author" content="DragonFly BSD Community">
-      
-      
-      
-        <link rel="prev" href="../freemap/">
-      
-      
-        <link rel="next" href="../vfs-integration/">
-      
-      
-        
-      
-      
-      <link rel="icon" href="../../../../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.1">
-    
-    
-      
-        <title>XOP System - DragonFly BSD Kernel Documentation</title>
-      
-    
-    
-      <link rel="stylesheet" href="../../../../assets/stylesheets/main.484c7ddc.min.css">
-      
-        
-        <link rel="stylesheet" href="../../../../assets/stylesheets/palette.ab4e12ef.min.css">
-      
-      
+<!DOCTYPE html>
 
-
-    
-    
-      
-    
-    
-      
-        
-        
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
-        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
-      
-    
-    
-    <script>__md_scope=new URL("../../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
-    
-      
-
-    
-    
-  </head>
-  
-  
-    
-    
-      
-    
-    
-    
-    
-    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
-  
-    
-    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
-    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
-    <label class="md-overlay" for="__drawer"></label>
-    <div data-md-component="skip">
-      
-        
-        <a href="#hammer2-xop-system" class="md-skip">
+<html class="no-js" lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width,initial-scale=1" name="viewport"/>
+<meta content="Comprehensive documentation for the DragonFly BSD kernel source code" name="description"/>
+<meta content="DragonFly BSD Community" name="author"/>
+<link href="../freemap/" rel="prev"/>
+<link href="../vfs-integration/" rel="next"/>
+<link href="../../../../assets/images/favicon.png" rel="icon"/>
+<meta content="mkdocs-1.6.1, mkdocs-material-9.7.1" name="generator"/>
+<title>XOP System - DragonFly BSD Kernel Documentation</title>
+<link href="../../../../assets/stylesheets/main.484c7ddc.min.css" rel="stylesheet"/>
+<link href="../../../../assets/stylesheets/palette.ab4e12ef.min.css" rel="stylesheet"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&amp;display=fallback" rel="stylesheet"/>
+<style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+<script>__md_scope=new URL("../../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+</head>
+<body data-md-color-accent="indigo" data-md-color-primary="indigo" data-md-color-scheme="default" dir="ltr">
+<input autocomplete="off" class="md-toggle" data-md-toggle="drawer" id="__drawer" type="checkbox"/>
+<input autocomplete="off" class="md-toggle" data-md-toggle="search" id="__search" type="checkbox"/>
+<label class="md-overlay" for="__drawer"></label>
+<div data-md-component="skip">
+<a class="md-skip" href="#hammer2-xop-system">
           Skip to content
         </a>
-      
-    </div>
-    <div data-md-component="announce">
-      
-    </div>
-    
-    
-      
-
+</div>
+<div data-md-component="announce">
+</div>
 <header class="md-header" data-md-component="header">
-  <nav class="md-header__inner md-grid" aria-label="Header">
-    <a href="../../../.." title="DragonFly BSD Kernel Documentation" class="md-header__button md-logo" aria-label="DragonFly BSD Kernel Documentation" data-md-component="logo">
-      
-  
-  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
-
-    </a>
-    <label class="md-header__button md-icon" for="__drawer">
-      
-      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
-    </label>
-    <div class="md-header__title" data-md-component="header-title">
-      <div class="md-header__ellipsis">
-        <div class="md-header__topic">
-          <span class="md-ellipsis">
+<nav aria-label="Header" class="md-header__inner md-grid">
+<a aria-label="DragonFly BSD Kernel Documentation" class="md-header__button md-logo" data-md-component="logo" href="../../../.." title="DragonFly BSD Kernel Documentation">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"></path></svg>
+</a>
+<label class="md-header__button md-icon" for="__drawer">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"></path></svg>
+</label>
+<div class="md-header__title" data-md-component="header-title">
+<div class="md-header__ellipsis">
+<div class="md-header__topic">
+<span class="md-ellipsis">
             DragonFly BSD Kernel Documentation
           </span>
-        </div>
-        <div class="md-header__topic" data-md-component="header-topic">
-          <span class="md-ellipsis">
+</div>
+<div class="md-header__topic" data-md-component="header-topic">
+<span class="md-ellipsis">
             
               XOP System
             
           </span>
-        </div>
-      </div>
-    </div>
-    
-      
-        <form class="md-header__option" data-md-component="palette">
-  
-    
-    
-    
-    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
-    
-      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
-      </label>
-    
-  
-    
-    
-    
-    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
-    
-      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
-      </label>
-    
-  
+</div>
+</div>
+</div>
+<form class="md-header__option" data-md-component="palette">
+<input aria-label="Switch to dark mode" class="md-option" data-md-color-accent="indigo" data-md-color-media="" data-md-color-primary="indigo" data-md-color-scheme="default" id="__palette_0" name="__palette" type="radio"/>
+<label class="md-header__button md-icon" for="__palette_1" hidden="" title="Switch to dark mode">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"></path></svg>
+</label>
+<input aria-label="Switch to light mode" class="md-option" data-md-color-accent="indigo" data-md-color-media="" data-md-color-primary="indigo" data-md-color-scheme="slate" id="__palette_1" name="__palette" type="radio"/>
+<label class="md-header__button md-icon" for="__palette_0" hidden="" title="Switch to light mode">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"></path></svg>
+</label>
 </form>
-      
-    
-    
-      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
-    
-    
-    
-      
-      
-        <label class="md-header__button md-icon" for="__search">
-          
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
-        </label>
-        <div class="md-search" data-md-component="search" role="dialog">
-  <label class="md-search__overlay" for="__search"></label>
-  <div class="md-search__inner" role="search">
-    <form class="md-search__form" name="search">
-      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
-      <label class="md-search__icon md-icon" for="__search">
-        
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
-        
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
-      </label>
-      <nav class="md-search__options" aria-label="Search">
-        
-        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
-          
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
-        </button>
-      </nav>
-      
-        <div class="md-search__suggest" data-md-component="search-suggest"></div>
-      
-    </form>
-    <div class="md-search__output">
-      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
-        <div class="md-search-result" data-md-component="search-result">
-          <div class="md-search-result__meta">
+<script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+<label class="md-header__button md-icon" for="__search">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"></path></svg>
+</label>
+<div class="md-search" data-md-component="search" role="dialog">
+<label class="md-search__overlay" for="__search"></label>
+<div class="md-search__inner" role="search">
+<form class="md-search__form" name="search">
+<input aria-label="Search" autocapitalize="off" autocomplete="off" autocorrect="off" class="md-search__input" data-md-component="search-query" name="query" placeholder="Search" required="" spellcheck="false" type="text"/>
+<label class="md-search__icon md-icon" for="__search">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"></path></svg>
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"></path></svg>
+</label>
+<nav aria-label="Search" class="md-search__options">
+<button aria-label="Clear" class="md-search__icon md-icon" tabindex="-1" title="Clear" type="reset">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"></path></svg>
+</button>
+</nav>
+<div class="md-search__suggest" data-md-component="search-suggest"></div>
+</form>
+<div class="md-search__output">
+<div class="md-search__scrollwrap" data-md-scrollfix="" tabindex="0">
+<div class="md-search-result" data-md-component="search-result">
+<div class="md-search-result__meta">
             Initializing search
           </div>
-          <ol class="md-search-result__list" role="presentation"></ol>
-        </div>
-      </div>
-    </div>
-  </div>
+<ol class="md-search-result__list" role="presentation"></ol>
 </div>
-      
-    
-    
-      <div class="md-header__source">
-        <a href="https://github.com/tuxillo/dragonflybsd-source-docs" title="Go to repository" class="md-source" data-md-component="source">
-  <div class="md-source__icon md-icon">
-    
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
-  </div>
-  <div class="md-source__repository">
+</div>
+</div>
+</div>
+</div>
+<div class="md-header__source">
+<a class="md-source" data-md-component="source" href="https://github.com/tuxillo/dragonflybsd-source-docs" title="Go to repository">
+<div class="md-source__icon md-icon">
+<svg viewbox="0 0 448 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"></path></svg>
+</div>
+<div class="md-source__repository">
     tuxillo/dragonflybsd-source-docs
   </div>
 </a>
-      </div>
-    
-  </nav>
-  
+</div>
+</nav>
 </header>
-    
-    <div class="md-container" data-md-component="container">
-      
-      
-        
-          
-            
-<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
-  <div class="md-grid">
-    <ul class="md-tabs__list">
-      
-        
-  
-  
-  
-  
-    <li class="md-tabs__item">
-      <a href="../../../.." class="md-tabs__link">
+<div class="md-container" data-md-component="container">
+<nav aria-label="Tabs" class="md-tabs" data-md-component="tabs">
+<div class="md-grid">
+<ul class="md-tabs__list">
+<li class="md-tabs__item">
+<a class="md-tabs__link" href="../../../..">
         
   
   
@@ -234,17 +122,9 @@
   Home
 
       </a>
-    </li>
-  
-
-      
-        
-  
-  
-  
-  
-    <li class="md-tabs__item">
-      <a href="../../../../getting-started/" class="md-tabs__link">
+</li>
+<li class="md-tabs__item">
+<a class="md-tabs__link" href="../../../../getting-started/">
         
   
   
@@ -253,89 +133,45 @@
   Getting Started
 
       </a>
-    </li>
-  
-
-      
-        
-  
-  
-  
-    
-  
-  
-    
-    
-      <li class="md-tabs__item md-tabs__item--active">
-        <a href="../../../" class="md-tabs__link">
+</li>
+<li class="md-tabs__item md-tabs__item--active">
+<a class="md-tabs__link" href="../../../">
           
   
   
   Kernel Subsystems
 
         </a>
-      </li>
-    
-  
-
-      
-    </ul>
-  </div>
+</li>
+</ul>
+</div>
 </nav>
-          
-        
-      
-      <main class="md-main" data-md-component="main">
-        <div class="md-main__inner md-grid">
-          
-            
-              
-              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
-                <div class="md-sidebar__scrollwrap">
-                  <div class="md-sidebar__inner">
-                    
-
-
-  
-
-
-<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
-  <label class="md-nav__title" for="__drawer">
-    <a href="../../../.." title="DragonFly BSD Kernel Documentation" class="md-nav__button md-logo" aria-label="DragonFly BSD Kernel Documentation" data-md-component="logo">
-      
-  
-  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
-
-    </a>
+<main class="md-main" data-md-component="main">
+<div class="md-main__inner md-grid">
+<div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation">
+<div class="md-sidebar__scrollwrap">
+<div class="md-sidebar__inner">
+<nav aria-label="Navigation" class="md-nav md-nav--primary md-nav--lifted" data-md-level="0">
+<label class="md-nav__title" for="__drawer">
+<a aria-label="DragonFly BSD Kernel Documentation" class="md-nav__button md-logo" data-md-component="logo" href="../../../.." title="DragonFly BSD Kernel Documentation">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"></path></svg>
+</a>
     DragonFly BSD Kernel Documentation
   </label>
-  
-    <div class="md-nav__source">
-      <a href="https://github.com/tuxillo/dragonflybsd-source-docs" title="Go to repository" class="md-source" data-md-component="source">
-  <div class="md-source__icon md-icon">
-    
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
-  </div>
-  <div class="md-source__repository">
+<div class="md-nav__source">
+<a class="md-source" data-md-component="source" href="https://github.com/tuxillo/dragonflybsd-source-docs" title="Go to repository">
+<div class="md-source__icon md-icon">
+<svg viewbox="0 0 448 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"></path></svg>
+</div>
+<div class="md-source__repository">
     tuxillo/dragonflybsd-source-docs
   </div>
 </a>
-    </div>
-  
-  <ul class="md-nav__list" data-md-scrollfix>
-    
-      
-      
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../../.." class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
+</div>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../../..">
+<span class="md-ellipsis">
     
   
     Home
@@ -343,26 +179,11 @@
 
     
   </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-    
-      
-      
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../../../getting-started/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../../../getting-started/">
+<span class="md-ellipsis">
     
   
     Getting Started
@@ -370,47 +191,12 @@
 
     
   </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-    
-      
-      
-  
-  
-    
-  
-  
-  
-    
-    
-    
-    
-      
-        
-        
-      
-      
-        
-      
-    
-    
-    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
-      
-        
-        
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" checked>
-        
-          
-          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="">
-            
-  
-  
-  <span class="md-ellipsis">
+</a>
+</li>
+<li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+<input checked="" class="md-nav__toggle md-toggle" id="__nav_3" type="checkbox"/>
+<label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="">
+<span class="md-ellipsis">
     
   
     Kernel Subsystems
@@ -418,35 +204,21 @@
 
     
   </span>
-  
-  
-
-            <span class="md-nav__icon md-icon"></span>
-          </label>
-        
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="true">
-          <label class="md-nav__title" for="__nav_3">
-            <span class="md-nav__icon md-icon"></span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="true" aria-labelledby="__nav_3_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_3">
+<span class="md-nav__icon md-icon"></span>
             
   
     Kernel Subsystems
   
 
           </label>
-          <ul class="md-nav__list" data-md-scrollfix>
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../../" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../../">
+<span class="md-ellipsis">
     
   
     Overview
@@ -454,48 +226,12 @@
 
     
   </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    
-    
-    
-    
-      
-      
-        
-          
-          
-        
-      
-    
-    
-    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
-      
-        
-        
-          
-        
-        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_3_2" >
-        
-          
-          <label class="md-nav__link" for="__nav_3_2" id="__nav_3_2_label" tabindex="">
-            
-  
-  
-  <span class="md-ellipsis">
+</a>
+</li>
+<li class="md-nav__item md-nav__item--section md-nav__item--nested">
+<input class="md-nav__toggle md-toggle md-toggle--indeterminate" id="__nav_3_2" type="checkbox"/>
+<label class="md-nav__link" for="__nav_3_2" id="__nav_3_2_label" tabindex="">
+<span class="md-ellipsis">
     
   
     kern/
@@ -503,35 +239,21 @@
 
     
   </span>
-  
-  
-
-            <span class="md-nav__icon md-icon"></span>
-          </label>
-        
-        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_2_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_3_2">
-            <span class="md-nav__icon md-icon"></span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="false" aria-labelledby="__nav_3_2_label" class="md-nav" data-md-level="2">
+<label class="md-nav__title" for="__nav_3_2">
+<span class="md-nav__icon md-icon"></span>
             
   
     kern/
   
 
           </label>
-          <ul class="md-nav__list" data-md-scrollfix>
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../../kern/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../../kern/">
+<span class="md-ellipsis">
     
   
     Overview
@@ -539,27 +261,11 @@
 
     
   </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../../kern/lwkt/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../../kern/lwkt/">
+<span class="md-ellipsis">
     
   
     LWKT Threading
@@ -567,27 +273,11 @@
 
     
   </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../../kern/synchronization/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../../kern/synchronization/">
+<span class="md-ellipsis">
     
   
     Synchronization
@@ -595,55 +285,23 @@
 
     
   </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../../kern/time/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../../kern/time/">
+<span class="md-ellipsis">
     
   
-    Time & Timers
+    Time &amp; Timers
   
 
     
   </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../../kern/memory/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../../kern/memory/">
+<span class="md-ellipsis">
     
   
     Memory Management
@@ -651,111 +309,47 @@
 
     
   </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../../kern/initialization/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../../kern/initialization/">
+<span class="md-ellipsis">
     
   
-    Initialization & Bootstrap
+    Initialization &amp; Bootstrap
   
 
     
   </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../../kern/processes/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../../kern/processes/">
+<span class="md-ellipsis">
     
   
-    Processes & Threads
+    Processes &amp; Threads
   
 
     
   </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../../kern/resources/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../../kern/resources/">
+<span class="md-ellipsis">
     
   
-    Process Resources & Credentials
+    Process Resources &amp; Credentials
   
 
     
   </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../../kern/signals/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../../kern/signals/">
+<span class="md-ellipsis">
     
   
     Signals
@@ -763,27 +357,11 @@
 
     
   </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../../kern/scheduling/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../../kern/scheduling/">
+<span class="md-ellipsis">
     
   
     Scheduling
@@ -791,45 +369,12 @@
 
     
   </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    
-    
-    
-    
-      
-      
-        
-      
-    
-    
-    <li class="md-nav__item md-nav__item--nested">
-      
-        
-        
-          
-        
-        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_3_2_11" >
-        
-          
-          <label class="md-nav__link" for="__nav_3_2_11" id="__nav_3_2_11_label" tabindex="0">
-            
-  
-  
-  <span class="md-ellipsis">
+</a>
+</li>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle md-toggle--indeterminate" id="__nav_3_2_11" type="checkbox"/>
+<label class="md-nav__link" for="__nav_3_2_11" id="__nav_3_2_11_label" tabindex="0">
+<span class="md-ellipsis">
     
   
     Virtual Filesystem
@@ -837,35 +382,21 @@
 
     
   </span>
-  
-  
-
-            <span class="md-nav__icon md-icon"></span>
-          </label>
-        
-        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_3_2_11_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_3_2_11">
-            <span class="md-nav__icon md-icon"></span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="false" aria-labelledby="__nav_3_2_11_label" class="md-nav" data-md-level="3">
+<label class="md-nav__title" for="__nav_3_2_11">
+<span class="md-nav__icon md-icon"></span>
             
   
     Virtual Filesystem
   
 
           </label>
-          <ul class="md-nav__list" data-md-scrollfix>
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../../kern/vfs/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../../kern/vfs/">
+<span class="md-ellipsis">
     
   
     Overview
@@ -873,111 +404,47 @@
 
     
   </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../../kern/vfs/namecache/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../../kern/vfs/namecache/">
+<span class="md-ellipsis">
     
   
-    Name Lookup & Caching
+    Name Lookup &amp; Caching
   
 
     
   </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../../kern/vfs/mounting/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../../kern/vfs/mounting/">
+<span class="md-ellipsis">
     
   
-    Mounting & Unmounting
+    Mounting &amp; Unmounting
   
 
     
   </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../../kern/vfs/buffer-cache/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../../kern/vfs/buffer-cache/">
+<span class="md-ellipsis">
     
   
-    Buffer Cache & I/O
+    Buffer Cache &amp; I/O
   
 
     
   </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../../kern/vfs/vfs-operations/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../../kern/vfs/vfs-operations/">
+<span class="md-ellipsis">
     
   
     VFS Operations Framework
@@ -985,27 +452,11 @@
 
     
   </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../../kern/vfs/journaling/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../../kern/vfs/journaling/">
+<span class="md-ellipsis">
     
   
     Journaling System
@@ -1013,145 +464,61 @@
 
     
   </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../../kern/vfs/vfs-locking/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../../kern/vfs/vfs-locking/">
+<span class="md-ellipsis">
     
   
-    Vnode Locking & Lifecycle
+    Vnode Locking &amp; Lifecycle
   
 
     
   </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../../kern/vfs/vfs-extensions/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../../kern/vfs/vfs-extensions/">
+<span class="md-ellipsis">
     
   
-    VFS Extensions & Helpers
+    VFS Extensions &amp; Helpers
   
 
     
   </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-          </ul>
-        </nav>
-      
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    
-    
-    
-    
-      
-      
-        
-      
-    
-    
-    <li class="md-nav__item md-nav__item--nested">
-      
-        
-        
-          
-        
-        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_3_2_12" >
-        
-          
-          <label class="md-nav__link" for="__nav_3_2_12" id="__nav_3_2_12_label" tabindex="0">
-            
-  
-  
-  <span class="md-ellipsis">
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle md-toggle--indeterminate" id="__nav_3_2_12" type="checkbox"/>
+<label class="md-nav__link" for="__nav_3_2_12" id="__nav_3_2_12_label" tabindex="0">
+<span class="md-ellipsis">
     
   
-    IPC & Sockets
+    IPC &amp; Sockets
   
 
     
   </span>
-  
-  
-
-            <span class="md-nav__icon md-icon"></span>
-          </label>
-        
-        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_3_2_12_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_3_2_12">
-            <span class="md-nav__icon md-icon"></span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="false" aria-labelledby="__nav_3_2_12_label" class="md-nav" data-md-level="3">
+<label class="md-nav__title" for="__nav_3_2_12">
+<span class="md-nav__icon md-icon"></span>
             
   
-    IPC & Sockets
+    IPC &amp; Sockets
   
 
           </label>
-          <ul class="md-nav__list" data-md-scrollfix>
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../../kern/ipc/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../../kern/ipc/">
+<span class="md-ellipsis">
     
   
     Overview
@@ -1159,27 +526,11 @@
 
     
   </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../../kern/ipc/mbufs/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../../kern/ipc/mbufs/">
+<span class="md-ellipsis">
     
   
     Mbufs
@@ -1187,27 +538,11 @@
 
     
   </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../../kern/ipc/sockets/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../../kern/ipc/sockets/">
+<span class="md-ellipsis">
     
   
     Sockets
@@ -1215,27 +550,11 @@
 
     
   </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../../kern/ipc/unix-sockets/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../../kern/ipc/unix-sockets/">
+<span class="md-ellipsis">
     
   
     Unix Domain Sockets
@@ -1243,27 +562,11 @@
 
     
   </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../../kern/ipc/protocol-dispatch/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../../kern/ipc/protocol-dispatch/">
+<span class="md-ellipsis">
     
   
     Protocol Dispatch
@@ -1271,27 +574,11 @@
 
     
   </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../../kern/ipc/pipes/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../../kern/ipc/pipes/">
+<span class="md-ellipsis">
     
   
     Pipes
@@ -1299,27 +586,11 @@
 
     
   </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../../kern/ipc/mqueue/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../../kern/ipc/mqueue/">
+<span class="md-ellipsis">
     
   
     POSIX Message Queues
@@ -1327,27 +598,11 @@
 
     
   </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../../kern/ipc/sysv-msg/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../../kern/ipc/sysv-msg/">
+<span class="md-ellipsis">
     
   
     System V Message Queues
@@ -1355,27 +610,11 @@
 
     
   </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../../kern/ipc/sysv-sem/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../../kern/ipc/sysv-sem/">
+<span class="md-ellipsis">
     
   
     System V Semaphores
@@ -1383,27 +622,11 @@
 
     
   </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../../kern/ipc/sysv-shm/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../../kern/ipc/sysv-shm/">
+<span class="md-ellipsis">
     
   
     System V Shared Memory
@@ -1411,63 +634,26 @@
 
     
   </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-          </ul>
-        </nav>
-      
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../../kern/devices/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../../kern/devices/">
+<span class="md-ellipsis">
     
   
-    Devices & Drivers
+    Devices &amp; Drivers
   
 
     
   </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../../kern/newbus/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../../kern/newbus/">
+<span class="md-ellipsis">
     
   
     NewBus Framework
@@ -1475,55 +661,23 @@
 
     
   </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../../kern/bus-resources/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../../kern/bus-resources/">
+<span class="md-ellipsis">
     
   
-    Bus Resources & DMA
+    Bus Resources &amp; DMA
   
 
     
   </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../../kern/disk/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../../kern/disk/">
+<span class="md-ellipsis">
     
   
     Disk Subsystem
@@ -1531,27 +685,11 @@
 
     
   </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../../kern/firmware/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../../kern/firmware/">
+<span class="md-ellipsis">
     
   
     Firmware Loading
@@ -1559,27 +697,11 @@
 
     
   </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../../kern/syscalls/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../../kern/syscalls/">
+<span class="md-ellipsis">
     
   
     System Calls
@@ -1587,27 +709,11 @@
 
     
   </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../../kern/kld/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../../kern/kld/">
+<span class="md-ellipsis">
     
   
     Kernel Linker (KLD)
@@ -1615,55 +721,23 @@
 
     
   </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../../kern/tracing/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../../kern/tracing/">
+<span class="md-ellipsis">
     
   
-    Tracing & Debugging
+    Tracing &amp; Debugging
   
 
     
   </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../../kern/sysctl/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../../kern/sysctl/">
+<span class="md-ellipsis">
     
   
     Sysctl Framework
@@ -1671,55 +745,23 @@
 
     
   </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../../kern/accounting/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../../kern/accounting/">
+<span class="md-ellipsis">
     
   
-    Accounting & Sensors
+    Accounting &amp; Sensors
   
 
     
   </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../../kern/security/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../../kern/security/">
+<span class="md-ellipsis">
     
   
     Security
@@ -1727,27 +769,11 @@
 
     
   </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../../kern/tty/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../../kern/tty/">
+<span class="md-ellipsis">
     
   
     TTY Subsystem
@@ -1755,27 +781,11 @@
 
     
   </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../../kern/tty-pty/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../../kern/tty-pty/">
+<span class="md-ellipsis">
     
   
     Pseudo-Terminals (PTY)
@@ -1783,27 +793,11 @@
 
     
   </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../../kern/kevent/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../../kern/kevent/">
+<span class="md-ellipsis">
     
   
     Event Notification (kevent)
@@ -1811,27 +805,11 @@
 
     
   </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../../kern/taskqueue/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../../kern/taskqueue/">
+<span class="md-ellipsis">
     
   
     Task Queues
@@ -1839,27 +817,11 @@
 
     
   </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../../kern/random/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../../kern/random/">
+<span class="md-ellipsis">
     
   
     Random Number Generation
@@ -1867,27 +829,11 @@
 
     
   </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../../kern/checkpoint/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../../kern/checkpoint/">
+<span class="md-ellipsis">
     
   
     Process Checkpoint/Restart
@@ -1895,27 +841,11 @@
 
     
   </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../../kern/dmsg/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../../kern/dmsg/">
+<span class="md-ellipsis">
     
   
     Distributed Messaging (dmsg)
@@ -1923,55 +853,23 @@
 
     
   </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../../kern/shutdown/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../../kern/shutdown/">
+<span class="md-ellipsis">
     
   
-    Shutdown & Panic
+    Shutdown &amp; Panic
   
 
     
   </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../../kern/utilities/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../../kern/utilities/">
+<span class="md-ellipsis">
     
   
     Kernel Utilities
@@ -1979,56 +877,15 @@
 
     
   </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-          </ul>
-        </nav>
-      
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    
-    
-    
-    
-      
-      
-        
-          
-          
-        
-      
-    
-    
-    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
-      
-        
-        
-          
-        
-        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_3_3" >
-        
-          
-          <label class="md-nav__link" for="__nav_3_3" id="__nav_3_3_label" tabindex="">
-            
-  
-  
-  <span class="md-ellipsis">
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--section md-nav__item--nested">
+<input class="md-nav__toggle md-toggle md-toggle--indeterminate" id="__nav_3_3" type="checkbox"/>
+<label class="md-nav__link" for="__nav_3_3" id="__nav_3_3_label" tabindex="">
+<span class="md-ellipsis">
     
   
     vm/
@@ -2036,35 +893,21 @@
 
     
   </span>
-  
-  
-
-            <span class="md-nav__icon md-icon"></span>
-          </label>
-        
-        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_3_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_3_3">
-            <span class="md-nav__icon md-icon"></span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="false" aria-labelledby="__nav_3_3_label" class="md-nav" data-md-level="2">
+<label class="md-nav__title" for="__nav_3_3">
+<span class="md-nav__icon md-icon"></span>
             
   
     vm/
   
 
           </label>
-          <ul class="md-nav__list" data-md-scrollfix>
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../../vm/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../../vm/">
+<span class="md-ellipsis">
     
   
     Overview
@@ -2072,27 +915,11 @@
 
     
   </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../../vm/concepts/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../../vm/concepts/">
+<span class="md-ellipsis">
     
   
     Concepts
@@ -2100,27 +927,11 @@
 
     
   </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../../vm/vm_page/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../../vm/vm_page/">
+<span class="md-ellipsis">
     
   
     Physical Pages
@@ -2128,27 +939,11 @@
 
     
   </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../../vm/vm_object/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../../vm/vm_object/">
+<span class="md-ellipsis">
     
   
     VM Objects
@@ -2156,27 +951,11 @@
 
     
   </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../../vm/vm_map/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../../vm/vm_map/">
+<span class="md-ellipsis">
     
   
     Address Space
@@ -2184,27 +963,11 @@
 
     
   </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../../vm/vm_fault/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../../vm/vm_fault/">
+<span class="md-ellipsis">
     
   
     Page Faults
@@ -2212,55 +975,23 @@
 
     
   </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../../vm/vm_pageout/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../../vm/vm_pageout/">
+<span class="md-ellipsis">
     
   
-    Pageout & Swap
+    Pageout &amp; Swap
   
 
     
   </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../../vm/vm_mmap/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../../vm/vm_mmap/">
+<span class="md-ellipsis">
     
   
     Memory Mapping
@@ -2268,56 +999,15 @@
 
     
   </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-          </ul>
-        </nav>
-      
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-    
-  
-  
-  
-    
-    
-    
-    
-      
-      
-        
-          
-          
-        
-      
-    
-    
-    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
-      
-        
-        
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_4" checked>
-        
-          
-          <label class="md-nav__link" for="__nav_3_4" id="__nav_3_4_label" tabindex="">
-            
-  
-  
-  <span class="md-ellipsis">
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+<input checked="" class="md-nav__toggle md-toggle" id="__nav_3_4" type="checkbox"/>
+<label class="md-nav__link" for="__nav_3_4" id="__nav_3_4_label" tabindex="">
+<span class="md-ellipsis">
     
   
     vfs/
@@ -2325,35 +1015,21 @@
 
     
   </span>
-  
-  
-
-            <span class="md-nav__icon md-icon"></span>
-          </label>
-        
-        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_4_label" aria-expanded="true">
-          <label class="md-nav__title" for="__nav_3_4">
-            <span class="md-nav__icon md-icon"></span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="true" aria-labelledby="__nav_3_4_label" class="md-nav" data-md-level="2">
+<label class="md-nav__title" for="__nav_3_4">
+<span class="md-nav__icon md-icon"></span>
             
   
     vfs/
   
 
           </label>
-          <ul class="md-nav__list" data-md-scrollfix>
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../">
+<span class="md-ellipsis">
     
   
     Overview
@@ -2361,45 +1037,12 @@
 
     
   </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-    
-  
-  
-  
-    
-    
-    
-    
-      
-      
-        
-      
-    
-    
-    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
-      
-        
-        
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_4_2" checked>
-        
-          
-          <label class="md-nav__link" for="__nav_3_4_2" id="__nav_3_4_2_label" tabindex="0">
-            
-  
-  
-  <span class="md-ellipsis">
+</a>
+</li>
+<li class="md-nav__item md-nav__item--active md-nav__item--nested">
+<input checked="" class="md-nav__toggle md-toggle" id="__nav_3_4_2" type="checkbox"/>
+<label class="md-nav__link" for="__nav_3_4_2" id="__nav_3_4_2_label" tabindex="0">
+<span class="md-ellipsis">
     
   
     HAMMER2
@@ -2407,35 +1050,21 @@
 
     
   </span>
-  
-  
-
-            <span class="md-nav__icon md-icon"></span>
-          </label>
-        
-        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_3_4_2_label" aria-expanded="true">
-          <label class="md-nav__title" for="__nav_3_4_2">
-            <span class="md-nav__icon md-icon"></span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="true" aria-labelledby="__nav_3_4_2_label" class="md-nav" data-md-level="3">
+<label class="md-nav__title" for="__nav_3_4_2">
+<span class="md-nav__icon md-icon"></span>
             
   
     HAMMER2
   
 
           </label>
-          <ul class="md-nav__list" data-md-scrollfix>
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../">
+<span class="md-ellipsis">
     
   
     Overview
@@ -2443,27 +1072,11 @@
 
     
   </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../on-disk-format/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../on-disk-format/">
+<span class="md-ellipsis">
     
   
     On-Disk Format
@@ -2471,27 +1084,11 @@
 
     
   </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../chain-layer/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../chain-layer/">
+<span class="md-ellipsis">
     
   
     Chain Layer
@@ -2499,27 +1096,11 @@
 
     
   </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../inode-layer/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../inode-layer/">
+<span class="md-ellipsis">
     
   
     Inode Layer
@@ -2527,27 +1108,11 @@
 
     
   </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../io-subsystem/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../io-subsystem/">
+<span class="md-ellipsis">
     
   
     I/O Subsystem
@@ -2555,55 +1120,23 @@
 
     
   </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../flush-sync/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../flush-sync/">
+<span class="md-ellipsis">
     
   
-    Flush & Sync
+    Flush &amp; Sync
   
 
     
   </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../freemap/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../freemap/">
+<span class="md-ellipsis">
     
   
     Freemap
@@ -2611,36 +1144,12 @@
 
     
   </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-    
-  
-  
-  
-    <li class="md-nav__item md-nav__item--active">
-      
-      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
-      
-      
-        
-      
-      
-        <label class="md-nav__link md-nav__link--active" for="__toc">
-          
-  
-  
-  <span class="md-ellipsis">
+</a>
+</li>
+<li class="md-nav__item md-nav__item--active">
+<input class="md-nav__toggle md-toggle" id="__toc" type="checkbox"/>
+<label class="md-nav__link md-nav__link--active" for="__toc">
+<span class="md-ellipsis">
     
   
     XOP System
@@ -2648,17 +1157,10 @@
 
     
   </span>
-  
-  
-
-          <span class="md-nav__icon md-icon"></span>
-        </label>
-      
-      <a href="./" class="md-nav__link md-nav__link--active">
-        
-  
-  
-  <span class="md-ellipsis">
+<span class="md-nav__icon md-icon"></span>
+</label>
+<a class="md-nav__link md-nav__link--active" href="./">
+<span class="md-ellipsis">
     
   
     XOP System
@@ -2666,91 +1168,327 @@
 
     
   </span>
-  
-  
-
-      </a>
-      
-        
-
-<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
-  
-  
-  
-    
-  
-  
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
+</a>
+<nav aria-label="Table of contents" class="md-nav md-nav--secondary">
+<label class="md-nav__title" for="__toc">
+<span class="md-nav__icon md-icon"></span>
       Table of contents
     </label>
-    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#overview" class="md-nav__link">
-    <span class="md-ellipsis">
+<ul class="md-nav__list" data-md-component="toc" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#overview">
+<span class="md-ellipsis">
       
         Overview
       
     </span>
-  </a>
-  
+</a>
 </li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#architecture">
+<span class="md-ellipsis">
       
-        <li class="md-nav__item">
-  <a href="#xop-architecture" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        XOP Architecture
+        Architecture
       
     </span>
-  </a>
-  
+</a>
 </li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#core-data-structures">
+<span class="md-ellipsis">
       
-        <li class="md-nav__item">
-  <a href="#xop-operations" class="md-nav__link">
-    <span class="md-ellipsis">
+        Core Data Structures
+      
+    </span>
+</a>
+<nav aria-label="Core Data Structures" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#hammer2_xop_head_t">
+<span class="md-ellipsis">
+      
+        hammer2_xop_head_t
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#hammer2_xop_fifo_t">
+<span class="md-ellipsis">
+      
+        hammer2_xop_fifo_t
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#hammer2_xop_desc_t">
+<span class="md-ellipsis">
+      
+        hammer2_xop_desc_t
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#hammer2_thread_t">
+<span class="md-ellipsis">
+      
+        hammer2_thread_t
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#run-mask-bits">
+<span class="md-ellipsis">
+      
+        Run Mask Bits
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#xop-lifecycle">
+<span class="md-ellipsis">
+      
+        XOP Lifecycle
+      
+    </span>
+</a>
+<nav aria-label="XOP Lifecycle" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#1-allocation">
+<span class="md-ellipsis">
+      
+        1. Allocation
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#2-setup">
+<span class="md-ellipsis">
+      
+        2. Setup
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#3-start">
+<span class="md-ellipsis">
+      
+        3. Start
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#4-backend-execution">
+<span class="md-ellipsis">
+      
+        4. Backend Execution
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#5-feeding-results">
+<span class="md-ellipsis">
+      
+        5. Feeding Results
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#6-collection">
+<span class="md-ellipsis">
+      
+        6. Collection
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#7-retirement">
+<span class="md-ellipsis">
+      
+        7. Retirement
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#xop-operations">
+<span class="md-ellipsis">
       
         XOP Operations
       
     </span>
-  </a>
-  
-</li>
+</a>
+<nav aria-label="XOP Operations" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#directory-operations">
+<span class="md-ellipsis">
       
-        <li class="md-nav__item">
-  <a href="#see-also" class="md-nav__link">
-    <span class="md-ellipsis">
+        Directory Operations
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#inode-operations">
+<span class="md-ellipsis">
+      
+        Inode Operations
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#io-operations">
+<span class="md-ellipsis">
+      
+        I/O Operations
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#utility-operations">
+<span class="md-ellipsis">
+      
+        Utility Operations
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#thread-management">
+<span class="md-ellipsis">
+      
+        Thread Management
+      
+    </span>
+</a>
+<nav aria-label="Thread Management" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#thread-creation">
+<span class="md-ellipsis">
+      
+        Thread Creation
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#thread-pool">
+<span class="md-ellipsis">
+      
+        Thread Pool
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#thread-signaling">
+<span class="md-ellipsis">
+      
+        Thread Signaling
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#thread-lifecycle-control">
+<span class="md-ellipsis">
+      
+        Thread Lifecycle Control
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#xop-type-definitions">
+<span class="md-ellipsis">
+      
+        XOP Type Definitions
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#data-access-functions">
+<span class="md-ellipsis">
+      
+        Data Access Functions
+      
+    </span>
+</a>
+<nav aria-label="Data Access Functions" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#safe-data-access">
+<span class="md-ellipsis">
+      
+        Safe Data Access
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#example-directory-lookup-nresolve">
+<span class="md-ellipsis">
+      
+        Example: Directory Lookup (nresolve)
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#performance-considerations">
+<span class="md-ellipsis">
+      
+        Performance Considerations
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#see-also">
+<span class="md-ellipsis">
       
         See Also
       
     </span>
-  </a>
-  
+</a>
 </li>
-      
-    </ul>
-  
+</ul>
 </nav>
-      
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../vfs-integration/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../vfs-integration/">
+<span class="md-ellipsis">
     
   
     VFS Integration
@@ -2758,27 +1496,11 @@
 
     
   </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../compression/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../compression/">
+<span class="md-ellipsis">
     
   
     Compression
@@ -2786,27 +1508,11 @@
 
     
   </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../snapshots/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../snapshots/">
+<span class="md-ellipsis">
     
   
     Snapshots
@@ -2814,27 +1520,11 @@
 
     
   </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../clustering/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../clustering/">
+<span class="md-ellipsis">
     
   
     Clustering
@@ -2842,35 +1532,14 @@
 
     
   </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-          </ul>
-        </nav>
-      
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../hammer/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../hammer/">
+<span class="md-ellipsis">
     
   
     HAMMER
@@ -2878,27 +1547,11 @@
 
     
   </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../devfs/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../devfs/">
+<span class="md-ellipsis">
     
   
     devfs
@@ -2906,27 +1559,11 @@
 
     
   </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../procfs/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../procfs/">
+<span class="md-ellipsis">
     
   
     procfs
@@ -2934,27 +1571,11 @@
 
     
   </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../tmpfs/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../tmpfs/">
+<span class="md-ellipsis">
     
   
     tmpfs
@@ -2962,27 +1583,11 @@
 
     
   </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../nullfs/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../nullfs/">
+<span class="md-ellipsis">
     
   
     nullfs
@@ -2990,27 +1595,11 @@
 
     
   </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../fifofs/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../fifofs/">
+<span class="md-ellipsis">
     
   
     fifofs
@@ -3018,27 +1607,11 @@
 
     
   </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../deadfs/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../deadfs/">
+<span class="md-ellipsis">
     
   
     deadfs
@@ -3046,27 +1619,11 @@
 
     
   </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../mfs/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../mfs/">
+<span class="md-ellipsis">
     
   
     mfs
@@ -3074,27 +1631,11 @@
 
     
   </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../ufs/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../ufs/">
+<span class="md-ellipsis">
     
   
     UFS
@@ -3102,27 +1643,11 @@
 
     
   </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../nfs/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../nfs/">
+<span class="md-ellipsis">
     
   
     NFS
@@ -3130,27 +1655,11 @@
 
     
   </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../ext2fs/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../ext2fs/">
+<span class="md-ellipsis">
     
   
     ext2fs
@@ -3158,27 +1667,11 @@
 
     
   </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../msdosfs/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../msdosfs/">
+<span class="md-ellipsis">
     
   
     msdosfs
@@ -3186,27 +1679,11 @@
 
     
   </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../ntfs/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../ntfs/">
+<span class="md-ellipsis">
     
   
     NTFS
@@ -3214,27 +1691,11 @@
 
     
   </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../isofs/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../isofs/">
+<span class="md-ellipsis">
     
   
     ISO9660
@@ -3242,27 +1703,11 @@
 
     
   </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../udf/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../udf/">
+<span class="md-ellipsis">
     
   
     UDF
@@ -3270,27 +1715,11 @@
 
     
   </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../hpfs/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../hpfs/">
+<span class="md-ellipsis">
     
   
     HPFS
@@ -3298,27 +1727,11 @@
 
     
   </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../smbfs/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../smbfs/">
+<span class="md-ellipsis">
     
   
     smbfs
@@ -3326,27 +1739,11 @@
 
     
   </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../fuse/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../fuse/">
+<span class="md-ellipsis">
     
   
     FUSE
@@ -3354,27 +1751,11 @@
 
     
   </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../autofs/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../autofs/">
+<span class="md-ellipsis">
     
   
     autofs
@@ -3382,27 +1763,11 @@
 
     
   </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../dirfs/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../dirfs/">
+<span class="md-ellipsis">
     
   
     dirfs
@@ -3410,56 +1775,15 @@
 
     
   </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-          </ul>
-        </nav>
-      
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    
-    
-    
-    
-      
-      
-        
-          
-          
-        
-      
-    
-    
-    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
-      
-        
-        
-          
-        
-        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_3_5" >
-        
-          
-          <label class="md-nav__link" for="__nav_3_5" id="__nav_3_5_label" tabindex="">
-            
-  
-  
-  <span class="md-ellipsis">
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--section md-nav__item--nested">
+<input class="md-nav__toggle md-toggle md-toggle--indeterminate" id="__nav_3_5" type="checkbox"/>
+<label class="md-nav__link" for="__nav_3_5" id="__nav_3_5_label" tabindex="">
+<span class="md-ellipsis">
     
   
     net/
@@ -3467,35 +1791,21 @@
 
     
   </span>
-  
-  
-
-            <span class="md-nav__icon md-icon"></span>
-          </label>
-        
-        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_5_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_3_5">
-            <span class="md-nav__icon md-icon"></span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="false" aria-labelledby="__nav_3_5_label" class="md-nav" data-md-level="2">
+<label class="md-nav__title" for="__nav_3_5">
+<span class="md-nav__icon md-icon"></span>
             
   
     net/
   
 
           </label>
-          <ul class="md-nav__list" data-md-scrollfix>
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../../net/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../../net/">
+<span class="md-ellipsis">
     
   
     Overview
@@ -3503,27 +1813,11 @@
 
     
   </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../../net/interfaces/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../../net/interfaces/">
+<span class="md-ellipsis">
     
   
     Network Interfaces
@@ -3531,27 +1825,11 @@
 
     
   </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../../net/netisr/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../../net/netisr/">
+<span class="md-ellipsis">
     
   
     Network ISR
@@ -3559,56 +1837,15 @@
 
     
   </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-          </ul>
-        </nav>
-      
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    
-    
-    
-    
-      
-      
-        
-          
-          
-        
-      
-    
-    
-    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
-      
-        
-        
-          
-        
-        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_3_6" >
-        
-          
-          <label class="md-nav__link" for="__nav_3_6" id="__nav_3_6_label" tabindex="">
-            
-  
-  
-  <span class="md-ellipsis">
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--section md-nav__item--nested">
+<input class="md-nav__toggle md-toggle md-toggle--indeterminate" id="__nav_3_6" type="checkbox"/>
+<label class="md-nav__link" for="__nav_3_6" id="__nav_3_6_label" tabindex="">
+<span class="md-ellipsis">
     
   
     cpu/x86_64/
@@ -3616,35 +1853,21 @@
 
     
   </span>
-  
-  
-
-            <span class="md-nav__icon md-icon"></span>
-          </label>
-        
-        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_6_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_3_6">
-            <span class="md-nav__icon md-icon"></span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="false" aria-labelledby="__nav_3_6_label" class="md-nav" data-md-level="2">
+<label class="md-nav__title" for="__nav_3_6">
+<span class="md-nav__icon md-icon"></span>
             
   
     cpu/x86_64/
   
 
           </label>
-          <ul class="md-nav__list" data-md-scrollfix>
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../../cpu/x86_64/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../../cpu/x86_64/">
+<span class="md-ellipsis">
     
   
     Overview
@@ -3652,197 +1875,1088 @@
 
     
   </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-          </ul>
-        </nav>
-      
-    </li>
-  
-
-              
-            
-          </ul>
-        </nav>
-      
-    </li>
-  
-
-    
-  </ul>
+</a>
+</li>
+</ul>
 </nav>
-                  </div>
-                </div>
-              </div>
-            
-            
-              
-              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
-                <div class="md-sidebar__scrollwrap">
-                  <div class="md-sidebar__inner">
-                    
-
-<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
-  
-  
-  
-    
-  
-  
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
+</li>
+</ul>
+</nav>
+</li>
+</ul>
+</nav>
+</div>
+</div>
+</div>
+<div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc">
+<div class="md-sidebar__scrollwrap">
+<div class="md-sidebar__inner">
+<nav aria-label="Table of contents" class="md-nav md-nav--secondary">
+<label class="md-nav__title" for="__toc">
+<span class="md-nav__icon md-icon"></span>
       Table of contents
     </label>
-    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#overview" class="md-nav__link">
-    <span class="md-ellipsis">
+<ul class="md-nav__list" data-md-component="toc" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#overview">
+<span class="md-ellipsis">
       
         Overview
       
     </span>
-  </a>
-  
+</a>
 </li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#architecture">
+<span class="md-ellipsis">
       
-        <li class="md-nav__item">
-  <a href="#xop-architecture" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        XOP Architecture
+        Architecture
       
     </span>
-  </a>
-  
+</a>
 </li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#core-data-structures">
+<span class="md-ellipsis">
       
-        <li class="md-nav__item">
-  <a href="#xop-operations" class="md-nav__link">
-    <span class="md-ellipsis">
+        Core Data Structures
+      
+    </span>
+</a>
+<nav aria-label="Core Data Structures" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#hammer2_xop_head_t">
+<span class="md-ellipsis">
+      
+        hammer2_xop_head_t
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#hammer2_xop_fifo_t">
+<span class="md-ellipsis">
+      
+        hammer2_xop_fifo_t
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#hammer2_xop_desc_t">
+<span class="md-ellipsis">
+      
+        hammer2_xop_desc_t
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#hammer2_thread_t">
+<span class="md-ellipsis">
+      
+        hammer2_thread_t
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#run-mask-bits">
+<span class="md-ellipsis">
+      
+        Run Mask Bits
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#xop-lifecycle">
+<span class="md-ellipsis">
+      
+        XOP Lifecycle
+      
+    </span>
+</a>
+<nav aria-label="XOP Lifecycle" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#1-allocation">
+<span class="md-ellipsis">
+      
+        1. Allocation
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#2-setup">
+<span class="md-ellipsis">
+      
+        2. Setup
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#3-start">
+<span class="md-ellipsis">
+      
+        3. Start
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#4-backend-execution">
+<span class="md-ellipsis">
+      
+        4. Backend Execution
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#5-feeding-results">
+<span class="md-ellipsis">
+      
+        5. Feeding Results
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#6-collection">
+<span class="md-ellipsis">
+      
+        6. Collection
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#7-retirement">
+<span class="md-ellipsis">
+      
+        7. Retirement
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#xop-operations">
+<span class="md-ellipsis">
       
         XOP Operations
       
     </span>
-  </a>
-  
-</li>
+</a>
+<nav aria-label="XOP Operations" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#directory-operations">
+<span class="md-ellipsis">
       
-        <li class="md-nav__item">
-  <a href="#see-also" class="md-nav__link">
-    <span class="md-ellipsis">
+        Directory Operations
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#inode-operations">
+<span class="md-ellipsis">
+      
+        Inode Operations
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#io-operations">
+<span class="md-ellipsis">
+      
+        I/O Operations
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#utility-operations">
+<span class="md-ellipsis">
+      
+        Utility Operations
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#thread-management">
+<span class="md-ellipsis">
+      
+        Thread Management
+      
+    </span>
+</a>
+<nav aria-label="Thread Management" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#thread-creation">
+<span class="md-ellipsis">
+      
+        Thread Creation
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#thread-pool">
+<span class="md-ellipsis">
+      
+        Thread Pool
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#thread-signaling">
+<span class="md-ellipsis">
+      
+        Thread Signaling
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#thread-lifecycle-control">
+<span class="md-ellipsis">
+      
+        Thread Lifecycle Control
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#xop-type-definitions">
+<span class="md-ellipsis">
+      
+        XOP Type Definitions
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#data-access-functions">
+<span class="md-ellipsis">
+      
+        Data Access Functions
+      
+    </span>
+</a>
+<nav aria-label="Data Access Functions" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#safe-data-access">
+<span class="md-ellipsis">
+      
+        Safe Data Access
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#example-directory-lookup-nresolve">
+<span class="md-ellipsis">
+      
+        Example: Directory Lookup (nresolve)
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#performance-considerations">
+<span class="md-ellipsis">
+      
+        Performance Considerations
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#see-also">
+<span class="md-ellipsis">
       
         See Also
       
     </span>
-  </a>
-  
+</a>
 </li>
-      
-    </ul>
-  
-</nav>
-                  </div>
-                </div>
-              </div>
-            
-          
-          
-            <div class="md-content" data-md-component="content">
-              
-              <article class="md-content__inner md-typeset">
-                
-                  
-
-
-  
-  
-
-
-<h1 id="hammer2-xop-system">HAMMER2 XOP System<a class="headerlink" href="#hammer2-xop-system" title="Permanent link">&para;</a></h1>
-<div class="admonition note">
-<p class="admonition-title">Documentation Status</p>
-<p>This page documents the XOP system based on <code>hammer2_xops.c</code> and <code>hammer2_admin.c</code>.</p>
-</div>
-<h2 id="overview">Overview<a class="headerlink" href="#overview" title="Permanent link">&para;</a></h2>
-<p>The XOP (Cross-Operation) system provides per-CPU threading for parallel backend I/O operations.</p>
-<h2 id="xop-architecture">XOP Architecture<a class="headerlink" href="#xop-architecture" title="Permanent link">&para;</a></h2>
-<p><em>Documentation in progress — will cover XOP design and threading model.</em></p>
-<h2 id="xop-operations">XOP Operations<a class="headerlink" href="#xop-operations" title="Permanent link">&para;</a></h2>
-<p><em>Documentation in progress — will cover available XOP operations.</em></p>
-<h2 id="see-also">See Also<a class="headerlink" href="#see-also" title="Permanent link">&para;</a></h2>
-<ul>
-<li><a href="../">HAMMER2 Overview</a></li>
-<li><a href="../../../kern/lwkt/">LWKT Threading</a> — Threading framework</li>
-<li><a href="../io-subsystem/">I/O Subsystem</a> — I/O operations</li>
 </ul>
+</nav>
+</div>
+</div>
+</div>
+<div class="md-content" data-md-component="content">
+<article class="md-content__inner md-typeset">
+<h1 id="hammer2-xop-system">HAMMER2 XOP System<a class="headerlink" href="#hammer2-xop-system" title="Permanent link">¶</a></h1>
+<div class="admonition abstract">
+<p class="admonition-title">Source Reference</p>
+<p>Primary sources: <code>sys/vfs/hammer2/hammer2_admin.c</code>, <code>sys/vfs/hammer2/hammer2_xops.c</code><br/>
+Header definitions: <code>sys/vfs/hammer2/hammer2.h</code> (lines 560-1060)</p>
+</div>
+<h2 id="overview">Overview<a class="headerlink" href="#overview" title="Permanent link">¶</a></h2>
+<p>The XOP (Cross-cluster OPeration) system provides a framework for executing filesystem operations across multiple cluster nodes in parallel. It decouples the VFS frontend from the storage backend, allowing operations to complete as soon as quorum requirements are met without waiting for slow or failed nodes.</p>
+<p>Key features:</p>
+<ul>
+<li><strong>Parallel execution</strong> — Operations run concurrently on all cluster nodes</li>
+<li><strong>Quorum-based completion</strong> — Frontend returns when sufficient nodes respond</li>
+<li><strong>FIFO-based communication</strong> — Per-node FIFOs pass results from backends to frontend</li>
+<li><strong>Thread pool management</strong> — Dedicated worker threads per cluster node</li>
+<li><strong>Dependency tracking</strong> — Serializes operations on the same inode</li>
+</ul>
+<h2 id="architecture">Architecture<a class="headerlink" href="#architecture" title="Permanent link">¶</a></h2>
+<pre class="mermaid"><code>graph TB
+    subgraph Frontend["Frontend (VFS Layer)"]
+        VOP[VOP Operation]
+        ALLOC[hammer2_xop_alloc]
+        START[hammer2_xop_start]
+        COLLECT[hammer2_xop_collect]
+        RETIRE[hammer2_xop_retire]
+    end
 
+    subgraph Backend["Backend (Worker Threads)"]
+        THR0[Thread Node 0]
+        THR1[Thread Node 1]
+        THR2[Thread Node N]
+    end
 
+    subgraph FIFO["Per-Node FIFOs"]
+        FIFO0[FIFO 0]
+        FIFO1[FIFO 1]
+        FIFO2[FIFO N]
+    end
 
+    VOP --&gt; ALLOC
+    ALLOC --&gt; START
+    START --&gt; THR0
+    START --&gt; THR1
+    START --&gt; THR2
+    THR0 --&gt;|hammer2_xop_feed| FIFO0
+    THR1 --&gt;|hammer2_xop_feed| FIFO1
+    THR2 --&gt;|hammer2_xop_feed| FIFO2
+    FIFO0 --&gt; COLLECT
+    FIFO1 --&gt; COLLECT
+    FIFO2 --&gt; COLLECT
+    COLLECT --&gt; RETIRE
+</code></pre>
+<h2 id="core-data-structures">Core Data Structures<a class="headerlink" href="#core-data-structures" title="Permanent link">¶</a></h2>
+<h3 id="hammer2_xop_head_t">hammer2_xop_head_t<a class="headerlink" href="#hammer2_xop_head_t" title="Permanent link">¶</a></h3>
+<p>The common header for all XOP requests (<code>hammer2.h:894-914</code>):</p>
+<div class="highlight"><pre><span></span><code><a href="#__codelineno-0-1" id="__codelineno-0-1" name="__codelineno-0-1"></a><span class="k">struct</span><span class="w"> </span><span class="nc">hammer2_xop_head</span><span class="w"> </span><span class="p">{</span>
+<a href="#__codelineno-0-2" id="__codelineno-0-2" name="__codelineno-0-2"></a><span class="w">    </span><span class="n">hammer2_xop_desc_t</span><span class="w">  </span><span class="o">*</span><span class="n">desc</span><span class="p">;</span><span class="w">          </span><span class="cm">/* operation descriptor */</span>
+<a href="#__codelineno-0-3" id="__codelineno-0-3" name="__codelineno-0-3"></a><span class="w">    </span><span class="n">hammer2_tid_t</span><span class="w">       </span><span class="n">mtid</span><span class="p">;</span><span class="w">           </span><span class="cm">/* modify transaction id */</span>
+<a href="#__codelineno-0-4" id="__codelineno-0-4" name="__codelineno-0-4"></a><span class="w">    </span><span class="k">struct</span><span class="w"> </span><span class="nc">hammer2_inode</span><span class="w"> </span><span class="o">*</span><span class="n">ip1</span><span class="p">;</span><span class="w">          </span><span class="cm">/* primary inode */</span>
+<a href="#__codelineno-0-5" id="__codelineno-0-5" name="__codelineno-0-5"></a><span class="w">    </span><span class="k">struct</span><span class="w"> </span><span class="nc">hammer2_inode</span><span class="w"> </span><span class="o">*</span><span class="n">ip2</span><span class="p">;</span><span class="w">          </span><span class="cm">/* secondary inode (rename) */</span>
+<a href="#__codelineno-0-6" id="__codelineno-0-6" name="__codelineno-0-6"></a><span class="w">    </span><span class="k">struct</span><span class="w"> </span><span class="nc">hammer2_inode</span><span class="w"> </span><span class="o">*</span><span class="n">ip3</span><span class="p">;</span><span class="w">          </span><span class="cm">/* tertiary inode (rename) */</span>
+<a href="#__codelineno-0-7" id="__codelineno-0-7" name="__codelineno-0-7"></a><span class="w">    </span><span class="k">struct</span><span class="w"> </span><span class="nc">hammer2_inode</span><span class="w"> </span><span class="o">*</span><span class="n">ip4</span><span class="p">;</span><span class="w">          </span><span class="cm">/* quaternary inode (rename) */</span>
+<a href="#__codelineno-0-8" id="__codelineno-0-8" name="__codelineno-0-8"></a><span class="w">    </span><span class="kt">uint64_t</span><span class="w">            </span><span class="n">run_mask</span><span class="p">;</span><span class="w">       </span><span class="cm">/* active backends + frontend */</span>
+<a href="#__codelineno-0-9" id="__codelineno-0-9" name="__codelineno-0-9"></a><span class="w">    </span><span class="kt">uint64_t</span><span class="w">            </span><span class="n">chk_mask</span><span class="p">;</span><span class="w">       </span><span class="cm">/* backends that were started */</span>
+<a href="#__codelineno-0-10" id="__codelineno-0-10" name="__codelineno-0-10"></a><span class="w">    </span><span class="kt">int</span><span class="w">                 </span><span class="n">flags</span><span class="p">;</span><span class="w">          </span><span class="cm">/* XOP flags */</span>
+<a href="#__codelineno-0-11" id="__codelineno-0-11" name="__codelineno-0-11"></a><span class="w">    </span><span class="kt">int</span><span class="w">                 </span><span class="n">state</span><span class="p">;</span><span class="w">          </span><span class="cm">/* collection state */</span>
+<a href="#__codelineno-0-12" id="__codelineno-0-12" name="__codelineno-0-12"></a><span class="w">    </span><span class="kt">int</span><span class="w">                 </span><span class="n">error</span><span class="p">;</span><span class="w">          </span><span class="cm">/* collected error */</span>
+<a href="#__codelineno-0-13" id="__codelineno-0-13" name="__codelineno-0-13"></a><span class="w">    </span><span class="n">hammer2_key_t</span><span class="w">       </span><span class="n">collect_key</span><span class="p">;</span><span class="w">    </span><span class="cm">/* key synchronization point */</span>
+<a href="#__codelineno-0-14" id="__codelineno-0-14" name="__codelineno-0-14"></a><span class="w">    </span><span class="kt">char</span><span class="w">                </span><span class="o">*</span><span class="n">name1</span><span class="p">;</span><span class="w">         </span><span class="cm">/* primary name (lookup/create) */</span>
+<a href="#__codelineno-0-15" id="__codelineno-0-15" name="__codelineno-0-15"></a><span class="w">    </span><span class="kt">size_t</span><span class="w">              </span><span class="n">name1_len</span><span class="p">;</span>
+<a href="#__codelineno-0-16" id="__codelineno-0-16" name="__codelineno-0-16"></a><span class="w">    </span><span class="kt">char</span><span class="w">                </span><span class="o">*</span><span class="n">name2</span><span class="p">;</span><span class="w">         </span><span class="cm">/* secondary name (rename) */</span>
+<a href="#__codelineno-0-17" id="__codelineno-0-17" name="__codelineno-0-17"></a><span class="w">    </span><span class="kt">size_t</span><span class="w">              </span><span class="n">name2_len</span><span class="p">;</span>
+<a href="#__codelineno-0-18" id="__codelineno-0-18" name="__codelineno-0-18"></a><span class="w">    </span><span class="n">hammer2_xop_fifo_t</span><span class="w">  </span><span class="n">collect</span><span class="p">[</span><span class="n">HAMMER2_MAXCLUSTER</span><span class="p">];</span><span class="w"> </span><span class="cm">/* per-node FIFOs */</span>
+<a href="#__codelineno-0-19" id="__codelineno-0-19" name="__codelineno-0-19"></a><span class="w">    </span><span class="n">hammer2_cluster_t</span><span class="w">   </span><span class="n">cluster</span><span class="p">;</span><span class="w">        </span><span class="cm">/* collected results */</span>
+<a href="#__codelineno-0-20" id="__codelineno-0-20" name="__codelineno-0-20"></a><span class="w">    </span><span class="n">hammer2_io_t</span><span class="w">        </span><span class="o">*</span><span class="n">focus_dio</span><span class="p">;</span><span class="w">     </span><span class="cm">/* focused DIO */</span>
+<a href="#__codelineno-0-21" id="__codelineno-0-21" name="__codelineno-0-21"></a><span class="p">};</span>
+</code></pre></div>
+<h3 id="hammer2_xop_fifo_t">hammer2_xop_fifo_t<a class="headerlink" href="#hammer2_xop_fifo_t" title="Permanent link">¶</a></h3>
+<p>Per-node result FIFO (<code>hammer2.h:879-889</code>):</p>
+<div class="highlight"><pre><span></span><code><a href="#__codelineno-1-1" id="__codelineno-1-1" name="__codelineno-1-1"></a><span class="k">struct</span><span class="w"> </span><span class="nc">hammer2_xop_fifo</span><span class="w"> </span><span class="p">{</span>
+<a href="#__codelineno-1-2" id="__codelineno-1-2" name="__codelineno-1-2"></a><span class="w">    </span><span class="n">TAILQ_ENTRY</span><span class="p">(</span><span class="n">hammer2_xop_head</span><span class="p">)</span><span class="w"> </span><span class="n">entry</span><span class="p">;</span><span class="w">  </span><span class="cm">/* queue linkage */</span>
+<a href="#__codelineno-1-3" id="__codelineno-1-3" name="__codelineno-1-3"></a><span class="w">    </span><span class="n">hammer2_chain_t</span><span class="w">     </span><span class="o">*</span><span class="n">array</span><span class="p">[</span><span class="n">HAMMER2_XOPFIFO</span><span class="p">];</span><span class="w">  </span><span class="cm">/* chain results */</span>
+<a href="#__codelineno-1-4" id="__codelineno-1-4" name="__codelineno-1-4"></a><span class="w">    </span><span class="kt">int</span><span class="w">                 </span><span class="n">errors</span><span class="p">[</span><span class="n">HAMMER2_XOPFIFO</span><span class="p">];</span><span class="w">  </span><span class="cm">/* error codes */</span>
+<a href="#__codelineno-1-5" id="__codelineno-1-5" name="__codelineno-1-5"></a><span class="w">    </span><span class="kt">int</span><span class="w">                 </span><span class="n">ri</span><span class="p">;</span><span class="w">             </span><span class="cm">/* read index */</span>
+<a href="#__codelineno-1-6" id="__codelineno-1-6" name="__codelineno-1-6"></a><span class="w">    </span><span class="kt">int</span><span class="w">                 </span><span class="n">wi</span><span class="p">;</span><span class="w">             </span><span class="cm">/* write index */</span>
+<a href="#__codelineno-1-7" id="__codelineno-1-7" name="__codelineno-1-7"></a><span class="w">    </span><span class="kt">int</span><span class="w">                 </span><span class="n">flags</span><span class="p">;</span><span class="w">          </span><span class="cm">/* FIFO flags */</span>
+<a href="#__codelineno-1-8" id="__codelineno-1-8" name="__codelineno-1-8"></a><span class="w">    </span><span class="n">hammer2_thread_t</span><span class="w">    </span><span class="o">*</span><span class="n">thr</span><span class="p">;</span><span class="w">           </span><span class="cm">/* owning thread */</span>
+<a href="#__codelineno-1-9" id="__codelineno-1-9" name="__codelineno-1-9"></a><span class="p">};</span>
+</code></pre></div>
+<p>FIFO flags:</p>
+<table>
+<thead>
+<tr>
+<th>Flag</th>
+<th>Value</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>HAMMER2_XOP_FIFO_RUN</code></td>
+<td>0x0001</td>
+<td>XOP is currently executing</td>
+</tr>
+<tr>
+<td><code>HAMMER2_XOP_FIFO_STALL</code></td>
+<td>0x0002</td>
+<td>Backend stalled on full FIFO</td>
+</tr>
+</tbody>
+</table>
+<h3 id="hammer2_xop_desc_t">hammer2_xop_desc_t<a class="headerlink" href="#hammer2_xop_desc_t" title="Permanent link">¶</a></h3>
+<p>Operation descriptor (<code>hammer2.h:870-877</code>):</p>
+<div class="highlight"><pre><span></span><code><a href="#__codelineno-2-1" id="__codelineno-2-1" name="__codelineno-2-1"></a><span class="k">struct</span><span class="w"> </span><span class="nc">hammer2_xop_desc</span><span class="w"> </span><span class="p">{</span>
+<a href="#__codelineno-2-2" id="__codelineno-2-2" name="__codelineno-2-2"></a><span class="w">    </span><span class="n">hammer2_xop_func_t</span><span class="w">  </span><span class="n">storage_func</span><span class="p">;</span><span class="w">   </span><span class="cm">/* backend function */</span>
+<a href="#__codelineno-2-3" id="__codelineno-2-3" name="__codelineno-2-3"></a><span class="w">    </span><span class="n">hammer2_xop_func_t</span><span class="w">  </span><span class="n">dmsg_dispatch</span><span class="p">;</span><span class="w">  </span><span class="cm">/* network dispatch (unused) */</span>
+<a href="#__codelineno-2-4" id="__codelineno-2-4" name="__codelineno-2-4"></a><span class="w">    </span><span class="n">hammer2_xop_func_t</span><span class="w">  </span><span class="n">dmsg_process</span><span class="p">;</span><span class="w">   </span><span class="cm">/* network processing (unused) */</span>
+<a href="#__codelineno-2-5" id="__codelineno-2-5" name="__codelineno-2-5"></a><span class="w">    </span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="w">          </span><span class="o">*</span><span class="n">id</span><span class="p">;</span><span class="w">            </span><span class="cm">/* operation name for debugging */</span>
+<a href="#__codelineno-2-6" id="__codelineno-2-6" name="__codelineno-2-6"></a><span class="p">};</span>
+</code></pre></div>
+<h3 id="hammer2_thread_t">hammer2_thread_t<a class="headerlink" href="#hammer2_thread_t" title="Permanent link">¶</a></h3>
+<p>Worker thread structure (<code>hammer2.h:815-824</code>):</p>
+<div class="highlight"><pre><span></span><code><a href="#__codelineno-3-1" id="__codelineno-3-1" name="__codelineno-3-1"></a><span class="k">struct</span><span class="w"> </span><span class="nc">hammer2_thread</span><span class="w"> </span><span class="p">{</span>
+<a href="#__codelineno-3-2" id="__codelineno-3-2" name="__codelineno-3-2"></a><span class="w">    </span><span class="k">struct</span><span class="w"> </span><span class="nc">hammer2_pfs</span><span class="w">  </span><span class="o">*</span><span class="n">pmp</span><span class="p">;</span><span class="w">           </span><span class="cm">/* PFS mount */</span>
+<a href="#__codelineno-3-3" id="__codelineno-3-3" name="__codelineno-3-3"></a><span class="w">    </span><span class="k">struct</span><span class="w"> </span><span class="nc">hammer2_dev</span><span class="w">  </span><span class="o">*</span><span class="n">hmp</span><span class="p">;</span><span class="w">           </span><span class="cm">/* device (for bulkfree) */</span>
+<a href="#__codelineno-3-4" id="__codelineno-3-4" name="__codelineno-3-4"></a><span class="w">    </span><span class="n">hammer2_xop_list_t</span><span class="w">  </span><span class="n">xopq</span><span class="p">;</span><span class="w">           </span><span class="cm">/* pending XOP queue */</span>
+<a href="#__codelineno-3-5" id="__codelineno-3-5" name="__codelineno-3-5"></a><span class="w">    </span><span class="n">thread_t</span><span class="w">            </span><span class="n">td</span><span class="p">;</span><span class="w">             </span><span class="cm">/* kernel thread */</span>
+<a href="#__codelineno-3-6" id="__codelineno-3-6" name="__codelineno-3-6"></a><span class="w">    </span><span class="kt">uint32_t</span><span class="w">            </span><span class="n">flags</span><span class="p">;</span><span class="w">          </span><span class="cm">/* thread state flags */</span>
+<a href="#__codelineno-3-7" id="__codelineno-3-7" name="__codelineno-3-7"></a><span class="w">    </span><span class="kt">int</span><span class="w">                 </span><span class="n">clindex</span><span class="p">;</span><span class="w">        </span><span class="cm">/* cluster element index */</span>
+<a href="#__codelineno-3-8" id="__codelineno-3-8" name="__codelineno-3-8"></a><span class="w">    </span><span class="kt">int</span><span class="w">                 </span><span class="n">repidx</span><span class="p">;</span><span class="w">         </span><span class="cm">/* replication index */</span>
+<a href="#__codelineno-3-9" id="__codelineno-3-9" name="__codelineno-3-9"></a><span class="w">    </span><span class="kt">char</span><span class="w">                </span><span class="o">*</span><span class="n">scratch</span><span class="p">;</span><span class="w">       </span><span class="cm">/* MAXPHYS scratch buffer */</span>
+<a href="#__codelineno-3-10" id="__codelineno-3-10" name="__codelineno-3-10"></a><span class="p">};</span>
+</code></pre></div>
+<p>Thread flags:</p>
+<table>
+<thead>
+<tr>
+<th>Flag</th>
+<th>Value</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>HAMMER2_THREAD_UNMOUNTING</code></td>
+<td>0x0001</td>
+<td>Unmount in progress</td>
+</tr>
+<tr>
+<td><code>HAMMER2_THREAD_DEV</code></td>
+<td>0x0002</td>
+<td>Device thread, not PFS</td>
+</tr>
+<tr>
+<td><code>HAMMER2_THREAD_WAITING</code></td>
+<td>0x0004</td>
+<td>Thread sleeping</td>
+</tr>
+<tr>
+<td><code>HAMMER2_THREAD_REMASTER</code></td>
+<td>0x0008</td>
+<td>Remaster request</td>
+</tr>
+<tr>
+<td><code>HAMMER2_THREAD_STOP</code></td>
+<td>0x0010</td>
+<td>Stop request</td>
+</tr>
+<tr>
+<td><code>HAMMER2_THREAD_FREEZE</code></td>
+<td>0x0020</td>
+<td>Freeze request</td>
+</tr>
+<tr>
+<td><code>HAMMER2_THREAD_FROZEN</code></td>
+<td>0x0040</td>
+<td>Thread is frozen</td>
+</tr>
+<tr>
+<td><code>HAMMER2_THREAD_XOPQ</code></td>
+<td>0x0080</td>
+<td>Work pending on queue</td>
+</tr>
+<tr>
+<td><code>HAMMER2_THREAD_STOPPED</code></td>
+<td>0x0100</td>
+<td>Thread has exited</td>
+</tr>
+<tr>
+<td><code>HAMMER2_THREAD_UNFREEZE</code></td>
+<td>0x0200</td>
+<td>Unfreeze request</td>
+</tr>
+</tbody>
+</table>
+<h3 id="run-mask-bits">Run Mask Bits<a class="headerlink" href="#run-mask-bits" title="Permanent link">¶</a></h3>
+<p>The <code>run_mask</code> field tracks active participants (<code>hammer2.h:562-568</code>):</p>
+<table>
+<thead>
+<tr>
+<th>Mask</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>HAMMER2_XOPMASK_CLUSTER</code></td>
+<td>Bits 0-7: One bit per cluster node</td>
+</tr>
+<tr>
+<td><code>HAMMER2_XOPMASK_VOP</code></td>
+<td>Bit 31: Frontend is active</td>
+</tr>
+<tr>
+<td><code>HAMMER2_XOPMASK_FIFOW</code></td>
+<td>Bit 30: Backend waiting on FIFO space</td>
+</tr>
+<tr>
+<td><code>HAMMER2_XOPMASK_WAIT</code></td>
+<td>Bit 29: Frontend waiting for results</td>
+</tr>
+<tr>
+<td><code>HAMMER2_XOPMASK_FEED</code></td>
+<td>Bit 32+: Feed counter</td>
+</tr>
+<tr>
+<td><code>HAMMER2_XOPMASK_ALLDONE</code></td>
+<td>VOP + CLUSTER combined</td>
+</tr>
+</tbody>
+</table>
+<h2 id="xop-lifecycle">XOP Lifecycle<a class="headerlink" href="#xop-lifecycle" title="Permanent link">¶</a></h2>
+<h3 id="1-allocation">1. Allocation<a class="headerlink" href="#1-allocation" title="Permanent link">¶</a></h3>
+<div class="highlight"><pre><span></span><code><a href="#__codelineno-4-1" id="__codelineno-4-1" name="__codelineno-4-1"></a><span class="kt">void</span><span class="w"> </span><span class="o">*</span><span class="nf">hammer2_xop_alloc</span><span class="p">(</span><span class="n">hammer2_inode_t</span><span class="w"> </span><span class="o">*</span><span class="n">ip</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">flags</span><span class="p">);</span>
+</code></pre></div>
+<p>Source: <code>hammer2_admin.c:328-361</code></p>
+<p>Allocates an XOP from the object cache and initializes it:</p>
+<ol>
+<li>Gets XOP structure from <code>cache_xops</code></li>
+<li>Sets <code>ip1</code> to the primary inode (adds reference)</li>
+<li>Initializes <code>run_mask</code> with <code>HAMMER2_XOPMASK_VOP</code> (frontend active)</li>
+<li>If <code>HAMMER2_XOP_MODIFYING</code>, allocates a transaction ID via <code>hammer2_trans_sub()</code></li>
+<li>Copies cluster chain count from inode</li>
+</ol>
+<p><strong>XOP Flags:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Flag</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>HAMMER2_XOP_MODIFYING</code></td>
+<td>Operation modifies data</td>
+</tr>
+<tr>
+<td><code>HAMMER2_XOP_STRATEGY</code></td>
+<td>Strategy (read/write) operation</td>
+</tr>
+</tbody>
+</table>
+<h3 id="2-setup">2. Setup<a class="headerlink" href="#2-setup" title="Permanent link">¶</a></h3>
+<p>Optional setup functions add parameters:</p>
+<div class="highlight"><pre><span></span><code><a href="#__codelineno-5-1" id="__codelineno-5-1" name="__codelineno-5-1"></a><span class="kt">void</span><span class="w"> </span><span class="nf">hammer2_xop_setname</span><span class="p">(</span><span class="n">hammer2_xop_head_t</span><span class="w"> </span><span class="o">*</span><span class="n">xop</span><span class="p">,</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="n">name</span><span class="p">,</span><span class="w"> </span><span class="kt">size_t</span><span class="w"> </span><span class="n">len</span><span class="p">);</span>
+<a href="#__codelineno-5-2" id="__codelineno-5-2" name="__codelineno-5-2"></a><span class="kt">void</span><span class="w"> </span><span class="nf">hammer2_xop_setname2</span><span class="p">(</span><span class="n">hammer2_xop_head_t</span><span class="w"> </span><span class="o">*</span><span class="n">xop</span><span class="p">,</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="n">name</span><span class="p">,</span><span class="w"> </span><span class="kt">size_t</span><span class="w"> </span><span class="n">len</span><span class="p">);</span>
+<a href="#__codelineno-5-3" id="__codelineno-5-3" name="__codelineno-5-3"></a><span class="kt">void</span><span class="w"> </span><span class="nf">hammer2_xop_setip2</span><span class="p">(</span><span class="n">hammer2_xop_head_t</span><span class="w"> </span><span class="o">*</span><span class="n">xop</span><span class="p">,</span><span class="w"> </span><span class="n">hammer2_inode_t</span><span class="w"> </span><span class="o">*</span><span class="n">ip2</span><span class="p">);</span>
+<a href="#__codelineno-5-4" id="__codelineno-5-4" name="__codelineno-5-4"></a><span class="kt">void</span><span class="w"> </span><span class="nf">hammer2_xop_setip3</span><span class="p">(</span><span class="n">hammer2_xop_head_t</span><span class="w"> </span><span class="o">*</span><span class="n">xop</span><span class="p">,</span><span class="w"> </span><span class="n">hammer2_inode_t</span><span class="w"> </span><span class="o">*</span><span class="n">ip3</span><span class="p">);</span>
+<a href="#__codelineno-5-5" id="__codelineno-5-5" name="__codelineno-5-5"></a><span class="kt">void</span><span class="w"> </span><span class="nf">hammer2_xop_setip4</span><span class="p">(</span><span class="n">hammer2_xop_head_t</span><span class="w"> </span><span class="o">*</span><span class="n">xop</span><span class="p">,</span><span class="w"> </span><span class="n">hammer2_inode_t</span><span class="w"> </span><span class="o">*</span><span class="n">ip4</span><span class="p">);</span>
+</code></pre></div>
+<h3 id="3-start">3. Start<a class="headerlink" href="#3-start" title="Permanent link">¶</a></h3>
+<div class="highlight"><pre><span></span><code><a href="#__codelineno-6-1" id="__codelineno-6-1" name="__codelineno-6-1"></a><span class="kt">void</span><span class="w"> </span><span class="nf">hammer2_xop_start</span><span class="p">(</span><span class="n">hammer2_xop_head_t</span><span class="w"> </span><span class="o">*</span><span class="n">xop</span><span class="p">,</span><span class="w"> </span><span class="n">hammer2_xop_desc_t</span><span class="w"> </span><span class="o">*</span><span class="n">desc</span><span class="p">);</span>
+</code></pre></div>
+<p>Source: <code>hammer2_admin.c:478-590</code></p>
+<p>Queues the XOP to worker threads:</p>
+<ol>
+<li>Creates XOP helper threads if not already running</li>
+<li>Selects worker thread group based on:</li>
+<li><strong>Strategy ops</strong>: Hash of inode + logical offset, uses dedicated strategy workers</li>
+<li><strong>Single-node non-clustered</strong>: CPU-local workers to reduce IPI overhead</li>
+<li><strong>Clustered</strong>: Hash-based to serialize same-inode operations</li>
+<li>For each cluster node with a valid chain:</li>
+<li>Sets bit in <code>run_mask</code> and <code>chk_mask</code></li>
+<li>Inserts XOP into thread's <code>xopq</code></li>
+<li>Signals all worker threads via <code>hammer2_thr_signal()</code></li>
+</ol>
+<h3 id="4-backend-execution">4. Backend Execution<a class="headerlink" href="#4-backend-execution" title="Permanent link">¶</a></h3>
+<p>Worker threads execute <code>hammer2_primary_xops_thread()</code> (<code>hammer2_admin.c:1147-1262</code>):</p>
+<pre class="mermaid"><code>graph TB
+    START[Thread Start] --&gt; CHECK{Check Flags}
+    CHECK --&gt;|STOP| EXIT[Exit Thread]
+    CHECK --&gt;|FREEZE| FROZEN[Set FROZEN, Wait]
+    CHECK --&gt;|XOPQ| GETXOP[Get Next XOP]
+    CHECK --&gt;|None| SLEEP[Sleep 30s]
 
+    FROZEN --&gt; UNFREEZE{UNFREEZE?}
+    UNFREEZE --&gt;|Yes| CHECK
+    UNFREEZE --&gt;|No| FROZEN
 
+    GETXOP --&gt; ACTIVE{Frontend Active?}
+    ACTIVE --&gt;|Yes| EXEC[Execute storage_func]
+    ACTIVE --&gt;|No| ABORT[Feed NULL + ECONNABORTED]
 
+    EXEC --&gt; DEQUEUE[Dequeue XOP]
+    ABORT --&gt; DEQUEUE
+    DEQUEUE --&gt; RETIRE[Retire XOP]
+    RETIRE --&gt; CHECK
 
-
-
-
-
-
-                
-              </article>
-            </div>
-          
-          
+    SLEEP --&gt; CHECK
+    EXIT --&gt; STOPPED[Signal STOPPED]
+</code></pre>
+<p>The <code>hammer2_xop_next()</code> function (<code>hammer2_admin.c:1071-1115</code>) selects the next runnable XOP:</p>
+<ul>
+<li>Skips XOPs with dependencies on already-running XOPs (same inode)</li>
+<li>Skips XOPs already marked <code>HAMMER2_XOP_FIFO_RUN</code></li>
+<li>Uses hash-based dependency tracking to allow parallelism</li>
+</ul>
+<h3 id="5-feeding-results">5. Feeding Results<a class="headerlink" href="#5-feeding-results" title="Permanent link">¶</a></h3>
+<div class="highlight"><pre><span></span><code><a href="#__codelineno-7-1" id="__codelineno-7-1" name="__codelineno-7-1"></a><span class="kt">int</span><span class="w"> </span><span class="nf">hammer2_xop_feed</span><span class="p">(</span><span class="n">hammer2_xop_head_t</span><span class="w"> </span><span class="o">*</span><span class="n">xop</span><span class="p">,</span><span class="w"> </span><span class="n">hammer2_chain_t</span><span class="w"> </span><span class="o">*</span><span class="n">chain</span><span class="p">,</span>
+<a href="#__codelineno-7-2" id="__codelineno-7-2" name="__codelineno-7-2"></a><span class="w">                     </span><span class="kt">int</span><span class="w"> </span><span class="n">clindex</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">error</span><span class="p">);</span>
+</code></pre></div>
+<p>Source: <code>hammer2_admin.c:792-856</code></p>
+<p>Backend threads feed results to the frontend:</p>
+<ol>
+<li>Check if frontend is still active (<code>HAMMER2_XOPMASK_VOP</code>)</li>
+<li>If FIFO is full, set <code>HAMMER2_XOP_FIFO_STALL</code> and sleep</li>
+<li>Add chain to FIFO (with ref+hold)</li>
+<li>Increment write index</li>
+<li>If frontend is waiting (<code>HAMMER2_XOPMASK_WAIT</code>), wake it up</li>
+</ol>
+<h3 id="6-collection">6. Collection<a class="headerlink" href="#6-collection" title="Permanent link">¶</a></h3>
+<div class="highlight"><pre><span></span><code><a href="#__codelineno-8-1" id="__codelineno-8-1" name="__codelineno-8-1"></a><span class="kt">int</span><span class="w"> </span><span class="nf">hammer2_xop_collect</span><span class="p">(</span><span class="n">hammer2_xop_head_t</span><span class="w"> </span><span class="o">*</span><span class="n">xop</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">flags</span><span class="p">);</span>
+</code></pre></div>
+<p>Source: <code>hammer2_admin.c:888-1022</code></p>
+<p>Frontend collects results from all backends:</p>
+<ol>
+<li>Advance each FIFO that is behind <code>collect_key</code></li>
+<li>Find lowest key across all FIFOs</li>
+<li>Call <code>hammer2_cluster_check()</code> to validate quorum</li>
+<li>Return results:</li>
+<li><code>0</code> — Valid result, cluster populated</li>
+<li><code>HAMMER2_ERROR_ENOENT</code> — End of iteration</li>
+<li><code>HAMMER2_ERROR_EINPROGRESS</code> — Wait for more results</li>
+</ol>
+<p><strong>Collection Flags:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Flag</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>HAMMER2_XOP_COLLECT_NOWAIT</code></td>
+<td>Don't block, poll only</td>
+</tr>
+<tr>
+<td><code>HAMMER2_XOP_COLLECT_WAITALL</code></td>
+<td>Wait for all backends</td>
+</tr>
+</tbody>
+</table>
+<h3 id="7-retirement">7. Retirement<a class="headerlink" href="#7-retirement" title="Permanent link">¶</a></h3>
+<div class="highlight"><pre><span></span><code><a href="#__codelineno-9-1" id="__codelineno-9-1" name="__codelineno-9-1"></a><span class="kt">void</span><span class="w"> </span><span class="nf">hammer2_xop_retire</span><span class="p">(</span><span class="n">hammer2_xop_head_t</span><span class="w"> </span><span class="o">*</span><span class="n">xop</span><span class="p">,</span><span class="w"> </span><span class="kt">uint64_t</span><span class="w"> </span><span class="n">mask</span><span class="p">);</span>
+</code></pre></div>
+<p>Source: <code>hammer2_admin.c:596-759</code></p>
+<p>Called by both frontend and backends to retire from an XOP:</p>
+<ol>
+<li>Atomically decrement <code>run_mask</code> by <code>mask</code></li>
+<li>If others remain:</li>
+<li>Frontend retiring: Wake backends waiting on FIFO</li>
+<li>Last backend retiring: Wake frontend</li>
+<li>If last participant:</li>
+<li>Cache cluster chains in inode's <code>ccache</code> for performance</li>
+<li>Drop all chains in XOP cluster and FIFOs</li>
+<li>Drop inode references</li>
+<li>Free name buffers</li>
+<li>Return XOP to object cache</li>
+</ol>
+<h2 id="xop-operations">XOP Operations<a class="headerlink" href="#xop-operations" title="Permanent link">¶</a></h2>
+<h3 id="directory-operations">Directory Operations<a class="headerlink" href="#directory-operations" title="Permanent link">¶</a></h3>
+<table>
+<thead>
+<tr>
+<th>Operation</th>
+<th>Descriptor</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>hammer2_xop_readdir</code></td>
+<td><code>hammer2_readdir_desc</code></td>
+<td>Read directory entries</td>
+</tr>
+<tr>
+<td><code>hammer2_xop_nresolve</code></td>
+<td><code>hammer2_nresolve_desc</code></td>
+<td>Lookup name in directory</td>
+</tr>
+<tr>
+<td><code>hammer2_xop_unlink</code></td>
+<td><code>hammer2_unlink_desc</code></td>
+<td>Remove directory entry</td>
+</tr>
+<tr>
+<td><code>hammer2_xop_nrename</code></td>
+<td><code>hammer2_nrename_desc</code></td>
+<td>Rename file/directory</td>
+</tr>
+<tr>
+<td><code>hammer2_xop_scanlhc</code></td>
+<td><code>hammer2_scanlhc_desc</code></td>
+<td>Scan for hash collisions</td>
+</tr>
+</tbody>
+</table>
+<h3 id="inode-operations">Inode Operations<a class="headerlink" href="#inode-operations" title="Permanent link">¶</a></h3>
+<table>
+<thead>
+<tr>
+<th>Operation</th>
+<th>Descriptor</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>hammer2_xop_ipcluster</code></td>
+<td><code>hammer2_ipcluster_desc</code></td>
+<td>Synchronize inode cluster</td>
+</tr>
+<tr>
+<td><code>hammer2_xop_inode_mkdirent</code></td>
+<td><code>hammer2_inode_mkdirent_desc</code></td>
+<td>Create directory entry</td>
+</tr>
+<tr>
+<td><code>hammer2_xop_inode_create</code></td>
+<td><code>hammer2_inode_create_desc</code></td>
+<td>Create inode (attached)</td>
+</tr>
+<tr>
+<td><code>hammer2_xop_inode_create_det</code></td>
+<td><code>hammer2_inode_create_det_desc</code></td>
+<td>Create inode (detached)</td>
+</tr>
+<tr>
+<td><code>hammer2_xop_inode_create_ins</code></td>
+<td><code>hammer2_inode_create_ins_desc</code></td>
+<td>Insert detached inode</td>
+</tr>
+<tr>
+<td><code>hammer2_xop_inode_destroy</code></td>
+<td><code>hammer2_inode_destroy_desc</code></td>
+<td>Destroy inode</td>
+</tr>
+<tr>
+<td><code>hammer2_xop_inode_chain_sync</code></td>
+<td><code>hammer2_inode_chain_sync_desc</code></td>
+<td>Sync inode to chains</td>
+</tr>
+<tr>
+<td><code>hammer2_xop_inode_unlinkall</code></td>
+<td><code>hammer2_inode_unlinkall_desc</code></td>
+<td>Unlink all entries</td>
+</tr>
+<tr>
+<td><code>hammer2_xop_inode_connect</code></td>
+<td><code>hammer2_inode_connect_desc</code></td>
+<td>Connect inode</td>
+</tr>
+<tr>
+<td><code>hammer2_xop_inode_flush</code></td>
+<td><code>hammer2_inode_flush_desc</code></td>
+<td>Flush inode to media</td>
+</tr>
+</tbody>
+</table>
+<h3 id="io-operations">I/O Operations<a class="headerlink" href="#io-operations" title="Permanent link">¶</a></h3>
+<table>
+<thead>
+<tr>
+<th>Operation</th>
+<th>Descriptor</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>hammer2_xop_strategy_read</code></td>
+<td><code>hammer2_strategy_read_desc</code></td>
+<td>Read file data</td>
+</tr>
+<tr>
+<td><code>hammer2_xop_strategy_write</code></td>
+<td><code>hammer2_strategy_write_desc</code></td>
+<td>Write file data</td>
+</tr>
+<tr>
+<td><code>hammer2_xop_bmap</code></td>
+<td><code>hammer2_bmap_desc</code></td>
+<td>Block mapping</td>
+</tr>
+</tbody>
+</table>
+<h3 id="utility-operations">Utility Operations<a class="headerlink" href="#utility-operations" title="Permanent link">¶</a></h3>
+<table>
+<thead>
+<tr>
+<th>Operation</th>
+<th>Descriptor</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>hammer2_xop_lookup</code></td>
+<td><code>hammer2_lookup_desc</code></td>
+<td>General chain lookup</td>
+</tr>
+<tr>
+<td><code>hammer2_xop_scanall</code></td>
+<td><code>hammer2_scanall_desc</code></td>
+<td>Scan key range</td>
+</tr>
+<tr>
+<td><code>hammer2_xop_delete</code></td>
+<td><code>hammer2_delete_desc</code></td>
+<td>Delete chain</td>
+</tr>
+</tbody>
+</table>
+<h2 id="thread-management">Thread Management<a class="headerlink" href="#thread-management" title="Permanent link">¶</a></h2>
+<h3 id="thread-creation">Thread Creation<a class="headerlink" href="#thread-creation" title="Permanent link">¶</a></h3>
+<div class="highlight"><pre><span></span><code><a href="#__codelineno-10-1" id="__codelineno-10-1" name="__codelineno-10-1"></a><span class="kt">void</span><span class="w"> </span><span class="nf">hammer2_thr_create</span><span class="p">(</span><span class="n">hammer2_thread_t</span><span class="w"> </span><span class="o">*</span><span class="n">thr</span><span class="p">,</span><span class="w"> </span><span class="n">hammer2_pfs_t</span><span class="w"> </span><span class="o">*</span><span class="n">pmp</span><span class="p">,</span>
+<a href="#__codelineno-10-2" id="__codelineno-10-2" name="__codelineno-10-2"></a><span class="w">                        </span><span class="n">hammer2_dev_t</span><span class="w"> </span><span class="o">*</span><span class="n">hmp</span><span class="p">,</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="n">id</span><span class="p">,</span>
+<a href="#__codelineno-10-3" id="__codelineno-10-3" name="__codelineno-10-3"></a><span class="w">                        </span><span class="kt">int</span><span class="w"> </span><span class="n">clindex</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">repidx</span><span class="p">,</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="p">(</span><span class="o">*</span><span class="n">func</span><span class="p">)(</span><span class="kt">void</span><span class="w"> </span><span class="o">*</span><span class="p">));</span>
+</code></pre></div>
+<p>Source: <code>hammer2_admin.c:218-244</code></p>
+<p>Creates a worker thread:</p>
+<ol>
+<li>Initializes thread structure</li>
+<li>Allocates MAXPHYS scratch buffer</li>
+<li>Creates kernel thread via <code>lwkt_create()</code></li>
+</ol>
+<h3 id="thread-pool">Thread Pool<a class="headerlink" href="#thread-pool" title="Permanent link">¶</a></h3>
+<div class="highlight"><pre><span></span><code><a href="#__codelineno-11-1" id="__codelineno-11-1" name="__codelineno-11-1"></a><span class="kt">void</span><span class="w"> </span><span class="nf">hammer2_xop_helper_create</span><span class="p">(</span><span class="n">hammer2_pfs_t</span><span class="w"> </span><span class="o">*</span><span class="n">pmp</span><span class="p">);</span>
+<a href="#__codelineno-11-2" id="__codelineno-11-2" name="__codelineno-11-2"></a><span class="kt">void</span><span class="w"> </span><span class="nf">hammer2_xop_helper_cleanup</span><span class="p">(</span><span class="n">hammer2_pfs_t</span><span class="w"> </span><span class="o">*</span><span class="n">pmp</span><span class="p">);</span>
+</code></pre></div>
+<p>Source: <code>hammer2_admin.c:425-470</code></p>
+<p>Each mounted PFS has a pool of XOP worker threads:</p>
+<ul>
+<li><code>hammer2_xop_nthreads</code> threads per cluster node</li>
+<li>Threads are created on-demand at first XOP</li>
+<li>Separate thread groups for strategy vs. non-strategy operations</li>
+</ul>
+<h3 id="thread-signaling">Thread Signaling<a class="headerlink" href="#thread-signaling" title="Permanent link">¶</a></h3>
+<div class="highlight"><pre><span></span><code><a href="#__codelineno-12-1" id="__codelineno-12-1" name="__codelineno-12-1"></a><span class="kt">void</span><span class="w"> </span><span class="nf">hammer2_thr_signal</span><span class="p">(</span><span class="n">hammer2_thread_t</span><span class="w"> </span><span class="o">*</span><span class="n">thr</span><span class="p">,</span><span class="w"> </span><span class="kt">uint32_t</span><span class="w"> </span><span class="n">flags</span><span class="p">);</span>
+<a href="#__codelineno-12-2" id="__codelineno-12-2" name="__codelineno-12-2"></a><span class="kt">void</span><span class="w"> </span><span class="nf">hammer2_thr_signal2</span><span class="p">(</span><span class="n">hammer2_thread_t</span><span class="w"> </span><span class="o">*</span><span class="n">thr</span><span class="p">,</span><span class="w"> </span><span class="kt">uint32_t</span><span class="w"> </span><span class="n">posflags</span><span class="p">,</span><span class="w"> </span><span class="kt">uint32_t</span><span class="w"> </span><span class="n">negflags</span><span class="p">);</span>
+<a href="#__codelineno-12-3" id="__codelineno-12-3" name="__codelineno-12-3"></a><span class="kt">void</span><span class="w"> </span><span class="nf">hammer2_thr_wait</span><span class="p">(</span><span class="n">hammer2_thread_t</span><span class="w"> </span><span class="o">*</span><span class="n">thr</span><span class="p">,</span><span class="w"> </span><span class="kt">uint32_t</span><span class="w"> </span><span class="n">flags</span><span class="p">);</span>
+<a href="#__codelineno-12-4" id="__codelineno-12-4" name="__codelineno-12-4"></a><span class="kt">void</span><span class="w"> </span><span class="nf">hammer2_thr_wait_neg</span><span class="p">(</span><span class="n">hammer2_thread_t</span><span class="w"> </span><span class="o">*</span><span class="n">thr</span><span class="p">,</span><span class="w"> </span><span class="kt">uint32_t</span><span class="w"> </span><span class="n">flags</span><span class="p">);</span>
+</code></pre></div>
+<p>Atomic flag manipulation with wakeup support.</p>
+<h3 id="thread-lifecycle-control">Thread Lifecycle Control<a class="headerlink" href="#thread-lifecycle-control" title="Permanent link">¶</a></h3>
+<div class="highlight"><pre><span></span><code><a href="#__codelineno-13-1" id="__codelineno-13-1" name="__codelineno-13-1"></a><span class="kt">void</span><span class="w"> </span><span class="nf">hammer2_thr_freeze</span><span class="p">(</span><span class="n">hammer2_thread_t</span><span class="w"> </span><span class="o">*</span><span class="n">thr</span><span class="p">);</span><span class="w">    </span><span class="cm">/* Pause thread */</span>
+<a href="#__codelineno-13-2" id="__codelineno-13-2" name="__codelineno-13-2"></a><span class="kt">void</span><span class="w"> </span><span class="nf">hammer2_thr_unfreeze</span><span class="p">(</span><span class="n">hammer2_thread_t</span><span class="w"> </span><span class="o">*</span><span class="n">thr</span><span class="p">);</span><span class="w">  </span><span class="cm">/* Resume thread */</span>
+<a href="#__codelineno-13-3" id="__codelineno-13-3" name="__codelineno-13-3"></a><span class="kt">void</span><span class="w"> </span><span class="nf">hammer2_thr_delete</span><span class="p">(</span><span class="n">hammer2_thread_t</span><span class="w"> </span><span class="o">*</span><span class="n">thr</span><span class="p">);</span><span class="w">    </span><span class="cm">/* Stop and cleanup */</span>
+<a href="#__codelineno-13-4" id="__codelineno-13-4" name="__codelineno-13-4"></a><span class="kt">void</span><span class="w"> </span><span class="nf">hammer2_thr_remaster</span><span class="p">(</span><span class="n">hammer2_thread_t</span><span class="w"> </span><span class="o">*</span><span class="n">thr</span><span class="p">);</span><span class="w">  </span><span class="cm">/* Request remaster */</span>
+</code></pre></div>
+<h2 id="xop-type-definitions">XOP Type Definitions<a class="headerlink" href="#xop-type-definitions" title="Permanent link">¶</a></h2>
+<p>All XOP types embed <code>hammer2_xop_head_t</code> as first member:</p>
+<div class="highlight"><pre><span></span><code><a href="#__codelineno-14-1" id="__codelineno-14-1" name="__codelineno-14-1"></a><span class="k">struct</span><span class="w"> </span><span class="nc">hammer2_xop_readdir</span><span class="w"> </span><span class="p">{</span>
+<a href="#__codelineno-14-2" id="__codelineno-14-2" name="__codelineno-14-2"></a><span class="w">    </span><span class="n">hammer2_xop_head_t</span><span class="w">  </span><span class="n">head</span><span class="p">;</span>
+<a href="#__codelineno-14-3" id="__codelineno-14-3" name="__codelineno-14-3"></a><span class="w">    </span><span class="n">hammer2_key_t</span><span class="w">       </span><span class="n">lkey</span><span class="p">;</span><span class="w">       </span><span class="cm">/* starting directory key */</span>
+<a href="#__codelineno-14-4" id="__codelineno-14-4" name="__codelineno-14-4"></a><span class="p">};</span>
+<a href="#__codelineno-14-5" id="__codelineno-14-5" name="__codelineno-14-5"></a>
+<a href="#__codelineno-14-6" id="__codelineno-14-6" name="__codelineno-14-6"></a><span class="k">struct</span><span class="w"> </span><span class="nc">hammer2_xop_nresolve</span><span class="w"> </span><span class="p">{</span>
+<a href="#__codelineno-14-7" id="__codelineno-14-7" name="__codelineno-14-7"></a><span class="w">    </span><span class="n">hammer2_xop_head_t</span><span class="w">  </span><span class="n">head</span><span class="p">;</span>
+<a href="#__codelineno-14-8" id="__codelineno-14-8" name="__codelineno-14-8"></a><span class="w">    </span><span class="n">hammer2_key_t</span><span class="w">       </span><span class="n">lhc</span><span class="p">;</span><span class="w">        </span><span class="cm">/* name hash */</span>
+<a href="#__codelineno-14-9" id="__codelineno-14-9" name="__codelineno-14-9"></a><span class="p">};</span>
+<a href="#__codelineno-14-10" id="__codelineno-14-10" name="__codelineno-14-10"></a>
+<a href="#__codelineno-14-11" id="__codelineno-14-11" name="__codelineno-14-11"></a><span class="k">struct</span><span class="w"> </span><span class="nc">hammer2_xop_unlink</span><span class="w"> </span><span class="p">{</span>
+<a href="#__codelineno-14-12" id="__codelineno-14-12" name="__codelineno-14-12"></a><span class="w">    </span><span class="n">hammer2_xop_head_t</span><span class="w">  </span><span class="n">head</span><span class="p">;</span>
+<a href="#__codelineno-14-13" id="__codelineno-14-13" name="__codelineno-14-13"></a><span class="w">    </span><span class="kt">int</span><span class="w">                 </span><span class="n">isdir</span><span class="p">;</span><span class="w">      </span><span class="cm">/* expect directory */</span>
+<a href="#__codelineno-14-14" id="__codelineno-14-14" name="__codelineno-14-14"></a><span class="w">    </span><span class="kt">int</span><span class="w">                 </span><span class="n">dopermanent</span><span class="p">;</span><span class="w"> </span><span class="cm">/* permanent delete flags */</span>
+<a href="#__codelineno-14-15" id="__codelineno-14-15" name="__codelineno-14-15"></a><span class="p">};</span>
+<a href="#__codelineno-14-16" id="__codelineno-14-16" name="__codelineno-14-16"></a>
+<a href="#__codelineno-14-17" id="__codelineno-14-17" name="__codelineno-14-17"></a><span class="k">struct</span><span class="w"> </span><span class="nc">hammer2_xop_create</span><span class="w"> </span><span class="p">{</span>
+<a href="#__codelineno-14-18" id="__codelineno-14-18" name="__codelineno-14-18"></a><span class="w">    </span><span class="n">hammer2_xop_head_t</span><span class="w">  </span><span class="n">head</span><span class="p">;</span>
+<a href="#__codelineno-14-19" id="__codelineno-14-19" name="__codelineno-14-19"></a><span class="w">    </span><span class="n">hammer2_inode_meta_t</span><span class="w"> </span><span class="n">meta</span><span class="p">;</span><span class="w">      </span><span class="cm">/* initial metadata */</span>
+<a href="#__codelineno-14-20" id="__codelineno-14-20" name="__codelineno-14-20"></a><span class="w">    </span><span class="n">hammer2_key_t</span><span class="w">       </span><span class="n">lhc</span><span class="p">;</span><span class="w">        </span><span class="cm">/* hash/key */</span>
+<a href="#__codelineno-14-21" id="__codelineno-14-21" name="__codelineno-14-21"></a><span class="w">    </span><span class="kt">int</span><span class="w">                 </span><span class="n">flags</span><span class="p">;</span><span class="w">      </span><span class="cm">/* creation flags */</span>
+<a href="#__codelineno-14-22" id="__codelineno-14-22" name="__codelineno-14-22"></a><span class="p">};</span>
+<a href="#__codelineno-14-23" id="__codelineno-14-23" name="__codelineno-14-23"></a>
+<a href="#__codelineno-14-24" id="__codelineno-14-24" name="__codelineno-14-24"></a><span class="k">struct</span><span class="w"> </span><span class="nc">hammer2_xop_strategy</span><span class="w"> </span><span class="p">{</span>
+<a href="#__codelineno-14-25" id="__codelineno-14-25" name="__codelineno-14-25"></a><span class="w">    </span><span class="n">hammer2_xop_head_t</span><span class="w">  </span><span class="n">head</span><span class="p">;</span>
+<a href="#__codelineno-14-26" id="__codelineno-14-26" name="__codelineno-14-26"></a><span class="w">    </span><span class="n">hammer2_key_t</span><span class="w">       </span><span class="n">lbase</span><span class="p">;</span><span class="w">      </span><span class="cm">/* logical offset */</span>
+<a href="#__codelineno-14-27" id="__codelineno-14-27" name="__codelineno-14-27"></a><span class="w">    </span><span class="kt">int</span><span class="w">                 </span><span class="n">finished</span><span class="p">;</span><span class="w">   </span><span class="cm">/* completion flag */</span>
+<a href="#__codelineno-14-28" id="__codelineno-14-28" name="__codelineno-14-28"></a><span class="w">    </span><span class="n">hammer2_mtx_t</span><span class="w">       </span><span class="n">lock</span><span class="p">;</span><span class="w">       </span><span class="cm">/* synchronization */</span>
+<a href="#__codelineno-14-29" id="__codelineno-14-29" name="__codelineno-14-29"></a><span class="w">    </span><span class="k">struct</span><span class="w"> </span><span class="nc">bio</span><span class="w">          </span><span class="o">*</span><span class="n">bio</span><span class="p">;</span><span class="w">       </span><span class="cm">/* I/O request */</span>
+<a href="#__codelineno-14-30" id="__codelineno-14-30" name="__codelineno-14-30"></a><span class="p">};</span>
+<a href="#__codelineno-14-31" id="__codelineno-14-31" name="__codelineno-14-31"></a>
+<a href="#__codelineno-14-32" id="__codelineno-14-32" name="__codelineno-14-32"></a><span class="k">struct</span><span class="w"> </span><span class="nc">hammer2_xop_fsync</span><span class="w"> </span><span class="p">{</span>
+<a href="#__codelineno-14-33" id="__codelineno-14-33" name="__codelineno-14-33"></a><span class="w">    </span><span class="n">hammer2_xop_head_t</span><span class="w">  </span><span class="n">head</span><span class="p">;</span>
+<a href="#__codelineno-14-34" id="__codelineno-14-34" name="__codelineno-14-34"></a><span class="w">    </span><span class="n">hammer2_inode_meta_t</span><span class="w"> </span><span class="n">meta</span><span class="p">;</span><span class="w">      </span><span class="cm">/* metadata to sync */</span>
+<a href="#__codelineno-14-35" id="__codelineno-14-35" name="__codelineno-14-35"></a><span class="w">    </span><span class="n">hammer2_off_t</span><span class="w">       </span><span class="n">osize</span><span class="p">;</span><span class="w">      </span><span class="cm">/* original size */</span>
+<a href="#__codelineno-14-36" id="__codelineno-14-36" name="__codelineno-14-36"></a><span class="w">    </span><span class="n">u_int</span><span class="w">               </span><span class="n">ipflags</span><span class="p">;</span><span class="w">    </span><span class="cm">/* inode flags */</span>
+<a href="#__codelineno-14-37" id="__codelineno-14-37" name="__codelineno-14-37"></a><span class="w">    </span><span class="kt">int</span><span class="w">                 </span><span class="n">clear_directdata</span><span class="p">;</span>
+<a href="#__codelineno-14-38" id="__codelineno-14-38" name="__codelineno-14-38"></a><span class="p">};</span>
+</code></pre></div>
+<p>The <code>hammer2_xop_t</code> union encompasses all types for allocation:</p>
+<div class="highlight"><pre><span></span><code><a href="#__codelineno-15-1" id="__codelineno-15-1" name="__codelineno-15-1"></a><span class="k">union</span><span class="w"> </span><span class="nc">hammer2_xop</span><span class="w"> </span><span class="p">{</span>
+<a href="#__codelineno-15-2" id="__codelineno-15-2" name="__codelineno-15-2"></a><span class="w">    </span><span class="n">hammer2_xop_head_t</span><span class="w">      </span><span class="n">head</span><span class="p">;</span>
+<a href="#__codelineno-15-3" id="__codelineno-15-3" name="__codelineno-15-3"></a><span class="w">    </span><span class="n">hammer2_xop_readdir_t</span><span class="w">   </span><span class="n">xop_readdir</span><span class="p">;</span>
+<a href="#__codelineno-15-4" id="__codelineno-15-4" name="__codelineno-15-4"></a><span class="w">    </span><span class="n">hammer2_xop_nresolve_t</span><span class="w">  </span><span class="n">xop_nresolve</span><span class="p">;</span>
+<a href="#__codelineno-15-5" id="__codelineno-15-5" name="__codelineno-15-5"></a><span class="w">    </span><span class="n">hammer2_xop_unlink_t</span><span class="w">    </span><span class="n">xop_unlink</span><span class="p">;</span>
+<a href="#__codelineno-15-6" id="__codelineno-15-6" name="__codelineno-15-6"></a><span class="w">    </span><span class="n">hammer2_xop_create_t</span><span class="w">    </span><span class="n">xop_create</span><span class="p">;</span>
+<a href="#__codelineno-15-7" id="__codelineno-15-7" name="__codelineno-15-7"></a><span class="w">    </span><span class="n">hammer2_xop_strategy_t</span><span class="w">  </span><span class="n">xop_strategy</span><span class="p">;</span>
+<a href="#__codelineno-15-8" id="__codelineno-15-8" name="__codelineno-15-8"></a><span class="w">    </span><span class="cm">/* ... other types ... */</span>
+<a href="#__codelineno-15-9" id="__codelineno-15-9" name="__codelineno-15-9"></a><span class="p">};</span>
+</code></pre></div>
+<h2 id="data-access-functions">Data Access Functions<a class="headerlink" href="#data-access-functions" title="Permanent link">¶</a></h2>
+<h3 id="safe-data-access">Safe Data Access<a class="headerlink" href="#safe-data-access" title="Permanent link">¶</a></h3>
+<div class="highlight"><pre><span></span><code><a href="#__codelineno-16-1" id="__codelineno-16-1" name="__codelineno-16-1"></a><span class="k">const</span><span class="w"> </span><span class="n">hammer2_media_data_t</span><span class="w"> </span><span class="o">*</span><span class="nf">hammer2_xop_gdata</span><span class="p">(</span><span class="n">hammer2_xop_head_t</span><span class="w"> </span><span class="o">*</span><span class="n">xop</span><span class="p">);</span>
+<a href="#__codelineno-16-2" id="__codelineno-16-2" name="__codelineno-16-2"></a><span class="kt">void</span><span class="w"> </span><span class="nf">hammer2_xop_pdata</span><span class="p">(</span><span class="n">hammer2_xop_head_t</span><span class="w"> </span><span class="o">*</span><span class="n">xop</span><span class="p">);</span>
+</code></pre></div>
+<p>Source: <code>hammer2.h:1967-2000</code></p>
+<p>These functions provide safe access to chain data from collected results:</p>
+<ul>
+<li><code>hammer2_xop_gdata()</code> — Get data pointer, ensures I/O synchronization</li>
+<li><code>hammer2_xop_pdata()</code> — Put data, releases synchronization</li>
+</ul>
+<p><strong>Important:</strong> Chains in the collected cluster are neither locked nor I/O synchronized. Always use these functions to access chain data safely.</p>
+<h2 id="example-directory-lookup-nresolve">Example: Directory Lookup (nresolve)<a class="headerlink" href="#example-directory-lookup-nresolve" title="Permanent link">¶</a></h2>
+<div class="highlight"><pre><span></span><code><a href="#__codelineno-17-1" id="__codelineno-17-1" name="__codelineno-17-1"></a><span class="cm">/* Frontend (VFS layer) */</span>
+<a href="#__codelineno-17-2" id="__codelineno-17-2" name="__codelineno-17-2"></a><span class="n">hammer2_xop_nresolve_t</span><span class="w"> </span><span class="o">*</span><span class="n">xop</span><span class="p">;</span>
+<a href="#__codelineno-17-3" id="__codelineno-17-3" name="__codelineno-17-3"></a>
+<a href="#__codelineno-17-4" id="__codelineno-17-4" name="__codelineno-17-4"></a><span class="n">xop</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">hammer2_xop_alloc</span><span class="p">(</span><span class="n">dip</span><span class="p">,</span><span class="w"> </span><span class="n">HAMMER2_XOP_MODIFYING</span><span class="p">);</span>
+<a href="#__codelineno-17-5" id="__codelineno-17-5" name="__codelineno-17-5"></a><span class="n">hammer2_xop_setname</span><span class="p">(</span><span class="o">&amp;</span><span class="n">xop</span><span class="o">-&gt;</span><span class="n">head</span><span class="p">,</span><span class="w"> </span><span class="n">name</span><span class="p">,</span><span class="w"> </span><span class="n">name_len</span><span class="p">);</span>
+<a href="#__codelineno-17-6" id="__codelineno-17-6" name="__codelineno-17-6"></a><span class="n">hammer2_xop_start</span><span class="p">(</span><span class="o">&amp;</span><span class="n">xop</span><span class="o">-&gt;</span><span class="n">head</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">hammer2_nresolve_desc</span><span class="p">);</span>
+<a href="#__codelineno-17-7" id="__codelineno-17-7" name="__codelineno-17-7"></a>
+<a href="#__codelineno-17-8" id="__codelineno-17-8" name="__codelineno-17-8"></a><span class="n">error</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">hammer2_xop_collect</span><span class="p">(</span><span class="o">&amp;</span><span class="n">xop</span><span class="o">-&gt;</span><span class="n">head</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">);</span>
+<a href="#__codelineno-17-9" id="__codelineno-17-9" name="__codelineno-17-9"></a><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">error</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<a href="#__codelineno-17-10" id="__codelineno-17-10" name="__codelineno-17-10"></a><span class="w">    </span><span class="cm">/* Access result via xop-&gt;head.cluster */</span>
+<a href="#__codelineno-17-11" id="__codelineno-17-11" name="__codelineno-17-11"></a><span class="w">    </span><span class="n">chain</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">xop</span><span class="o">-&gt;</span><span class="n">head</span><span class="p">.</span><span class="n">cluster</span><span class="p">.</span><span class="n">focus</span><span class="p">;</span>
+<a href="#__codelineno-17-12" id="__codelineno-17-12" name="__codelineno-17-12"></a><span class="w">    </span><span class="cm">/* ... process result ... */</span>
+<a href="#__codelineno-17-13" id="__codelineno-17-13" name="__codelineno-17-13"></a><span class="p">}</span>
+<a href="#__codelineno-17-14" id="__codelineno-17-14" name="__codelineno-17-14"></a><span class="n">hammer2_xop_retire</span><span class="p">(</span><span class="o">&amp;</span><span class="n">xop</span><span class="o">-&gt;</span><span class="n">head</span><span class="p">,</span><span class="w"> </span><span class="n">HAMMER2_XOPMASK_VOP</span><span class="p">);</span>
+</code></pre></div>
+<div class="highlight"><pre><span></span><code><a href="#__codelineno-18-1" id="__codelineno-18-1" name="__codelineno-18-1"></a><span class="cm">/* Backend (hammer2_xops.c:248-318) */</span>
+<a href="#__codelineno-18-2" id="__codelineno-18-2" name="__codelineno-18-2"></a><span class="kt">void</span><span class="w"> </span><span class="nf">hammer2_xop_nresolve</span><span class="p">(</span><span class="n">hammer2_xop_t</span><span class="w"> </span><span class="o">*</span><span class="n">arg</span><span class="p">,</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="o">*</span><span class="n">scratch</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">clindex</span><span class="p">)</span>
+<a href="#__codelineno-18-3" id="__codelineno-18-3" name="__codelineno-18-3"></a><span class="p">{</span>
+<a href="#__codelineno-18-4" id="__codelineno-18-4" name="__codelineno-18-4"></a><span class="w">    </span><span class="n">hammer2_xop_nresolve_t</span><span class="w"> </span><span class="o">*</span><span class="n">xop</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="o">&amp;</span><span class="n">arg</span><span class="o">-&gt;</span><span class="n">xop_nresolve</span><span class="p">;</span>
+<a href="#__codelineno-18-5" id="__codelineno-18-5" name="__codelineno-18-5"></a><span class="w">    </span><span class="n">hammer2_chain_t</span><span class="w"> </span><span class="o">*</span><span class="n">parent</span><span class="p">,</span><span class="w"> </span><span class="o">*</span><span class="n">chain</span><span class="p">;</span>
+<a href="#__codelineno-18-6" id="__codelineno-18-6" name="__codelineno-18-6"></a>
+<a href="#__codelineno-18-7" id="__codelineno-18-7" name="__codelineno-18-7"></a><span class="w">    </span><span class="cm">/* Get parent chain for this cluster node */</span>
+<a href="#__codelineno-18-8" id="__codelineno-18-8" name="__codelineno-18-8"></a><span class="w">    </span><span class="n">parent</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">hammer2_inode_chain</span><span class="p">(</span><span class="n">xop</span><span class="o">-&gt;</span><span class="n">head</span><span class="p">.</span><span class="n">ip1</span><span class="p">,</span><span class="w"> </span><span class="n">clindex</span><span class="p">,</span>
+<a href="#__codelineno-18-9" id="__codelineno-18-9" name="__codelineno-18-9"></a><span class="w">                                 </span><span class="n">HAMMER2_RESOLVE_ALWAYS</span><span class="w"> </span><span class="o">|</span>
+<a href="#__codelineno-18-10" id="__codelineno-18-10" name="__codelineno-18-10"></a><span class="w">                                 </span><span class="n">HAMMER2_RESOLVE_SHARED</span><span class="p">);</span>
+<a href="#__codelineno-18-11" id="__codelineno-18-11" name="__codelineno-18-11"></a>
+<a href="#__codelineno-18-12" id="__codelineno-18-12" name="__codelineno-18-12"></a><span class="w">    </span><span class="cm">/* Lookup directory entry by name hash */</span>
+<a href="#__codelineno-18-13" id="__codelineno-18-13" name="__codelineno-18-13"></a><span class="w">    </span><span class="n">lhc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">hammer2_dirhash</span><span class="p">(</span><span class="n">xop</span><span class="o">-&gt;</span><span class="n">head</span><span class="p">.</span><span class="n">name1</span><span class="p">,</span><span class="w"> </span><span class="n">xop</span><span class="o">-&gt;</span><span class="n">head</span><span class="p">.</span><span class="n">name1_len</span><span class="p">);</span>
+<a href="#__codelineno-18-14" id="__codelineno-18-14" name="__codelineno-18-14"></a><span class="w">    </span><span class="n">chain</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">hammer2_chain_lookup</span><span class="p">(</span><span class="o">&amp;</span><span class="n">parent</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">key_next</span><span class="p">,</span>
+<a href="#__codelineno-18-15" id="__codelineno-18-15" name="__codelineno-18-15"></a><span class="w">                                 </span><span class="n">lhc</span><span class="p">,</span><span class="w"> </span><span class="n">lhc</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">HAMMER2_DIRHASH_LOMASK</span><span class="p">,</span>
+<a href="#__codelineno-18-16" id="__codelineno-18-16" name="__codelineno-18-16"></a><span class="w">                                 </span><span class="o">&amp;</span><span class="n">error</span><span class="p">,</span><span class="w"> </span><span class="n">HAMMER2_LOOKUP_SHARED</span><span class="p">);</span>
+<a href="#__codelineno-18-17" id="__codelineno-18-17" name="__codelineno-18-17"></a>
+<a href="#__codelineno-18-18" id="__codelineno-18-18" name="__codelineno-18-18"></a><span class="w">    </span><span class="cm">/* Find matching entry */</span>
+<a href="#__codelineno-18-19" id="__codelineno-18-19" name="__codelineno-18-19"></a><span class="w">    </span><span class="k">while</span><span class="w"> </span><span class="p">(</span><span class="n">chain</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<a href="#__codelineno-18-20" id="__codelineno-18-20" name="__codelineno-18-20"></a><span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">hammer2_chain_dirent_test</span><span class="p">(</span><span class="n">chain</span><span class="p">,</span><span class="w"> </span><span class="n">name</span><span class="p">,</span><span class="w"> </span><span class="n">name_len</span><span class="p">))</span>
+<a href="#__codelineno-18-21" id="__codelineno-18-21" name="__codelineno-18-21"></a><span class="w">            </span><span class="k">break</span><span class="p">;</span>
+<a href="#__codelineno-18-22" id="__codelineno-18-22" name="__codelineno-18-22"></a><span class="w">        </span><span class="n">chain</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">hammer2_chain_next</span><span class="p">(...);</span>
+<a href="#__codelineno-18-23" id="__codelineno-18-23" name="__codelineno-18-23"></a><span class="w">    </span><span class="p">}</span>
+<a href="#__codelineno-18-24" id="__codelineno-18-24" name="__codelineno-18-24"></a>
+<a href="#__codelineno-18-25" id="__codelineno-18-25" name="__codelineno-18-25"></a><span class="w">    </span><span class="cm">/* If directory entry, resolve to inode */</span>
+<a href="#__codelineno-18-26" id="__codelineno-18-26" name="__codelineno-18-26"></a><span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">chain</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">chain</span><span class="o">-&gt;</span><span class="n">bref</span><span class="p">.</span><span class="n">type</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">HAMMER2_BREF_TYPE_DIRENT</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<a href="#__codelineno-18-27" id="__codelineno-18-27" name="__codelineno-18-27"></a><span class="w">        </span><span class="n">error</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">hammer2_chain_inode_find</span><span class="p">(...);</span>
+<a href="#__codelineno-18-28" id="__codelineno-18-28" name="__codelineno-18-28"></a><span class="w">    </span><span class="p">}</span>
+<a href="#__codelineno-18-29" id="__codelineno-18-29" name="__codelineno-18-29"></a>
+<a href="#__codelineno-18-30" id="__codelineno-18-30" name="__codelineno-18-30"></a><span class="w">    </span><span class="cm">/* Feed result to frontend */</span>
+<a href="#__codelineno-18-31" id="__codelineno-18-31" name="__codelineno-18-31"></a><span class="w">    </span><span class="n">hammer2_xop_feed</span><span class="p">(</span><span class="o">&amp;</span><span class="n">xop</span><span class="o">-&gt;</span><span class="n">head</span><span class="p">,</span><span class="w"> </span><span class="n">chain</span><span class="p">,</span><span class="w"> </span><span class="n">clindex</span><span class="p">,</span><span class="w"> </span><span class="n">error</span><span class="p">);</span>
+<a href="#__codelineno-18-32" id="__codelineno-18-32" name="__codelineno-18-32"></a>
+<a href="#__codelineno-18-33" id="__codelineno-18-33" name="__codelineno-18-33"></a><span class="w">    </span><span class="cm">/* Cleanup */</span>
+<a href="#__codelineno-18-34" id="__codelineno-18-34" name="__codelineno-18-34"></a><span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">chain</span><span class="p">)</span><span class="w"> </span><span class="n">hammer2_chain_drop</span><span class="p">(</span><span class="n">chain</span><span class="p">);</span>
+<a href="#__codelineno-18-35" id="__codelineno-18-35" name="__codelineno-18-35"></a><span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">parent</span><span class="p">)</span><span class="w"> </span><span class="n">hammer2_chain_drop</span><span class="p">(</span><span class="n">parent</span><span class="p">);</span>
+<a href="#__codelineno-18-36" id="__codelineno-18-36" name="__codelineno-18-36"></a><span class="p">}</span>
+</code></pre></div>
+<h2 id="performance-considerations">Performance Considerations<a class="headerlink" href="#performance-considerations" title="Permanent link">¶</a></h2>
+<ol>
+<li>
+<p><strong>Thread Affinity</strong>: Strategy operations use CPU-local threads to reduce inter-processor interrupts (IPIs)</p>
+</li>
+<li>
+<p><strong>Inode Serialization</strong>: Non-strategy operations to the same inode are serialized to prevent race conditions in clustered configurations</p>
+</li>
+<li>
+<p><strong>FIFO Flow Control</strong>: Backends stall when FIFOs fill, preventing memory exhaustion</p>
+</li>
+<li>
+<p><strong>Chain Caching</strong>: Retired XOPs cache their chains in the inode's <code>ccache</code> to prevent expensive chain destruction</p>
+</li>
+<li>
+<p><strong>Early Completion</strong>: Frontend can return as soon as quorum is reached, without waiting for slow nodes</p>
+</li>
+</ol>
+<h2 id="see-also">See Also<a class="headerlink" href="#see-also" title="Permanent link">¶</a></h2>
+<ul>
+<li><a href="../">HAMMER2 Overview</a> — Filesystem architecture</li>
+<li><a href="../inode-layer/">Inode Layer</a> — Inode management</li>
+<li><a href="../chain-layer/">Chain Layer</a> — Block management</li>
+<li><a href="../vfs-integration/">VFS Integration</a> — VFS operations</li>
+<li><a href="../flush-sync/">Flush and Sync</a> — Synchronization mechanisms</li>
+</ul>
+</article>
+</div>
 <script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
-        </div>
-        
-          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
-  
-  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+</div>
+<button class="md-top md-icon" data-md-component="top" hidden="" type="button">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"></path></svg>
   Back to top
 </button>
-        
-      </main>
-      
-        <footer class="md-footer">
-  
-  <div class="md-footer-meta md-typeset">
-    <div class="md-footer-meta__inner md-grid">
-      <div class="md-copyright">
+</main>
+<footer class="md-footer">
+<div class="md-footer-meta md-typeset">
+<div class="md-footer-meta__inner md-grid">
+<div class="md-copyright">
   
   
     Made with
-    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+    <a href="https://squidfunk.github.io/mkdocs-material/" rel="noopener" target="_blank">
       Material for MkDocs
     </a>
-  
 </div>
-      
-    </div>
-  </div>
+</div>
+</div>
 </footer>
-      
-    </div>
-    <div class="md-dialog" data-md-component="dialog">
-      <div class="md-dialog__inner md-typeset"></div>
-    </div>
-    
-    
-    
-      
-      
-      <script id="__config" type="application/json">{"annotate": null, "base": "../../../..", "features": ["navigation.tabs", "navigation.sections", "navigation.expand", "navigation.top", "search.suggest", "search.highlight", "content.code.copy"], "search": "../../../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
-    
-    
-      <script src="../../../../assets/javascripts/bundle.79ae519e.min.js"></script>
-      
-    
-  </body>
+</div>
+<div class="md-dialog" data-md-component="dialog">
+<div class="md-dialog__inner md-typeset"></div>
+</div>
+<script id="__config" type="application/json">{"annotate": null, "base": "../../../..", "features": ["navigation.tabs", "navigation.sections", "navigation.expand", "navigation.top", "search.suggest", "search.highlight", "content.code.copy"], "search": "../../../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+<script src="../../../../assets/javascripts/bundle.79ae519e.min.js"></script>
+<script type="module">import mermaid from "https://unpkg.com/mermaid@10.4.0/dist/mermaid.esm.min.mjs";
+window.mermaidConfig = {default: {
+    startOnLoad: false
+}};</script></body>
 </html>
