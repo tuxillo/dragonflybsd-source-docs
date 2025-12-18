@@ -971,6 +971,33 @@
     </label>
 <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix="">
 <li class="md-nav__item">
+<a class="md-nav__link" href="#why-vm-objects-matter">
+<span class="md-ellipsis">
+      
+        Why VM Objects Matter
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#the-life-of-an-object">
+<span class="md-ellipsis">
+      
+        The Life of an Object
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#key-design-principles">
+<span class="md-ellipsis">
+      
+        Key Design Principles
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
 <a class="md-nav__link" href="#where-objects-fit-in-the-vm-hierarchy">
 <span class="md-ellipsis">
       
@@ -1233,6 +1260,73 @@
 <span class="md-ellipsis">
       
         Debugging
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#common-usage-patterns">
+<span class="md-ellipsis">
+      
+        Common Usage Patterns
+      
+    </span>
+</a>
+<nav aria-label="Common Usage Patterns" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#pattern-1-allocating-an-anonymous-object">
+<span class="md-ellipsis">
+      
+        Pattern 1: Allocating an Anonymous Object
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#pattern-2-working-with-an-object-safely">
+<span class="md-ellipsis">
+      
+        Pattern 2: Working with an Object Safely
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#pattern-3-cleaning-dirty-pages-before-unmount">
+<span class="md-ellipsis">
+      
+        Pattern 3: Cleaning Dirty Pages Before Unmount
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#pattern-4-looking-up-a-page-in-an-object">
+<span class="md-ellipsis">
+      
+        Pattern 4: Looking Up a Page in an Object
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#pattern-5-handling-object-type-transitions">
+<span class="md-ellipsis">
+      
+        Pattern 5: Handling Object Type Transitions
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#further-reading">
+<span class="md-ellipsis">
+      
+        Further Reading
       
     </span>
 </a>
@@ -1356,6 +1450,33 @@
     </label>
 <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix="">
 <li class="md-nav__item">
+<a class="md-nav__link" href="#why-vm-objects-matter">
+<span class="md-ellipsis">
+      
+        Why VM Objects Matter
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#the-life-of-an-object">
+<span class="md-ellipsis">
+      
+        The Life of an Object
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#key-design-principles">
+<span class="md-ellipsis">
+      
+        Key Design Principles
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
 <a class="md-nav__link" href="#where-objects-fit-in-the-vm-hierarchy">
 <span class="md-ellipsis">
       
@@ -1623,6 +1744,73 @@
 </a>
 </li>
 <li class="md-nav__item">
+<a class="md-nav__link" href="#common-usage-patterns">
+<span class="md-ellipsis">
+      
+        Common Usage Patterns
+      
+    </span>
+</a>
+<nav aria-label="Common Usage Patterns" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#pattern-1-allocating-an-anonymous-object">
+<span class="md-ellipsis">
+      
+        Pattern 1: Allocating an Anonymous Object
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#pattern-2-working-with-an-object-safely">
+<span class="md-ellipsis">
+      
+        Pattern 2: Working with an Object Safely
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#pattern-3-cleaning-dirty-pages-before-unmount">
+<span class="md-ellipsis">
+      
+        Pattern 3: Cleaning Dirty Pages Before Unmount
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#pattern-4-looking-up-a-page-in-an-object">
+<span class="md-ellipsis">
+      
+        Pattern 4: Looking Up a Page in an Object
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#pattern-5-handling-object-type-transitions">
+<span class="md-ellipsis">
+      
+        Pattern 5: Handling Object Type Transitions
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#further-reading">
+<span class="md-ellipsis">
+      
+        Further Reading
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
 <a class="md-nav__link" href="#see-also">
 <span class="md-ellipsis">
       
@@ -1641,8 +1829,161 @@
 <h1 id="vm-objects">VM Objects<a class="headerlink" href="#vm-objects" title="Permanent link">¶</a></h1>
 <p>VM objects are the fundamental abstraction for managing virtual memory contents in DragonFly BSD. Each object represents a contiguous range of virtual memory that can be backed by files, swap space, devices, or anonymous memory.</p>
 <p><strong>Source file:</strong> <code>sys/vm/vm_object.c</code> (~2,034 lines)</p>
+<hr/>
+<h2 id="why-vm-objects-matter">Why VM Objects Matter<a class="headerlink" href="#why-vm-objects-matter" title="Permanent link">¶</a></h2>
+<p>Every byte of virtual memory in the system—whether it's a mapped file, heap allocation, or shared library—is ultimately backed by a VM object. Objects are the kernel's answer to several fundamental questions:</p>
+<p><strong>What happens when two processes map the same file?</strong></p>
+<p>Without a unifying abstraction, each process would have its own copy of the file's pages, wasting memory and creating consistency nightmares. VM objects solve this: a single <code>OBJT_VNODE</code> object holds all pages for a file, and multiple processes simply reference the same object. Modify page 5 in one process, and every other mapping sees it immediately.</p>
+<p><strong>How does the kernel know where to get a page's contents?</strong></p>
+<p>When a page fault occurs, the kernel needs to know: is this page in memory? On disk? In a swap file? Part of a device? The VM object knows. Its <code>type</code> field determines the <em>pager</em>—the mechanism for populating missing pages. Each object type has different rules:</p>
+<table>
+<thead>
+<tr>
+<th>Object Type</th>
+<th>Where Pages Come From</th>
+<th>When Used</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>OBJT_VNODE</code></td>
+<td>Read from file via vnode</td>
+<td><code>mmap(file)</code>, executables, shared libraries</td>
+</tr>
+<tr>
+<td><code>OBJT_SWAP</code></td>
+<td>Read from swap partition</td>
+<td>Heap memory under pressure, <code>shm_open()</code></td>
+</tr>
+<tr>
+<td><code>OBJT_DEFAULT</code></td>
+<td>Zero-filled on demand</td>
+<td>Fresh <code>malloc()</code>, new stack pages</td>
+</tr>
+<tr>
+<td><code>OBJT_DEVICE</code></td>
+<td>Device provides pages</td>
+<td>GPU memory, framebuffers</td>
+</tr>
+<tr>
+<td><code>OBJT_MGTDEVICE</code></td>
+<td>Device manages page lifecycle</td>
+<td>Modern GPU drivers</td>
+</tr>
+</tbody>
+</table>
+<p><strong>How does copy-on-write work efficiently?</strong></p>
+<p>When <code>fork()</code> creates a child process, copying all memory would be prohibitively slow. Instead, the child's <code>vm_map_backing</code> structures point to the <em>same</em> objects as the parent. Pages are marked read-only; only when either process writes does the kernel copy the page. The object is the shared foundation that makes COW possible.</p>
+<p><strong>How does the kernel track dirty pages for writeback?</strong></p>
+<p>The filesystem syncer needs to know which files have modified pages. Rather than scanning all pages in the system, it checks <code>OBJ_MIGHTBEDIRTY</code> on vnode objects. Objects aggregate page state, making system-wide operations tractable.</p>
+<hr/>
+<h2 id="the-life-of-an-object">The Life of an Object<a class="headerlink" href="#the-life-of-an-object" title="Permanent link">¶</a></h2>
+<p>Objects transition through different types and states during their lifetime:</p>
+<pre class="mermaid"><code>flowchart TB
+    subgraph CREATION["Creation"]
+        ALLOC["vm_object_allocate()"]
+        DEFAULT["OBJT_DEFAULT<br/>Anonymous, zero-filled"]
+        VNODE["OBJT_VNODE<br/>File-backed"]
+        DEVICE["OBJT_DEVICE<br/>Device memory"]
+    end
+
+    subgraph ACTIVE["Active Life"]
+        REF["ref_count &gt; 0<br/>In use by mappings"]
+        PAGES["Pages accumulate<br/>in rb_memq tree"]
+        DIRTY["OBJ_MIGHTBEDIRTY<br/>Has modified pages"]
+    end
+
+    subgraph PRESSURE["Memory Pressure"]
+        SWAP_CONVERT["OBJT_DEFAULT → OBJT_SWAP<br/>First page pushed to swap"]
+        CLEAN["vm_object_page_clean()<br/>Write dirty pages"]
+        PAGEOUT["Pages moved to<br/>inactive/cache queues"]
+    end
+
+    subgraph DEATH["Termination"]
+        DEAD["OBJ_DEAD set<br/>ref_count = 0"]
+        WAIT["Wait for<br/>paging_in_progress = 0"]
+        FREE["All pages freed<br/>Object destroyed"]
+    end
+
+    ALLOC --&gt; DEFAULT
+    ALLOC --&gt; VNODE
+    ALLOC --&gt; DEVICE
+    DEFAULT --&gt; REF
+    VNODE --&gt; REF
+    DEVICE --&gt; REF
+    REF --&gt; PAGES
+    PAGES --&gt; DIRTY
+    DIRTY --&gt; SWAP_CONVERT
+    DIRTY --&gt; CLEAN
+    SWAP_CONVERT --&gt; PAGEOUT
+    CLEAN --&gt; PAGEOUT
+    REF --&gt;|"last reference dropped"| DEAD
+    DEAD --&gt; WAIT
+    WAIT --&gt; FREE
+</code></pre>
+<p><strong>Key transitions:</strong></p>
+<ol>
+<li>
+<p><strong>DEFAULT → SWAP</strong>: When memory pressure forces an anonymous page to swap, the object silently converts from <code>OBJT_DEFAULT</code> to <code>OBJT_SWAP</code>. The first <code>swp_pager_meta_build()</code> call triggers this.</p>
+</li>
+<li>
+<p><strong>Active → Dead</strong>: When <code>ref_count</code> drops to zero, <code>vm_object_terminate()</code> sets <code>OBJ_DEAD</code> and begins teardown. The object can't accept new references.</p>
+</li>
+<li>
+<p><strong>Dead → Freed</strong>: The object waits for <code>paging_in_progress</code> to reach zero (no pending I/O), frees all pages, notifies the pager, and finally frees itself when <code>hold_count</code> reaches zero.</p>
+</li>
+</ol>
+<hr/>
+<h2 id="key-design-principles">Key Design Principles<a class="headerlink" href="#key-design-principles" title="Permanent link">¶</a></h2>
+<table>
+<thead>
+<tr>
+<th>Problem</th>
+<th>Without Objects</th>
+<th>DragonFly's Solution</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Shared file mappings</strong></td>
+<td>Each process has separate pages; no coherence</td>
+<td>Single object per vnode; all mappings share pages</td>
+</tr>
+<tr>
+<td><strong>Page fault handling</strong></td>
+<td>Fault handler needs to know backing store type</td>
+<td>Object's <code>type</code> field selects appropriate pager</td>
+</tr>
+<tr>
+<td><strong>Copy-on-write</strong></td>
+<td>Full copy on fork (slow, wasteful)</td>
+<td>Child references same objects; COW on write</td>
+</tr>
+<tr>
+<td><strong>Dirty page tracking</strong></td>
+<td>Scan all pages to find dirty ones</td>
+<td><code>OBJ_MIGHTBEDIRTY</code> flag aggregates state</td>
+</tr>
+<tr>
+<td><strong>Lock contention</strong></td>
+<td>Single lock for all pages</td>
+<td>Per-object LWKT token; operations on different objects don't contend</td>
+</tr>
+<tr>
+<td><strong>Reference counting races</strong></td>
+<td>Complex locking for ref count changes</td>
+<td>Atomic ops + hold_count pattern for safe access</td>
+</tr>
+<tr>
+<td><strong>Page lookup</strong></td>
+<td>Linear scan or hash table</td>
+<td>Per-object RB tree; O(log n) by page index</td>
+</tr>
+</tbody>
+</table>
+<hr/>
 <h2 id="where-objects-fit-in-the-vm-hierarchy">Where Objects Fit in the VM Hierarchy<a class="headerlink" href="#where-objects-fit-in-the-vm-hierarchy" title="Permanent link">¶</a></h2>
-<pre class="mermaid"><code>flowchart LR
+<pre class="mermaid"><code>flowchart TB
     subgraph User["USER PROCESS"]
         mmap["ptr = mmap(file)"]
     end
@@ -2133,6 +2474,101 @@
 </tr>
 </tbody>
 </table>
+<hr/>
+<h2 id="common-usage-patterns">Common Usage Patterns<a class="headerlink" href="#common-usage-patterns" title="Permanent link">¶</a></h2>
+<h3 id="pattern-1-allocating-an-anonymous-object">Pattern 1: Allocating an Anonymous Object<a class="headerlink" href="#pattern-1-allocating-an-anonymous-object" title="Permanent link">¶</a></h3>
+<p>When kernel code needs a private, anonymous memory region (e.g., for a new process's stack):</p>
+<div class="highlight"><pre><span></span><code><a href="#__codelineno-15-1" id="__codelineno-15-1" name="__codelineno-15-1"></a><span class="n">vm_object_t</span><span class="w"> </span><span class="n">object</span><span class="p">;</span>
+<a href="#__codelineno-15-2" id="__codelineno-15-2" name="__codelineno-15-2"></a>
+<a href="#__codelineno-15-3" id="__codelineno-15-3" name="__codelineno-15-3"></a><span class="cm">/* Allocate a 16-page anonymous object */</span>
+<a href="#__codelineno-15-4" id="__codelineno-15-4" name="__codelineno-15-4"></a><span class="n">object</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">vm_object_allocate</span><span class="p">(</span><span class="n">OBJT_DEFAULT</span><span class="p">,</span><span class="w"> </span><span class="mi">16</span><span class="p">);</span>
+<a href="#__codelineno-15-5" id="__codelineno-15-5" name="__codelineno-15-5"></a>
+<a href="#__codelineno-15-6" id="__codelineno-15-6" name="__codelineno-15-6"></a><span class="cm">/* Object starts with ref_count=1, no pages yet */</span>
+<a href="#__codelineno-15-7" id="__codelineno-15-7" name="__codelineno-15-7"></a><span class="cm">/* Pages will be zero-filled on first fault */</span>
+<a href="#__codelineno-15-8" id="__codelineno-15-8" name="__codelineno-15-8"></a>
+<a href="#__codelineno-15-9" id="__codelineno-15-9" name="__codelineno-15-9"></a><span class="cm">/* Later, when done: */</span>
+<a href="#__codelineno-15-10" id="__codelineno-15-10" name="__codelineno-15-10"></a><span class="n">vm_object_deallocate</span><span class="p">(</span><span class="n">object</span><span class="p">);</span>
+</code></pre></div>
+<h3 id="pattern-2-working-with-an-object-safely">Pattern 2: Working with an Object Safely<a class="headerlink" href="#pattern-2-working-with-an-object-safely" title="Permanent link">¶</a></h3>
+<p>The hold/drop pattern ensures an object won't disappear while you're using it:</p>
+<div class="highlight"><pre><span></span><code><a href="#__codelineno-16-1" id="__codelineno-16-1" name="__codelineno-16-1"></a><span class="n">vm_object_t</span><span class="w"> </span><span class="n">object</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="cm">/* obtained from somewhere */</span><span class="p">;</span>
+<a href="#__codelineno-16-2" id="__codelineno-16-2" name="__codelineno-16-2"></a>
+<a href="#__codelineno-16-3" id="__codelineno-16-3" name="__codelineno-16-3"></a><span class="cm">/* Acquire hold + exclusive token (may block) */</span>
+<a href="#__codelineno-16-4" id="__codelineno-16-4" name="__codelineno-16-4"></a><span class="n">vm_object_hold</span><span class="p">(</span><span class="n">object</span><span class="p">);</span>
+<a href="#__codelineno-16-5" id="__codelineno-16-5" name="__codelineno-16-5"></a>
+<a href="#__codelineno-16-6" id="__codelineno-16-6" name="__codelineno-16-6"></a><span class="cm">/* Safe to access object fields and pages */</span>
+<a href="#__codelineno-16-7" id="__codelineno-16-7" name="__codelineno-16-7"></a><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">object</span><span class="o">-&gt;</span><span class="n">resident_page_count</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<a href="#__codelineno-16-8" id="__codelineno-16-8" name="__codelineno-16-8"></a><span class="w">    </span><span class="n">vm_page_t</span><span class="w"> </span><span class="n">p</span><span class="p">;</span>
+<a href="#__codelineno-16-9" id="__codelineno-16-9" name="__codelineno-16-9"></a><span class="w">    </span><span class="cm">/* Iterate pages in RB tree */</span>
+<a href="#__codelineno-16-10" id="__codelineno-16-10" name="__codelineno-16-10"></a><span class="w">    </span><span class="n">RB_FOREACH</span><span class="p">(</span><span class="n">p</span><span class="p">,</span><span class="w"> </span><span class="n">vm_page_rb_tree</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">object</span><span class="o">-&gt;</span><span class="n">rb_memq</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<a href="#__codelineno-16-11" id="__codelineno-16-11" name="__codelineno-16-11"></a><span class="w">        </span><span class="cm">/* Process page */</span>
+<a href="#__codelineno-16-12" id="__codelineno-16-12" name="__codelineno-16-12"></a><span class="w">    </span><span class="p">}</span>
+<a href="#__codelineno-16-13" id="__codelineno-16-13" name="__codelineno-16-13"></a><span class="p">}</span>
+<a href="#__codelineno-16-14" id="__codelineno-16-14" name="__codelineno-16-14"></a>
+<a href="#__codelineno-16-15" id="__codelineno-16-15" name="__codelineno-16-15"></a><span class="cm">/* Release hold + token */</span>
+<a href="#__codelineno-16-16" id="__codelineno-16-16" name="__codelineno-16-16"></a><span class="n">vm_object_drop</span><span class="p">(</span><span class="n">object</span><span class="p">);</span>
+</code></pre></div>
+<h3 id="pattern-3-cleaning-dirty-pages-before-unmount">Pattern 3: Cleaning Dirty Pages Before Unmount<a class="headerlink" href="#pattern-3-cleaning-dirty-pages-before-unmount" title="Permanent link">¶</a></h3>
+<p>Filesystems call this to flush modified pages back to disk:</p>
+<div class="highlight"><pre><span></span><code><a href="#__codelineno-17-1" id="__codelineno-17-1" name="__codelineno-17-1"></a><span class="n">vm_object_t</span><span class="w"> </span><span class="n">object</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">vp</span><span class="o">-&gt;</span><span class="n">v_object</span><span class="p">;</span>
+<a href="#__codelineno-17-2" id="__codelineno-17-2" name="__codelineno-17-2"></a>
+<a href="#__codelineno-17-3" id="__codelineno-17-3" name="__codelineno-17-3"></a><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">object</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="nb">NULL</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<a href="#__codelineno-17-4" id="__codelineno-17-4" name="__codelineno-17-4"></a><span class="w">    </span><span class="n">vm_object_hold</span><span class="p">(</span><span class="n">object</span><span class="p">);</span>
+<a href="#__codelineno-17-5" id="__codelineno-17-5" name="__codelineno-17-5"></a>
+<a href="#__codelineno-17-6" id="__codelineno-17-6" name="__codelineno-17-6"></a><span class="w">    </span><span class="cm">/* Synchronously clean all pages, invalidate after */</span>
+<a href="#__codelineno-17-7" id="__codelineno-17-7" name="__codelineno-17-7"></a><span class="w">    </span><span class="n">vm_object_page_clean</span><span class="p">(</span><span class="n">object</span><span class="p">,</span><span class="w"> </span>
+<a href="#__codelineno-17-8" id="__codelineno-17-8" name="__codelineno-17-8"></a><span class="w">                         </span><span class="mi">0</span><span class="p">,</span><span class="w">                  </span><span class="cm">/* start page index */</span>
+<a href="#__codelineno-17-9" id="__codelineno-17-9" name="__codelineno-17-9"></a><span class="w">                         </span><span class="n">object</span><span class="o">-&gt;</span><span class="n">size</span><span class="p">,</span><span class="w">       </span><span class="cm">/* end page index */</span>
+<a href="#__codelineno-17-10" id="__codelineno-17-10" name="__codelineno-17-10"></a><span class="w">                         </span><span class="n">OBJPC_SYNC</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">OBJPC_INVAL</span><span class="p">);</span>
+<a href="#__codelineno-17-11" id="__codelineno-17-11" name="__codelineno-17-11"></a>
+<a href="#__codelineno-17-12" id="__codelineno-17-12" name="__codelineno-17-12"></a><span class="w">    </span><span class="n">vm_object_drop</span><span class="p">(</span><span class="n">object</span><span class="p">);</span>
+<a href="#__codelineno-17-13" id="__codelineno-17-13" name="__codelineno-17-13"></a><span class="p">}</span>
+</code></pre></div>
+<h3 id="pattern-4-looking-up-a-page-in-an-object">Pattern 4: Looking Up a Page in an Object<a class="headerlink" href="#pattern-4-looking-up-a-page-in-an-object" title="Permanent link">¶</a></h3>
+<p>Finding a specific page by its index within an object:</p>
+<div class="highlight"><pre><span></span><code><a href="#__codelineno-18-1" id="__codelineno-18-1" name="__codelineno-18-1"></a><span class="n">vm_object_hold</span><span class="p">(</span><span class="n">object</span><span class="p">);</span>
+<a href="#__codelineno-18-2" id="__codelineno-18-2" name="__codelineno-18-2"></a>
+<a href="#__codelineno-18-3" id="__codelineno-18-3" name="__codelineno-18-3"></a><span class="n">vm_page_t</span><span class="w"> </span><span class="n">page</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">vm_page_lookup</span><span class="p">(</span><span class="n">object</span><span class="p">,</span><span class="w"> </span><span class="n">pindex</span><span class="p">);</span>
+<a href="#__codelineno-18-4" id="__codelineno-18-4" name="__codelineno-18-4"></a><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">page</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="nb">NULL</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<a href="#__codelineno-18-5" id="__codelineno-18-5" name="__codelineno-18-5"></a><span class="w">    </span><span class="cm">/* Page exists in object's rb_memq */</span>
+<a href="#__codelineno-18-6" id="__codelineno-18-6" name="__codelineno-18-6"></a><span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">page</span><span class="o">-&gt;</span><span class="n">valid</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">VM_PAGE_BITS_ALL</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<a href="#__codelineno-18-7" id="__codelineno-18-7" name="__codelineno-18-7"></a><span class="w">        </span><span class="cm">/* Page is fully valid, can be used */</span>
+<a href="#__codelineno-18-8" id="__codelineno-18-8" name="__codelineno-18-8"></a><span class="w">    </span><span class="p">}</span>
+<a href="#__codelineno-18-9" id="__codelineno-18-9" name="__codelineno-18-9"></a><span class="p">}</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="p">{</span>
+<a href="#__codelineno-18-10" id="__codelineno-18-10" name="__codelineno-18-10"></a><span class="w">    </span><span class="cm">/* Page not resident - would need fault or explicit alloc */</span>
+<a href="#__codelineno-18-11" id="__codelineno-18-11" name="__codelineno-18-11"></a><span class="p">}</span>
+<a href="#__codelineno-18-12" id="__codelineno-18-12" name="__codelineno-18-12"></a>
+<a href="#__codelineno-18-13" id="__codelineno-18-13" name="__codelineno-18-13"></a><span class="n">vm_object_drop</span><span class="p">(</span><span class="n">object</span><span class="p">);</span>
+</code></pre></div>
+<h3 id="pattern-5-handling-object-type-transitions">Pattern 5: Handling Object Type Transitions<a class="headerlink" href="#pattern-5-handling-object-type-transitions" title="Permanent link">¶</a></h3>
+<p>Anonymous objects silently convert to swap-backed when pages are pushed out:</p>
+<div class="highlight"><pre><span></span><code><a href="#__codelineno-19-1" id="__codelineno-19-1" name="__codelineno-19-1"></a><span class="cm">/* Initially OBJT_DEFAULT */</span>
+<a href="#__codelineno-19-2" id="__codelineno-19-2" name="__codelineno-19-2"></a><span class="n">object</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">vm_object_allocate</span><span class="p">(</span><span class="n">OBJT_DEFAULT</span><span class="p">,</span><span class="w"> </span><span class="n">size</span><span class="p">);</span>
+<a href="#__codelineno-19-3" id="__codelineno-19-3" name="__codelineno-19-3"></a>
+<a href="#__codelineno-19-4" id="__codelineno-19-4" name="__codelineno-19-4"></a><span class="cm">/* ... pages faulted in, memory pressure occurs ... */</span>
+<a href="#__codelineno-19-5" id="__codelineno-19-5" name="__codelineno-19-5"></a>
+<a href="#__codelineno-19-6" id="__codelineno-19-6" name="__codelineno-19-6"></a><span class="cm">/* Swap pager converts type when storing first page */</span>
+<a href="#__codelineno-19-7" id="__codelineno-19-7" name="__codelineno-19-7"></a><span class="cm">/* In swap_pager.c: */</span>
+<a href="#__codelineno-19-8" id="__codelineno-19-8" name="__codelineno-19-8"></a><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">object</span><span class="o">-&gt;</span><span class="n">type</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">OBJT_DEFAULT</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<a href="#__codelineno-19-9" id="__codelineno-19-9" name="__codelineno-19-9"></a><span class="w">    </span><span class="n">object</span><span class="o">-&gt;</span><span class="n">type</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">OBJT_SWAP</span><span class="p">;</span>
+<a href="#__codelineno-19-10" id="__codelineno-19-10" name="__codelineno-19-10"></a><span class="w">    </span><span class="n">object</span><span class="o">-&gt;</span><span class="n">un_pager</span><span class="p">.</span><span class="n">swp</span><span class="p">.</span><span class="n">swp_blks</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">NULL</span><span class="p">;</span>
+<a href="#__codelineno-19-11" id="__codelineno-19-11" name="__codelineno-19-11"></a><span class="p">}</span>
+<a href="#__codelineno-19-12" id="__codelineno-19-12" name="__codelineno-19-12"></a>
+<a href="#__codelineno-19-13" id="__codelineno-19-13" name="__codelineno-19-13"></a><span class="cm">/* Code should handle both types for anonymous memory */</span>
+<a href="#__codelineno-19-14" id="__codelineno-19-14" name="__codelineno-19-14"></a><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">object</span><span class="o">-&gt;</span><span class="n">type</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">OBJT_DEFAULT</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="n">object</span><span class="o">-&gt;</span><span class="n">type</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">OBJT_SWAP</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<a href="#__codelineno-19-15" id="__codelineno-19-15" name="__codelineno-19-15"></a><span class="w">    </span><span class="cm">/* Anonymous memory handling */</span>
+<a href="#__codelineno-19-16" id="__codelineno-19-16" name="__codelineno-19-16"></a><span class="p">}</span>
+</code></pre></div>
+<hr/>
+<h2 id="further-reading">Further Reading<a class="headerlink" href="#further-reading" title="Permanent link">¶</a></h2>
+<ul>
+<li><strong>"The Design and Implementation of the 4.4BSD Operating System"</strong> (McKusick et al.) - Chapter 5 covers the VM system design that DragonFly inherited and evolved</li>
+<li><strong>"Design elements of the FreeBSD VM system"</strong> - <a href="https://docs.freebsd.org/en/books/arch-handbook/vm/">FreeBSD Architecture Handbook</a> - DragonFly's VM has diverged but shares heritage</li>
+<li><strong>DragonFly commit history for vm_object.c</strong> - Shows evolution of LWKT tokens, backing_list, and other DragonFly-specific changes</li>
+<li><a href="../vm_page/">vm_page.md</a> - Physical page management, closely related to object page operations</li>
+<li><a href="../vm_fault/">vm_fault.md</a> - How page faults interact with objects to populate pages</li>
+</ul>
+<hr/>
 <h2 id="see-also">See Also<a class="headerlink" href="#see-also" title="Permanent link">¶</a></h2>
 <ul>
 <li><a href="../">VM Subsystem Overview</a> - Architecture overview</li>
