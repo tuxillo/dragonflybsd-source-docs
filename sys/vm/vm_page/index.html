@@ -10,9 +10,9 @@
 <link href="../concepts/" rel="prev"/>
 <link href="../vm_object/" rel="next"/>
 <link href="../../../assets/images/favicon.png" rel="icon"/>
-<meta content="mkdocs-1.6.1, mkdocs-material-9.7.0" name="generator"/>
+<meta content="mkdocs-1.6.1, mkdocs-material-9.7.1" name="generator"/>
 <title>Physical Pages - DragonFly BSD Kernel Documentation</title>
-<link href="../../../assets/stylesheets/main.618322db.min.css" rel="stylesheet"/>
+<link href="../../../assets/stylesheets/main.484c7ddc.min.css" rel="stylesheet"/>
 <link href="../../../assets/stylesheets/palette.ab4e12ef.min.css" rel="stylesheet"/>
 <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
 <link href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&amp;display=fallback" rel="stylesheet"/>
@@ -959,6 +959,24 @@
     </label>
 <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix="">
 <li class="md-nav__item">
+<a class="md-nav__link" href="#why-physical-page-management-matters">
+<span class="md-ellipsis">
+      
+        Why Physical Page Management Matters
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#the-life-of-a-page">
+<span class="md-ellipsis">
+      
+        The Life of a Page
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
 <a class="md-nav__link" href="#when-you-need-this">
 <span class="md-ellipsis">
       
@@ -978,10 +996,77 @@
 <nav aria-label="Overview" class="md-nav">
 <ul class="md-nav__list">
 <li class="md-nav__item">
-<a class="md-nav__link" href="#key-concepts">
+<a class="md-nav__link" href="#key-design-principles">
 <span class="md-ellipsis">
       
-        Key Concepts
+        Key Design Principles
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#why-five-queues">
+<span class="md-ellipsis">
+      
+        Why Five Queues?
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#dragonfly-specific-design-choices">
+<span class="md-ellipsis">
+      
+        DragonFly-Specific Design Choices
+      
+    </span>
+</a>
+<nav aria-label="DragonFly-Specific Design Choices" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#1024-color-page-queues">
+<span class="md-ellipsis">
+      
+        1024-Color Page Queues
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#atomic-busy-counts-vs-locks">
+<span class="md-ellipsis">
+      
+        Atomic Busy Counts vs. Locks
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#per-cpu-statistics">
+<span class="md-ellipsis">
+      
+        Per-CPU Statistics
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#numa-aware-coloring">
+<span class="md-ellipsis">
+      
+        NUMA-Aware Coloring
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#nice-aware-paging-thresholds">
+<span class="md-ellipsis">
+      
+        Nice-Aware Paging Thresholds
       
     </span>
 </a>
@@ -1440,10 +1525,59 @@
 </a>
 </li>
 <li class="md-nav__item">
-<a class="md-nav__link" href="#per-cpu-statistics">
+<a class="md-nav__link" href="#per-cpu-statistics_1">
 <span class="md-ellipsis">
       
         Per-CPU Statistics
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#common-usage-patterns">
+<span class="md-ellipsis">
+      
+        Common Usage Patterns
+      
+    </span>
+</a>
+<nav aria-label="Common Usage Patterns" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#pattern-1-page-fault-allocation">
+<span class="md-ellipsis">
+      
+        Pattern 1: Page Fault Allocation
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#pattern-2-pageout-daemon-scanning">
+<span class="md-ellipsis">
+      
+        Pattern 2: Pageout Daemon Scanning
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#pattern-3-driver-dma-buffer">
+<span class="md-ellipsis">
+      
+        Pattern 3: Driver DMA Buffer
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#pattern-4-wiring-pages-for-io">
+<span class="md-ellipsis">
+      
+        Pattern 4: Wiring Pages for I/O
       
     </span>
 </a>
@@ -1483,13 +1617,44 @@
 </nav>
 </li>
 <li class="md-nav__item">
-<a class="md-nav__link" href="#dragonfly-specific-features">
+<a class="md-nav__link" href="#further-reading">
 <span class="md-ellipsis">
       
-        DragonFly-Specific Features
+        Further Reading
       
     </span>
 </a>
+<nav aria-label="Further Reading" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#dragonfly-resources">
+<span class="md-ellipsis">
+      
+        DragonFly Resources
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#external-resources">
+<span class="md-ellipsis">
+      
+        External Resources
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#source-files">
+<span class="md-ellipsis">
+      
+        Source Files
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
 </li>
 <li class="md-nav__item">
 <a class="md-nav__link" href="#see-also">
@@ -1622,6 +1787,24 @@
     </label>
 <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix="">
 <li class="md-nav__item">
+<a class="md-nav__link" href="#why-physical-page-management-matters">
+<span class="md-ellipsis">
+      
+        Why Physical Page Management Matters
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#the-life-of-a-page">
+<span class="md-ellipsis">
+      
+        The Life of a Page
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
 <a class="md-nav__link" href="#when-you-need-this">
 <span class="md-ellipsis">
       
@@ -1641,10 +1824,77 @@
 <nav aria-label="Overview" class="md-nav">
 <ul class="md-nav__list">
 <li class="md-nav__item">
-<a class="md-nav__link" href="#key-concepts">
+<a class="md-nav__link" href="#key-design-principles">
 <span class="md-ellipsis">
       
-        Key Concepts
+        Key Design Principles
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#why-five-queues">
+<span class="md-ellipsis">
+      
+        Why Five Queues?
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#dragonfly-specific-design-choices">
+<span class="md-ellipsis">
+      
+        DragonFly-Specific Design Choices
+      
+    </span>
+</a>
+<nav aria-label="DragonFly-Specific Design Choices" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#1024-color-page-queues">
+<span class="md-ellipsis">
+      
+        1024-Color Page Queues
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#atomic-busy-counts-vs-locks">
+<span class="md-ellipsis">
+      
+        Atomic Busy Counts vs. Locks
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#per-cpu-statistics">
+<span class="md-ellipsis">
+      
+        Per-CPU Statistics
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#numa-aware-coloring">
+<span class="md-ellipsis">
+      
+        NUMA-Aware Coloring
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#nice-aware-paging-thresholds">
+<span class="md-ellipsis">
+      
+        Nice-Aware Paging Thresholds
       
     </span>
 </a>
@@ -2103,10 +2353,59 @@
 </a>
 </li>
 <li class="md-nav__item">
-<a class="md-nav__link" href="#per-cpu-statistics">
+<a class="md-nav__link" href="#per-cpu-statistics_1">
 <span class="md-ellipsis">
       
         Per-CPU Statistics
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#common-usage-patterns">
+<span class="md-ellipsis">
+      
+        Common Usage Patterns
+      
+    </span>
+</a>
+<nav aria-label="Common Usage Patterns" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#pattern-1-page-fault-allocation">
+<span class="md-ellipsis">
+      
+        Pattern 1: Page Fault Allocation
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#pattern-2-pageout-daemon-scanning">
+<span class="md-ellipsis">
+      
+        Pattern 2: Pageout Daemon Scanning
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#pattern-3-driver-dma-buffer">
+<span class="md-ellipsis">
+      
+        Pattern 3: Driver DMA Buffer
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#pattern-4-wiring-pages-for-io">
+<span class="md-ellipsis">
+      
+        Pattern 4: Wiring Pages for I/O
       
     </span>
 </a>
@@ -2146,13 +2445,44 @@
 </nav>
 </li>
 <li class="md-nav__item">
-<a class="md-nav__link" href="#dragonfly-specific-features">
+<a class="md-nav__link" href="#further-reading">
 <span class="md-ellipsis">
       
-        DragonFly-Specific Features
+        Further Reading
       
     </span>
 </a>
+<nav aria-label="Further Reading" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#dragonfly-resources">
+<span class="md-ellipsis">
+      
+        DragonFly Resources
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#external-resources">
+<span class="md-ellipsis">
+      
+        External Resources
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#source-files">
+<span class="md-ellipsis">
+      
+        Source Files
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
 </li>
 <li class="md-nav__item">
 <a class="md-nav__link" href="#see-also">
@@ -2173,6 +2503,53 @@
 <h1 id="physical-page-management">Physical Page Management<a class="headerlink" href="#physical-page-management" title="Permanent link">¶</a></h1>
 <p>This document describes DragonFly BSD's physical page management subsystem, implemented in <code>sys/vm/vm_page.c</code>. The subsystem manages all physical memory pages in the system, including allocation, freeing, queue management, and state transitions.</p>
 <p><strong>Source file:</strong> <code>sys/vm/vm_page.c</code> (~4,200 lines)</p>
+<hr/>
+<h2 id="why-physical-page-management-matters">Why Physical Page Management Matters<a class="headerlink" href="#why-physical-page-management-matters" title="Permanent link">¶</a></h2>
+<p>Physical memory is a finite resource that every process, the kernel, and the filesystem cache compete for. The page management subsystem is the arbiter of this competition—it decides which processes get memory, which pages stay resident, and which get evicted to disk.</p>
+<p>Without sophisticated page management:</p>
+<ul>
+<li><strong>Lock contention</strong> would serialize all memory operations on multi-core systems</li>
+<li><strong>Memory fragmentation</strong> would prevent allocation of contiguous regions for DMA</li>
+<li><strong>Unfair allocation</strong> would let memory-hungry processes starve others</li>
+<li><strong>Poor locality</strong> would cause cache misses as CPUs access remote NUMA memory</li>
+</ul>
+<p>DragonFly's page management addresses these with 1024-way queue coloring (reducing lock contention), NUMA-aware allocation (improving locality), and nice-aware paging thresholds (ensuring fairness).</p>
+<hr/>
+<h2 id="the-life-of-a-page">The Life of a Page<a class="headerlink" href="#the-life-of-a-page" title="Permanent link">¶</a></h2>
+<p>Before diving into data structures, it helps to understand the typical journey of a physical page:</p>
+<pre class="mermaid"><code>flowchart LR
+    subgraph BIRTH["Birth"]
+        BOOT["System boot"]
+        FREE1["Page added to<br/>PQ_FREE queue"]
+    end
+
+    subgraph LIFE["Active Life"]
+        ALLOC["vm_page_alloc()<br/>Page assigned to object"]
+        ACTIVE["PQ_ACTIVE<br/>Recently used"]
+        INACTIVE["PQ_INACTIVE<br/>Aging, candidate<br/>for reclaim"]
+    end
+
+    subgraph DEATH["Reclamation"]
+        CACHE["PQ_CACHE<br/>Clean, unmapped,<br/>quickly reusable"]
+        FREE2["PQ_FREE<br/>Available again"]
+    end
+
+    BOOT --&gt; FREE1
+    FREE1 --&gt;|"fault or<br/>explicit alloc"| ALLOC
+    ALLOC --&gt; ACTIVE
+    ACTIVE --&gt;|"not referenced<br/>recently"| INACTIVE
+    INACTIVE --&gt;|"cleaned by<br/>pageout"| CACHE
+    INACTIVE --&gt;|"referenced<br/>again"| ACTIVE
+    CACHE --&gt;|"stolen for<br/>new alloc"| FREE2
+    FREE2 --&gt;|"new fault"| ALLOC
+</code></pre>
+<p><strong>1. Birth (Boot):</strong> During system startup, <code>vm_page_startup()</code> creates a <code>struct vm_page</code> for every physical page and places them on <code>PQ_FREE</code> queues.</p>
+<p><strong>2. Allocation:</strong> When a page fault occurs or the kernel needs memory, <code>vm_page_alloc()</code> pulls a page from <code>PQ_FREE</code>, associates it with a <code>vm_object</code>, and marks it busy while I/O loads its contents.</p>
+<p><strong>3. Active Use:</strong> The page lives on <code>PQ_ACTIVE</code> while processes access it. Each access refreshes its "activity count," keeping it resident.</p>
+<p><strong>4. Aging:</strong> If a page isn't accessed for a while, the pageout daemon moves it to <code>PQ_INACTIVE</code>. This is a "second chance"—if accessed again, it returns to <code>PQ_ACTIVE</code>.</p>
+<p><strong>5. Cleaning:</strong> If the page remains inactive and is dirty, the pageout daemon writes it to its backing store (swap or file). Now clean, it moves to <code>PQ_CACHE</code>.</p>
+<p><strong>6. Reclamation:</strong> <code>PQ_CACHE</code> pages are still valid but unmapped. If memory pressure rises, they're the first victims—instantly reusable without I/O. Otherwise, they may be reactivated if faulted again.</p>
+<p><strong>7. Rebirth:</strong> Eventually the page returns to <code>PQ_FREE</code>, ready for a new allocation.</p>
 <hr/>
 <h2 id="when-you-need-this">When You Need This<a class="headerlink" href="#when-you-need-this" title="Permanent link">¶</a></h2>
 <table>
@@ -2219,23 +2596,134 @@
 <hr/>
 <h2 id="overview">Overview<a class="headerlink" href="#overview" title="Permanent link">¶</a></h2>
 <p>Every physical page in the system is represented by a <code>struct vm_page</code> (128 bytes). These structures are stored in a global array (<code>vm_page_array</code>) and indexed by physical page number. The VM system organizes pages into multiple queues based on their state and uses sophisticated coloring and NUMA-aware algorithms to optimize memory locality.</p>
-<h3 id="key-concepts">Key Concepts<a class="headerlink" href="#key-concepts" title="Permanent link">¶</a></h3>
+<h3 id="key-design-principles">Key Design Principles<a class="headerlink" href="#key-design-principles" title="Permanent link">¶</a></h3>
+<table>
+<thead>
+<tr>
+<th>Principle</th>
+<th>Problem Solved</th>
+<th>DragonFly's Solution</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Page coloring</strong></td>
+<td>Lock contention on page queues</td>
+<td>1024 sub-queues per queue type; each CPU typically hits different queues</td>
+</tr>
+<tr>
+<td><strong>NUMA awareness</strong></td>
+<td>Cross-socket memory latency</td>
+<td>Color calculation incorporates socket/core topology</td>
+</tr>
+<tr>
+<td><strong>Atomic busy state</strong></td>
+<td>Lock overhead for page access</td>
+<td>Busy counts instead of locks; soft-busy for shared access</td>
+</tr>
+<tr>
+<td><strong>Per-CPU statistics</strong></td>
+<td>Cache-line bouncing on global counters</td>
+<td>Each CPU caches vmstats locally; periodic rollup to global</td>
+</tr>
+</tbody>
+</table>
+<h3 id="why-five-queues">Why Five Queues?<a class="headerlink" href="#why-five-queues" title="Permanent link">¶</a></h3>
+<p>The five page queues implement a <strong>multi-stage replacement policy</strong> that balances responsiveness with efficiency:</p>
+<table>
+<thead>
+<tr>
+<th>Queue</th>
+<th>Purpose</th>
+<th>Why It Exists</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>PQ_FREE</code></td>
+<td>Immediately allocatable</td>
+<td>Fast allocation without any cleanup needed</td>
+</tr>
+<tr>
+<td><code>PQ_ACTIVE</code></td>
+<td>Recently used pages</td>
+<td>Protects working set from premature eviction</td>
+</tr>
+<tr>
+<td><code>PQ_INACTIVE</code></td>
+<td>Second-chance candidates</td>
+<td>Gives pages time to be re-referenced before eviction</td>
+</tr>
+<tr>
+<td><code>PQ_CACHE</code></td>
+<td>Clean, valid, unmapped</td>
+<td>Zero-cost reuse if same data needed; instant free otherwise</td>
+</tr>
+<tr>
+<td><code>PQ_HOLD</code></td>
+<td>Temporarily pinned</td>
+<td>Prevents race conditions during sensitive operations</td>
+</tr>
+</tbody>
+</table>
+<p>This design avoids the pathological behavior of simpler schemes:
+- Pure LRU would evict pages that happen to be accessed in large sequential scans
+- Pure FIFO would evict frequently-used pages just because they're old
+- The active/inactive split approximates LRU while the cache queue enables instant reclamation of clean pages</p>
+<h2 id="dragonfly-specific-design-choices">DragonFly-Specific Design Choices<a class="headerlink" href="#dragonfly-specific-design-choices" title="Permanent link">¶</a></h2>
+<p>This section explains <em>why</em> DragonFly's page management differs from traditional BSD.</p>
+<h3 id="1024-color-page-queues">1024-Color Page Queues<a class="headerlink" href="#1024-color-page-queues" title="Permanent link">¶</a></h3>
+<p>Traditional BSD systems use a single lock per queue type. On a 64-core system, this becomes a severe bottleneck—every page allocation/free contends on the same lock.</p>
+<p>DragonFly divides each queue type into 1024 sub-queues ("colors"). The page color is derived from its physical address and CPU topology, so:</p>
 <ul>
-<li><strong>Page coloring</strong>: Pages are distributed across 1024 queues per queue type to reduce lock contention and improve cache behavior</li>
-<li><strong>NUMA awareness</strong>: Page allocation considers CPU topology to prefer local memory</li>
-<li><strong>Busy state</strong>: Pages use atomic busy/soft-busy counts instead of traditional locks</li>
-<li><strong>Per-CPU statistics</strong>: Reduces cache-line bouncing by caching vmstats locally</li>
+<li>CPUs on different sockets naturally hit different queue subsets</li>
+<li>Even CPUs on the same socket distribute across colors</li>
+<li>Lock contention drops by ~1000x compared to single-queue designs</li>
 </ul>
+<p>The 1024 value balances granularity (more = less contention) against memory overhead (each queue has its own spinlock and list head).</p>
+<h3 id="atomic-busy-counts-vs-locks">Atomic Busy Counts vs. Locks<a class="headerlink" href="#atomic-busy-counts-vs-locks" title="Permanent link">¶</a></h3>
+<p>Traditional BSD uses <code>lockmgr</code> locks on pages. DragonFly replaces this with atomic busy counts:</p>
+<div class="highlight"><pre><span></span><code><a href="#__codelineno-0-1" id="__codelineno-0-1" name="__codelineno-0-1"></a>busy_count field:
+<a href="#__codelineno-0-2" id="__codelineno-0-2" name="__codelineno-0-2"></a>  [31]    PBUSY_LOCKED   - Hard busy (exclusive)
+<a href="#__codelineno-0-3" id="__codelineno-0-3" name="__codelineno-0-3"></a>  [30]    PBUSY_WANTED   - Someone waiting
+<a href="#__codelineno-0-4" id="__codelineno-0-4" name="__codelineno-0-4"></a>  [29]    PBUSY_SWAPINPROG - Swap I/O active
+<a href="#__codelineno-0-5" id="__codelineno-0-5" name="__codelineno-0-5"></a>  [28:0]  Soft-busy count (shared)
+</code></pre></div>
+<p>Benefits:
+- <strong>No lock structure overhead</strong> per page
+- <strong>Soft-busy allows concurrency</strong>: Multiple readers can soft-busy a page simultaneously
+- <strong>Atomic operations</strong> are faster than lock acquire/release cycles
+- <strong>Integrates with LWKT</strong>: Waiters use <code>tsleep()</code>/<code>wakeup()</code> patterns</p>
+<h3 id="per-cpu-statistics">Per-CPU Statistics<a class="headerlink" href="#per-cpu-statistics" title="Permanent link">¶</a></h3>
+<p>Global <code>vmstats</code> would cause cache-line bouncing on every alloc/free. DragonFly caches adjustments per-CPU:</p>
+<div class="highlight"><pre><span></span><code><a href="#__codelineno-1-1" id="__codelineno-1-1" name="__codelineno-1-1"></a><span class="n">mycpu</span><span class="o">-&gt;</span><span class="n">gd_vmstats_adj</span><span class="p">.</span><span class="n">v_free_count</span><span class="w"> </span><span class="o">+=</span><span class="w"> </span><span class="n">delta</span><span class="p">;</span><span class="w">  </span><span class="c1">// Fast, local</span>
+<a href="#__codelineno-1-2" id="__codelineno-1-2" name="__codelineno-1-2"></a><span class="c1">// Periodically or when threshold exceeded:</span>
+<a href="#__codelineno-1-3" id="__codelineno-1-3" name="__codelineno-1-3"></a><span class="n">atomic_add</span><span class="p">(</span><span class="o">&amp;</span><span class="n">vmstats</span><span class="p">.</span><span class="n">v_free_count</span><span class="p">,</span><span class="w"> </span><span class="n">accumulated_delta</span><span class="p">);</span><span class="w">  </span><span class="c1">// Slow, global</span>
+</code></pre></div>
+<p>This reduces cross-CPU cache invalidations from O(allocations) to O(sync_intervals).</p>
+<h3 id="numa-aware-coloring">NUMA-Aware Coloring<a class="headerlink" href="#numa-aware-coloring" title="Permanent link">¶</a></h3>
+<p>On NUMA systems, accessing memory on a remote socket incurs 2-3x latency. DragonFly's <code>vm_get_pg_color()</code> encodes CPU topology into the color:</p>
+<div class="highlight"><pre><span></span><code><a href="#__codelineno-2-1" id="__codelineno-2-1" name="__codelineno-2-1"></a>Color bits: [socket_id][core_id][ht_id][set_associativity]
+</code></pre></div>
+<p>Result: A CPU naturally allocates pages from queues that contain pages physically close to it.</p>
+<h3 id="nice-aware-paging-thresholds">Nice-Aware Paging Thresholds<a class="headerlink" href="#nice-aware-paging-thresholds" title="Permanent link">¶</a></h3>
+<p>When memory is low, all processes compete to allocate. Traditional systems give equal priority to all. DragonFly adjusts paging thresholds based on process nice value:</p>
+<ul>
+<li>Nice 0 process: blocks at <code>v_free_min</code></li>
+<li>Nice +10 process: blocks earlier (at higher free count)</li>
+<li>Nice -10 process: blocks later (can dig deeper into reserves)</li>
+</ul>
+<p>This prevents a <code>nice +19</code> background job from consuming memory needed by interactive processes.</p>
 <hr/>
 <h2 id="data-structures">Data Structures<a class="headerlink" href="#data-structures" title="Permanent link">¶</a></h2>
 <h3 id="page-array">Page Array<a class="headerlink" href="#page-array" title="Permanent link">¶</a></h3>
-<div class="highlight"><pre><span></span><code><a href="#__codelineno-0-1" id="__codelineno-0-1" name="__codelineno-0-1"></a><span class="n">vm_page_t</span><span class="w"> </span><span class="n">vm_page_array</span><span class="p">;</span><span class="w">           </span><span class="c1">// Global array of all vm_page structures</span>
-<a href="#__codelineno-0-2" id="__codelineno-0-2" name="__codelineno-0-2"></a><span class="n">vm_pindex_t</span><span class="w"> </span><span class="n">vm_page_array_size</span><span class="p">;</span><span class="w">    </span><span class="c1">// Number of entries</span>
-<a href="#__codelineno-0-3" id="__codelineno-0-3" name="__codelineno-0-3"></a><span class="n">vm_pindex_t</span><span class="w"> </span><span class="n">first_page</span><span class="p">;</span><span class="w">            </span><span class="c1">// First physical page index</span>
+<div class="highlight"><pre><span></span><code><a href="#__codelineno-3-1" id="__codelineno-3-1" name="__codelineno-3-1"></a><span class="n">vm_page_t</span><span class="w"> </span><span class="n">vm_page_array</span><span class="p">;</span><span class="w">           </span><span class="c1">// Global array of all vm_page structures</span>
+<a href="#__codelineno-3-2" id="__codelineno-3-2" name="__codelineno-3-2"></a><span class="n">vm_pindex_t</span><span class="w"> </span><span class="n">vm_page_array_size</span><span class="p">;</span><span class="w">    </span><span class="c1">// Number of entries</span>
+<a href="#__codelineno-3-3" id="__codelineno-3-3" name="__codelineno-3-3"></a><span class="n">vm_pindex_t</span><span class="w"> </span><span class="n">first_page</span><span class="p">;</span><span class="w">            </span><span class="c1">// First physical page index</span>
 </code></pre></div>
 <p>The macro <code>PHYS_TO_VM_PAGE(pa)</code> converts a physical address to its corresponding <code>vm_page</code> pointer.</p>
 <h3 id="page-queues">Page Queues<a class="headerlink" href="#page-queues" title="Permanent link">¶</a></h3>
-<div class="highlight"><pre><span></span><code><a href="#__codelineno-1-1" id="__codelineno-1-1" name="__codelineno-1-1"></a><span class="k">struct</span><span class="w"> </span><span class="nc">vpgqueues</span><span class="w"> </span><span class="n">vm_page_queues</span><span class="p">[</span><span class="n">PQ_COUNT</span><span class="p">];</span>
+<div class="highlight"><pre><span></span><code><a href="#__codelineno-4-1" id="__codelineno-4-1" name="__codelineno-4-1"></a><span class="k">struct</span><span class="w"> </span><span class="nc">vpgqueues</span><span class="w"> </span><span class="n">vm_page_queues</span><span class="p">[</span><span class="n">PQ_COUNT</span><span class="p">];</span>
 </code></pre></div>
 <p>Five queue types, each with 1024 color variants (<code>PQ_L2_SIZE</code>):</p>
 <table>
@@ -2275,12 +2763,12 @@
 - <code>lastq</code> - Heuristic for skipping empty queues</p>
 <h3 id="page-hash-table">Page Hash Table<a class="headerlink" href="#page-hash-table" title="Permanent link">¶</a></h3>
 <p>A lockless heuristic cache for fast page lookups:</p>
-<div class="highlight"><pre><span></span><code><a href="#__codelineno-2-1" id="__codelineno-2-1" name="__codelineno-2-1"></a><span class="k">struct</span><span class="w"> </span><span class="nc">vm_page_hash_elm</span><span class="w"> </span><span class="p">{</span>
-<a href="#__codelineno-2-2" id="__codelineno-2-2" name="__codelineno-2-2"></a><span class="w">    </span><span class="n">vm_page_t</span><span class="w">   </span><span class="n">m</span><span class="p">;</span>
-<a href="#__codelineno-2-3" id="__codelineno-2-3" name="__codelineno-2-3"></a><span class="w">    </span><span class="n">vm_object_t</span><span class="w"> </span><span class="n">object</span><span class="p">;</span><span class="w">   </span><span class="c1">// Cached for fast comparison</span>
-<a href="#__codelineno-2-4" id="__codelineno-2-4" name="__codelineno-2-4"></a><span class="w">    </span><span class="n">vm_pindex_t</span><span class="w"> </span><span class="n">pindex</span><span class="p">;</span><span class="w">   </span><span class="c1">// Cached for fast comparison</span>
-<a href="#__codelineno-2-5" id="__codelineno-2-5" name="__codelineno-2-5"></a><span class="w">    </span><span class="kt">int</span><span class="w">         </span><span class="n">ticks</span><span class="p">;</span><span class="w">    </span><span class="c1">// LRU timestamp</span>
-<a href="#__codelineno-2-6" id="__codelineno-2-6" name="__codelineno-2-6"></a><span class="p">};</span>
+<div class="highlight"><pre><span></span><code><a href="#__codelineno-5-1" id="__codelineno-5-1" name="__codelineno-5-1"></a><span class="k">struct</span><span class="w"> </span><span class="nc">vm_page_hash_elm</span><span class="w"> </span><span class="p">{</span>
+<a href="#__codelineno-5-2" id="__codelineno-5-2" name="__codelineno-5-2"></a><span class="w">    </span><span class="n">vm_page_t</span><span class="w">   </span><span class="n">m</span><span class="p">;</span>
+<a href="#__codelineno-5-3" id="__codelineno-5-3" name="__codelineno-5-3"></a><span class="w">    </span><span class="n">vm_object_t</span><span class="w"> </span><span class="n">object</span><span class="p">;</span><span class="w">   </span><span class="c1">// Cached for fast comparison</span>
+<a href="#__codelineno-5-4" id="__codelineno-5-4" name="__codelineno-5-4"></a><span class="w">    </span><span class="n">vm_pindex_t</span><span class="w"> </span><span class="n">pindex</span><span class="p">;</span><span class="w">   </span><span class="c1">// Cached for fast comparison</span>
+<a href="#__codelineno-5-5" id="__codelineno-5-5" name="__codelineno-5-5"></a><span class="w">    </span><span class="kt">int</span><span class="w">         </span><span class="n">ticks</span><span class="p">;</span><span class="w">    </span><span class="c1">// LRU timestamp</span>
+<a href="#__codelineno-5-6" id="__codelineno-5-6" name="__codelineno-5-6"></a><span class="p">};</span>
 </code></pre></div>
 <ul>
 <li>4-way set associative (<code>VM_PAGE_HASH_SET</code>)</li>
@@ -2301,16 +2789,16 @@
 </ol>
 <h3 id="page-color-calculation">Page Color Calculation<a class="headerlink" href="#page-color-calculation" title="Permanent link">¶</a></h3>
 <p>During boot, page colors are calculated with CPU locality twisting:</p>
-<div class="highlight"><pre><span></span><code><a href="#__codelineno-3-1" id="__codelineno-3-1" name="__codelineno-3-1"></a><span class="n">m</span><span class="o">-&gt;</span><span class="n">pc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="n">pa</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="n">PAGE_SHIFT</span><span class="p">);</span>
-<a href="#__codelineno-3-2" id="__codelineno-3-2" name="__codelineno-3-2"></a><span class="n">m</span><span class="o">-&gt;</span><span class="n">pc</span><span class="w"> </span><span class="o">^=</span><span class="w"> </span><span class="p">((</span><span class="n">pa</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="n">PAGE_SHIFT</span><span class="p">)</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="n">PQ_L2_SIZE</span><span class="p">);</span>
-<a href="#__codelineno-3-3" id="__codelineno-3-3" name="__codelineno-3-3"></a><span class="n">m</span><span class="o">-&gt;</span><span class="n">pc</span><span class="w"> </span><span class="o">^=</span><span class="w"> </span><span class="p">((</span><span class="n">pa</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="n">PAGE_SHIFT</span><span class="p">)</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="p">(</span><span class="n">PQ_L2_SIZE</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">PQ_L2_SIZE</span><span class="p">));</span>
-<a href="#__codelineno-3-4" id="__codelineno-3-4" name="__codelineno-3-4"></a><span class="n">m</span><span class="o">-&gt;</span><span class="n">pc</span><span class="w"> </span><span class="o">&amp;=</span><span class="w"> </span><span class="n">PQ_L2_MASK</span><span class="p">;</span>
+<div class="highlight"><pre><span></span><code><a href="#__codelineno-6-1" id="__codelineno-6-1" name="__codelineno-6-1"></a><span class="n">m</span><span class="o">-&gt;</span><span class="n">pc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="n">pa</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="n">PAGE_SHIFT</span><span class="p">);</span>
+<a href="#__codelineno-6-2" id="__codelineno-6-2" name="__codelineno-6-2"></a><span class="n">m</span><span class="o">-&gt;</span><span class="n">pc</span><span class="w"> </span><span class="o">^=</span><span class="w"> </span><span class="p">((</span><span class="n">pa</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="n">PAGE_SHIFT</span><span class="p">)</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="n">PQ_L2_SIZE</span><span class="p">);</span>
+<a href="#__codelineno-6-3" id="__codelineno-6-3" name="__codelineno-6-3"></a><span class="n">m</span><span class="o">-&gt;</span><span class="n">pc</span><span class="w"> </span><span class="o">^=</span><span class="w"> </span><span class="p">((</span><span class="n">pa</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="n">PAGE_SHIFT</span><span class="p">)</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="p">(</span><span class="n">PQ_L2_SIZE</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">PQ_L2_SIZE</span><span class="p">));</span>
+<a href="#__codelineno-6-4" id="__codelineno-6-4" name="__codelineno-6-4"></a><span class="n">m</span><span class="o">-&gt;</span><span class="n">pc</span><span class="w"> </span><span class="o">&amp;=</span><span class="w"> </span><span class="n">PQ_L2_MASK</span><span class="p">;</span>
 </code></pre></div>
 <p>This distributes pages across queues while maintaining locality.</p>
 <h3 id="numa-organization">NUMA Organization<a class="headerlink" href="#numa-organization" title="Permanent link">¶</a></h3>
 <p><code>vm_numa_organize()</code> reorganizes page colors based on physical socket ID:</p>
-<div class="highlight"><pre><span></span><code><a href="#__codelineno-4-1" id="__codelineno-4-1" name="__codelineno-4-1"></a><span class="n">socket_mod</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">PQ_L2_SIZE</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="n">cpu_topology_phys_ids</span><span class="p">;</span>
-<a href="#__codelineno-4-2" id="__codelineno-4-2" name="__codelineno-4-2"></a><span class="n">socket_value</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="n">physid</span><span class="w"> </span><span class="o">%</span><span class="w"> </span><span class="n">cpu_topology_phys_ids</span><span class="p">)</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">socket_mod</span><span class="p">;</span>
+<div class="highlight"><pre><span></span><code><a href="#__codelineno-7-1" id="__codelineno-7-1" name="__codelineno-7-1"></a><span class="n">socket_mod</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">PQ_L2_SIZE</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="n">cpu_topology_phys_ids</span><span class="p">;</span>
+<a href="#__codelineno-7-2" id="__codelineno-7-2" name="__codelineno-7-2"></a><span class="n">socket_value</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="n">physid</span><span class="w"> </span><span class="o">%</span><span class="w"> </span><span class="n">cpu_topology_phys_ids</span><span class="p">)</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">socket_mod</span><span class="p">;</span>
 </code></pre></div>
 <p><code>vm_numa_organize_finalize()</code> then balances queues to prevent empty queues that would force cross-socket borrowing.</p>
 <h3 id="dma-reserve">DMA Reserve<a class="headerlink" href="#dma-reserve" title="Permanent link">¶</a></h3>
@@ -2324,7 +2812,7 @@
 <h2 id="page-allocation">Page Allocation<a class="headerlink" href="#page-allocation" title="Permanent link">¶</a></h2>
 <h3 id="vm_page_alloc"><code>vm_page_alloc()</code><a class="headerlink" href="#vm_page_alloc" title="Permanent link">¶</a></h3>
 <p>The primary page allocation function.</p>
-<div class="highlight"><pre><span></span><code><a href="#__codelineno-5-1" id="__codelineno-5-1" name="__codelineno-5-1"></a><span class="n">vm_page_t</span><span class="w"> </span><span class="nf">vm_page_alloc</span><span class="p">(</span><span class="n">vm_object_t</span><span class="w"> </span><span class="n">object</span><span class="p">,</span><span class="w"> </span><span class="n">vm_pindex_t</span><span class="w"> </span><span class="n">pindex</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">page_req</span><span class="p">);</span>
+<div class="highlight"><pre><span></span><code><a href="#__codelineno-8-1" id="__codelineno-8-1" name="__codelineno-8-1"></a><span class="n">vm_page_t</span><span class="w"> </span><span class="nf">vm_page_alloc</span><span class="p">(</span><span class="n">vm_object_t</span><span class="w"> </span><span class="n">object</span><span class="p">,</span><span class="w"> </span><span class="n">vm_pindex_t</span><span class="w"> </span><span class="n">pindex</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">page_req</span><span class="p">);</span>
 </code></pre></div>
 <p><strong>Allocation flags:</strong></p>
 <table>
@@ -2376,15 +2864,15 @@
 </ol>
 <h3 id="cpu-localized-color-selection">CPU-Localized Color Selection<a class="headerlink" href="#cpu-localized-color-selection" title="Permanent link">¶</a></h3>
 <p><code>vm_get_pg_color()</code> calculates colors considering CPU topology:</p>
-<div class="highlight"><pre><span></span><code><a href="#__codelineno-6-1" id="__codelineno-6-1" name="__codelineno-6-1"></a><span class="c1">// General format: [phys_id][core_id][cpuid][set-associativity]</span>
-<a href="#__codelineno-6-2" id="__codelineno-6-2" name="__codelineno-6-2"></a><span class="n">physcale</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">PQ_L2_SIZE</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="n">cpu_topology_phys_ids</span><span class="p">;</span>
-<a href="#__codelineno-6-3" id="__codelineno-6-3" name="__codelineno-6-3"></a><span class="n">grpscale</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">physcale</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="n">cpu_topology_core_ids</span><span class="p">;</span>
-<a href="#__codelineno-6-4" id="__codelineno-6-4" name="__codelineno-6-4"></a><span class="n">cpuscale</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">grpscale</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="n">cpu_topology_ht_ids</span><span class="p">;</span>
-<a href="#__codelineno-6-5" id="__codelineno-6-5" name="__codelineno-6-5"></a>
-<a href="#__codelineno-6-6" id="__codelineno-6-6" name="__codelineno-6-6"></a><span class="n">pg_color</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">phys_id</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">physcale</span><span class="p">;</span>
-<a href="#__codelineno-6-7" id="__codelineno-6-7" name="__codelineno-6-7"></a><span class="n">pg_color</span><span class="w"> </span><span class="o">+=</span><span class="w"> </span><span class="n">core_id</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">grpscale</span><span class="p">;</span>
-<a href="#__codelineno-6-8" id="__codelineno-6-8" name="__codelineno-6-8"></a><span class="n">pg_color</span><span class="w"> </span><span class="o">+=</span><span class="w"> </span><span class="n">ht_id</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">cpuscale</span><span class="p">;</span>
-<a href="#__codelineno-6-9" id="__codelineno-6-9" name="__codelineno-6-9"></a><span class="n">pg_color</span><span class="w"> </span><span class="o">+=</span><span class="w"> </span><span class="p">(</span><span class="n">pindex</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">object_pg_color</span><span class="p">)</span><span class="w"> </span><span class="o">%</span><span class="w"> </span><span class="n">cpuscale</span><span class="p">;</span>
+<div class="highlight"><pre><span></span><code><a href="#__codelineno-9-1" id="__codelineno-9-1" name="__codelineno-9-1"></a><span class="c1">// General format: [phys_id][core_id][cpuid][set-associativity]</span>
+<a href="#__codelineno-9-2" id="__codelineno-9-2" name="__codelineno-9-2"></a><span class="n">physcale</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">PQ_L2_SIZE</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="n">cpu_topology_phys_ids</span><span class="p">;</span>
+<a href="#__codelineno-9-3" id="__codelineno-9-3" name="__codelineno-9-3"></a><span class="n">grpscale</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">physcale</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="n">cpu_topology_core_ids</span><span class="p">;</span>
+<a href="#__codelineno-9-4" id="__codelineno-9-4" name="__codelineno-9-4"></a><span class="n">cpuscale</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">grpscale</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="n">cpu_topology_ht_ids</span><span class="p">;</span>
+<a href="#__codelineno-9-5" id="__codelineno-9-5" name="__codelineno-9-5"></a>
+<a href="#__codelineno-9-6" id="__codelineno-9-6" name="__codelineno-9-6"></a><span class="n">pg_color</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">phys_id</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">physcale</span><span class="p">;</span>
+<a href="#__codelineno-9-7" id="__codelineno-9-7" name="__codelineno-9-7"></a><span class="n">pg_color</span><span class="w"> </span><span class="o">+=</span><span class="w"> </span><span class="n">core_id</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">grpscale</span><span class="p">;</span>
+<a href="#__codelineno-9-8" id="__codelineno-9-8" name="__codelineno-9-8"></a><span class="n">pg_color</span><span class="w"> </span><span class="o">+=</span><span class="w"> </span><span class="n">ht_id</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">cpuscale</span><span class="p">;</span>
+<a href="#__codelineno-9-9" id="__codelineno-9-9" name="__codelineno-9-9"></a><span class="n">pg_color</span><span class="w"> </span><span class="o">+=</span><span class="w"> </span><span class="p">(</span><span class="n">pindex</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">object_pg_color</span><span class="p">)</span><span class="w"> </span><span class="o">%</span><span class="w"> </span><span class="n">cpuscale</span><span class="p">;</span>
 </code></pre></div>
 <h3 id="queue-search-algorithm">Queue Search Algorithm<a class="headerlink" href="#queue-search-algorithm" title="Permanent link">¶</a></h3>
 <p><code>_vm_page_list_find()</code> searches for pages with widening locality:</p>
@@ -2396,11 +2884,11 @@
 </ol>
 <h3 id="contiguous-allocation">Contiguous Allocation<a class="headerlink" href="#contiguous-allocation" title="Permanent link">¶</a></h3>
 <p>For DMA and device drivers requiring physically contiguous memory:</p>
-<div class="highlight"><pre><span></span><code><a href="#__codelineno-7-1" id="__codelineno-7-1" name="__codelineno-7-1"></a><span class="n">vm_page_t</span><span class="w"> </span><span class="nf">vm_page_alloc_contig</span><span class="p">(</span><span class="n">vm_paddr_t</span><span class="w"> </span><span class="n">low</span><span class="p">,</span><span class="w"> </span><span class="n">vm_paddr_t</span><span class="w"> </span><span class="n">high</span><span class="p">,</span>
-<a href="#__codelineno-7-2" id="__codelineno-7-2" name="__codelineno-7-2"></a><span class="w">                               </span><span class="kt">unsigned</span><span class="w"> </span><span class="kt">long</span><span class="w"> </span><span class="n">alignment</span><span class="p">,</span>
-<a href="#__codelineno-7-3" id="__codelineno-7-3" name="__codelineno-7-3"></a><span class="w">                               </span><span class="kt">unsigned</span><span class="w"> </span><span class="kt">long</span><span class="w"> </span><span class="n">boundary</span><span class="p">,</span>
-<a href="#__codelineno-7-4" id="__codelineno-7-4" name="__codelineno-7-4"></a><span class="w">                               </span><span class="kt">unsigned</span><span class="w"> </span><span class="kt">long</span><span class="w"> </span><span class="n">size</span><span class="p">,</span>
-<a href="#__codelineno-7-5" id="__codelineno-7-5" name="__codelineno-7-5"></a><span class="w">                               </span><span class="n">vm_memattr_t</span><span class="w"> </span><span class="n">memattr</span><span class="p">);</span>
+<div class="highlight"><pre><span></span><code><a href="#__codelineno-10-1" id="__codelineno-10-1" name="__codelineno-10-1"></a><span class="n">vm_page_t</span><span class="w"> </span><span class="nf">vm_page_alloc_contig</span><span class="p">(</span><span class="n">vm_paddr_t</span><span class="w"> </span><span class="n">low</span><span class="p">,</span><span class="w"> </span><span class="n">vm_paddr_t</span><span class="w"> </span><span class="n">high</span><span class="p">,</span>
+<a href="#__codelineno-10-2" id="__codelineno-10-2" name="__codelineno-10-2"></a><span class="w">                               </span><span class="kt">unsigned</span><span class="w"> </span><span class="kt">long</span><span class="w"> </span><span class="n">alignment</span><span class="p">,</span>
+<a href="#__codelineno-10-3" id="__codelineno-10-3" name="__codelineno-10-3"></a><span class="w">                               </span><span class="kt">unsigned</span><span class="w"> </span><span class="kt">long</span><span class="w"> </span><span class="n">boundary</span><span class="p">,</span>
+<a href="#__codelineno-10-4" id="__codelineno-10-4" name="__codelineno-10-4"></a><span class="w">                               </span><span class="kt">unsigned</span><span class="w"> </span><span class="kt">long</span><span class="w"> </span><span class="n">size</span><span class="p">,</span>
+<a href="#__codelineno-10-5" id="__codelineno-10-5" name="__codelineno-10-5"></a><span class="w">                               </span><span class="n">vm_memattr_t</span><span class="w"> </span><span class="n">memattr</span><span class="p">);</span>
 </code></pre></div>
 <p>Uses the <code>vm_contig_alist</code> allocator for low-memory DMA pages.</p>
 <h3 id="other-allocation-functions">Other Allocation Functions<a class="headerlink" href="#other-allocation-functions" title="Permanent link">¶</a></h3>
@@ -2473,9 +2961,9 @@
 <p>DragonFly uses atomic busy counts instead of traditional locks.</p>
 <h3 id="hard-busy-pbusy_locked">Hard Busy (<code>PBUSY_LOCKED</code>)<a class="headerlink" href="#hard-busy-pbusy_locked" title="Permanent link">¶</a></h3>
 <p>Exclusive access to the page.</p>
-<div class="highlight"><pre><span></span><code><a href="#__codelineno-8-1" id="__codelineno-8-1" name="__codelineno-8-1"></a><span class="kt">void</span><span class="w"> </span><span class="nf">vm_page_busy_wait</span><span class="p">(</span><span class="n">vm_page_t</span><span class="w"> </span><span class="n">m</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">also_m_busy</span><span class="p">,</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="n">msg</span><span class="p">);</span>
-<a href="#__codelineno-8-2" id="__codelineno-8-2" name="__codelineno-8-2"></a><span class="kt">int</span><span class="w">  </span><span class="nf">vm_page_busy_try</span><span class="p">(</span><span class="n">vm_page_t</span><span class="w"> </span><span class="n">m</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">also_m_busy</span><span class="p">);</span>
-<a href="#__codelineno-8-3" id="__codelineno-8-3" name="__codelineno-8-3"></a><span class="kt">void</span><span class="w"> </span><span class="nf">vm_page_wakeup</span><span class="p">(</span><span class="n">vm_page_t</span><span class="w"> </span><span class="n">m</span><span class="p">);</span>
+<div class="highlight"><pre><span></span><code><a href="#__codelineno-11-1" id="__codelineno-11-1" name="__codelineno-11-1"></a><span class="kt">void</span><span class="w"> </span><span class="nf">vm_page_busy_wait</span><span class="p">(</span><span class="n">vm_page_t</span><span class="w"> </span><span class="n">m</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">also_m_busy</span><span class="p">,</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="n">msg</span><span class="p">);</span>
+<a href="#__codelineno-11-2" id="__codelineno-11-2" name="__codelineno-11-2"></a><span class="kt">int</span><span class="w">  </span><span class="nf">vm_page_busy_try</span><span class="p">(</span><span class="n">vm_page_t</span><span class="w"> </span><span class="n">m</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">also_m_busy</span><span class="p">);</span>
+<a href="#__codelineno-11-3" id="__codelineno-11-3" name="__codelineno-11-3"></a><span class="kt">void</span><span class="w"> </span><span class="nf">vm_page_wakeup</span><span class="p">(</span><span class="n">vm_page_t</span><span class="w"> </span><span class="n">m</span><span class="p">);</span>
 </code></pre></div>
 <ul>
 <li><code>vm_page_busy_wait()</code>: Blocks until page not busy</li>
@@ -2484,17 +2972,17 @@
 </ul>
 <h3 id="soft-busy-pbusy_mask">Soft Busy (<code>PBUSY_MASK</code>)<a class="headerlink" href="#soft-busy-pbusy_mask" title="Permanent link">¶</a></h3>
 <p>Shared access for compatible operations (e.g., read-only mapping during write).</p>
-<div class="highlight"><pre><span></span><code><a href="#__codelineno-9-1" id="__codelineno-9-1" name="__codelineno-9-1"></a><span class="kt">void</span><span class="w"> </span><span class="nf">vm_page_io_start</span><span class="p">(</span><span class="n">vm_page_t</span><span class="w"> </span><span class="n">m</span><span class="p">);</span><span class="w">   </span><span class="c1">// Increment soft-busy (requires hard-busy)</span>
-<a href="#__codelineno-9-2" id="__codelineno-9-2" name="__codelineno-9-2"></a><span class="kt">void</span><span class="w"> </span><span class="nf">vm_page_io_finish</span><span class="p">(</span><span class="n">vm_page_t</span><span class="w"> </span><span class="n">m</span><span class="p">);</span><span class="w">  </span><span class="c1">// Decrement soft-busy</span>
-<a href="#__codelineno-9-3" id="__codelineno-9-3" name="__codelineno-9-3"></a><span class="kt">int</span><span class="w">  </span><span class="nf">vm_page_sbusy_try</span><span class="p">(</span><span class="n">vm_page_t</span><span class="w"> </span><span class="n">m</span><span class="p">);</span><span class="w">  </span><span class="c1">// Non-blocking soft-busy acquire</span>
+<div class="highlight"><pre><span></span><code><a href="#__codelineno-12-1" id="__codelineno-12-1" name="__codelineno-12-1"></a><span class="kt">void</span><span class="w"> </span><span class="nf">vm_page_io_start</span><span class="p">(</span><span class="n">vm_page_t</span><span class="w"> </span><span class="n">m</span><span class="p">);</span><span class="w">   </span><span class="c1">// Increment soft-busy (requires hard-busy)</span>
+<a href="#__codelineno-12-2" id="__codelineno-12-2" name="__codelineno-12-2"></a><span class="kt">void</span><span class="w"> </span><span class="nf">vm_page_io_finish</span><span class="p">(</span><span class="n">vm_page_t</span><span class="w"> </span><span class="n">m</span><span class="p">);</span><span class="w">  </span><span class="c1">// Decrement soft-busy</span>
+<a href="#__codelineno-12-3" id="__codelineno-12-3" name="__codelineno-12-3"></a><span class="kt">int</span><span class="w">  </span><span class="nf">vm_page_sbusy_try</span><span class="p">(</span><span class="n">vm_page_t</span><span class="w"> </span><span class="n">m</span><span class="p">);</span><span class="w">  </span><span class="c1">// Non-blocking soft-busy acquire</span>
 </code></pre></div>
 <h3 id="waiting">Waiting<a class="headerlink" href="#waiting" title="Permanent link">¶</a></h3>
 <p><code>vm_page_sleep_busy()</code> sleeps until page not busy without acquiring it.</p>
 <hr/>
 <h2 id="wireunwire">Wire/Unwire<a class="headerlink" href="#wireunwire" title="Permanent link">¶</a></h2>
 <p>Wiring prevents a page from being paged out.</p>
-<div class="highlight"><pre><span></span><code><a href="#__codelineno-10-1" id="__codelineno-10-1" name="__codelineno-10-1"></a><span class="kt">void</span><span class="w"> </span><span class="nf">vm_page_wire</span><span class="p">(</span><span class="n">vm_page_t</span><span class="w"> </span><span class="n">m</span><span class="p">);</span>
-<a href="#__codelineno-10-2" id="__codelineno-10-2" name="__codelineno-10-2"></a><span class="kt">void</span><span class="w"> </span><span class="nf">vm_page_unwire</span><span class="p">(</span><span class="n">vm_page_t</span><span class="w"> </span><span class="n">m</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">activate</span><span class="p">);</span>
+<div class="highlight"><pre><span></span><code><a href="#__codelineno-13-1" id="__codelineno-13-1" name="__codelineno-13-1"></a><span class="kt">void</span><span class="w"> </span><span class="nf">vm_page_wire</span><span class="p">(</span><span class="n">vm_page_t</span><span class="w"> </span><span class="n">m</span><span class="p">);</span>
+<a href="#__codelineno-13-2" id="__codelineno-13-2" name="__codelineno-13-2"></a><span class="kt">void</span><span class="w"> </span><span class="nf">vm_page_unwire</span><span class="p">(</span><span class="n">vm_page_t</span><span class="w"> </span><span class="n">m</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">activate</span><span class="p">);</span>
 </code></pre></div>
 <ul>
 <li><code>vm_page_wire()</code>: Increments <code>wire_count</code>, adjusts vmstats on 0→1</li>
@@ -2504,27 +2992,27 @@
 <hr/>
 <h2 id="holdunhold">Hold/Unhold<a class="headerlink" href="#holdunhold" title="Permanent link">¶</a></h2>
 <p>Holding prevents page reuse but not disassociation from object.</p>
-<div class="highlight"><pre><span></span><code><a href="#__codelineno-11-1" id="__codelineno-11-1" name="__codelineno-11-1"></a><span class="kt">void</span><span class="w"> </span><span class="nf">vm_page_hold</span><span class="p">(</span><span class="n">vm_page_t</span><span class="w"> </span><span class="n">m</span><span class="p">);</span>
-<a href="#__codelineno-11-2" id="__codelineno-11-2" name="__codelineno-11-2"></a><span class="kt">void</span><span class="w"> </span><span class="nf">vm_page_unhold</span><span class="p">(</span><span class="n">vm_page_t</span><span class="w"> </span><span class="n">m</span><span class="p">);</span>
+<div class="highlight"><pre><span></span><code><a href="#__codelineno-14-1" id="__codelineno-14-1" name="__codelineno-14-1"></a><span class="kt">void</span><span class="w"> </span><span class="nf">vm_page_hold</span><span class="p">(</span><span class="n">vm_page_t</span><span class="w"> </span><span class="n">m</span><span class="p">);</span>
+<a href="#__codelineno-14-2" id="__codelineno-14-2" name="__codelineno-14-2"></a><span class="kt">void</span><span class="w"> </span><span class="nf">vm_page_unhold</span><span class="p">(</span><span class="n">vm_page_t</span><span class="w"> </span><span class="n">m</span><span class="p">);</span>
 </code></pre></div>
 <p>On last unhold, if page is on <code>PQ_HOLD</code>, it moves to <code>PQ_FREE</code>.</p>
 <hr/>
 <h2 id="page-lookup">Page Lookup<a class="headerlink" href="#page-lookup" title="Permanent link">¶</a></h2>
 <h3 id="standard-lookup">Standard Lookup<a class="headerlink" href="#standard-lookup" title="Permanent link">¶</a></h3>
-<div class="highlight"><pre><span></span><code><a href="#__codelineno-12-1" id="__codelineno-12-1" name="__codelineno-12-1"></a><span class="n">vm_page_t</span><span class="w"> </span><span class="nf">vm_page_lookup</span><span class="p">(</span><span class="n">vm_object_t</span><span class="w"> </span><span class="n">object</span><span class="p">,</span><span class="w"> </span><span class="n">vm_pindex_t</span><span class="w"> </span><span class="n">pindex</span><span class="p">);</span>
+<div class="highlight"><pre><span></span><code><a href="#__codelineno-15-1" id="__codelineno-15-1" name="__codelineno-15-1"></a><span class="n">vm_page_t</span><span class="w"> </span><span class="nf">vm_page_lookup</span><span class="p">(</span><span class="n">vm_object_t</span><span class="w"> </span><span class="n">object</span><span class="p">,</span><span class="w"> </span><span class="n">vm_pindex_t</span><span class="w"> </span><span class="n">pindex</span><span class="p">);</span>
 </code></pre></div>
 <p>Requires object token held. Does RB-tree lookup and populates hash cache.</p>
 <h3 id="lookup-busy">Lookup + Busy<a class="headerlink" href="#lookup-busy" title="Permanent link">¶</a></h3>
-<div class="highlight"><pre><span></span><code><a href="#__codelineno-13-1" id="__codelineno-13-1" name="__codelineno-13-1"></a><span class="c1">// Blocking</span>
-<a href="#__codelineno-13-2" id="__codelineno-13-2" name="__codelineno-13-2"></a><span class="n">vm_page_t</span><span class="w"> </span><span class="nf">vm_page_lookup_busy_wait</span><span class="p">(</span><span class="n">vm_object_t</span><span class="w"> </span><span class="n">object</span><span class="p">,</span><span class="w"> </span><span class="n">vm_pindex_t</span><span class="w"> </span><span class="n">pindex</span><span class="p">,</span>
-<a href="#__codelineno-13-3" id="__codelineno-13-3" name="__codelineno-13-3"></a><span class="w">                                   </span><span class="kt">int</span><span class="w"> </span><span class="n">also_m_busy</span><span class="p">,</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="n">msg</span><span class="p">);</span>
-<a href="#__codelineno-13-4" id="__codelineno-13-4" name="__codelineno-13-4"></a>
-<a href="#__codelineno-13-5" id="__codelineno-13-5" name="__codelineno-13-5"></a><span class="c1">// Non-blocking</span>
-<a href="#__codelineno-13-6" id="__codelineno-13-6" name="__codelineno-13-6"></a><span class="n">vm_page_t</span><span class="w"> </span><span class="nf">vm_page_lookup_busy_try</span><span class="p">(</span><span class="n">vm_object_t</span><span class="w"> </span><span class="n">object</span><span class="p">,</span><span class="w"> </span><span class="n">vm_pindex_t</span><span class="w"> </span><span class="n">pindex</span><span class="p">,</span>
-<a href="#__codelineno-13-7" id="__codelineno-13-7" name="__codelineno-13-7"></a><span class="w">                                  </span><span class="kt">int</span><span class="w"> </span><span class="n">also_m_busy</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="o">*</span><span class="n">errorp</span><span class="p">);</span>
+<div class="highlight"><pre><span></span><code><a href="#__codelineno-16-1" id="__codelineno-16-1" name="__codelineno-16-1"></a><span class="c1">// Blocking</span>
+<a href="#__codelineno-16-2" id="__codelineno-16-2" name="__codelineno-16-2"></a><span class="n">vm_page_t</span><span class="w"> </span><span class="nf">vm_page_lookup_busy_wait</span><span class="p">(</span><span class="n">vm_object_t</span><span class="w"> </span><span class="n">object</span><span class="p">,</span><span class="w"> </span><span class="n">vm_pindex_t</span><span class="w"> </span><span class="n">pindex</span><span class="p">,</span>
+<a href="#__codelineno-16-3" id="__codelineno-16-3" name="__codelineno-16-3"></a><span class="w">                                   </span><span class="kt">int</span><span class="w"> </span><span class="n">also_m_busy</span><span class="p">,</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="n">msg</span><span class="p">);</span>
+<a href="#__codelineno-16-4" id="__codelineno-16-4" name="__codelineno-16-4"></a>
+<a href="#__codelineno-16-5" id="__codelineno-16-5" name="__codelineno-16-5"></a><span class="c1">// Non-blocking</span>
+<a href="#__codelineno-16-6" id="__codelineno-16-6" name="__codelineno-16-6"></a><span class="n">vm_page_t</span><span class="w"> </span><span class="nf">vm_page_lookup_busy_try</span><span class="p">(</span><span class="n">vm_object_t</span><span class="w"> </span><span class="n">object</span><span class="p">,</span><span class="w"> </span><span class="n">vm_pindex_t</span><span class="w"> </span><span class="n">pindex</span><span class="p">,</span>
+<a href="#__codelineno-16-7" id="__codelineno-16-7" name="__codelineno-16-7"></a><span class="w">                                  </span><span class="kt">int</span><span class="w"> </span><span class="n">also_m_busy</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="o">*</span><span class="n">errorp</span><span class="p">);</span>
 </code></pre></div>
 <h3 id="fast-heuristic-lookup">Fast Heuristic Lookup<a class="headerlink" href="#fast-heuristic-lookup" title="Permanent link">¶</a></h3>
-<div class="highlight"><pre><span></span><code><a href="#__codelineno-14-1" id="__codelineno-14-1" name="__codelineno-14-1"></a><span class="n">vm_page_t</span><span class="w"> </span><span class="nf">vm_page_hash_get</span><span class="p">(</span><span class="n">vm_object_t</span><span class="w"> </span><span class="n">object</span><span class="p">,</span><span class="w"> </span><span class="n">vm_pindex_t</span><span class="w"> </span><span class="n">pindex</span><span class="p">);</span>
+<div class="highlight"><pre><span></span><code><a href="#__codelineno-17-1" id="__codelineno-17-1" name="__codelineno-17-1"></a><span class="n">vm_page_t</span><span class="w"> </span><span class="nf">vm_page_hash_get</span><span class="p">(</span><span class="n">vm_object_t</span><span class="w"> </span><span class="n">object</span><span class="p">,</span><span class="w"> </span><span class="n">vm_pindex_t</span><span class="w"> </span><span class="n">pindex</span><span class="p">);</span>
 </code></pre></div>
 <p>Lockless lookup returning soft-busied page on hit.</p>
 <hr/>
@@ -2636,17 +3124,104 @@
 <h2 id="locking-rules">Locking Rules<a class="headerlink" href="#locking-rules" title="Permanent link">¶</a></h2>
 <h3 id="queue-operations">Queue Operations<a class="headerlink" href="#queue-operations" title="Permanent link">¶</a></h3>
 <p>Locking order: <strong>Page spinlock first, then queue spinlock</strong></p>
-<div class="highlight"><pre><span></span><code><a href="#__codelineno-15-1" id="__codelineno-15-1" name="__codelineno-15-1"></a><span class="n">vm_page_spin_lock</span><span class="p">(</span><span class="n">m</span><span class="p">);</span><span class="w">           </span><span class="c1">// Lock page</span>
-<a href="#__codelineno-15-2" id="__codelineno-15-2" name="__codelineno-15-2"></a><span class="n">_vm_page_queue_spin_lock</span><span class="p">(</span><span class="n">m</span><span class="p">);</span><span class="w">    </span><span class="c1">// Then lock its queue</span>
-<a href="#__codelineno-15-3" id="__codelineno-15-3" name="__codelineno-15-3"></a><span class="c1">// ... manipulate queue ...</span>
-<a href="#__codelineno-15-4" id="__codelineno-15-4" name="__codelineno-15-4"></a><span class="n">_vm_page_queue_spin_unlock</span><span class="p">(</span><span class="n">m</span><span class="p">);</span><span class="w">  </span><span class="c1">// Unlock queue first</span>
-<a href="#__codelineno-15-5" id="__codelineno-15-5" name="__codelineno-15-5"></a><span class="n">vm_page_spin_unlock</span><span class="p">(</span><span class="n">m</span><span class="p">);</span><span class="w">         </span><span class="c1">// Then unlock page</span>
+<div class="highlight"><pre><span></span><code><a href="#__codelineno-18-1" id="__codelineno-18-1" name="__codelineno-18-1"></a><span class="n">vm_page_spin_lock</span><span class="p">(</span><span class="n">m</span><span class="p">);</span><span class="w">           </span><span class="c1">// Lock page</span>
+<a href="#__codelineno-18-2" id="__codelineno-18-2" name="__codelineno-18-2"></a><span class="n">_vm_page_queue_spin_lock</span><span class="p">(</span><span class="n">m</span><span class="p">);</span><span class="w">    </span><span class="c1">// Then lock its queue</span>
+<a href="#__codelineno-18-3" id="__codelineno-18-3" name="__codelineno-18-3"></a><span class="c1">// ... manipulate queue ...</span>
+<a href="#__codelineno-18-4" id="__codelineno-18-4" name="__codelineno-18-4"></a><span class="n">_vm_page_queue_spin_unlock</span><span class="p">(</span><span class="n">m</span><span class="p">);</span><span class="w">  </span><span class="c1">// Unlock queue first</span>
+<a href="#__codelineno-18-5" id="__codelineno-18-5" name="__codelineno-18-5"></a><span class="n">vm_page_spin_unlock</span><span class="p">(</span><span class="n">m</span><span class="p">);</span><span class="w">         </span><span class="c1">// Then unlock page</span>
 </code></pre></div>
-<h3 id="per-cpu-statistics">Per-CPU Statistics<a class="headerlink" href="#per-cpu-statistics" title="Permanent link">¶</a></h3>
+<h3 id="per-cpu-statistics_1">Per-CPU Statistics<a class="headerlink" href="#per-cpu-statistics_1" title="Permanent link">¶</a></h3>
 <p>Queue adjustments update per-CPU vmstats:
 - <code>mycpu-&gt;gd_vmstats_adj</code> - Accumulated adjustments
 - <code>mycpu-&gt;gd_vmstats</code> - Current view
 - Synchronized to global <code>vmstats</code> periodically or when threshold exceeded</p>
+<hr/>
+<h2 id="common-usage-patterns">Common Usage Patterns<a class="headerlink" href="#common-usage-patterns" title="Permanent link">¶</a></h2>
+<p>This section shows how page management functions work together in typical scenarios.</p>
+<h3 id="pattern-1-page-fault-allocation">Pattern 1: Page Fault Allocation<a class="headerlink" href="#pattern-1-page-fault-allocation" title="Permanent link">¶</a></h3>
+<p>When a process accesses unmapped memory, the fault handler allocates and populates a page:</p>
+<div class="highlight"><pre><span></span><code><a href="#__codelineno-19-1" id="__codelineno-19-1" name="__codelineno-19-1"></a><span class="cm">/* Simplified from vm_fault.c */</span>
+<a href="#__codelineno-19-2" id="__codelineno-19-2" name="__codelineno-19-2"></a><span class="n">vm_object_hold</span><span class="p">(</span><span class="n">object</span><span class="p">);</span>
+<a href="#__codelineno-19-3" id="__codelineno-19-3" name="__codelineno-19-3"></a>
+<a href="#__codelineno-19-4" id="__codelineno-19-4" name="__codelineno-19-4"></a><span class="cm">/* Try to find existing page */</span>
+<a href="#__codelineno-19-5" id="__codelineno-19-5" name="__codelineno-19-5"></a><span class="n">m</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">vm_page_lookup_busy_wait</span><span class="p">(</span><span class="n">object</span><span class="p">,</span><span class="w"> </span><span class="n">pindex</span><span class="p">,</span><span class="w"> </span><span class="n">TRUE</span><span class="p">,</span><span class="w"> </span><span class="s">"fault"</span><span class="p">);</span>
+<a href="#__codelineno-19-6" id="__codelineno-19-6" name="__codelineno-19-6"></a><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">m</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="nb">NULL</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<a href="#__codelineno-19-7" id="__codelineno-19-7" name="__codelineno-19-7"></a><span class="w">    </span><span class="cm">/* Allocate new page - returns BUSY */</span>
+<a href="#__codelineno-19-8" id="__codelineno-19-8" name="__codelineno-19-8"></a><span class="w">    </span><span class="n">m</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">vm_page_alloc</span><span class="p">(</span><span class="n">object</span><span class="p">,</span><span class="w"> </span><span class="n">pindex</span><span class="p">,</span><span class="w"> </span><span class="n">VM_ALLOC_NORMAL</span><span class="p">);</span>
+<a href="#__codelineno-19-9" id="__codelineno-19-9" name="__codelineno-19-9"></a><span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">m</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="nb">NULL</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<a href="#__codelineno-19-10" id="__codelineno-19-10" name="__codelineno-19-10"></a><span class="w">        </span><span class="n">vm_wait_pfault</span><span class="p">(</span><span class="n">curproc</span><span class="p">,</span><span class="w"> </span><span class="n">fault_flags</span><span class="p">);</span><span class="w">  </span><span class="cm">/* Block if low memory */</span>
+<a href="#__codelineno-19-11" id="__codelineno-19-11" name="__codelineno-19-11"></a><span class="w">        </span><span class="cm">/* retry... */</span>
+<a href="#__codelineno-19-12" id="__codelineno-19-12" name="__codelineno-19-12"></a><span class="w">    </span><span class="p">}</span>
+<a href="#__codelineno-19-13" id="__codelineno-19-13" name="__codelineno-19-13"></a>
+<a href="#__codelineno-19-14" id="__codelineno-19-14" name="__codelineno-19-14"></a><span class="w">    </span><span class="cm">/* Page is busy, safe to do I/O */</span>
+<a href="#__codelineno-19-15" id="__codelineno-19-15" name="__codelineno-19-15"></a><span class="w">    </span><span class="n">error</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">pager_getpage</span><span class="p">(</span><span class="n">object</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">m</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">);</span>
+<a href="#__codelineno-19-16" id="__codelineno-19-16" name="__codelineno-19-16"></a>
+<a href="#__codelineno-19-17" id="__codelineno-19-17" name="__codelineno-19-17"></a><span class="w">    </span><span class="cm">/* Mark valid after I/O completes */</span>
+<a href="#__codelineno-19-18" id="__codelineno-19-18" name="__codelineno-19-18"></a><span class="w">    </span><span class="n">vm_page_set_valid</span><span class="p">(</span><span class="n">m</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="n">PAGE_SIZE</span><span class="p">);</span>
+<a href="#__codelineno-19-19" id="__codelineno-19-19" name="__codelineno-19-19"></a><span class="p">}</span>
+<a href="#__codelineno-19-20" id="__codelineno-19-20" name="__codelineno-19-20"></a>
+<a href="#__codelineno-19-21" id="__codelineno-19-21" name="__codelineno-19-21"></a><span class="cm">/* Wire into page table */</span>
+<a href="#__codelineno-19-22" id="__codelineno-19-22" name="__codelineno-19-22"></a><span class="n">pmap_enter</span><span class="p">(</span><span class="n">pmap</span><span class="p">,</span><span class="w"> </span><span class="n">va</span><span class="p">,</span><span class="w"> </span><span class="n">m</span><span class="p">,</span><span class="w"> </span><span class="n">prot</span><span class="p">,</span><span class="w"> </span><span class="n">wired</span><span class="p">);</span>
+<a href="#__codelineno-19-23" id="__codelineno-19-23" name="__codelineno-19-23"></a>
+<a href="#__codelineno-19-24" id="__codelineno-19-24" name="__codelineno-19-24"></a><span class="cm">/* Release busy - page now accessible */</span>
+<a href="#__codelineno-19-25" id="__codelineno-19-25" name="__codelineno-19-25"></a><span class="n">vm_page_wakeup</span><span class="p">(</span><span class="n">m</span><span class="p">);</span>
+<a href="#__codelineno-19-26" id="__codelineno-19-26" name="__codelineno-19-26"></a><span class="n">vm_object_drop</span><span class="p">(</span><span class="n">object</span><span class="p">);</span>
+</code></pre></div>
+<h3 id="pattern-2-pageout-daemon-scanning">Pattern 2: Pageout Daemon Scanning<a class="headerlink" href="#pattern-2-pageout-daemon-scanning" title="Permanent link">¶</a></h3>
+<p>The pageout daemon reclaims memory by scanning inactive pages:</p>
+<div class="highlight"><pre><span></span><code><a href="#__codelineno-20-1" id="__codelineno-20-1" name="__codelineno-20-1"></a><span class="cm">/* Simplified from vm_pageout.c */</span>
+<a href="#__codelineno-20-2" id="__codelineno-20-2" name="__codelineno-20-2"></a><span class="n">TAILQ_FOREACH</span><span class="p">(</span><span class="n">m</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">vm_page_queues</span><span class="p">[</span><span class="n">PQ_INACTIVE</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">color</span><span class="p">].</span><span class="n">pl</span><span class="p">,</span><span class="w"> </span><span class="n">pageq</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<a href="#__codelineno-20-3" id="__codelineno-20-3" name="__codelineno-20-3"></a><span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">vm_page_busy_try</span><span class="p">(</span><span class="n">m</span><span class="p">,</span><span class="w"> </span><span class="n">TRUE</span><span class="p">)</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span>
+<a href="#__codelineno-20-4" id="__codelineno-20-4" name="__codelineno-20-4"></a><span class="w">        </span><span class="k">continue</span><span class="p">;</span><span class="w">  </span><span class="cm">/* Skip busy pages */</span>
+<a href="#__codelineno-20-5" id="__codelineno-20-5" name="__codelineno-20-5"></a>
+<a href="#__codelineno-20-6" id="__codelineno-20-6" name="__codelineno-20-6"></a><span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">m</span><span class="o">-&gt;</span><span class="n">dirty</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<a href="#__codelineno-20-7" id="__codelineno-20-7" name="__codelineno-20-7"></a><span class="w">        </span><span class="cm">/* Must clean before freeing */</span>
+<a href="#__codelineno-20-8" id="__codelineno-20-8" name="__codelineno-20-8"></a><span class="w">        </span><span class="n">vm_pageout_clean</span><span class="p">(</span><span class="n">m</span><span class="p">);</span><span class="w">  </span><span class="cm">/* Async write to backing store */</span>
+<a href="#__codelineno-20-9" id="__codelineno-20-9" name="__codelineno-20-9"></a><span class="w">        </span><span class="n">vm_page_deactivate</span><span class="p">(</span><span class="n">m</span><span class="p">);</span>
+<a href="#__codelineno-20-10" id="__codelineno-20-10" name="__codelineno-20-10"></a><span class="w">    </span><span class="p">}</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="p">{</span>
+<a href="#__codelineno-20-11" id="__codelineno-20-11" name="__codelineno-20-11"></a><span class="w">        </span><span class="cm">/* Clean page - move to cache for instant reuse */</span>
+<a href="#__codelineno-20-12" id="__codelineno-20-12" name="__codelineno-20-12"></a><span class="w">        </span><span class="n">vm_page_cache</span><span class="p">(</span><span class="n">m</span><span class="p">);</span>
+<a href="#__codelineno-20-13" id="__codelineno-20-13" name="__codelineno-20-13"></a><span class="w">    </span><span class="p">}</span>
+<a href="#__codelineno-20-14" id="__codelineno-20-14" name="__codelineno-20-14"></a>
+<a href="#__codelineno-20-15" id="__codelineno-20-15" name="__codelineno-20-15"></a><span class="w">    </span><span class="n">vm_page_wakeup</span><span class="p">(</span><span class="n">m</span><span class="p">);</span>
+<a href="#__codelineno-20-16" id="__codelineno-20-16" name="__codelineno-20-16"></a><span class="p">}</span>
+</code></pre></div>
+<h3 id="pattern-3-driver-dma-buffer">Pattern 3: Driver DMA Buffer<a class="headerlink" href="#pattern-3-driver-dma-buffer" title="Permanent link">¶</a></h3>
+<p>Device drivers needing physically contiguous memory:</p>
+<div class="highlight"><pre><span></span><code><a href="#__codelineno-21-1" id="__codelineno-21-1" name="__codelineno-21-1"></a><span class="cm">/* Allocate 64KB contiguous, 16-byte aligned, below 4GB */</span>
+<a href="#__codelineno-21-2" id="__codelineno-21-2" name="__codelineno-21-2"></a><span class="n">m</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">vm_page_alloc_contig</span><span class="p">(</span>
+<a href="#__codelineno-21-3" id="__codelineno-21-3" name="__codelineno-21-3"></a><span class="w">    </span><span class="mi">0</span><span class="p">,</span><span class="w">                      </span><span class="cm">/* low address */</span>
+<a href="#__codelineno-21-4" id="__codelineno-21-4" name="__codelineno-21-4"></a><span class="w">    </span><span class="mh">0xFFFFFFFFULL</span><span class="p">,</span><span class="w">          </span><span class="cm">/* high address (4GB) */</span>
+<a href="#__codelineno-21-5" id="__codelineno-21-5" name="__codelineno-21-5"></a><span class="w">    </span><span class="mi">16</span><span class="p">,</span><span class="w">                     </span><span class="cm">/* alignment */</span>
+<a href="#__codelineno-21-6" id="__codelineno-21-6" name="__codelineno-21-6"></a><span class="w">    </span><span class="mi">0</span><span class="p">,</span><span class="w">                      </span><span class="cm">/* boundary (0 = none) */</span>
+<a href="#__codelineno-21-7" id="__codelineno-21-7" name="__codelineno-21-7"></a><span class="w">    </span><span class="mi">64</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mi">1024</span><span class="p">,</span><span class="w">              </span><span class="cm">/* size */</span>
+<a href="#__codelineno-21-8" id="__codelineno-21-8" name="__codelineno-21-8"></a><span class="w">    </span><span class="n">VM_MEMATTR_UNCACHEABLE</span><span class="w">  </span><span class="cm">/* memory attribute */</span>
+<a href="#__codelineno-21-9" id="__codelineno-21-9" name="__codelineno-21-9"></a><span class="p">);</span>
+<a href="#__codelineno-21-10" id="__codelineno-21-10" name="__codelineno-21-10"></a>
+<a href="#__codelineno-21-11" id="__codelineno-21-11" name="__codelineno-21-11"></a><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">m</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<a href="#__codelineno-21-12" id="__codelineno-21-12" name="__codelineno-21-12"></a><span class="w">    </span><span class="n">phys_addr</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">VM_PAGE_TO_PHYS</span><span class="p">(</span><span class="n">m</span><span class="p">);</span>
+<a href="#__codelineno-21-13" id="__codelineno-21-13" name="__codelineno-21-13"></a><span class="w">    </span><span class="cm">/* Program DMA controller with phys_addr */</span>
+<a href="#__codelineno-21-14" id="__codelineno-21-14" name="__codelineno-21-14"></a>
+<a href="#__codelineno-21-15" id="__codelineno-21-15" name="__codelineno-21-15"></a><span class="w">    </span><span class="cm">/* Later, when done: */</span>
+<a href="#__codelineno-21-16" id="__codelineno-21-16" name="__codelineno-21-16"></a><span class="w">    </span><span class="n">vm_page_free_contig</span><span class="p">(</span><span class="n">m</span><span class="p">,</span><span class="w"> </span><span class="mi">64</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mi">1024</span><span class="p">);</span>
+<a href="#__codelineno-21-17" id="__codelineno-21-17" name="__codelineno-21-17"></a><span class="p">}</span>
+</code></pre></div>
+<h3 id="pattern-4-wiring-pages-for-io">Pattern 4: Wiring Pages for I/O<a class="headerlink" href="#pattern-4-wiring-pages-for-io" title="Permanent link">¶</a></h3>
+<p>Ensuring pages stay resident during I/O operations:</p>
+<div class="highlight"><pre><span></span><code><a href="#__codelineno-22-1" id="__codelineno-22-1" name="__codelineno-22-1"></a><span class="cm">/* Wire range to prevent pageout during I/O */</span>
+<a href="#__codelineno-22-2" id="__codelineno-22-2" name="__codelineno-22-2"></a><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="n">each</span><span class="w"> </span><span class="n">page</span><span class="w"> </span><span class="n">m</span><span class="w"> </span><span class="n">in</span><span class="w"> </span><span class="n">range</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<a href="#__codelineno-22-3" id="__codelineno-22-3" name="__codelineno-22-3"></a><span class="w">    </span><span class="n">vm_page_wire</span><span class="p">(</span><span class="n">m</span><span class="p">);</span>
+<a href="#__codelineno-22-4" id="__codelineno-22-4" name="__codelineno-22-4"></a><span class="p">}</span>
+<a href="#__codelineno-22-5" id="__codelineno-22-5" name="__codelineno-22-5"></a>
+<a href="#__codelineno-22-6" id="__codelineno-22-6" name="__codelineno-22-6"></a><span class="cm">/* Pages now guaranteed resident */</span>
+<a href="#__codelineno-22-7" id="__codelineno-22-7" name="__codelineno-22-7"></a><span class="n">start_io</span><span class="p">(</span><span class="n">buffer</span><span class="p">,</span><span class="w"> </span><span class="n">length</span><span class="p">);</span>
+<a href="#__codelineno-22-8" id="__codelineno-22-8" name="__codelineno-22-8"></a><span class="n">wait_for_io_completion</span><span class="p">();</span>
+<a href="#__codelineno-22-9" id="__codelineno-22-9" name="__codelineno-22-9"></a>
+<a href="#__codelineno-22-10" id="__codelineno-22-10" name="__codelineno-22-10"></a><span class="cm">/* Unwire when done */</span>
+<a href="#__codelineno-22-11" id="__codelineno-22-11" name="__codelineno-22-11"></a><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="n">each</span><span class="w"> </span><span class="n">page</span><span class="w"> </span><span class="n">m</span><span class="w"> </span><span class="n">in</span><span class="w"> </span><span class="n">range</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<a href="#__codelineno-22-12" id="__codelineno-22-12" name="__codelineno-22-12"></a><span class="w">    </span><span class="n">vm_page_unwire</span><span class="p">(</span><span class="n">m</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">);</span><span class="w">  </span><span class="cm">/* 0 = deactivate, 1 = keep active */</span>
+<a href="#__codelineno-22-13" id="__codelineno-22-13" name="__codelineno-22-13"></a><span class="p">}</span>
+</code></pre></div>
 <hr/>
 <h2 id="debugging">Debugging<a class="headerlink" href="#debugging" title="Permanent link">¶</a></h2>
 <h3 id="ddb-commands">DDB Commands<a class="headerlink" href="#ddb-commands" title="Permanent link">¶</a></h3>
@@ -2692,21 +3267,55 @@
 </tbody>
 </table>
 <hr/>
-<h2 id="dragonfly-specific-features">DragonFly-Specific Features<a class="headerlink" href="#dragonfly-specific-features" title="Permanent link">¶</a></h2>
-<ol>
-<li><strong>1024-color page queues</strong> - Extreme SMP scalability</li>
-<li><strong>NUMA-aware coloring</strong> - Automatic per-socket page distribution</li>
-<li><strong>Per-CPU vmstats caching</strong> - Reduces cache-line bouncing</li>
-<li><strong>Heuristic page hash</strong> - Lockless fast path for lookups</li>
-<li><strong>Nice-aware paging</strong> - Fair memory allocation under pressure</li>
-<li><strong>DMA alist reserve</strong> - Efficient contiguous allocation</li>
-</ol>
+<h2 id="further-reading">Further Reading<a class="headerlink" href="#further-reading" title="Permanent link">¶</a></h2>
+<h3 id="dragonfly-resources">DragonFly Resources<a class="headerlink" href="#dragonfly-resources" title="Permanent link">¶</a></h3>
+<ul>
+<li><a href="../concepts/">VM Concepts</a> — Foundational VM theory and Mach heritage</li>
+<li><a href="../vm_object/">VM Objects</a> — How pages are grouped into objects</li>
+<li><a href="../vm_fault/">Page Faults</a> — How faults trigger page allocation</li>
+<li><a href="../vm_pageout/">Pageout Daemon</a> — Memory reclamation in detail</li>
+</ul>
+<h3 id="external-resources">External Resources<a class="headerlink" href="#external-resources" title="Permanent link">¶</a></h3>
+<ul>
+<li><strong><a href="https://www.informit.com/store/design-and-implementation-of-the-freebsd-operating-9780321968975">The Design and Implementation of the FreeBSD Operating System</a></strong> (McKusick et al.) — Chapter 5 covers BSD VM; DragonFly inherits this design</li>
+<li><strong><a href="https://pages.cs.wisc.edu/~remzi/OSTEP/">Operating Systems: Three Easy Pieces</a></strong> — Free online textbook; Chapters 18-22 cover paging and replacement</li>
+<li><strong><a href="https://en.wikipedia.org/wiki/Page_replacement_algorithm">Wikipedia: Page replacement algorithm</a></strong> — Overview of LRU, Clock, and related algorithms</li>
+<li><strong><a href="https://en.wikipedia.org/wiki/Non-uniform_memory_access">Wikipedia: NUMA</a></strong> — Background on NUMA architecture and why locality matters</li>
+<li><strong><a href="https://lwn.net/Kernel/Index/#Memory_management">LWN: Memory management</a></strong> — Linux perspective, but concepts transfer</li>
+</ul>
+<h3 id="source-files">Source Files<a class="headerlink" href="#source-files" title="Permanent link">¶</a></h3>
+<table>
+<thead>
+<tr>
+<th>File</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>sys/vm/vm_page.c</code></td>
+<td>Implementation (~4,200 lines)</td>
+</tr>
+<tr>
+<td><code>sys/vm/vm_page.h</code></td>
+<td><code>struct vm_page</code> definition, flags</td>
+</tr>
+<tr>
+<td><code>sys/vm/vm_page2.h</code></td>
+<td>Inline functions, paging thresholds</td>
+</tr>
+<tr>
+<td><code>sys/vm/vm_pageout.c</code></td>
+<td>Pageout daemon (consumer of this API)</td>
+</tr>
+</tbody>
+</table>
 <hr/>
 <h2 id="see-also">See Also<a class="headerlink" href="#see-also" title="Permanent link">¶</a></h2>
 <ul>
 <li><a href="../">VM Architecture Overview</a></li>
-<li><code>sys/vm/vm_page.h</code> - Page structure and flags</li>
-<li><code>sys/vm/vm_page2.h</code> - Inline functions and thresholds</li>
+<li><a href="../../kern/memory/">Memory Allocation</a> — Kernel memory (kmalloc, objcache)</li>
+<li><a href="../../kern/vfs/buffer-cache/">Buffer Cache</a> — Filesystem buffer management</li>
 </ul>
 </article>
 </div>
@@ -2735,8 +3344,8 @@
 <div class="md-dialog" data-md-component="dialog">
 <div class="md-dialog__inner md-typeset"></div>
 </div>
-<script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": ["navigation.tabs", "navigation.sections", "navigation.expand", "navigation.top", "search.suggest", "search.highlight", "content.code.copy"], "search": "../../../assets/javascripts/workers/search.7a47a382.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
-<script src="../../../assets/javascripts/bundle.e71a0d61.min.js"></script>
+<script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": ["navigation.tabs", "navigation.sections", "navigation.expand", "navigation.top", "search.suggest", "search.highlight", "content.code.copy"], "search": "../../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+<script src="../../../assets/javascripts/bundle.79ae519e.min.js"></script>
 <script type="module">import mermaid from "https://unpkg.com/mermaid@10.4.0/dist/mermaid.esm.min.mjs";
 window.mermaidConfig = {default: {
     startOnLoad: false
