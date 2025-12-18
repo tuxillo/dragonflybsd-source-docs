@@ -6,6 +6,69 @@ This document describes DragonFly BSD's physical page management subsystem, impl
 
 ---
 
+## Why Physical Page Management Matters
+
+Physical memory is a finite resource that every process, the kernel, and the filesystem cache compete for. The page management subsystem is the arbiter of this competition—it decides which processes get memory, which pages stay resident, and which get evicted to disk.
+
+Without sophisticated page management:
+
+- **Lock contention** would serialize all memory operations on multi-core systems
+- **Memory fragmentation** would prevent allocation of contiguous regions for DMA
+- **Unfair allocation** would let memory-hungry processes starve others
+- **Poor locality** would cause cache misses as CPUs access remote NUMA memory
+
+DragonFly's page management addresses these with 1024-way queue coloring (reducing lock contention), NUMA-aware allocation (improving locality), and nice-aware paging thresholds (ensuring fairness).
+
+---
+
+## The Life of a Page
+
+Before diving into data structures, it helps to understand the typical journey of a physical page:
+
+```mermaid
+flowchart LR
+    subgraph BIRTH["Birth"]
+        BOOT["System boot"]
+        FREE1["Page added to<br/>PQ_FREE queue"]
+    end
+    
+    subgraph LIFE["Active Life"]
+        ALLOC["vm_page_alloc()<br/>Page assigned to object"]
+        ACTIVE["PQ_ACTIVE<br/>Recently used"]
+        INACTIVE["PQ_INACTIVE<br/>Aging, candidate<br/>for reclaim"]
+    end
+    
+    subgraph DEATH["Reclamation"]
+        CACHE["PQ_CACHE<br/>Clean, unmapped,<br/>quickly reusable"]
+        FREE2["PQ_FREE<br/>Available again"]
+    end
+    
+    BOOT --> FREE1
+    FREE1 -->|"fault or<br/>explicit alloc"| ALLOC
+    ALLOC --> ACTIVE
+    ACTIVE -->|"not referenced<br/>recently"| INACTIVE
+    INACTIVE -->|"cleaned by<br/>pageout"| CACHE
+    INACTIVE -->|"referenced<br/>again"| ACTIVE
+    CACHE -->|"stolen for<br/>new alloc"| FREE2
+    FREE2 -->|"new fault"| ALLOC
+```
+
+**1. Birth (Boot):** During system startup, `vm_page_startup()` creates a `struct vm_page` for every physical page and places them on `PQ_FREE` queues.
+
+**2. Allocation:** When a page fault occurs or the kernel needs memory, `vm_page_alloc()` pulls a page from `PQ_FREE`, associates it with a `vm_object`, and marks it busy while I/O loads its contents.
+
+**3. Active Use:** The page lives on `PQ_ACTIVE` while processes access it. Each access refreshes its "activity count," keeping it resident.
+
+**4. Aging:** If a page isn't accessed for a while, the pageout daemon moves it to `PQ_INACTIVE`. This is a "second chance"—if accessed again, it returns to `PQ_ACTIVE`.
+
+**5. Cleaning:** If the page remains inactive and is dirty, the pageout daemon writes it to its backing store (swap or file). Now clean, it moves to `PQ_CACHE`.
+
+**6. Reclamation:** `PQ_CACHE` pages are still valid but unmapped. If memory pressure rises, they're the first victims—instantly reusable without I/O. Otherwise, they may be reactivated if faulted again.
+
+**7. Rebirth:** Eventually the page returns to `PQ_FREE`, ready for a new allocation.
+
+---
+
 ## When You Need This
 
 | Scenario | Key Functions | Section |
@@ -23,12 +86,97 @@ This document describes DragonFly BSD's physical page management subsystem, impl
 
 Every physical page in the system is represented by a `struct vm_page` (128 bytes). These structures are stored in a global array (`vm_page_array`) and indexed by physical page number. The VM system organizes pages into multiple queues based on their state and uses sophisticated coloring and NUMA-aware algorithms to optimize memory locality.
 
-### Key Concepts
+### Key Design Principles
 
-- **Page coloring**: Pages are distributed across 1024 queues per queue type to reduce lock contention and improve cache behavior
-- **NUMA awareness**: Page allocation considers CPU topology to prefer local memory
-- **Busy state**: Pages use atomic busy/soft-busy counts instead of traditional locks
-- **Per-CPU statistics**: Reduces cache-line bouncing by caching vmstats locally
+| Principle | Problem Solved | DragonFly's Solution |
+|-----------|----------------|----------------------|
+| **Page coloring** | Lock contention on page queues | 1024 sub-queues per queue type; each CPU typically hits different queues |
+| **NUMA awareness** | Cross-socket memory latency | Color calculation incorporates socket/core topology |
+| **Atomic busy state** | Lock overhead for page access | Busy counts instead of locks; soft-busy for shared access |
+| **Per-CPU statistics** | Cache-line bouncing on global counters | Each CPU caches vmstats locally; periodic rollup to global |
+
+### Why Five Queues?
+
+The five page queues implement a **multi-stage replacement policy** that balances responsiveness with efficiency:
+
+| Queue | Purpose | Why It Exists |
+|-------|---------|---------------|
+| `PQ_FREE` | Immediately allocatable | Fast allocation without any cleanup needed |
+| `PQ_ACTIVE` | Recently used pages | Protects working set from premature eviction |
+| `PQ_INACTIVE` | Second-chance candidates | Gives pages time to be re-referenced before eviction |
+| `PQ_CACHE` | Clean, valid, unmapped | Zero-cost reuse if same data needed; instant free otherwise |
+| `PQ_HOLD` | Temporarily pinned | Prevents race conditions during sensitive operations |
+
+This design avoids the pathological behavior of simpler schemes:
+- Pure LRU would evict pages that happen to be accessed in large sequential scans
+- Pure FIFO would evict frequently-used pages just because they're old
+- The active/inactive split approximates LRU while the cache queue enables instant reclamation of clean pages
+
+## DragonFly-Specific Design Choices
+
+This section explains *why* DragonFly's page management differs from traditional BSD.
+
+### 1024-Color Page Queues
+
+Traditional BSD systems use a single lock per queue type. On a 64-core system, this becomes a severe bottleneck—every page allocation/free contends on the same lock.
+
+DragonFly divides each queue type into 1024 sub-queues ("colors"). The page color is derived from its physical address and CPU topology, so:
+
+- CPUs on different sockets naturally hit different queue subsets
+- Even CPUs on the same socket distribute across colors
+- Lock contention drops by ~1000x compared to single-queue designs
+
+The 1024 value balances granularity (more = less contention) against memory overhead (each queue has its own spinlock and list head).
+
+### Atomic Busy Counts vs. Locks
+
+Traditional BSD uses `lockmgr` locks on pages. DragonFly replaces this with atomic busy counts:
+
+```
+busy_count field:
+  [31]    PBUSY_LOCKED   - Hard busy (exclusive)
+  [30]    PBUSY_WANTED   - Someone waiting
+  [29]    PBUSY_SWAPINPROG - Swap I/O active
+  [28:0]  Soft-busy count (shared)
+```
+
+Benefits:
+- **No lock structure overhead** per page
+- **Soft-busy allows concurrency**: Multiple readers can soft-busy a page simultaneously
+- **Atomic operations** are faster than lock acquire/release cycles
+- **Integrates with LWKT**: Waiters use `tsleep()`/`wakeup()` patterns
+
+### Per-CPU Statistics
+
+Global `vmstats` would cause cache-line bouncing on every alloc/free. DragonFly caches adjustments per-CPU:
+
+```c
+mycpu->gd_vmstats_adj.v_free_count += delta;  // Fast, local
+// Periodically or when threshold exceeded:
+atomic_add(&vmstats.v_free_count, accumulated_delta);  // Slow, global
+```
+
+This reduces cross-CPU cache invalidations from O(allocations) to O(sync_intervals).
+
+### NUMA-Aware Coloring
+
+On NUMA systems, accessing memory on a remote socket incurs 2-3x latency. DragonFly's `vm_get_pg_color()` encodes CPU topology into the color:
+
+```
+Color bits: [socket_id][core_id][ht_id][set_associativity]
+```
+
+Result: A CPU naturally allocates pages from queues that contain pages physically close to it.
+
+### Nice-Aware Paging Thresholds
+
+When memory is low, all processes compete to allocate. Traditional systems give equal priority to all. DragonFly adjusts paging thresholds based on process nice value:
+
+- Nice 0 process: blocks at `v_free_min`
+- Nice +10 process: blocks earlier (at higher free count)
+- Nice -10 process: blocks later (can dig deeper into reserves)
+
+This prevents a `nice +19` background job from consuming memory needed by interactive processes.
 
 ---
 
@@ -462,6 +610,112 @@ Queue adjustments update per-CPU vmstats:
 
 ---
 
+## Common Usage Patterns
+
+This section shows how page management functions work together in typical scenarios.
+
+### Pattern 1: Page Fault Allocation
+
+When a process accesses unmapped memory, the fault handler allocates and populates a page:
+
+```c
+/* Simplified from vm_fault.c */
+vm_object_hold(object);
+
+/* Try to find existing page */
+m = vm_page_lookup_busy_wait(object, pindex, TRUE, "fault");
+if (m == NULL) {
+    /* Allocate new page - returns BUSY */
+    m = vm_page_alloc(object, pindex, VM_ALLOC_NORMAL);
+    if (m == NULL) {
+        vm_wait_pfault(curproc, fault_flags);  /* Block if low memory */
+        /* retry... */
+    }
+    
+    /* Page is busy, safe to do I/O */
+    error = pager_getpage(object, &m, 1);
+    
+    /* Mark valid after I/O completes */
+    vm_page_set_valid(m, 0, PAGE_SIZE);
+}
+
+/* Wire into page table */
+pmap_enter(pmap, va, m, prot, wired);
+
+/* Release busy - page now accessible */
+vm_page_wakeup(m);
+vm_object_drop(object);
+```
+
+### Pattern 2: Pageout Daemon Scanning
+
+The pageout daemon reclaims memory by scanning inactive pages:
+
+```c
+/* Simplified from vm_pageout.c */
+TAILQ_FOREACH(m, &vm_page_queues[PQ_INACTIVE + color].pl, pageq) {
+    if (vm_page_busy_try(m, TRUE) != 0)
+        continue;  /* Skip busy pages */
+    
+    if (m->dirty) {
+        /* Must clean before freeing */
+        vm_pageout_clean(m);  /* Async write to backing store */
+        vm_page_deactivate(m);
+    } else {
+        /* Clean page - move to cache for instant reuse */
+        vm_page_cache(m);
+    }
+    
+    vm_page_wakeup(m);
+}
+```
+
+### Pattern 3: Driver DMA Buffer
+
+Device drivers needing physically contiguous memory:
+
+```c
+/* Allocate 64KB contiguous, 16-byte aligned, below 4GB */
+m = vm_page_alloc_contig(
+    0,                      /* low address */
+    0xFFFFFFFFULL,          /* high address (4GB) */
+    16,                     /* alignment */
+    0,                      /* boundary (0 = none) */
+    64 * 1024,              /* size */
+    VM_MEMATTR_UNCACHEABLE  /* memory attribute */
+);
+
+if (m) {
+    phys_addr = VM_PAGE_TO_PHYS(m);
+    /* Program DMA controller with phys_addr */
+    
+    /* Later, when done: */
+    vm_page_free_contig(m, 64 * 1024);
+}
+```
+
+### Pattern 4: Wiring Pages for I/O
+
+Ensuring pages stay resident during I/O operations:
+
+```c
+/* Wire range to prevent pageout during I/O */
+for (each page m in range) {
+    vm_page_wire(m);
+}
+
+/* Pages now guaranteed resident */
+start_io(buffer, length);
+wait_for_io_completion();
+
+/* Unwire when done */
+for (each page m in range) {
+    vm_page_unwire(m, 0);  /* 0 = deactivate, 1 = keep active */
+}
+```
+
+---
+
 ## Debugging
 
 ### DDB Commands
@@ -481,19 +735,36 @@ Queue adjustments update per-CPU vmstats:
 
 ---
 
-## DragonFly-Specific Features
+## Further Reading
 
-1. **1024-color page queues** - Extreme SMP scalability
-2. **NUMA-aware coloring** - Automatic per-socket page distribution
-3. **Per-CPU vmstats caching** - Reduces cache-line bouncing
-4. **Heuristic page hash** - Lockless fast path for lookups
-5. **Nice-aware paging** - Fair memory allocation under pressure
-6. **DMA alist reserve** - Efficient contiguous allocation
+### DragonFly Resources
+
+- [VM Concepts](concepts.md) — Foundational VM theory and Mach heritage
+- [VM Objects](vm_object.md) — How pages are grouped into objects
+- [Page Faults](vm_fault.md) — How faults trigger page allocation
+- [Pageout Daemon](vm_pageout.md) — Memory reclamation in detail
+
+### External Resources
+
+- **[The Design and Implementation of the FreeBSD Operating System](https://www.informit.com/store/design-and-implementation-of-the-freebsd-operating-9780321968975)** (McKusick et al.) — Chapter 5 covers BSD VM; DragonFly inherits this design
+- **[Operating Systems: Three Easy Pieces](https://pages.cs.wisc.edu/~remzi/OSTEP/)** — Free online textbook; Chapters 18-22 cover paging and replacement
+- **[Wikipedia: Page replacement algorithm](https://en.wikipedia.org/wiki/Page_replacement_algorithm)** — Overview of LRU, Clock, and related algorithms
+- **[Wikipedia: NUMA](https://en.wikipedia.org/wiki/Non-uniform_memory_access)** — Background on NUMA architecture and why locality matters
+- **[LWN: Memory management](https://lwn.net/Kernel/Index/#Memory_management)** — Linux perspective, but concepts transfer
+
+### Source Files
+
+| File | Description |
+|------|-------------|
+| `sys/vm/vm_page.c` | Implementation (~4,200 lines) |
+| `sys/vm/vm_page.h` | `struct vm_page` definition, flags |
+| `sys/vm/vm_page2.h` | Inline functions, paging thresholds |
+| `sys/vm/vm_pageout.c` | Pageout daemon (consumer of this API) |
 
 ---
 
 ## See Also
 
 - [VM Architecture Overview](index.md)
-- `sys/vm/vm_page.h` - Page structure and flags
-- `sys/vm/vm_page2.h` - Inline functions and thresholds
+- [Memory Allocation](../kern/memory.md) — Kernel memory (kmalloc, objcache)
+- [Buffer Cache](../kern/vfs/buffer-cache.md) — Filesystem buffer management
