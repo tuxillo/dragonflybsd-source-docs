@@ -4,6 +4,98 @@ The VM map subsystem manages virtual address spaces in DragonFly BSD. It handles
 
 **Source file:** `sys/vm/vm_map.c` (~4,781 lines)
 
+---
+
+## Why Address Space Management Matters
+
+Every process sees its own private, contiguous address space—from address 0 to the maximum virtual address. But this is an illusion. Physical memory is fragmented, shared between processes, and far smaller than the virtual range. The VM map subsystem creates and maintains this illusion.
+
+**How does the kernel know what's at a virtual address?**
+
+When a process accesses address `0x7fff12340000`, the hardware triggers a page fault. The kernel must answer: Is this address valid? What protection does it have? Where does its data come from? The `vm_map` answers all these questions. It's a sorted tree of `vm_map_entry` structures, each describing a contiguous range with uniform properties.
+
+**How does `fork()` create a child without copying gigabytes of memory?**
+
+Copy-on-write (COW) is the answer, but implementing it efficiently is complex. The parent and child must share physical pages until one writes. DragonFly's `vm_map_backing` chains track these sharing relationships without modifying the underlying `vm_object`—a key architectural difference from traditional BSD.
+
+**How do you efficiently find free space in a sparse address space?**
+
+With thousands of mappings and huge address ranges, finding a suitable hole for `mmap()` could be expensive. DragonFly uses a freehint cache that provides O(1) lookup for common allocation patterns, falling back to RB tree traversal only when necessary.
+
+**Why can multiple threads fault on different parts of the same mapping concurrently?**
+
+Large anonymous mappings (like a process's heap) could serialize all faults through a single lock. DragonFly's 32MB entry partitioning allows different threads to fault on different partitions simultaneously, dramatically improving multi-threaded scalability.
+
+---
+
+## The Life of a Mapping
+
+A mapping's journey from creation through active use to destruction:
+
+```mermaid
+flowchart TB
+    MMAP["mmap() syscall"]
+    FINDSPACE["vm_map_findspace()<br/>Find suitable hole"]
+    INSERT["vm_map_insert()<br/>Create vm_map_entry"]
+    ACTIVE["Active Mapping<br/>Entry in RB tree"]
+    FAULT["Page fault on access"]
+    LOOKUP["vm_map_lookup()<br/>Find entry, check protection"]
+    COW{"Write to<br/>COW page?"}
+    SHADOW["vm_map_entry_shadow()<br/>Create shadow chain"]
+    VMFAULT["vm_fault()<br/>Populate page"]
+    PROTECT["mprotect() / mlock()"]
+    MODIFY["vm_map_protect()<br/>vm_map_user_wiring()"]
+    FORK["fork()"]
+    COPY["vm_map_copy_entry()<br/>Set up COW sharing"]
+    MUNMAP["munmap() syscall"]
+    DELETE["vm_map_delete()<br/>Remove entry, clean up"]
+    
+    MMAP --> FINDSPACE
+    FINDSPACE --> INSERT
+    INSERT --> ACTIVE
+    ACTIVE --> FAULT
+    FAULT --> LOOKUP
+    LOOKUP --> COW
+    COW -->|yes| SHADOW
+    SHADOW --> VMFAULT
+    COW -->|no| VMFAULT
+    VMFAULT --> ACTIVE
+    ACTIVE --> PROTECT
+    PROTECT --> MODIFY
+    MODIFY --> ACTIVE
+    ACTIVE --> FORK
+    FORK --> COPY
+    COPY --> ACTIVE
+    ACTIVE --> MUNMAP
+    MUNMAP --> DELETE
+```
+
+**Key transitions:**
+
+1. **Creation**: `mmap()` → `vm_map_findspace()` finds a hole → `vm_map_insert()` creates the entry. The mapping exists but has no pages yet.
+
+2. **First Access**: A page fault triggers `vm_map_lookup()` which finds the entry and checks permissions. Then `vm_fault()` populates the page from the backing object or zero-fills it.
+
+3. **COW Fault**: If a process writes to a shared page (after `fork()`), `vm_map_entry_shadow()` creates a shadow chain, and the write goes to a private copy.
+
+4. **Destruction**: `munmap()` → `vm_map_delete()` removes pmap mappings, releases object references, and frees the entry.
+
+---
+
+## Key Design Principles
+
+| Problem | Traditional Approach | DragonFly's Solution |
+|---------|---------------------|---------------------|
+| **COW tracking** | Modify vm_object shadow chains | `vm_map_backing` chains—objects unchanged when shadowed |
+| **Finding free space** | O(n) scan or complex data structures | Freehint cache for O(1) common case, RB tree fallback |
+| **Large mapping contention** | Single entry = single lock | 32MB partitioning for concurrent faults |
+| **Process exit cleanup** | Synchronous, heavyweight | Two-stage termination (stage-1 while runnable) |
+| **Entry allocation in fault path** | Zone allocator (may block) | Per-CPU entry cache, pre-reserved entries |
+| **Shadow chain explosion** | Unbounded depth from repeated forks | `vm_map_backing_limit` (default 5) with auto-collapse |
+| **Submap overhead** | Separate map structure | Embedded in entry via `VM_MAPTYPE_SUBMAP` |
+
+---
+
 ## Common Operations
 
 Understanding when this code runs helps navigate the 4,781 lines. Here's what happens for common scenarios:
@@ -19,7 +111,7 @@ Understanding when this code runs helps navigate the 4,781 lines. Here's what ha
 | Page fault | (trap) | `vm_map_lookup()` | Finds entry, handles COW, returns backing info |
 
 ```mermaid
-flowchart LR
+flowchart TB
     subgraph User["USER"]
         mmap["mmap(NULL, 4096, ...)"]
         access["*ptr = 42"]
@@ -657,6 +749,132 @@ DDB commands:
 |---------|-------------|
 | `show map <addr>` | Print map entries with protection and backing |
 | `show procvm` | Print current process vmspace |
+
+---
+
+## Common Usage Patterns
+
+### Pattern 1: Creating a Mapping in Kernel Code
+
+From `sys/kern/init_main.c` - allocating the initial stack for init:
+
+```c
+vm_offset_t addr;
+int error;
+
+/* Allocate one page at a specific address (fitit=FALSE) */
+addr = trunc_page(USRSTACK - PAGE_SIZE);
+error = vm_map_find(&p->p_vmspace->vm_map,
+                    NULL, NULL,         /* object, aux_info (anonymous) */
+                    0,                  /* offset */
+                    &addr,              /* address (in/out) */
+                    PAGE_SIZE,          /* length */
+                    PAGE_SIZE,          /* alignment */
+                    FALSE,              /* fitit=FALSE: use exact address */
+                    VM_MAPTYPE_NORMAL,
+                    VM_SUBSYS_INIT,
+                    VM_PROT_ALL,
+                    VM_PROT_ALL,
+                    0);                 /* cow flags */
+```
+
+### Pattern 2: Looking Up an Entry for ptrace
+
+From `sys/kern/sys_process.c` - reading process memory:
+
+```c
+vm_map_t tmap;
+vm_map_entry_t out_entry;
+vm_map_backing_t ba;
+vm_object_t object;
+vm_pindex_t pindex, pcount;
+vm_prot_t out_prot;
+int wflags;
+int rv;
+
+tmap = map;  /* vm_map_lookup may change the map pointer */
+rv = vm_map_lookup(&tmap, pageno, VM_PROT_READ, &out_entry,
+                   &ba, &pindex, &pcount, &out_prot, &wflags);
+
+if (ba)
+    object = ba->object;
+else
+    object = NULL;
+
+if (rv != KERN_SUCCESS)
+    return EINVAL;
+
+vm_map_lookup_done(tmap, out_entry, 0);
+```
+
+### Pattern 3: Temporarily Changing Protection for ptrace Write
+
+From `sys/kern/sys_process.c` - writing to read-only memory:
+
+```c
+vm_map_t map = &procp->p_vmspace->vm_map;
+boolean_t fix_prot = 0;
+
+/* Check if page is writable */
+if (vm_map_check_protection(map, pageno, pageno + PAGE_SIZE,
+                            VM_PROT_WRITE, FALSE) == FALSE) {
+    fix_prot = 1;
+    /* Temporarily make it writable */
+    rv = vm_map_protect(map, pageno, pageno + PAGE_SIZE,
+                        VM_PROT_ALL, 0);
+    if (rv != KERN_SUCCESS)
+        return EFAULT;
+}
+
+/* ... do the write ... */
+
+/* Restore original protection */
+if (fix_prot)
+    vm_map_protect(map, pageno, pageno + PAGE_SIZE,
+                   VM_PROT_READ | VM_PROT_EXECUTE, 0);
+```
+
+### Pattern 4: Wiring Pages for mlock
+
+From `sys/vm/vm_mmap.c` - implementing mlock/munlock:
+
+```c
+/* mlock: wire the pages (new_pageable=FALSE) */
+error = vm_map_user_wiring(&p->p_vmspace->vm_map,
+                           addr, addr + size, FALSE);
+
+/* munlock: unwire the pages (new_pageable=TRUE) */
+error = vm_map_user_wiring(&p->p_vmspace->vm_map,
+                           addr, addr + size, TRUE);
+```
+
+### Pattern 5: Removing a Mapping
+
+From `sys/kern/kern_exec.c` - clearing address space before exec:
+
+```c
+/* Remove all user mappings */
+vm_map_remove(map, 0, VM_MAX_USER_ADDRESS);
+```
+
+From `sys/kern/sys_process.c` - cleaning up temporary kernel mapping:
+
+```c
+/* Remove temporary kernel mapping after use */
+vm_map_remove(kernel_map, kva, kva + PAGE_SIZE);
+```
+
+---
+
+## Further Reading
+
+- **"The Design and Implementation of the 4.4BSD Operating System"** (McKusick et al.) - Chapter 5 covers VM system design including maps and entries
+- **"Design elements of the FreeBSD VM system"** - [FreeBSD Architecture Handbook](https://docs.freebsd.org/en/books/arch-handbook/vm/) - DragonFly's heritage, though backing chains differ significantly
+- **DragonFly commit history** - Search for "vm_map_backing" to see the evolution from shadow objects to backing chains
+- [vm_fault.md](vm_fault.md) - How faults use `vm_map_lookup()` results
+- [vm_object.md](vm_object.md) - Objects that back map entries
+
+---
 
 ## See Also
 
