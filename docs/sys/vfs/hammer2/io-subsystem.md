@@ -640,12 +640,17 @@ Source: `hammer2.h:1295-1300`
 HAMMER2 uses double-buffering to separate logical file buffers from
 device buffers:
 
-```
-Logical Buffer (vnode)     Device Buffer (DIO)
-+------------------+       +------------------+
-| File data (64KB) |  <->  | Compressed data  |
-| User-visible     |       | On-disk format   |
-+------------------+       +------------------+
+```mermaid
+graph TB
+    subgraph logical["Logical Buffer (vnode)"]
+        L["File data (64KB)<br/>User-visible"]
+    end
+    subgraph device["Device Buffer (DIO)"]
+        D["Compressed data<br/>On-disk format"]
+    end
+    L <--> D
+    style L fill:#9f9,stroke:#333
+    style D fill:#f9f,stroke:#333
 ```
 
 Benefits:

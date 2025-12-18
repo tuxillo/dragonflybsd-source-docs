@@ -529,46 +529,35 @@ Returns both a chain and its parent, properly locked. Handles lock ordering (par
 
 ## Lifecycle Summary
 
-```
-                    ┌─────────────────┐
-                    │ hammer2_inode_  │
-                    │ create_normal() │
-                    └────────┬────────┘
-                             │ allocate + CREATING flag
-                             ▼
-                    ┌─────────────────┐
-                    │   In-Memory     │◄──── hammer2_inode_get()
-                    │     Inode       │       (lookup/create)
-                    └────────┬────────┘
-                             │
-            ┌────────────────┼────────────────┐
-            │                │                │
-            ▼                ▼                ▼
-    ┌───────────────┐ ┌────────────┐ ┌───────────────┐
-    │hammer2_igetv()│ │ modify()   │ │ unlink_       │
-    │  (get vnode)  │ │ (→SIDEQ)   │ │ finisher()    │
-    └───────────────┘ └─────┬──────┘ └───────┬───────┘
-                            │                │
-                            ▼                ▼
-                    ┌─────────────────┐  ISUNLINKED
-                    │   Filesystem    │  DELETING
-                    │      Sync       │      │
-                    └────────┬────────┘      │
-                             │               │
-        ┌────────────────────┼───────────────┤
-        │                    │               │
-        ▼                    ▼               ▼
-┌───────────────┐   ┌───────────────┐ ┌──────────────┐
-│chain_ins()    │   │chain_sync()   │ │chain_des()   │
-│(insert chains)│   │(sync metadata)│ │(delete chains)│
-└───────────────┘   └───────────────┘ └──────────────┘
-        │                    │               │
-        └────────────────────┼───────────────┘
-                             ▼
-                    ┌─────────────────┐
-                    │ chain_flush()   │
-                    │ (write to disk) │
-                    └─────────────────┘
+```mermaid
+flowchart TB
+    subgraph creation["Creation"]
+        CREATE["hammer2_inode_create_normal()"] --> |"allocate + CREATING flag"| INMEM["In-Memory Inode"]
+        GET["hammer2_inode_get()<br/>(lookup/create)"] --> INMEM
+    end
+    
+    subgraph operations["Operations"]
+        INMEM --> IGETV["hammer2_igetv()<br/>(get vnode)"]
+        INMEM --> MODIFY["modify()<br/>(→SIDEQ)"]
+        INMEM --> UNLINK["unlink_finisher()"]
+    end
+    
+    subgraph sync["Filesystem Sync"]
+        MODIFY --> FSSYNC["Filesystem Sync"]
+        UNLINK --> |"ISUNLINKED<br/>DELETING"| FSSYNC
+    end
+    
+    subgraph chainops["Chain Operations"]
+        FSSYNC --> INS["chain_ins()<br/>(insert chains)"]
+        FSSYNC --> CSYNC["chain_sync()<br/>(sync metadata)"]
+        FSSYNC --> DES["chain_des()<br/>(delete chains)"]
+    end
+    
+    subgraph flush["Flush"]
+        INS --> CFLUSH["chain_flush()<br/>(write to disk)"]
+        CSYNC --> CFLUSH
+        DES --> CFLUSH
+    end
 ```
 
 ## See Also

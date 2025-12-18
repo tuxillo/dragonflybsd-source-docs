@@ -24,11 +24,14 @@ metadata including freemap blocks.
 
 ### Zone Structure
 
-```
-Zone (2GB)
-+------------------+---------------------------------------------+
-| Reserved (4MB)   | User Data (~2044MB)                         |
-+------------------+---------------------------------------------+
+```mermaid
+graph TB
+    subgraph zone["Zone (2GB)"]
+        direction LR
+        R["Reserved<br/>(4MB)"] --- U["User Data<br/>(~2044MB)"]
+    end
+    style R fill:#f9f,stroke:#333
+    style U fill:#9f9,stroke:#333
 ```
 
 The reserved 4MB area contains:
@@ -202,11 +205,17 @@ block:
 
 The 8 x 64-bit `bitmapq[]` array covers 256 blocks:
 
-```
-bitmapq[0]: blocks 0-31   (64 bits / 2 = 32 blocks)
-bitmapq[1]: blocks 32-63
-...
-bitmapq[7]: blocks 224-255
+```mermaid
+graph TB
+    subgraph bitmapq["bitmapq Array (8 x 64-bit = 512 bits)"]
+        direction TB
+        B0["bitmapq[0]: blocks 0-31<br/>(64 bits / 2 = 32 blocks)"]
+        B1["bitmapq[1]: blocks 32-63"]
+        B2["bitmapq[2]: blocks 64-95"]
+        B3["..."]
+        B7["bitmapq[7]: blocks 224-255"]
+    end
+    B0 --- B1 --- B2 --- B3 --- B7
 ```
 
 ### Bitmap Constants

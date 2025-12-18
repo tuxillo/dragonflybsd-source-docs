@@ -52,11 +52,14 @@ The compression method is stored in `bref.methods`:
 
 The `methods` byte layout:
 
-```
-+-------+-------+
-| check | comp  |
-| 4 bits| 4 bits|
-+-------+-------+
+```mermaid
+graph TB
+    subgraph methods["methods byte (8 bits)"]
+        direction LR
+        C["check<br/>4 bits<br/>(bits 7-4)"] --- P["comp<br/>4 bits<br/>(bits 3-0)"]
+    end
+    style C fill:#f9f,stroke:#333
+    style P fill:#9f9,stroke:#333
 ```
 
 Source: `hammer2_disk.h:752-755`
@@ -154,10 +157,14 @@ flowchart TB
 
 Compressed LZ4 blocks include a size prefix:
 
-```
-+------------+------------------------+
-| Size (4B)  | Compressed Data        |
-+------------+------------------------+
+```mermaid
+graph TB
+    subgraph lz4block["LZ4 Compressed Block"]
+        direction LR
+        S["Size<br/>(4 bytes)"] --- D["Compressed Data"]
+    end
+    style S fill:#f9f,stroke:#333
+    style D fill:#9f9,stroke:#333
 ```
 
 ```c
@@ -493,16 +500,14 @@ Source: `hammer2_strategy.c:1027-1044`
 
 ### Block Size Selection
 
-```
-Input: 64KB uncompressed data
-       ↓
-Compression: 12KB compressed
-       ↓
-Block size: 16KB (next power of 2)
-       ↓
-Zero-pad: 4KB of zeros added
-       ↓
-Write: 16KB block to disk
+```mermaid
+graph TB
+    subgraph selection["Block Size Selection Example"]
+        A["Input: 64KB<br/>uncompressed data"] --> B["Compression:<br/>12KB compressed"]
+        B --> C["Block size: 16KB<br/>(next power of 2)"]
+        C --> D["Zero-pad:<br/>4KB of zeros added"]
+        D --> E["Write: 16KB<br/>block to disk"]
+    end
 ```
 
 Padding is required for deduplication to work correctly:
