@@ -26,30 +26,30 @@ DragonFly's page management addresses these with 1024-way queue coloring (reduci
 Before diving into data structures, it helps to understand the typical journey of a physical page:
 
 ```mermaid
-flowchart LR
+flowchart TB
     subgraph BIRTH["Birth"]
         BOOT["System boot"]
-        FREE1["Page added to<br/>PQ_FREE queue"]
+        FREE1["Page added to PQ_FREE queue"]
     end
     
     subgraph LIFE["Active Life"]
-        ALLOC["vm_page_alloc()<br/>Page assigned to object"]
-        ACTIVE["PQ_ACTIVE<br/>Recently used"]
-        INACTIVE["PQ_INACTIVE<br/>Aging, candidate<br/>for reclaim"]
+        ALLOC["vm_page_alloc() - Page assigned to object"]
+        ACTIVE["PQ_ACTIVE - Recently used"]
+        INACTIVE["PQ_INACTIVE - Aging, candidate for reclaim"]
     end
     
     subgraph DEATH["Reclamation"]
-        CACHE["PQ_CACHE<br/>Clean, unmapped,<br/>quickly reusable"]
-        FREE2["PQ_FREE<br/>Available again"]
+        CACHE["PQ_CACHE - Clean, unmapped, quickly reusable"]
+        FREE2["PQ_FREE - Available again"]
     end
     
     BOOT --> FREE1
-    FREE1 -->|"fault or<br/>explicit alloc"| ALLOC
+    FREE1 -->|"fault or explicit alloc"| ALLOC
     ALLOC --> ACTIVE
-    ACTIVE -->|"not referenced<br/>recently"| INACTIVE
-    INACTIVE -->|"cleaned by<br/>pageout"| CACHE
-    INACTIVE -->|"referenced<br/>again"| ACTIVE
-    CACHE -->|"stolen for<br/>new alloc"| FREE2
+    ACTIVE -->|"not referenced recently"| INACTIVE
+    INACTIVE -->|"cleaned by pageout"| CACHE
+    INACTIVE -->|"referenced again"| ACTIVE
+    CACHE -->|"stolen for new alloc"| FREE2
     FREE2 -->|"new fault"| ALLOC
 ```
 
