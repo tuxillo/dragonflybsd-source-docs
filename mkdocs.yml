@@ -124,5 +124,28 @@ nav:
       - Page Faults: sys/vm/vm_fault.md
       - Pageout & Swap: sys/vm/vm_pageout.md
       - Memory Mapping: sys/vm/vm_mmap.md
+    - vfs/:
+      - Overview: sys/vfs/index.md
+      - HAMMER2: sys/vfs/hammer2.md
+      - HAMMER: sys/vfs/hammer.md
+      - devfs: sys/vfs/devfs.md
+      - procfs: sys/vfs/procfs.md
+      - tmpfs: sys/vfs/tmpfs.md
+      - nullfs: sys/vfs/nullfs.md
+      - fifofs: sys/vfs/fifofs.md
+      - deadfs: sys/vfs/deadfs.md
+      - mfs: sys/vfs/mfs.md
+      - UFS: sys/vfs/ufs.md
+      - NFS: sys/vfs/nfs.md
+      - ext2fs: sys/vfs/ext2fs.md
+      - msdosfs: sys/vfs/msdosfs.md
+      - NTFS: sys/vfs/ntfs.md
+      - ISO9660: sys/vfs/isofs.md
+      - UDF: sys/vfs/udf.md
+      - HPFS: sys/vfs/hpfs.md
+      - smbfs: sys/vfs/smbfs.md
+      - FUSE: sys/vfs/fuse.md
+      - autofs: sys/vfs/autofs.md
+      - dirfs: sys/vfs/dirfs.md
     - cpu/x86_64/:
       - Overview: sys/cpu/x86_64/index.md
