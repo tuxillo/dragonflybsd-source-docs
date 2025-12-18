@@ -1880,45 +1880,33 @@
 <h2 id="the-life-of-an-object">The Life of an Object<a class="headerlink" href="#the-life-of-an-object" title="Permanent link">¶</a></h2>
 <p>Objects transition through different types and states during their lifetime:</p>
 <pre class="mermaid"><code>flowchart TB
-    subgraph CREATION["Creation"]
-        ALLOC["vm_object_allocate()"]
-        DEFAULT["OBJT_DEFAULT<br/>Anonymous, zero-filled"]
-        VNODE["OBJT_VNODE<br/>File-backed"]
-        DEVICE["OBJT_DEVICE<br/>Device memory"]
-    end
+    ALLOC["vm_object_allocate()<br/>Create new object"]
+    TYPE{"Object Type?"}
+    DEFAULT["OBJT_DEFAULT<br/>Anonymous memory"]
+    VNODE["OBJT_VNODE<br/>File-backed"]
+    DEVICE["OBJT_DEVICE<br/>Device memory"]
+    ACTIVE["Active Use<br/>ref_count &gt; 0, pages in rb_memq"]
+    PRESSURE["Memory Pressure<br/>Pageout daemon active"]
+    SWAP["OBJT_DEFAULT → OBJT_SWAP<br/>Pages pushed to swap"]
+    CLEAN["vm_object_page_clean()<br/>Dirty pages written"]
+    TERMINATE["vm_object_terminate()<br/>OBJ_DEAD set"]
+    WAIT["Wait for paging_in_progress = 0"]
+    FREE["Object freed<br/>hold_count = 0"]
 
-    subgraph ACTIVE["Active Life"]
-        REF["ref_count &gt; 0<br/>In use by mappings"]
-        PAGES["Pages accumulate<br/>in rb_memq tree"]
-        DIRTY["OBJ_MIGHTBEDIRTY<br/>Has modified pages"]
-    end
-
-    subgraph PRESSURE["Memory Pressure"]
-        SWAP_CONVERT["OBJT_DEFAULT → OBJT_SWAP<br/>First page pushed to swap"]
-        CLEAN["vm_object_page_clean()<br/>Write dirty pages"]
-        PAGEOUT["Pages moved to<br/>inactive/cache queues"]
-    end
-
-    subgraph DEATH["Termination"]
-        DEAD["OBJ_DEAD set<br/>ref_count = 0"]
-        WAIT["Wait for<br/>paging_in_progress = 0"]
-        FREE["All pages freed<br/>Object destroyed"]
-    end
-
-    ALLOC --&gt; DEFAULT
-    ALLOC --&gt; VNODE
-    ALLOC --&gt; DEVICE
-    DEFAULT --&gt; REF
-    VNODE --&gt; REF
-    DEVICE --&gt; REF
-    REF --&gt; PAGES
-    PAGES --&gt; DIRTY
-    DIRTY --&gt; SWAP_CONVERT
-    DIRTY --&gt; CLEAN
-    SWAP_CONVERT --&gt; PAGEOUT
-    CLEAN --&gt; PAGEOUT
-    REF --&gt;|"last reference dropped"| DEAD
-    DEAD --&gt; WAIT
+    ALLOC --&gt; TYPE
+    TYPE --&gt; DEFAULT
+    TYPE --&gt; VNODE
+    TYPE --&gt; DEVICE
+    DEFAULT --&gt; ACTIVE
+    VNODE --&gt; ACTIVE
+    DEVICE --&gt; ACTIVE
+    ACTIVE --&gt; PRESSURE
+    PRESSURE --&gt; SWAP
+    PRESSURE --&gt; CLEAN
+    SWAP --&gt; ACTIVE
+    CLEAN --&gt; ACTIVE
+    ACTIVE --&gt;|"ref_count drops to 0"| TERMINATE
+    TERMINATE --&gt; WAIT
     WAIT --&gt; FREE
 </code></pre>
 <p><strong>Key transitions:</strong></p>
