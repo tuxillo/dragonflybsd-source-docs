@@ -219,27 +219,24 @@ flowchart TB
 HAMMER2 uses a transaction-based model where modifications are staged in memory and atomically committed to disk:
 
 ```mermaid
-flowchart LR
-    subgraph memory["In-Memory"]
-        M1[Modify chains]
-        M2[Mark MODIFIED]
-        M3[Add to flush list]
+flowchart TB
+    subgraph memory["In-Memory Stage"]
+        M1[Modify chains] --> M2[Mark MODIFIED]
+        M2 --> M3[Add to flush list]
     end
     
     subgraph flush["Flush Transaction"]
-        F1[Acquire trans lock]
-        F2[Allocate new blocks]
-        F3[Write modified chains]
-        F4[Update blockrefs]
+        F1[Acquire trans lock] --> F2[Allocate new blocks]
+        F2 --> F3[Write modified chains]
+        F3 --> F4[Update blockrefs]
     end
     
     subgraph commit["Commit"]
-        C1[Write volume header]
-        C2[Increment mirror_tid]
-        C3[Release old blocks]
+        C1[Write volume header] --> C2[Increment mirror_tid]
+        C2 --> C3[Release old blocks]
     end
     
-    M1 --> M2 --> M3 --> F1 --> F2 --> F3 --> F4 --> C1 --> C2 --> C3
+    memory --> flush --> commit
 ```
 
 Key transaction concepts:

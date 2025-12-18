@@ -20,34 +20,24 @@ HAMMER2 media is organized into **2GB zones**. Each zone begins with a **4MB res
 - Freemap blocks (8 rotations × 5 levels)
 - Reserved space for future use
 
-```mermaid
-graph TB
-    subgraph ZONE["Zone Layout (2GB each)"]
-        subgraph RESERVED["4MB Reserved Segment<br/>(64 × 64KB blocks)"]
-            B0["Block 0: Volume Header<br/>(first 4 zones only)"]
-            FS0["Blocks 1-5: Freemap Set 0"]
-            FS1["Blocks 6-10: Freemap Set 1"]
-            FS2["Blocks 11-15: Freemap Set 2"]
-            FS3["Blocks 16-20: Freemap Set 3"]
-            FS4["Blocks 21-25: Freemap Set 4"]
-            FS5["Blocks 26-30: Freemap Set 5"]
-            FS6["Blocks 31-35: Freemap Set 6"]
-            FS7["Blocks 36-40: Freemap Set 7"]
-            UNUSED["Blocks 41-63: Reserved"]
-        end
-        ALLOC["~2GB - 4MB:<br/>Allocatable Storage"]
-    end
-    
-    B0 --> FS0
-    FS0 --> FS1
-    FS1 --> FS2
-    FS2 --> FS3
-    FS3 --> FS4
-    FS4 --> FS5
-    FS5 --> FS6
-    FS6 --> FS7
-    FS7 --> UNUSED
-    RESERVED --> ALLOC
+```
+Zone Layout (2GB each):
+┌─────────────────────────────────────────────────────────────┐
+│ 4MB Reserved Segment (64 × 64KB blocks)                     │
+│ ┌─────────────────────────────────────────────────────────┐ │
+│ │ Block 0:     Volume Header (first 4 zones only)         │ │
+│ │ Blocks 1-5:  Freemap Set 0 (levels 1-5)                 │ │
+│ │ Blocks 6-10: Freemap Set 1                              │ │
+│ │ Blocks 11-15: Freemap Set 2                             │ │
+│ │ Blocks 16-20: Freemap Set 3                             │ │
+│ │ Blocks 21-25: Freemap Set 4                             │ │
+│ │ Blocks 26-30: Freemap Set 5                             │ │
+│ │ Blocks 31-35: Freemap Set 6                             │ │
+│ │ Blocks 36-40: Freemap Set 7                             │ │
+│ │ Blocks 41-63: Reserved/Unused                           │ │
+│ └─────────────────────────────────────────────────────────┘ │
+│ ~2GB - 4MB: Allocatable Storage                             │
+└─────────────────────────────────────────────────────────────┘
 ```
 
 ### Volume Headers
@@ -66,23 +56,38 @@ The volume header is a 64KB block containing filesystem metadata:
 
 **Source**: `hammer2_disk.h:1152-1276` (`struct hammer2_volume_data`)
 
-```mermaid
-graph TB
-    subgraph VOLHDR["Volume Header Layout (64KB)"]
-        S0["Sector 0 (0x000-0x1FF)<br/>Core Metadata - 512 bytes<br/>magic, boot/aux areas, version,<br/>fsid, allocator info, mirror_tid"]
-        S1["Sector 1 (0x200-0x3FF)<br/>Super-root Blockset - 512 bytes<br/>4 × 128-byte blockrefs"]
-        S2["Sector 2 (0x400-0x5FF)<br/>Reserved - 512 bytes"]
-        S3["Sector 3 (0x600-0x7FF)<br/>Reserved - 512 bytes"]
-        S4["Sector 4 (0x800-0x9FF)<br/>Freemap Blockset - 512 bytes<br/>4 × 128-byte blockrefs"]
-        S5["Sector 5 (0xA00-0xBFF)<br/>Reserved - 512 bytes"]
-        S6["Sector 6 (0xC00-0xDFF)<br/>Reserved - 512 bytes"]
-        S7["Sector 7 (0xE00-0xFFF)<br/>Volume Offsets - 512 bytes<br/>volu_loff[64]"]
-        COPY["Sectors 8-71 (0x1000-0x8FFF)<br/>Copy Info - 32KB<br/>copyinfo[256]"]
-        RESV["Reserved (0x9000-0xFFFB)<br/>Future Use - ~28KB"]
-        CRC["Final 4 bytes (0xFFFC-0xFFFF)<br/>Volume Header CRC"]
-    end
-    
-    S0 --> S1 --> S2 --> S3 --> S4 --> S5 --> S6 --> S7 --> COPY --> RESV --> CRC
+```
+Volume Header Layout (64KB):
+┌────────────────────────────────────────────────────────────┐
+│ Sector 0 (0x000-0x1FF): Core Metadata - 512 bytes          │
+│   magic, boot/aux areas, volume size, version, flags       │
+│   fsid, fstype, allocator info, mirror_tid, freemap_tid    │
+│   icrc_sects[8] at end                                     │
+├────────────────────────────────────────────────────────────┤
+│ Sector 1 (0x200-0x3FF): Super-root Blockset - 512 bytes    │
+│   4 × 128-byte blockrefs pointing to super-root            │
+├────────────────────────────────────────────────────────────┤
+│ Sector 2 (0x400-0x5FF): Reserved - 512 bytes               │
+├────────────────────────────────────────────────────────────┤
+│ Sector 3 (0x600-0x7FF): Reserved - 512 bytes               │
+├────────────────────────────────────────────────────────────┤
+│ Sector 4 (0x800-0x9FF): Freemap Blockset - 512 bytes       │
+│   4 × 128-byte blockrefs for freemap root                  │
+├────────────────────────────────────────────────────────────┤
+│ Sector 5 (0xA00-0xBFF): Reserved - 512 bytes               │
+├────────────────────────────────────────────────────────────┤
+│ Sector 6 (0xC00-0xDFF): Reserved - 512 bytes               │
+├────────────────────────────────────────────────────────────┤
+│ Sector 7 (0xE00-0xFFF): Volume Offsets - 512 bytes         │
+│   volu_loff[64] - offsets for multi-volume support         │
+├────────────────────────────────────────────────────────────┤
+│ Sectors 8-71 (0x1000-0x8FFF): Copy Info - 32KB             │
+│   copyinfo[256] - cluster configuration                    │
+├────────────────────────────────────────────────────────────┤
+│ Reserved (0x9000-0xFFFB): Future Use - ~28KB               │
+├────────────────────────────────────────────────────────────┤
+│ Final 4 bytes (0xFFFC-0xFFFF): Volume Header CRC           │
+└────────────────────────────────────────────────────────────┘
 ```
 
 ### Key Volume Header Fields
@@ -233,15 +238,21 @@ Inodes are **1KB structures** containing metadata and either direct data or bloc
 
 **Source**: `hammer2_disk.h:1010-1020` (`struct hammer2_inode_data`)
 
-```mermaid
-graph TB
-    subgraph INODE["Inode Layout (1024 bytes)"]
-        META["meta (0x000-0x0FF)<br/>Inode Metadata - 256 bytes<br/>version, timestamps, uid/gid,<br/>type, mode, size, inum, nlinks,<br/>name_key, comp/check settings"]
-        FNAME["filename (0x100-0x1FF)<br/>Filename - 256 bytes<br/>Up to 256 characters, unterminated"]
-        UNION["u (0x200-0x3FF)<br/>Data/Blockset Union - 512 bytes<br/>EITHER: blockset (4 × 128-byte blockrefs)<br/>OR: data[512] (direct embedded data)"]
-    end
-    
-    META --> FNAME --> UNION
+```
+Inode Layout (1024 bytes):
+┌────────────────────────────────────────────────────────────┐
+│ meta (0x000-0x0FF): Inode Metadata - 256 bytes             │
+│   version, timestamps (ctime/mtime/atime/btime)            │
+│   uid, gid, type, mode, size, inum, nlinks                 │
+│   name_key, comp_algo, check_algo, PFS info                │
+├────────────────────────────────────────────────────────────┤
+│ filename (0x100-0x1FF): Filename - 256 bytes               │
+│   Up to 256 characters, unterminated                       │
+├────────────────────────────────────────────────────────────┤
+│ u (0x200-0x3FF): Data/Blockset Union - 512 bytes           │
+│   EITHER: blockset (4 × 128-byte blockrefs)                │
+│   OR:     data[512] (direct embedded data for small files) │
+└────────────────────────────────────────────────────────────┘
 ```
 
 ### Inode Metadata Fields
