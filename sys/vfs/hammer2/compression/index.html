@@ -1,231 +1,119 @@
 
-<!doctype html>
-<html lang="en" class="no-js">
-  <head>
-    
-      <meta charset="utf-8">
-      <meta name="viewport" content="width=device-width,initial-scale=1">
-      
-        <meta name="description" content="Comprehensive documentation for the DragonFly BSD kernel source code">
-      
-      
-        <meta name="author" content="DragonFly BSD Community">
-      
-      
-      
-        <link rel="prev" href="../vfs-integration/">
-      
-      
-        <link rel="next" href="../snapshots/">
-      
-      
-        
-      
-      
-      <link rel="icon" href="../../../../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.1">
-    
-    
-      
-        <title>Compression - DragonFly BSD Kernel Documentation</title>
-      
-    
-    
-      <link rel="stylesheet" href="../../../../assets/stylesheets/main.484c7ddc.min.css">
-      
-        
-        <link rel="stylesheet" href="../../../../assets/stylesheets/palette.ab4e12ef.min.css">
-      
-      
+<!DOCTYPE html>
 
-
-    
-    
-      
-    
-    
-      
-        
-        
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
-        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
-      
-    
-    
-    <script>__md_scope=new URL("../../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
-    
-      
-
-    
-    
-  </head>
-  
-  
-    
-    
-      
-    
-    
-    
-    
-    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
-  
-    
-    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
-    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
-    <label class="md-overlay" for="__drawer"></label>
-    <div data-md-component="skip">
-      
-        
-        <a href="#hammer2-compression" class="md-skip">
+<html class="no-js" lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width,initial-scale=1" name="viewport"/>
+<meta content="Comprehensive documentation for the DragonFly BSD kernel source code" name="description"/>
+<meta content="DragonFly BSD Community" name="author"/>
+<link href="../vfs-integration/" rel="prev"/>
+<link href="../snapshots/" rel="next"/>
+<link href="../../../../assets/images/favicon.png" rel="icon"/>
+<meta content="mkdocs-1.6.1, mkdocs-material-9.7.1" name="generator"/>
+<title>Compression - DragonFly BSD Kernel Documentation</title>
+<link href="../../../../assets/stylesheets/main.484c7ddc.min.css" rel="stylesheet"/>
+<link href="../../../../assets/stylesheets/palette.ab4e12ef.min.css" rel="stylesheet"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&amp;display=fallback" rel="stylesheet"/>
+<style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+<script>__md_scope=new URL("../../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+</head>
+<body data-md-color-accent="indigo" data-md-color-primary="indigo" data-md-color-scheme="default" dir="ltr">
+<input autocomplete="off" class="md-toggle" data-md-toggle="drawer" id="__drawer" type="checkbox"/>
+<input autocomplete="off" class="md-toggle" data-md-toggle="search" id="__search" type="checkbox"/>
+<label class="md-overlay" for="__drawer"></label>
+<div data-md-component="skip">
+<a class="md-skip" href="#hammer2-compression">
           Skip to content
         </a>
-      
-    </div>
-    <div data-md-component="announce">
-      
-    </div>
-    
-    
-      
-
+</div>
+<div data-md-component="announce">
+</div>
 <header class="md-header" data-md-component="header">
-  <nav class="md-header__inner md-grid" aria-label="Header">
-    <a href="../../../.." title="DragonFly BSD Kernel Documentation" class="md-header__button md-logo" aria-label="DragonFly BSD Kernel Documentation" data-md-component="logo">
-      
-  
-  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
-
-    </a>
-    <label class="md-header__button md-icon" for="__drawer">
-      
-      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
-    </label>
-    <div class="md-header__title" data-md-component="header-title">
-      <div class="md-header__ellipsis">
-        <div class="md-header__topic">
-          <span class="md-ellipsis">
+<nav aria-label="Header" class="md-header__inner md-grid">
+<a aria-label="DragonFly BSD Kernel Documentation" class="md-header__button md-logo" data-md-component="logo" href="../../../.." title="DragonFly BSD Kernel Documentation">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"></path></svg>
+</a>
+<label class="md-header__button md-icon" for="__drawer">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"></path></svg>
+</label>
+<div class="md-header__title" data-md-component="header-title">
+<div class="md-header__ellipsis">
+<div class="md-header__topic">
+<span class="md-ellipsis">
             DragonFly BSD Kernel Documentation
           </span>
-        </div>
-        <div class="md-header__topic" data-md-component="header-topic">
-          <span class="md-ellipsis">
+</div>
+<div class="md-header__topic" data-md-component="header-topic">
+<span class="md-ellipsis">
             
               Compression
             
           </span>
-        </div>
-      </div>
-    </div>
-    
-      
-        <form class="md-header__option" data-md-component="palette">
-  
-    
-    
-    
-    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
-    
-      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
-      </label>
-    
-  
-    
-    
-    
-    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
-    
-      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
-      </label>
-    
-  
+</div>
+</div>
+</div>
+<form class="md-header__option" data-md-component="palette">
+<input aria-label="Switch to dark mode" class="md-option" data-md-color-accent="indigo" data-md-color-media="" data-md-color-primary="indigo" data-md-color-scheme="default" id="__palette_0" name="__palette" type="radio"/>
+<label class="md-header__button md-icon" for="__palette_1" hidden="" title="Switch to dark mode">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"></path></svg>
+</label>
+<input aria-label="Switch to light mode" class="md-option" data-md-color-accent="indigo" data-md-color-media="" data-md-color-primary="indigo" data-md-color-scheme="slate" id="__palette_1" name="__palette" type="radio"/>
+<label class="md-header__button md-icon" for="__palette_0" hidden="" title="Switch to light mode">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"></path></svg>
+</label>
 </form>
-      
-    
-    
-      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
-    
-    
-    
-      
-      
-        <label class="md-header__button md-icon" for="__search">
-          
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
-        </label>
-        <div class="md-search" data-md-component="search" role="dialog">
-  <label class="md-search__overlay" for="__search"></label>
-  <div class="md-search__inner" role="search">
-    <form class="md-search__form" name="search">
-      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
-      <label class="md-search__icon md-icon" for="__search">
-        
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
-        
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
-      </label>
-      <nav class="md-search__options" aria-label="Search">
-        
-        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
-          
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
-        </button>
-      </nav>
-      
-        <div class="md-search__suggest" data-md-component="search-suggest"></div>
-      
-    </form>
-    <div class="md-search__output">
-      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
-        <div class="md-search-result" data-md-component="search-result">
-          <div class="md-search-result__meta">
+<script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+<label class="md-header__button md-icon" for="__search">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"></path></svg>
+</label>
+<div class="md-search" data-md-component="search" role="dialog">
+<label class="md-search__overlay" for="__search"></label>
+<div class="md-search__inner" role="search">
+<form class="md-search__form" name="search">
+<input aria-label="Search" autocapitalize="off" autocomplete="off" autocorrect="off" class="md-search__input" data-md-component="search-query" name="query" placeholder="Search" required="" spellcheck="false" type="text"/>
+<label class="md-search__icon md-icon" for="__search">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"></path></svg>
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"></path></svg>
+</label>
+<nav aria-label="Search" class="md-search__options">
+<button aria-label="Clear" class="md-search__icon md-icon" tabindex="-1" title="Clear" type="reset">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"></path></svg>
+</button>
+</nav>
+<div class="md-search__suggest" data-md-component="search-suggest"></div>
+</form>
+<div class="md-search__output">
+<div class="md-search__scrollwrap" data-md-scrollfix="" tabindex="0">
+<div class="md-search-result" data-md-component="search-result">
+<div class="md-search-result__meta">
             Initializing search
           </div>
-          <ol class="md-search-result__list" role="presentation"></ol>
-        </div>
-      </div>
-    </div>
-  </div>
+<ol class="md-search-result__list" role="presentation"></ol>
 </div>
-      
-    
-    
-      <div class="md-header__source">
-        <a href="https://github.com/tuxillo/dragonflybsd-source-docs" title="Go to repository" class="md-source" data-md-component="source">
-  <div class="md-source__icon md-icon">
-    
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
-  </div>
-  <div class="md-source__repository">
+</div>
+</div>
+</div>
+</div>
+<div class="md-header__source">
+<a class="md-source" data-md-component="source" href="https://github.com/tuxillo/dragonflybsd-source-docs" title="Go to repository">
+<div class="md-source__icon md-icon">
+<svg viewbox="0 0 448 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"></path></svg>
+</div>
+<div class="md-source__repository">
     tuxillo/dragonflybsd-source-docs
   </div>
 </a>
-      </div>
-    
-  </nav>
-  
+</div>
+</nav>
 </header>
-    
-    <div class="md-container" data-md-component="container">
-      
-      
-        
-          
-            
-<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
-  <div class="md-grid">
-    <ul class="md-tabs__list">
-      
-        
-  
-  
-  
-  
-    <li class="md-tabs__item">
-      <a href="../../../.." class="md-tabs__link">
+<div class="md-container" data-md-component="container">
+<nav aria-label="Tabs" class="md-tabs" data-md-component="tabs">
+<div class="md-grid">
+<ul class="md-tabs__list">
+<li class="md-tabs__item">
+<a class="md-tabs__link" href="../../../..">
         
   
   
@@ -234,17 +122,9 @@
   Home
 
       </a>
-    </li>
-  
-
-      
-        
-  
-  
-  
-  
-    <li class="md-tabs__item">
-      <a href="../../../../getting-started/" class="md-tabs__link">
+</li>
+<li class="md-tabs__item">
+<a class="md-tabs__link" href="../../../../getting-started/">
         
   
   
@@ -253,89 +133,45 @@
   Getting Started
 
       </a>
-    </li>
-  
-
-      
-        
-  
-  
-  
-    
-  
-  
-    
-    
-      <li class="md-tabs__item md-tabs__item--active">
-        <a href="../../../" class="md-tabs__link">
+</li>
+<li class="md-tabs__item md-tabs__item--active">
+<a class="md-tabs__link" href="../../../">
           
   
   
   Kernel Subsystems
 
         </a>
-      </li>
-    
-  
-
-      
-    </ul>
-  </div>
+</li>
+</ul>
+</div>
 </nav>
-          
-        
-      
-      <main class="md-main" data-md-component="main">
-        <div class="md-main__inner md-grid">
-          
-            
-              
-              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
-                <div class="md-sidebar__scrollwrap">
-                  <div class="md-sidebar__inner">
-                    
-
-
-  
-
-
-<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
-  <label class="md-nav__title" for="__drawer">
-    <a href="../../../.." title="DragonFly BSD Kernel Documentation" class="md-nav__button md-logo" aria-label="DragonFly BSD Kernel Documentation" data-md-component="logo">
-      
-  
-  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
-
-    </a>
+<main class="md-main" data-md-component="main">
+<div class="md-main__inner md-grid">
+<div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation">
+<div class="md-sidebar__scrollwrap">
+<div class="md-sidebar__inner">
+<nav aria-label="Navigation" class="md-nav md-nav--primary md-nav--lifted" data-md-level="0">
+<label class="md-nav__title" for="__drawer">
+<a aria-label="DragonFly BSD Kernel Documentation" class="md-nav__button md-logo" data-md-component="logo" href="../../../.." title="DragonFly BSD Kernel Documentation">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"></path></svg>
+</a>
     DragonFly BSD Kernel Documentation
   </label>
-  
-    <div class="md-nav__source">
-      <a href="https://github.com/tuxillo/dragonflybsd-source-docs" title="Go to repository" class="md-source" data-md-component="source">
-  <div class="md-source__icon md-icon">
-    
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
-  </div>
-  <div class="md-source__repository">
+<div class="md-nav__source">
+<a class="md-source" data-md-component="source" href="https://github.com/tuxillo/dragonflybsd-source-docs" title="Go to repository">
+<div class="md-source__icon md-icon">
+<svg viewbox="0 0 448 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"></path></svg>
+</div>
+<div class="md-source__repository">
     tuxillo/dragonflybsd-source-docs
   </div>
 </a>
-    </div>
-  
-  <ul class="md-nav__list" data-md-scrollfix>
-    
-      
-      
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../../.." class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
+</div>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../../..">
+<span class="md-ellipsis">
     
   
     Home
@@ -343,26 +179,11 @@
 
     
   </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-    
-      
-      
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../../../getting-started/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../../../getting-started/">
+<span class="md-ellipsis">
     
   
     Getting Started
@@ -370,47 +191,12 @@
 
     
   </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-    
-      
-      
-  
-  
-    
-  
-  
-  
-    
-    
-    
-    
-      
-        
-        
-      
-      
-        
-      
-    
-    
-    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
-      
-        
-        
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" checked>
-        
-          
-          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="">
-            
-  
-  
-  <span class="md-ellipsis">
+</a>
+</li>
+<li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+<input checked="" class="md-nav__toggle md-toggle" id="__nav_3" type="checkbox"/>
+<label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="">
+<span class="md-ellipsis">
     
   
     Kernel Subsystems
@@ -418,35 +204,21 @@
 
     
   </span>
-  
-  
-
-            <span class="md-nav__icon md-icon"></span>
-          </label>
-        
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="true">
-          <label class="md-nav__title" for="__nav_3">
-            <span class="md-nav__icon md-icon"></span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="true" aria-labelledby="__nav_3_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_3">
+<span class="md-nav__icon md-icon"></span>
             
   
     Kernel Subsystems
   
 
           </label>
-          <ul class="md-nav__list" data-md-scrollfix>
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../../" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../../">
+<span class="md-ellipsis">
     
   
     Overview
@@ -454,48 +226,12 @@
 
     
   </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    
-    
-    
-    
-      
-      
-        
-          
-          
-        
-      
-    
-    
-    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
-      
-        
-        
-          
-        
-        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_3_2" >
-        
-          
-          <label class="md-nav__link" for="__nav_3_2" id="__nav_3_2_label" tabindex="">
-            
-  
-  
-  <span class="md-ellipsis">
+</a>
+</li>
+<li class="md-nav__item md-nav__item--section md-nav__item--nested">
+<input class="md-nav__toggle md-toggle md-toggle--indeterminate" id="__nav_3_2" type="checkbox"/>
+<label class="md-nav__link" for="__nav_3_2" id="__nav_3_2_label" tabindex="">
+<span class="md-ellipsis">
     
   
     kern/
@@ -503,35 +239,21 @@
 
     
   </span>
-  
-  
-
-            <span class="md-nav__icon md-icon"></span>
-          </label>
-        
-        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_2_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_3_2">
-            <span class="md-nav__icon md-icon"></span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="false" aria-labelledby="__nav_3_2_label" class="md-nav" data-md-level="2">
+<label class="md-nav__title" for="__nav_3_2">
+<span class="md-nav__icon md-icon"></span>
             
   
     kern/
   
 
           </label>
-          <ul class="md-nav__list" data-md-scrollfix>
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../../kern/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../../kern/">
+<span class="md-ellipsis">
     
   
     Overview
@@ -539,27 +261,11 @@
 
     
   </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../../kern/lwkt/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../../kern/lwkt/">
+<span class="md-ellipsis">
     
   
     LWKT Threading
@@ -567,27 +273,11 @@
 
     
   </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../../kern/synchronization/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../../kern/synchronization/">
+<span class="md-ellipsis">
     
   
     Synchronization
@@ -595,55 +285,23 @@
 
     
   </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../../kern/time/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../../kern/time/">
+<span class="md-ellipsis">
     
   
-    Time & Timers
+    Time &amp; Timers
   
 
     
   </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../../kern/memory/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../../kern/memory/">
+<span class="md-ellipsis">
     
   
     Memory Management
@@ -651,111 +309,47 @@
 
     
   </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../../kern/initialization/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../../kern/initialization/">
+<span class="md-ellipsis">
     
   
-    Initialization & Bootstrap
+    Initialization &amp; Bootstrap
   
 
     
   </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../../kern/processes/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../../kern/processes/">
+<span class="md-ellipsis">
     
   
-    Processes & Threads
+    Processes &amp; Threads
   
 
     
   </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../../kern/resources/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../../kern/resources/">
+<span class="md-ellipsis">
     
   
-    Process Resources & Credentials
+    Process Resources &amp; Credentials
   
 
     
   </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../../kern/signals/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../../kern/signals/">
+<span class="md-ellipsis">
     
   
     Signals
@@ -763,27 +357,11 @@
 
     
   </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../../kern/scheduling/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../../kern/scheduling/">
+<span class="md-ellipsis">
     
   
     Scheduling
@@ -791,45 +369,12 @@
 
     
   </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    
-    
-    
-    
-      
-      
-        
-      
-    
-    
-    <li class="md-nav__item md-nav__item--nested">
-      
-        
-        
-          
-        
-        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_3_2_11" >
-        
-          
-          <label class="md-nav__link" for="__nav_3_2_11" id="__nav_3_2_11_label" tabindex="0">
-            
-  
-  
-  <span class="md-ellipsis">
+</a>
+</li>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle md-toggle--indeterminate" id="__nav_3_2_11" type="checkbox"/>
+<label class="md-nav__link" for="__nav_3_2_11" id="__nav_3_2_11_label" tabindex="0">
+<span class="md-ellipsis">
     
   
     Virtual Filesystem
@@ -837,35 +382,21 @@
 
     
   </span>
-  
-  
-
-            <span class="md-nav__icon md-icon"></span>
-          </label>
-        
-        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_3_2_11_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_3_2_11">
-            <span class="md-nav__icon md-icon"></span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="false" aria-labelledby="__nav_3_2_11_label" class="md-nav" data-md-level="3">
+<label class="md-nav__title" for="__nav_3_2_11">
+<span class="md-nav__icon md-icon"></span>
             
   
     Virtual Filesystem
   
 
           </label>
-          <ul class="md-nav__list" data-md-scrollfix>
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../../kern/vfs/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../../kern/vfs/">
+<span class="md-ellipsis">
     
   
     Overview
@@ -873,111 +404,47 @@
 
     
   </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../../kern/vfs/namecache/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../../kern/vfs/namecache/">
+<span class="md-ellipsis">
     
   
-    Name Lookup & Caching
+    Name Lookup &amp; Caching
   
 
     
   </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../../kern/vfs/mounting/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../../kern/vfs/mounting/">
+<span class="md-ellipsis">
     
   
-    Mounting & Unmounting
+    Mounting &amp; Unmounting
   
 
     
   </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../../kern/vfs/buffer-cache/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../../kern/vfs/buffer-cache/">
+<span class="md-ellipsis">
     
   
-    Buffer Cache & I/O
+    Buffer Cache &amp; I/O
   
 
     
   </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../../kern/vfs/vfs-operations/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../../kern/vfs/vfs-operations/">
+<span class="md-ellipsis">
     
   
     VFS Operations Framework
@@ -985,27 +452,11 @@
 
     
   </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../../kern/vfs/journaling/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../../kern/vfs/journaling/">
+<span class="md-ellipsis">
     
   
     Journaling System
@@ -1013,145 +464,61 @@
 
     
   </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../../kern/vfs/vfs-locking/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../../kern/vfs/vfs-locking/">
+<span class="md-ellipsis">
     
   
-    Vnode Locking & Lifecycle
+    Vnode Locking &amp; Lifecycle
   
 
     
   </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../../kern/vfs/vfs-extensions/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../../kern/vfs/vfs-extensions/">
+<span class="md-ellipsis">
     
   
-    VFS Extensions & Helpers
+    VFS Extensions &amp; Helpers
   
 
     
   </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-          </ul>
-        </nav>
-      
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    
-    
-    
-    
-      
-      
-        
-      
-    
-    
-    <li class="md-nav__item md-nav__item--nested">
-      
-        
-        
-          
-        
-        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_3_2_12" >
-        
-          
-          <label class="md-nav__link" for="__nav_3_2_12" id="__nav_3_2_12_label" tabindex="0">
-            
-  
-  
-  <span class="md-ellipsis">
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle md-toggle--indeterminate" id="__nav_3_2_12" type="checkbox"/>
+<label class="md-nav__link" for="__nav_3_2_12" id="__nav_3_2_12_label" tabindex="0">
+<span class="md-ellipsis">
     
   
-    IPC & Sockets
+    IPC &amp; Sockets
   
 
     
   </span>
-  
-  
-
-            <span class="md-nav__icon md-icon"></span>
-          </label>
-        
-        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_3_2_12_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_3_2_12">
-            <span class="md-nav__icon md-icon"></span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="false" aria-labelledby="__nav_3_2_12_label" class="md-nav" data-md-level="3">
+<label class="md-nav__title" for="__nav_3_2_12">
+<span class="md-nav__icon md-icon"></span>
             
   
-    IPC & Sockets
+    IPC &amp; Sockets
   
 
           </label>
-          <ul class="md-nav__list" data-md-scrollfix>
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../../kern/ipc/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../../kern/ipc/">
+<span class="md-ellipsis">
     
   
     Overview
@@ -1159,27 +526,11 @@
 
     
   </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../../kern/ipc/mbufs/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../../kern/ipc/mbufs/">
+<span class="md-ellipsis">
     
   
     Mbufs
@@ -1187,27 +538,11 @@
 
     
   </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../../kern/ipc/sockets/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../../kern/ipc/sockets/">
+<span class="md-ellipsis">
     
   
     Sockets
@@ -1215,27 +550,11 @@
 
     
   </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../../kern/ipc/unix-sockets/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../../kern/ipc/unix-sockets/">
+<span class="md-ellipsis">
     
   
     Unix Domain Sockets
@@ -1243,27 +562,11 @@
 
     
   </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../../kern/ipc/protocol-dispatch/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../../kern/ipc/protocol-dispatch/">
+<span class="md-ellipsis">
     
   
     Protocol Dispatch
@@ -1271,27 +574,11 @@
 
     
   </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../../kern/ipc/pipes/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../../kern/ipc/pipes/">
+<span class="md-ellipsis">
     
   
     Pipes
@@ -1299,27 +586,11 @@
 
     
   </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../../kern/ipc/mqueue/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../../kern/ipc/mqueue/">
+<span class="md-ellipsis">
     
   
     POSIX Message Queues
@@ -1327,27 +598,11 @@
 
     
   </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../../kern/ipc/sysv-msg/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../../kern/ipc/sysv-msg/">
+<span class="md-ellipsis">
     
   
     System V Message Queues
@@ -1355,27 +610,11 @@
 
     
   </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../../kern/ipc/sysv-sem/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../../kern/ipc/sysv-sem/">
+<span class="md-ellipsis">
     
   
     System V Semaphores
@@ -1383,27 +622,11 @@
 
     
   </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../../kern/ipc/sysv-shm/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../../kern/ipc/sysv-shm/">
+<span class="md-ellipsis">
     
   
     System V Shared Memory
@@ -1411,63 +634,26 @@
 
     
   </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-          </ul>
-        </nav>
-      
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../../kern/devices/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../../kern/devices/">
+<span class="md-ellipsis">
     
   
-    Devices & Drivers
+    Devices &amp; Drivers
   
 
     
   </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../../kern/newbus/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../../kern/newbus/">
+<span class="md-ellipsis">
     
   
     NewBus Framework
@@ -1475,55 +661,23 @@
 
     
   </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../../kern/bus-resources/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../../kern/bus-resources/">
+<span class="md-ellipsis">
     
   
-    Bus Resources & DMA
+    Bus Resources &amp; DMA
   
 
     
   </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../../kern/disk/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../../kern/disk/">
+<span class="md-ellipsis">
     
   
     Disk Subsystem
@@ -1531,27 +685,11 @@
 
     
   </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../../kern/firmware/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../../kern/firmware/">
+<span class="md-ellipsis">
     
   
     Firmware Loading
@@ -1559,27 +697,11 @@
 
     
   </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../../kern/syscalls/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../../kern/syscalls/">
+<span class="md-ellipsis">
     
   
     System Calls
@@ -1587,27 +709,11 @@
 
     
   </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../../kern/kld/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../../kern/kld/">
+<span class="md-ellipsis">
     
   
     Kernel Linker (KLD)
@@ -1615,55 +721,23 @@
 
     
   </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../../kern/tracing/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../../kern/tracing/">
+<span class="md-ellipsis">
     
   
-    Tracing & Debugging
+    Tracing &amp; Debugging
   
 
     
   </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../../kern/sysctl/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../../kern/sysctl/">
+<span class="md-ellipsis">
     
   
     Sysctl Framework
@@ -1671,55 +745,23 @@
 
     
   </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../../kern/accounting/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../../kern/accounting/">
+<span class="md-ellipsis">
     
   
-    Accounting & Sensors
+    Accounting &amp; Sensors
   
 
     
   </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../../kern/security/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../../kern/security/">
+<span class="md-ellipsis">
     
   
     Security
@@ -1727,27 +769,11 @@
 
     
   </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../../kern/tty/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../../kern/tty/">
+<span class="md-ellipsis">
     
   
     TTY Subsystem
@@ -1755,27 +781,11 @@
 
     
   </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../../kern/tty-pty/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../../kern/tty-pty/">
+<span class="md-ellipsis">
     
   
     Pseudo-Terminals (PTY)
@@ -1783,27 +793,11 @@
 
     
   </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../../kern/kevent/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../../kern/kevent/">
+<span class="md-ellipsis">
     
   
     Event Notification (kevent)
@@ -1811,27 +805,11 @@
 
     
   </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../../kern/taskqueue/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../../kern/taskqueue/">
+<span class="md-ellipsis">
     
   
     Task Queues
@@ -1839,27 +817,11 @@
 
     
   </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../../kern/random/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../../kern/random/">
+<span class="md-ellipsis">
     
   
     Random Number Generation
@@ -1867,27 +829,11 @@
 
     
   </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../../kern/checkpoint/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../../kern/checkpoint/">
+<span class="md-ellipsis">
     
   
     Process Checkpoint/Restart
@@ -1895,27 +841,11 @@
 
     
   </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../../kern/dmsg/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../../kern/dmsg/">
+<span class="md-ellipsis">
     
   
     Distributed Messaging (dmsg)
@@ -1923,55 +853,23 @@
 
     
   </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../../kern/shutdown/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../../kern/shutdown/">
+<span class="md-ellipsis">
     
   
-    Shutdown & Panic
+    Shutdown &amp; Panic
   
 
     
   </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../../kern/utilities/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../../kern/utilities/">
+<span class="md-ellipsis">
     
   
     Kernel Utilities
@@ -1979,56 +877,15 @@
 
     
   </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-          </ul>
-        </nav>
-      
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    
-    
-    
-    
-      
-      
-        
-          
-          
-        
-      
-    
-    
-    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
-      
-        
-        
-          
-        
-        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_3_3" >
-        
-          
-          <label class="md-nav__link" for="__nav_3_3" id="__nav_3_3_label" tabindex="">
-            
-  
-  
-  <span class="md-ellipsis">
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--section md-nav__item--nested">
+<input class="md-nav__toggle md-toggle md-toggle--indeterminate" id="__nav_3_3" type="checkbox"/>
+<label class="md-nav__link" for="__nav_3_3" id="__nav_3_3_label" tabindex="">
+<span class="md-ellipsis">
     
   
     vm/
@@ -2036,35 +893,21 @@
 
     
   </span>
-  
-  
-
-            <span class="md-nav__icon md-icon"></span>
-          </label>
-        
-        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_3_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_3_3">
-            <span class="md-nav__icon md-icon"></span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="false" aria-labelledby="__nav_3_3_label" class="md-nav" data-md-level="2">
+<label class="md-nav__title" for="__nav_3_3">
+<span class="md-nav__icon md-icon"></span>
             
   
     vm/
   
 
           </label>
-          <ul class="md-nav__list" data-md-scrollfix>
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../../vm/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../../vm/">
+<span class="md-ellipsis">
     
   
     Overview
@@ -2072,27 +915,11 @@
 
     
   </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../../vm/concepts/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../../vm/concepts/">
+<span class="md-ellipsis">
     
   
     Concepts
@@ -2100,27 +927,11 @@
 
     
   </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../../vm/vm_page/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../../vm/vm_page/">
+<span class="md-ellipsis">
     
   
     Physical Pages
@@ -2128,27 +939,11 @@
 
     
   </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../../vm/vm_object/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../../vm/vm_object/">
+<span class="md-ellipsis">
     
   
     VM Objects
@@ -2156,27 +951,11 @@
 
     
   </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../../vm/vm_map/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../../vm/vm_map/">
+<span class="md-ellipsis">
     
   
     Address Space
@@ -2184,27 +963,11 @@
 
     
   </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../../vm/vm_fault/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../../vm/vm_fault/">
+<span class="md-ellipsis">
     
   
     Page Faults
@@ -2212,55 +975,23 @@
 
     
   </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../../vm/vm_pageout/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../../vm/vm_pageout/">
+<span class="md-ellipsis">
     
   
-    Pageout & Swap
+    Pageout &amp; Swap
   
 
     
   </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../../vm/vm_mmap/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../../vm/vm_mmap/">
+<span class="md-ellipsis">
     
   
     Memory Mapping
@@ -2268,56 +999,15 @@
 
     
   </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-          </ul>
-        </nav>
-      
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-    
-  
-  
-  
-    
-    
-    
-    
-      
-      
-        
-          
-          
-        
-      
-    
-    
-    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
-      
-        
-        
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_4" checked>
-        
-          
-          <label class="md-nav__link" for="__nav_3_4" id="__nav_3_4_label" tabindex="">
-            
-  
-  
-  <span class="md-ellipsis">
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+<input checked="" class="md-nav__toggle md-toggle" id="__nav_3_4" type="checkbox"/>
+<label class="md-nav__link" for="__nav_3_4" id="__nav_3_4_label" tabindex="">
+<span class="md-ellipsis">
     
   
     vfs/
@@ -2325,35 +1015,21 @@
 
     
   </span>
-  
-  
-
-            <span class="md-nav__icon md-icon"></span>
-          </label>
-        
-        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_4_label" aria-expanded="true">
-          <label class="md-nav__title" for="__nav_3_4">
-            <span class="md-nav__icon md-icon"></span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="true" aria-labelledby="__nav_3_4_label" class="md-nav" data-md-level="2">
+<label class="md-nav__title" for="__nav_3_4">
+<span class="md-nav__icon md-icon"></span>
             
   
     vfs/
   
 
           </label>
-          <ul class="md-nav__list" data-md-scrollfix>
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../">
+<span class="md-ellipsis">
     
   
     Overview
@@ -2361,45 +1037,12 @@
 
     
   </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-    
-  
-  
-  
-    
-    
-    
-    
-      
-      
-        
-      
-    
-    
-    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
-      
-        
-        
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_4_2" checked>
-        
-          
-          <label class="md-nav__link" for="__nav_3_4_2" id="__nav_3_4_2_label" tabindex="0">
-            
-  
-  
-  <span class="md-ellipsis">
+</a>
+</li>
+<li class="md-nav__item md-nav__item--active md-nav__item--nested">
+<input checked="" class="md-nav__toggle md-toggle" id="__nav_3_4_2" type="checkbox"/>
+<label class="md-nav__link" for="__nav_3_4_2" id="__nav_3_4_2_label" tabindex="0">
+<span class="md-ellipsis">
     
   
     HAMMER2
@@ -2407,35 +1050,21 @@
 
     
   </span>
-  
-  
-
-            <span class="md-nav__icon md-icon"></span>
-          </label>
-        
-        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_3_4_2_label" aria-expanded="true">
-          <label class="md-nav__title" for="__nav_3_4_2">
-            <span class="md-nav__icon md-icon"></span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="true" aria-labelledby="__nav_3_4_2_label" class="md-nav" data-md-level="3">
+<label class="md-nav__title" for="__nav_3_4_2">
+<span class="md-nav__icon md-icon"></span>
             
   
     HAMMER2
   
 
           </label>
-          <ul class="md-nav__list" data-md-scrollfix>
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../">
+<span class="md-ellipsis">
     
   
     Overview
@@ -2443,27 +1072,11 @@
 
     
   </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../on-disk-format/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../on-disk-format/">
+<span class="md-ellipsis">
     
   
     On-Disk Format
@@ -2471,27 +1084,11 @@
 
     
   </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../chain-layer/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../chain-layer/">
+<span class="md-ellipsis">
     
   
     Chain Layer
@@ -2499,27 +1096,11 @@
 
     
   </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../inode-layer/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../inode-layer/">
+<span class="md-ellipsis">
     
   
     Inode Layer
@@ -2527,27 +1108,11 @@
 
     
   </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../io-subsystem/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../io-subsystem/">
+<span class="md-ellipsis">
     
   
     I/O Subsystem
@@ -2555,55 +1120,23 @@
 
     
   </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../flush-sync/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../flush-sync/">
+<span class="md-ellipsis">
     
   
-    Flush & Sync
+    Flush &amp; Sync
   
 
     
   </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../freemap/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../freemap/">
+<span class="md-ellipsis">
     
   
     Freemap
@@ -2611,27 +1144,11 @@
 
     
   </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../xop-system/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../xop-system/">
+<span class="md-ellipsis">
     
   
     XOP System
@@ -2639,27 +1156,11 @@
 
     
   </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../vfs-integration/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../vfs-integration/">
+<span class="md-ellipsis">
     
   
     VFS Integration
@@ -2667,36 +1168,12 @@
 
     
   </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-    
-  
-  
-  
-    <li class="md-nav__item md-nav__item--active">
-      
-      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
-      
-      
-        
-      
-      
-        <label class="md-nav__link md-nav__link--active" for="__toc">
-          
-  
-  
-  <span class="md-ellipsis">
+</a>
+</li>
+<li class="md-nav__item md-nav__item--active">
+<input class="md-nav__toggle md-toggle" id="__toc" type="checkbox"/>
+<label class="md-nav__link md-nav__link--active" for="__toc">
+<span class="md-ellipsis">
     
   
     Compression
@@ -2704,17 +1181,10 @@
 
     
   </span>
-  
-  
-
-          <span class="md-nav__icon md-icon"></span>
-        </label>
-      
-      <a href="./" class="md-nav__link md-nav__link--active">
-        
-  
-  
-  <span class="md-ellipsis">
+<span class="md-nav__icon md-icon"></span>
+</label>
+<a class="md-nav__link md-nav__link--active" href="./">
+<span class="md-ellipsis">
     
   
     Compression
@@ -2722,91 +1192,415 @@
 
     
   </span>
-  
-  
-
-      </a>
-      
-        
-
-<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
-  
-  
-  
-    
-  
-  
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
+</a>
+<nav aria-label="Table of contents" class="md-nav md-nav--secondary">
+<label class="md-nav__title" for="__toc">
+<span class="md-nav__icon md-icon"></span>
       Table of contents
     </label>
-    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#overview" class="md-nav__link">
-    <span class="md-ellipsis">
+<ul class="md-nav__list" data-md-component="toc" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#overview">
+<span class="md-ellipsis">
       
         Overview
       
     </span>
-  </a>
-  
+</a>
 </li>
-      
-        <li class="md-nav__item">
-  <a href="#compression-algorithms" class="md-nav__link">
-    <span class="md-ellipsis">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#compression-algorithms">
+<span class="md-ellipsis">
       
         Compression Algorithms
       
     </span>
-  </a>
-  
-</li>
+</a>
+<nav aria-label="Compression Algorithms" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#algorithm-constants">
+<span class="md-ellipsis">
       
-        <li class="md-nav__item">
-  <a href="#compression-integration" class="md-nav__link">
-    <span class="md-ellipsis">
+        Algorithm Constants
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#encoding-in-blockrefs">
+<span class="md-ellipsis">
+      
+        Encoding in Blockrefs
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#per-inode-settings">
+<span class="md-ellipsis">
+      
+        Per-Inode Settings
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#lz4-compression">
+<span class="md-ellipsis">
+      
+        LZ4 Compression
+      
+    </span>
+</a>
+<nav aria-label="LZ4 Compression" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#lz4-characteristics">
+<span class="md-ellipsis">
+      
+        LZ4 Characteristics
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#lz4-api">
+<span class="md-ellipsis">
+      
+        LZ4 API
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#lz4-memory-management">
+<span class="md-ellipsis">
+      
+        LZ4 Memory Management
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#lz4-compression-flow">
+<span class="md-ellipsis">
+      
+        LZ4 Compression Flow
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#lz4-data-format">
+<span class="md-ellipsis">
+      
+        LZ4 Data Format
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#lz4-algorithm-internals">
+<span class="md-ellipsis">
+      
+        LZ4 Algorithm Internals
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#zlib-compression">
+<span class="md-ellipsis">
+      
+        ZLIB Compression
+      
+    </span>
+</a>
+<nav aria-label="ZLIB Compression" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#zlib-characteristics">
+<span class="md-ellipsis">
+      
+        ZLIB Characteristics
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#zlib-api">
+<span class="md-ellipsis">
+      
+        ZLIB API
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#zlib-stream-structure">
+<span class="md-ellipsis">
+      
+        ZLIB Stream Structure
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#zlib-compression-flow">
+<span class="md-ellipsis">
+      
+        ZLIB Compression Flow
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#zlib-compression-levels">
+<span class="md-ellipsis">
+      
+        ZLIB Compression Levels
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#compression-integration">
+<span class="md-ellipsis">
       
         Compression Integration
       
     </span>
-  </a>
-  
-</li>
+</a>
+<nav aria-label="Compression Integration" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#write-path">
+<span class="md-ellipsis">
       
-        <li class="md-nav__item">
-  <a href="#see-also" class="md-nav__link">
-    <span class="md-ellipsis">
+        Write Path
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#read-path">
+<span class="md-ellipsis">
+      
+        Read Path
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#decompression-callbacks">
+<span class="md-ellipsis">
+      
+        Decompression Callbacks
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#compression-heuristic">
+<span class="md-ellipsis">
+      
+        Compression Heuristic
+      
+    </span>
+</a>
+<nav aria-label="Compression Heuristic" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#heuristic-algorithm">
+<span class="md-ellipsis">
+      
+        Heuristic Algorithm
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#heuristic-behavior">
+<span class="md-ellipsis">
+      
+        Heuristic Behavior
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#compressed-block-sizes">
+<span class="md-ellipsis">
+      
+        Compressed Block Sizes
+      
+    </span>
+</a>
+<nav aria-label="Compressed Block Sizes" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#block-size-selection">
+<span class="md-ellipsis">
+      
+        Block Size Selection
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#zero-block-optimization">
+<span class="md-ellipsis">
+      
+        Zero-Block Optimization
+      
+    </span>
+</a>
+<nav aria-label="Zero-Block Optimization" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#zero-detection">
+<span class="md-ellipsis">
+      
+        Zero Detection
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#zero-write-handling">
+<span class="md-ellipsis">
+      
+        Zero Write Handling
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#buffer-caching">
+<span class="md-ellipsis">
+      
+        Buffer Caching
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#check-code-integration">
+<span class="md-ellipsis">
+      
+        Check Code Integration
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#performance-considerations">
+<span class="md-ellipsis">
+      
+        Performance Considerations
+      
+    </span>
+</a>
+<nav aria-label="Performance Considerations" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#cpu-vs-io-tradeoff">
+<span class="md-ellipsis">
+      
+        CPU vs I/O Tradeoff
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#compression-ratio-target">
+<span class="md-ellipsis">
+      
+        Compression Ratio Target
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#memory-usage">
+<span class="md-ellipsis">
+      
+        Memory Usage
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#configuration">
+<span class="md-ellipsis">
+      
+        Configuration
+      
+    </span>
+</a>
+<nav aria-label="Configuration" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#mount-options">
+<span class="md-ellipsis">
+      
+        Mount Options
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#sysctl-tuning">
+<span class="md-ellipsis">
+      
+        Sysctl Tuning
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#see-also">
+<span class="md-ellipsis">
       
         See Also
       
     </span>
-  </a>
-  
+</a>
 </li>
-      
-    </ul>
-  
+</ul>
 </nav>
-      
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../snapshots/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../snapshots/">
+<span class="md-ellipsis">
     
   
     Snapshots
@@ -2814,27 +1608,11 @@
 
     
   </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../clustering/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../clustering/">
+<span class="md-ellipsis">
     
   
     Clustering
@@ -2842,35 +1620,14 @@
 
     
   </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-          </ul>
-        </nav>
-      
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../hammer/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../hammer/">
+<span class="md-ellipsis">
     
   
     HAMMER
@@ -2878,27 +1635,11 @@
 
     
   </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../devfs/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../devfs/">
+<span class="md-ellipsis">
     
   
     devfs
@@ -2906,27 +1647,11 @@
 
     
   </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../procfs/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../procfs/">
+<span class="md-ellipsis">
     
   
     procfs
@@ -2934,27 +1659,11 @@
 
     
   </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../tmpfs/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../tmpfs/">
+<span class="md-ellipsis">
     
   
     tmpfs
@@ -2962,27 +1671,11 @@
 
     
   </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../nullfs/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../nullfs/">
+<span class="md-ellipsis">
     
   
     nullfs
@@ -2990,27 +1683,11 @@
 
     
   </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../fifofs/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../fifofs/">
+<span class="md-ellipsis">
     
   
     fifofs
@@ -3018,27 +1695,11 @@
 
     
   </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../deadfs/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../deadfs/">
+<span class="md-ellipsis">
     
   
     deadfs
@@ -3046,27 +1707,11 @@
 
     
   </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../mfs/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../mfs/">
+<span class="md-ellipsis">
     
   
     mfs
@@ -3074,27 +1719,11 @@
 
     
   </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../ufs/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../ufs/">
+<span class="md-ellipsis">
     
   
     UFS
@@ -3102,27 +1731,11 @@
 
     
   </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../nfs/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../nfs/">
+<span class="md-ellipsis">
     
   
     NFS
@@ -3130,27 +1743,11 @@
 
     
   </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../ext2fs/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../ext2fs/">
+<span class="md-ellipsis">
     
   
     ext2fs
@@ -3158,27 +1755,11 @@
 
     
   </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../msdosfs/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../msdosfs/">
+<span class="md-ellipsis">
     
   
     msdosfs
@@ -3186,27 +1767,11 @@
 
     
   </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../ntfs/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../ntfs/">
+<span class="md-ellipsis">
     
   
     NTFS
@@ -3214,27 +1779,11 @@
 
     
   </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../isofs/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../isofs/">
+<span class="md-ellipsis">
     
   
     ISO9660
@@ -3242,27 +1791,11 @@
 
     
   </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../udf/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../udf/">
+<span class="md-ellipsis">
     
   
     UDF
@@ -3270,27 +1803,11 @@
 
     
   </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../hpfs/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../hpfs/">
+<span class="md-ellipsis">
     
   
     HPFS
@@ -3298,27 +1815,11 @@
 
     
   </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../smbfs/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../smbfs/">
+<span class="md-ellipsis">
     
   
     smbfs
@@ -3326,27 +1827,11 @@
 
     
   </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../fuse/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../fuse/">
+<span class="md-ellipsis">
     
   
     FUSE
@@ -3354,27 +1839,11 @@
 
     
   </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../autofs/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../autofs/">
+<span class="md-ellipsis">
     
   
     autofs
@@ -3382,27 +1851,11 @@
 
     
   </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../dirfs/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../dirfs/">
+<span class="md-ellipsis">
     
   
     dirfs
@@ -3410,56 +1863,15 @@
 
     
   </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-          </ul>
-        </nav>
-      
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    
-    
-    
-    
-      
-      
-        
-          
-          
-        
-      
-    
-    
-    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
-      
-        
-        
-          
-        
-        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_3_5" >
-        
-          
-          <label class="md-nav__link" for="__nav_3_5" id="__nav_3_5_label" tabindex="">
-            
-  
-  
-  <span class="md-ellipsis">
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--section md-nav__item--nested">
+<input class="md-nav__toggle md-toggle md-toggle--indeterminate" id="__nav_3_5" type="checkbox"/>
+<label class="md-nav__link" for="__nav_3_5" id="__nav_3_5_label" tabindex="">
+<span class="md-ellipsis">
     
   
     net/
@@ -3467,35 +1879,21 @@
 
     
   </span>
-  
-  
-
-            <span class="md-nav__icon md-icon"></span>
-          </label>
-        
-        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_5_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_3_5">
-            <span class="md-nav__icon md-icon"></span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="false" aria-labelledby="__nav_3_5_label" class="md-nav" data-md-level="2">
+<label class="md-nav__title" for="__nav_3_5">
+<span class="md-nav__icon md-icon"></span>
             
   
     net/
   
 
           </label>
-          <ul class="md-nav__list" data-md-scrollfix>
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../../net/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../../net/">
+<span class="md-ellipsis">
     
   
     Overview
@@ -3503,27 +1901,11 @@
 
     
   </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../../net/interfaces/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../../net/interfaces/">
+<span class="md-ellipsis">
     
   
     Network Interfaces
@@ -3531,27 +1913,11 @@
 
     
   </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../../net/netisr/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../../net/netisr/">
+<span class="md-ellipsis">
     
   
     Network ISR
@@ -3559,56 +1925,15 @@
 
     
   </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-          </ul>
-        </nav>
-      
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    
-    
-    
-    
-      
-      
-        
-          
-          
-        
-      
-    
-    
-    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
-      
-        
-        
-          
-        
-        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_3_6" >
-        
-          
-          <label class="md-nav__link" for="__nav_3_6" id="__nav_3_6_label" tabindex="">
-            
-  
-  
-  <span class="md-ellipsis">
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--section md-nav__item--nested">
+<input class="md-nav__toggle md-toggle md-toggle--indeterminate" id="__nav_3_6" type="checkbox"/>
+<label class="md-nav__link" for="__nav_3_6" id="__nav_3_6_label" tabindex="">
+<span class="md-ellipsis">
     
   
     cpu/x86_64/
@@ -3616,35 +1941,21 @@
 
     
   </span>
-  
-  
-
-            <span class="md-nav__icon md-icon"></span>
-          </label>
-        
-        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_6_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_3_6">
-            <span class="md-nav__icon md-icon"></span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="false" aria-labelledby="__nav_3_6_label" class="md-nav" data-md-level="2">
+<label class="md-nav__title" for="__nav_3_6">
+<span class="md-nav__icon md-icon"></span>
             
   
     cpu/x86_64/
   
 
           </label>
-          <ul class="md-nav__list" data-md-scrollfix>
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../../cpu/x86_64/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../../cpu/x86_64/">
+<span class="md-ellipsis">
     
   
     Overview
@@ -3652,196 +1963,1117 @@
 
     
   </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-          </ul>
-        </nav>
-      
-    </li>
-  
-
-              
-            
-          </ul>
-        </nav>
-      
-    </li>
-  
-
-    
-  </ul>
+</a>
+</li>
+</ul>
 </nav>
-                  </div>
-                </div>
-              </div>
-            
-            
-              
-              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
-                <div class="md-sidebar__scrollwrap">
-                  <div class="md-sidebar__inner">
-                    
-
-<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
-  
-  
-  
-    
-  
-  
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
+</li>
+</ul>
+</nav>
+</li>
+</ul>
+</nav>
+</div>
+</div>
+</div>
+<div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc">
+<div class="md-sidebar__scrollwrap">
+<div class="md-sidebar__inner">
+<nav aria-label="Table of contents" class="md-nav md-nav--secondary">
+<label class="md-nav__title" for="__toc">
+<span class="md-nav__icon md-icon"></span>
       Table of contents
     </label>
-    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#overview" class="md-nav__link">
-    <span class="md-ellipsis">
+<ul class="md-nav__list" data-md-component="toc" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#overview">
+<span class="md-ellipsis">
       
         Overview
       
     </span>
-  </a>
-  
+</a>
 </li>
-      
-        <li class="md-nav__item">
-  <a href="#compression-algorithms" class="md-nav__link">
-    <span class="md-ellipsis">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#compression-algorithms">
+<span class="md-ellipsis">
       
         Compression Algorithms
       
     </span>
-  </a>
-  
-</li>
+</a>
+<nav aria-label="Compression Algorithms" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#algorithm-constants">
+<span class="md-ellipsis">
       
-        <li class="md-nav__item">
-  <a href="#compression-integration" class="md-nav__link">
-    <span class="md-ellipsis">
+        Algorithm Constants
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#encoding-in-blockrefs">
+<span class="md-ellipsis">
+      
+        Encoding in Blockrefs
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#per-inode-settings">
+<span class="md-ellipsis">
+      
+        Per-Inode Settings
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#lz4-compression">
+<span class="md-ellipsis">
+      
+        LZ4 Compression
+      
+    </span>
+</a>
+<nav aria-label="LZ4 Compression" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#lz4-characteristics">
+<span class="md-ellipsis">
+      
+        LZ4 Characteristics
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#lz4-api">
+<span class="md-ellipsis">
+      
+        LZ4 API
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#lz4-memory-management">
+<span class="md-ellipsis">
+      
+        LZ4 Memory Management
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#lz4-compression-flow">
+<span class="md-ellipsis">
+      
+        LZ4 Compression Flow
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#lz4-data-format">
+<span class="md-ellipsis">
+      
+        LZ4 Data Format
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#lz4-algorithm-internals">
+<span class="md-ellipsis">
+      
+        LZ4 Algorithm Internals
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#zlib-compression">
+<span class="md-ellipsis">
+      
+        ZLIB Compression
+      
+    </span>
+</a>
+<nav aria-label="ZLIB Compression" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#zlib-characteristics">
+<span class="md-ellipsis">
+      
+        ZLIB Characteristics
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#zlib-api">
+<span class="md-ellipsis">
+      
+        ZLIB API
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#zlib-stream-structure">
+<span class="md-ellipsis">
+      
+        ZLIB Stream Structure
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#zlib-compression-flow">
+<span class="md-ellipsis">
+      
+        ZLIB Compression Flow
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#zlib-compression-levels">
+<span class="md-ellipsis">
+      
+        ZLIB Compression Levels
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#compression-integration">
+<span class="md-ellipsis">
       
         Compression Integration
       
     </span>
-  </a>
-  
-</li>
+</a>
+<nav aria-label="Compression Integration" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#write-path">
+<span class="md-ellipsis">
       
-        <li class="md-nav__item">
-  <a href="#see-also" class="md-nav__link">
-    <span class="md-ellipsis">
+        Write Path
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#read-path">
+<span class="md-ellipsis">
+      
+        Read Path
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#decompression-callbacks">
+<span class="md-ellipsis">
+      
+        Decompression Callbacks
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#compression-heuristic">
+<span class="md-ellipsis">
+      
+        Compression Heuristic
+      
+    </span>
+</a>
+<nav aria-label="Compression Heuristic" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#heuristic-algorithm">
+<span class="md-ellipsis">
+      
+        Heuristic Algorithm
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#heuristic-behavior">
+<span class="md-ellipsis">
+      
+        Heuristic Behavior
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#compressed-block-sizes">
+<span class="md-ellipsis">
+      
+        Compressed Block Sizes
+      
+    </span>
+</a>
+<nav aria-label="Compressed Block Sizes" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#block-size-selection">
+<span class="md-ellipsis">
+      
+        Block Size Selection
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#zero-block-optimization">
+<span class="md-ellipsis">
+      
+        Zero-Block Optimization
+      
+    </span>
+</a>
+<nav aria-label="Zero-Block Optimization" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#zero-detection">
+<span class="md-ellipsis">
+      
+        Zero Detection
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#zero-write-handling">
+<span class="md-ellipsis">
+      
+        Zero Write Handling
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#buffer-caching">
+<span class="md-ellipsis">
+      
+        Buffer Caching
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#check-code-integration">
+<span class="md-ellipsis">
+      
+        Check Code Integration
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#performance-considerations">
+<span class="md-ellipsis">
+      
+        Performance Considerations
+      
+    </span>
+</a>
+<nav aria-label="Performance Considerations" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#cpu-vs-io-tradeoff">
+<span class="md-ellipsis">
+      
+        CPU vs I/O Tradeoff
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#compression-ratio-target">
+<span class="md-ellipsis">
+      
+        Compression Ratio Target
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#memory-usage">
+<span class="md-ellipsis">
+      
+        Memory Usage
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#configuration">
+<span class="md-ellipsis">
+      
+        Configuration
+      
+    </span>
+</a>
+<nav aria-label="Configuration" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#mount-options">
+<span class="md-ellipsis">
+      
+        Mount Options
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#sysctl-tuning">
+<span class="md-ellipsis">
+      
+        Sysctl Tuning
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#see-also">
+<span class="md-ellipsis">
       
         See Also
       
     </span>
-  </a>
-  
+</a>
 </li>
-      
-    </ul>
-  
-</nav>
-                  </div>
-                </div>
-              </div>
-            
-          
-          
-            <div class="md-content" data-md-component="content">
-              
-              <article class="md-content__inner md-typeset">
-                
-                  
-
-
-  
-  
-
-
-<h1 id="hammer2-compression">HAMMER2 Compression<a class="headerlink" href="#hammer2-compression" title="Permanent link">&para;</a></h1>
-<div class="admonition note">
-<p class="admonition-title">Documentation Status</p>
-<p>This page documents compression support based on <code>hammer2_lz4.c</code> and related code.</p>
-</div>
-<h2 id="overview">Overview<a class="headerlink" href="#overview" title="Permanent link">&para;</a></h2>
-<p>HAMMER2 supports transparent block-level compression using LZ4 and ZLIB algorithms.</p>
-<h2 id="compression-algorithms">Compression Algorithms<a class="headerlink" href="#compression-algorithms" title="Permanent link">&para;</a></h2>
-<p><em>Documentation in progress — will cover LZ4 and ZLIB support.</em></p>
-<h2 id="compression-integration">Compression Integration<a class="headerlink" href="#compression-integration" title="Permanent link">&para;</a></h2>
-<p><em>Documentation in progress — will cover how compression integrates with I/O.</em></p>
-<h2 id="see-also">See Also<a class="headerlink" href="#see-also" title="Permanent link">&para;</a></h2>
-<ul>
-<li><a href="../">HAMMER2 Overview</a></li>
-<li><a href="../io-subsystem/">I/O Subsystem</a> — I/O path integration</li>
 </ul>
+</nav>
+</div>
+</div>
+</div>
+<div class="md-content" data-md-component="content">
+<article class="md-content__inner md-typeset">
+<h1 id="hammer2-compression">HAMMER2 Compression<a class="headerlink" href="#hammer2-compression" title="Permanent link">¶</a></h1>
+<p>This document describes HAMMER2's transparent block-level compression, which
+reduces storage requirements by compressing file data using LZ4 or ZLIB
+algorithms.</p>
+<h2 id="overview">Overview<a class="headerlink" href="#overview" title="Permanent link">¶</a></h2>
+<p>HAMMER2 supports transparent compression at the file data block level:</p>
+<ul>
+<li><strong>Per-file control</strong> — Compression algorithm set via <code>comp_algo</code> in inode metadata</li>
+<li><strong>Block-level granularity</strong> — Each data block compressed independently</li>
+<li><strong>Variable output sizes</strong> — Compressed blocks use 1KB–32KB storage</li>
+<li><strong>Automatic fallback</strong> — Falls back to uncompressed if compression doesn't help</li>
+<li><strong>Zero-block optimization</strong> — All-zero blocks stored as holes (no storage)</li>
+</ul>
+<p>Key characteristics:</p>
+<table>
+<thead>
+<tr>
+<th>Feature</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Default algorithm</td>
+<td>LZ4</td>
+</tr>
+<tr>
+<td>Minimum block size</td>
+<td>1KB</td>
+</tr>
+<tr>
+<td>Maximum input size</td>
+<td>64KB (PBUFSIZE)</td>
+</tr>
+<tr>
+<td>Compression ratio target</td>
+<td>50% or better</td>
+</tr>
+<tr>
+<td>Check code integration</td>
+<td>Computed on compressed data</td>
+</tr>
+</tbody>
+</table>
+<h2 id="compression-algorithms">Compression Algorithms<a class="headerlink" href="#compression-algorithms" title="Permanent link">¶</a></h2>
+<h3 id="algorithm-constants">Algorithm Constants<a class="headerlink" href="#algorithm-constants" title="Permanent link">¶</a></h3>
+<div class="highlight"><pre><span></span><code><a href="#__codelineno-0-1" id="__codelineno-0-1" name="__codelineno-0-1"></a><span class="cp">#define HAMMER2_COMP_NONE       0   </span><span class="cm">/* No compression */</span>
+<a href="#__codelineno-0-2" id="__codelineno-0-2" name="__codelineno-0-2"></a><span class="cp">#define HAMMER2_COMP_AUTOZERO   1   </span><span class="cm">/* Zero-check only */</span>
+<a href="#__codelineno-0-3" id="__codelineno-0-3" name="__codelineno-0-3"></a><span class="cp">#define HAMMER2_COMP_LZ4        2   </span><span class="cm">/* LZ4 (default) */</span>
+<a href="#__codelineno-0-4" id="__codelineno-0-4" name="__codelineno-0-4"></a><span class="cp">#define HAMMER2_COMP_ZLIB       3   </span><span class="cm">/* ZLIB/deflate */</span>
+<a href="#__codelineno-0-5" id="__codelineno-0-5" name="__codelineno-0-5"></a>
+<a href="#__codelineno-0-6" id="__codelineno-0-6" name="__codelineno-0-6"></a><span class="cp">#define HAMMER2_COMP_DEFAULT    HAMMER2_COMP_LZ4</span>
+</code></pre></div>
+<p>Source: <code>hammer2_disk.h:741-746</code></p>
+<h3 id="encoding-in-blockrefs">Encoding in Blockrefs<a class="headerlink" href="#encoding-in-blockrefs" title="Permanent link">¶</a></h3>
+<p>The compression method is stored in <code>bref.methods</code>:</p>
+<div class="highlight"><pre><span></span><code><a href="#__codelineno-1-1" id="__codelineno-1-1" name="__codelineno-1-1"></a><span class="cp">#define HAMMER2_ENC_COMP(n)     ((n) &amp; 15)        </span><span class="cm">/* Encode compression */</span>
+<a href="#__codelineno-1-2" id="__codelineno-1-2" name="__codelineno-1-2"></a><span class="cp">#define HAMMER2_DEC_COMP(n)     ((n) &amp; 15)        </span><span class="cm">/* Decode compression */</span>
+<a href="#__codelineno-1-3" id="__codelineno-1-3" name="__codelineno-1-3"></a><span class="cp">#define HAMMER2_ENC_CHECK(n)    (((n) &amp; 15) &lt;&lt; 4) </span><span class="cm">/* Encode check code */</span>
+<a href="#__codelineno-1-4" id="__codelineno-1-4" name="__codelineno-1-4"></a><span class="cp">#define HAMMER2_DEC_CHECK(n)    (((n) &gt;&gt; 4) &amp; 15) </span><span class="cm">/* Decode check code */</span>
+</code></pre></div>
+<p>The <code>methods</code> byte layout:</p>
+<div class="highlight"><pre><span></span><code><a href="#__codelineno-2-1" id="__codelineno-2-1" name="__codelineno-2-1"></a>+-------+-------+
+<a href="#__codelineno-2-2" id="__codelineno-2-2" name="__codelineno-2-2"></a>| check | comp  |
+<a href="#__codelineno-2-3" id="__codelineno-2-3" name="__codelineno-2-3"></a>| 4 bits| 4 bits|
+<a href="#__codelineno-2-4" id="__codelineno-2-4" name="__codelineno-2-4"></a>+-------+-------+
+</code></pre></div>
+<p>Source: <code>hammer2_disk.h:752-755</code></p>
+<h3 id="per-inode-settings">Per-Inode Settings<a class="headerlink" href="#per-inode-settings" title="Permanent link">¶</a></h3>
+<p>Each inode stores compression preferences:</p>
+<div class="highlight"><pre><span></span><code><a href="#__codelineno-3-1" id="__codelineno-3-1" name="__codelineno-3-1"></a><span class="k">struct</span><span class="w"> </span><span class="nc">hammer2_inode_meta</span><span class="w"> </span><span class="p">{</span>
+<a href="#__codelineno-3-2" id="__codelineno-3-2" name="__codelineno-3-2"></a><span class="w">    </span><span class="p">...</span>
+<a href="#__codelineno-3-3" id="__codelineno-3-3" name="__codelineno-3-3"></a><span class="w">    </span><span class="kt">uint8_t</span><span class="w">     </span><span class="n">comp_algo</span><span class="p">;</span><span class="w">      </span><span class="cm">/* Compression algorithm + level */</span>
+<a href="#__codelineno-3-4" id="__codelineno-3-4" name="__codelineno-3-4"></a><span class="w">    </span><span class="kt">uint8_t</span><span class="w">     </span><span class="n">check_algo</span><span class="p">;</span><span class="w">     </span><span class="cm">/* Check code algorithm */</span>
+<a href="#__codelineno-3-5" id="__codelineno-3-5" name="__codelineno-3-5"></a><span class="w">    </span><span class="p">...</span>
+<a href="#__codelineno-3-6" id="__codelineno-3-6" name="__codelineno-3-6"></a><span class="p">};</span>
+<a href="#__codelineno-3-7" id="__codelineno-3-7" name="__codelineno-3-7"></a>
+<a href="#__codelineno-3-8" id="__codelineno-3-8" name="__codelineno-3-8"></a><span class="cm">/* Encode/decode algorithm and level */</span>
+<a href="#__codelineno-3-9" id="__codelineno-3-9" name="__codelineno-3-9"></a><span class="cp">#define HAMMER2_ENC_ALGO(n)     (n)</span>
+<a href="#__codelineno-3-10" id="__codelineno-3-10" name="__codelineno-3-10"></a><span class="cp">#define HAMMER2_DEC_ALGO(n)     ((n) &amp; 15)</span>
+<a href="#__codelineno-3-11" id="__codelineno-3-11" name="__codelineno-3-11"></a><span class="cp">#define HAMMER2_ENC_LEVEL(n)    ((n) &lt;&lt; 4)</span>
+<a href="#__codelineno-3-12" id="__codelineno-3-12" name="__codelineno-3-12"></a><span class="cp">#define HAMMER2_DEC_LEVEL(n)    (((n) &gt;&gt; 4) &amp; 15)</span>
+</code></pre></div>
+<p>Source: <code>hammer2_disk.h:761-764</code></p>
+<h2 id="lz4-compression">LZ4 Compression<a class="headerlink" href="#lz4-compression" title="Permanent link">¶</a></h2>
+<p>LZ4 is the default compression algorithm, optimized for speed over compression
+ratio.</p>
+<h3 id="lz4-characteristics">LZ4 Characteristics<a class="headerlink" href="#lz4-characteristics" title="Permanent link">¶</a></h3>
+<table>
+<thead>
+<tr>
+<th>Property</th>
+<th>Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Type</td>
+<td>Block-based LZ77 variant</td>
+</tr>
+<tr>
+<td>Speed</td>
+<td>Very fast (GB/s range)</td>
+</tr>
+<tr>
+<td>Ratio</td>
+<td>Moderate (typically 2:1)</td>
+</tr>
+<tr>
+<td>Memory</td>
+<td>16KB hash table</td>
+</tr>
+<tr>
+<td>Implementation</td>
+<td><code>hammer2_lz4.c</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="lz4-api">LZ4 API<a class="headerlink" href="#lz4-api" title="Permanent link">¶</a></h3>
+<div class="highlight"><pre><span></span><code><a href="#__codelineno-4-1" id="__codelineno-4-1" name="__codelineno-4-1"></a><span class="cm">/* Compression */</span>
+<a href="#__codelineno-4-2" id="__codelineno-4-2" name="__codelineno-4-2"></a><span class="kt">int</span><span class="w"> </span><span class="nf">LZ4_compress_limitedOutput</span><span class="p">(</span><span class="kt">char</span><span class="o">*</span><span class="w"> </span><span class="n">source</span><span class="p">,</span><span class="w"> </span><span class="kt">char</span><span class="o">*</span><span class="w"> </span><span class="n">dest</span><span class="p">,</span>
+<a href="#__codelineno-4-3" id="__codelineno-4-3" name="__codelineno-4-3"></a><span class="w">                               </span><span class="kt">int</span><span class="w"> </span><span class="n">inputSize</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">maxOutputSize</span><span class="p">);</span>
+<a href="#__codelineno-4-4" id="__codelineno-4-4" name="__codelineno-4-4"></a>
+<a href="#__codelineno-4-5" id="__codelineno-4-5" name="__codelineno-4-5"></a><span class="cm">/* Decompression */</span>
+<a href="#__codelineno-4-6" id="__codelineno-4-6" name="__codelineno-4-6"></a><span class="kt">int</span><span class="w"> </span><span class="nf">LZ4_decompress_safe</span><span class="p">(</span><span class="kt">char</span><span class="o">*</span><span class="w"> </span><span class="n">source</span><span class="p">,</span><span class="w"> </span><span class="kt">char</span><span class="o">*</span><span class="w"> </span><span class="n">dest</span><span class="p">,</span>
+<a href="#__codelineno-4-7" id="__codelineno-4-7" name="__codelineno-4-7"></a><span class="w">                        </span><span class="kt">int</span><span class="w"> </span><span class="n">inputSize</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">maxOutputSize</span><span class="p">);</span>
+</code></pre></div>
+<p>Source: <code>hammer2_lz4.h:50-89</code></p>
+<h3 id="lz4-memory-management">LZ4 Memory Management<a class="headerlink" href="#lz4-memory-management" title="Permanent link">¶</a></h3>
+<p>LZ4 uses a heap-allocated hash table:</p>
+<div class="highlight"><pre><span></span><code><a href="#__codelineno-5-1" id="__codelineno-5-1" name="__codelineno-5-1"></a><span class="cp">#define MEMORY_USAGE 14                     </span><span class="cm">/* 2^14 = 16KB */</span>
+<a href="#__codelineno-5-2" id="__codelineno-5-2" name="__codelineno-5-2"></a><span class="cp">#define HASHTABLESIZE (1 &lt;&lt; MEMORY_USAGE)   </span><span class="cm">/* 16KB hash table */</span>
+<a href="#__codelineno-5-3" id="__codelineno-5-3" name="__codelineno-5-3"></a>
+<a href="#__codelineno-5-4" id="__codelineno-5-4" name="__codelineno-5-4"></a><span class="kt">void</span><span class="o">*</span><span class="w"> </span><span class="nf">LZ4_create</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<a href="#__codelineno-5-5" id="__codelineno-5-5" name="__codelineno-5-5"></a><span class="p">{</span>
+<a href="#__codelineno-5-6" id="__codelineno-5-6" name="__codelineno-5-6"></a><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">kmalloc</span><span class="p">(</span><span class="n">HASHTABLESIZE</span><span class="p">,</span><span class="w"> </span><span class="n">C_HASHTABLE</span><span class="p">,</span><span class="w"> </span><span class="n">M_INTWAIT</span><span class="p">);</span>
+<a href="#__codelineno-5-7" id="__codelineno-5-7" name="__codelineno-5-7"></a><span class="p">}</span>
+<a href="#__codelineno-5-8" id="__codelineno-5-8" name="__codelineno-5-8"></a>
+<a href="#__codelineno-5-9" id="__codelineno-5-9" name="__codelineno-5-9"></a><span class="kt">int</span><span class="w"> </span><span class="nf">LZ4_free</span><span class="p">(</span><span class="kt">void</span><span class="o">*</span><span class="w"> </span><span class="n">ctx</span><span class="p">)</span>
+<a href="#__codelineno-5-10" id="__codelineno-5-10" name="__codelineno-5-10"></a><span class="p">{</span>
+<a href="#__codelineno-5-11" id="__codelineno-5-11" name="__codelineno-5-11"></a><span class="w">    </span><span class="n">kfree</span><span class="p">(</span><span class="n">ctx</span><span class="p">,</span><span class="w"> </span><span class="n">C_HASHTABLE</span><span class="p">);</span>
+<a href="#__codelineno-5-12" id="__codelineno-5-12" name="__codelineno-5-12"></a><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+<a href="#__codelineno-5-13" id="__codelineno-5-13" name="__codelineno-5-13"></a><span class="p">}</span>
+</code></pre></div>
+<p>Source: <code>hammer2_lz4.c:47</code>, <code>162</code>, <code>330-341</code></p>
+<h3 id="lz4-compression-flow">LZ4 Compression Flow<a class="headerlink" href="#lz4-compression-flow" title="Permanent link">¶</a></h3>
+<pre class="mermaid"><code>flowchart TB
+    subgraph compress["LZ4 Compression"]
+        A[Input block<br/>up to 64KB] --&gt; B[Allocate hash table]
+        B --&gt; C{Input &lt; 64KB?}
+        C --&gt;|Yes| D[LZ4_compress64k]
+        C --&gt;|No| E[LZ4_compress]
+        D --&gt; F[Write size prefix]
+        E --&gt; F
+        F --&gt; G{Compressed size<br/>&lt; input/2?}
+        G --&gt;|Yes| H[Return compressed]
+        G --&gt;|No| I[Return 0<br/>use uncompressed]
+    end
+</code></pre>
+<h3 id="lz4-data-format">LZ4 Data Format<a class="headerlink" href="#lz4-data-format" title="Permanent link">¶</a></h3>
+<p>Compressed LZ4 blocks include a size prefix:</p>
+<div class="highlight"><pre><span></span><code><a href="#__codelineno-6-1" id="__codelineno-6-1" name="__codelineno-6-1"></a>+------------+------------------------+
+<a href="#__codelineno-6-2" id="__codelineno-6-2" name="__codelineno-6-2"></a>| Size (4B)  | Compressed Data        |
+<a href="#__codelineno-6-3" id="__codelineno-6-3" name="__codelineno-6-3"></a>+------------+------------------------+
+</code></pre></div>
+<div class="highlight"><pre><span></span><code><a href="#__codelineno-7-1" id="__codelineno-7-1" name="__codelineno-7-1"></a><span class="cm">/* Compression stores size prefix */</span>
+<a href="#__codelineno-7-2" id="__codelineno-7-2" name="__codelineno-7-2"></a><span class="o">*</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="o">*</span><span class="p">)</span><span class="n">comp_buffer</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">comp_size</span><span class="p">;</span>
+<a href="#__codelineno-7-3" id="__codelineno-7-3" name="__codelineno-7-3"></a><span class="n">comp_size</span><span class="w"> </span><span class="o">+=</span><span class="w"> </span><span class="k">sizeof</span><span class="p">(</span><span class="kt">int</span><span class="p">);</span>
+<a href="#__codelineno-7-4" id="__codelineno-7-4" name="__codelineno-7-4"></a>
+<a href="#__codelineno-7-5" id="__codelineno-7-5" name="__codelineno-7-5"></a><span class="cm">/* Decompression reads size prefix */</span>
+<a href="#__codelineno-7-6" id="__codelineno-7-6" name="__codelineno-7-6"></a><span class="n">compressed_size</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="o">*</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="o">*</span><span class="p">)</span><span class="n">data</span><span class="p">;</span>
+<a href="#__codelineno-7-7" id="__codelineno-7-7" name="__codelineno-7-7"></a><span class="n">result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">LZ4_decompress_safe</span><span class="p">(</span><span class="o">&amp;</span><span class="n">data</span><span class="p">[</span><span class="k">sizeof</span><span class="p">(</span><span class="kt">int</span><span class="p">)],</span>
+<a href="#__codelineno-7-8" id="__codelineno-7-8" name="__codelineno-7-8"></a><span class="w">                             </span><span class="n">compressed_buffer</span><span class="p">,</span>
+<a href="#__codelineno-7-9" id="__codelineno-7-9" name="__codelineno-7-9"></a><span class="w">                             </span><span class="n">compressed_size</span><span class="p">,</span>
+<a href="#__codelineno-7-10" id="__codelineno-7-10" name="__codelineno-7-10"></a><span class="w">                             </span><span class="n">bp</span><span class="o">-&gt;</span><span class="n">b_bufsize</span><span class="p">);</span>
+</code></pre></div>
+<p>Source: <code>hammer2_strategy.c:969-976</code>, <code>198-205</code></p>
+<h3 id="lz4-algorithm-internals">LZ4 Algorithm Internals<a class="headerlink" href="#lz4-algorithm-internals" title="Permanent link">¶</a></h3>
+<p>The LZ4 algorithm uses a sliding window with hash-based matching:</p>
+<div class="highlight"><pre><span></span><code><a href="#__codelineno-8-1" id="__codelineno-8-1" name="__codelineno-8-1"></a><span class="cp">#define MINMATCH        4       </span><span class="cm">/* Minimum match length */</span>
+<a href="#__codelineno-8-2" id="__codelineno-8-2" name="__codelineno-8-2"></a><span class="cp">#define MAX_DISTANCE    65535   </span><span class="cm">/* Maximum back-reference distance */</span>
+<a href="#__codelineno-8-3" id="__codelineno-8-3" name="__codelineno-8-3"></a><span class="cp">#define COPYLENGTH      8       </span><span class="cm">/* Copy granularity */</span>
+<a href="#__codelineno-8-4" id="__codelineno-8-4" name="__codelineno-8-4"></a><span class="cp">#define LASTLITERALS    5       </span><span class="cm">/* Literals at end of block */</span>
+</code></pre></div>
+<p>The compression loop:</p>
+<ol>
+<li>Hash 4 bytes at current position</li>
+<li>Look up hash table for matching position</li>
+<li>If match found and within distance, emit back-reference</li>
+<li>Otherwise emit literal</li>
+<li>Update hash table with current position</li>
+</ol>
+<p>Source: <code>hammer2_lz4.c:164-182</code>, <code>hammer2_lz4_encoder.h</code></p>
+<h2 id="zlib-compression">ZLIB Compression<a class="headerlink" href="#zlib-compression" title="Permanent link">¶</a></h2>
+<p>ZLIB provides better compression ratios at the cost of higher CPU usage.</p>
+<h3 id="zlib-characteristics">ZLIB Characteristics<a class="headerlink" href="#zlib-characteristics" title="Permanent link">¶</a></h3>
+<table>
+<thead>
+<tr>
+<th>Property</th>
+<th>Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Type</td>
+<td>Deflate (LZ77 + Huffman)</td>
+</tr>
+<tr>
+<td>Speed</td>
+<td>Moderate</td>
+</tr>
+<tr>
+<td>Ratio</td>
+<td>Good (typically 3:1 or better)</td>
+</tr>
+<tr>
+<td>Levels</td>
+<td>1-9 (6 is default)</td>
+</tr>
+<tr>
+<td>Implementation</td>
+<td><code>zlib/</code> directory</td>
+</tr>
+</tbody>
+</table>
+<h3 id="zlib-api">ZLIB API<a class="headerlink" href="#zlib-api" title="Permanent link">¶</a></h3>
+<div class="highlight"><pre><span></span><code><a href="#__codelineno-9-1" id="__codelineno-9-1" name="__codelineno-9-1"></a><span class="cm">/* Initialize compression stream */</span>
+<a href="#__codelineno-9-2" id="__codelineno-9-2" name="__codelineno-9-2"></a><span class="kt">int</span><span class="w"> </span><span class="nf">deflateInit</span><span class="p">(</span><span class="n">z_streamp</span><span class="w"> </span><span class="n">strm</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">level</span><span class="p">);</span>
+<a href="#__codelineno-9-3" id="__codelineno-9-3" name="__codelineno-9-3"></a>
+<a href="#__codelineno-9-4" id="__codelineno-9-4" name="__codelineno-9-4"></a><span class="cm">/* Compress data */</span>
+<a href="#__codelineno-9-5" id="__codelineno-9-5" name="__codelineno-9-5"></a><span class="kt">int</span><span class="w"> </span><span class="nf">deflate</span><span class="p">(</span><span class="n">z_streamp</span><span class="w"> </span><span class="n">strm</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">flush</span><span class="p">);</span>
+<a href="#__codelineno-9-6" id="__codelineno-9-6" name="__codelineno-9-6"></a>
+<a href="#__codelineno-9-7" id="__codelineno-9-7" name="__codelineno-9-7"></a><span class="cm">/* Clean up */</span>
+<a href="#__codelineno-9-8" id="__codelineno-9-8" name="__codelineno-9-8"></a><span class="kt">int</span><span class="w"> </span><span class="nf">deflateEnd</span><span class="p">(</span><span class="n">z_streamp</span><span class="w"> </span><span class="n">strm</span><span class="p">);</span>
+<a href="#__codelineno-9-9" id="__codelineno-9-9" name="__codelineno-9-9"></a>
+<a href="#__codelineno-9-10" id="__codelineno-9-10" name="__codelineno-9-10"></a><span class="cm">/* Initialize decompression stream */</span>
+<a href="#__codelineno-9-11" id="__codelineno-9-11" name="__codelineno-9-11"></a><span class="kt">int</span><span class="w"> </span><span class="nf">inflateInit</span><span class="p">(</span><span class="n">z_streamp</span><span class="w"> </span><span class="n">strm</span><span class="p">);</span>
+<a href="#__codelineno-9-12" id="__codelineno-9-12" name="__codelineno-9-12"></a>
+<a href="#__codelineno-9-13" id="__codelineno-9-13" name="__codelineno-9-13"></a><span class="cm">/* Decompress data */</span>
+<a href="#__codelineno-9-14" id="__codelineno-9-14" name="__codelineno-9-14"></a><span class="kt">int</span><span class="w"> </span><span class="nf">inflate</span><span class="p">(</span><span class="n">z_streamp</span><span class="w"> </span><span class="n">strm</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">flush</span><span class="p">);</span>
+<a href="#__codelineno-9-15" id="__codelineno-9-15" name="__codelineno-9-15"></a>
+<a href="#__codelineno-9-16" id="__codelineno-9-16" name="__codelineno-9-16"></a><span class="cm">/* Clean up */</span>
+<a href="#__codelineno-9-17" id="__codelineno-9-17" name="__codelineno-9-17"></a><span class="kt">int</span><span class="w"> </span><span class="nf">inflateEnd</span><span class="p">(</span><span class="n">z_streamp</span><span class="w"> </span><span class="n">strm</span><span class="p">);</span>
+</code></pre></div>
+<p>Source: <code>zlib/hammer2_zlib.h:195-483</code></p>
+<h3 id="zlib-stream-structure">ZLIB Stream Structure<a class="headerlink" href="#zlib-stream-structure" title="Permanent link">¶</a></h3>
+<div class="highlight"><pre><span></span><code><a href="#__codelineno-10-1" id="__codelineno-10-1" name="__codelineno-10-1"></a><span class="k">typedef</span><span class="w"> </span><span class="k">struct</span><span class="w"> </span><span class="nc">z_stream_s</span><span class="w"> </span><span class="p">{</span>
+<a href="#__codelineno-10-2" id="__codelineno-10-2" name="__codelineno-10-2"></a><span class="w">    </span><span class="n">z_const</span><span class="w"> </span><span class="n">Bytef</span><span class="w"> </span><span class="o">*</span><span class="n">next_in</span><span class="p">;</span><span class="w">     </span><span class="cm">/* Next input byte */</span>
+<a href="#__codelineno-10-3" id="__codelineno-10-3" name="__codelineno-10-3"></a><span class="w">    </span><span class="n">uInt</span><span class="w">     </span><span class="n">avail_in</span><span class="p">;</span><span class="w">          </span><span class="cm">/* Bytes available at next_in */</span>
+<a href="#__codelineno-10-4" id="__codelineno-10-4" name="__codelineno-10-4"></a><span class="w">    </span><span class="n">uLong</span><span class="w">    </span><span class="n">total_in</span><span class="p">;</span><span class="w">          </span><span class="cm">/* Total input bytes read */</span>
+<a href="#__codelineno-10-5" id="__codelineno-10-5" name="__codelineno-10-5"></a>
+<a href="#__codelineno-10-6" id="__codelineno-10-6" name="__codelineno-10-6"></a><span class="w">    </span><span class="n">Bytef</span><span class="w">    </span><span class="o">*</span><span class="n">next_out</span><span class="p">;</span><span class="w">         </span><span class="cm">/* Next output byte location */</span>
+<a href="#__codelineno-10-7" id="__codelineno-10-7" name="__codelineno-10-7"></a><span class="w">    </span><span class="n">uInt</span><span class="w">     </span><span class="n">avail_out</span><span class="p">;</span><span class="w">         </span><span class="cm">/* Free space at next_out */</span>
+<a href="#__codelineno-10-8" id="__codelineno-10-8" name="__codelineno-10-8"></a><span class="w">    </span><span class="n">uLong</span><span class="w">    </span><span class="n">total_out</span><span class="p">;</span><span class="w">         </span><span class="cm">/* Total bytes output */</span>
+<a href="#__codelineno-10-9" id="__codelineno-10-9" name="__codelineno-10-9"></a>
+<a href="#__codelineno-10-10" id="__codelineno-10-10" name="__codelineno-10-10"></a><span class="w">    </span><span class="n">z_const</span><span class="w"> </span><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="n">msg</span><span class="p">;</span><span class="w">          </span><span class="cm">/* Error message */</span>
+<a href="#__codelineno-10-11" id="__codelineno-10-11" name="__codelineno-10-11"></a><span class="w">    </span><span class="k">struct</span><span class="w"> </span><span class="nc">internal_state</span><span class="w"> </span><span class="o">*</span><span class="n">state</span><span class="p">;</span><span class="w"> </span><span class="cm">/* Internal state */</span>
+<a href="#__codelineno-10-12" id="__codelineno-10-12" name="__codelineno-10-12"></a><span class="w">    </span><span class="p">...</span>
+<a href="#__codelineno-10-13" id="__codelineno-10-13" name="__codelineno-10-13"></a><span class="p">}</span><span class="w"> </span><span class="n">z_stream</span><span class="p">;</span>
+</code></pre></div>
+<p>Source: <code>zlib/hammer2_zlib.h:84-99</code></p>
+<h3 id="zlib-compression-flow">ZLIB Compression Flow<a class="headerlink" href="#zlib-compression-flow" title="Permanent link">¶</a></h3>
+<pre class="mermaid"><code>flowchart TB
+    subgraph compress["ZLIB Compression"]
+        A[Input block] --&gt; B[deflateInit level]
+        B --&gt; C[Set next_in/avail_in]
+        C --&gt; D[Set next_out/avail_out]
+        D --&gt; E[deflate Z_FINISH]
+        E --&gt; F{Z_STREAM_END?}
+        F --&gt;|Yes| G[deflateEnd]
+        F --&gt;|No| H[Compression failed]
+        G --&gt; I{Size &lt; input/2?}
+        I --&gt;|Yes| J[Return compressed]
+        I --&gt;|No| K[Use uncompressed]
+        H --&gt; K
+    end
+</code></pre>
+<h3 id="zlib-compression-levels">ZLIB Compression Levels<a class="headerlink" href="#zlib-compression-levels" title="Permanent link">¶</a></h3>
+<div class="highlight"><pre><span></span><code><a href="#__codelineno-11-1" id="__codelineno-11-1" name="__codelineno-11-1"></a><span class="n">comp_level</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">HAMMER2_DEC_LEVEL</span><span class="p">(</span><span class="n">comp_algo</span><span class="p">);</span>
+<a href="#__codelineno-11-2" id="__codelineno-11-2" name="__codelineno-11-2"></a><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">comp_level</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span>
+<a href="#__codelineno-11-3" id="__codelineno-11-3" name="__codelineno-11-3"></a><span class="w">    </span><span class="n">comp_level</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">6</span><span class="p">;</span><span class="w">     </span><span class="cm">/* Default zlib compression */</span>
+<a href="#__codelineno-11-4" id="__codelineno-11-4" name="__codelineno-11-4"></a><span class="k">else</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">comp_level</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="mi">6</span><span class="p">)</span>
+<a href="#__codelineno-11-5" id="__codelineno-11-5" name="__codelineno-11-5"></a><span class="w">    </span><span class="n">comp_level</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">6</span><span class="p">;</span><span class="w">     </span><span class="cm">/* Minimum useful level */</span>
+<a href="#__codelineno-11-6" id="__codelineno-11-6" name="__codelineno-11-6"></a><span class="k">else</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">comp_level</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mi">9</span><span class="p">)</span>
+<a href="#__codelineno-11-7" id="__codelineno-11-7" name="__codelineno-11-7"></a><span class="w">    </span><span class="n">comp_level</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">9</span><span class="p">;</span><span class="w">     </span><span class="cm">/* Maximum compression */</span>
+<a href="#__codelineno-11-8" id="__codelineno-11-8" name="__codelineno-11-8"></a>
+<a href="#__codelineno-11-9" id="__codelineno-11-9" name="__codelineno-11-9"></a><span class="n">ret</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">deflateInit</span><span class="p">(</span><span class="o">&amp;</span><span class="n">strm_compress</span><span class="p">,</span><span class="w"> </span><span class="n">comp_level</span><span class="p">);</span>
+</code></pre></div>
+<table>
+<thead>
+<tr>
+<th>Level</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>Best speed</td>
+</tr>
+<tr>
+<td>6</td>
+<td>Default (balanced)</td>
+</tr>
+<tr>
+<td>9</td>
+<td>Best compression</td>
+</tr>
+</tbody>
+</table>
+<p>Source: <code>hammer2_strategy.c:979-987</code></p>
+<h2 id="compression-integration">Compression Integration<a class="headerlink" href="#compression-integration" title="Permanent link">¶</a></h2>
+<h3 id="write-path">Write Path<a class="headerlink" href="#write-path" title="Permanent link">¶</a></h3>
+<p>Compression occurs in <code>hammer2_compress_and_write()</code>:</p>
+<pre class="mermaid"><code>flowchart TB
+    subgraph write["Compression Write Path"]
+        A[hammer2_write_file_core] --&gt; B{comp_algo?}
+        B --&gt;|NONE| C[hammer2_assign_physical]
+        B --&gt;|AUTOZERO| D[hammer2_zero_check_and_write]
+        B --&gt;|LZ4/ZLIB| E[hammer2_compress_and_write]
 
-
-
-
-
-
-
-
-
-
-
-
-                
-              </article>
-            </div>
-          
-          
+        E --&gt; F{All zeros?}
+        F --&gt;|Yes| G[zero_write<br/>create hole]
+        F --&gt;|No| H{Heuristic allows<br/>compression?}
+        H --&gt;|No| I[Store uncompressed]
+        H --&gt;|Yes| J[Compress data]
+        J --&gt; K{Ratio &lt; 50%?}
+        K --&gt;|Yes| L[Use compressed]
+        K --&gt;|No| I
+        L --&gt; M[Round to power-of-2]
+        M --&gt; N[hammer2_assign_physical]
+        I --&gt; N
+        N --&gt; O[Write to DIO]
+    end
+</code></pre>
+<p>Source: <code>hammer2_strategy.c:826-898</code>, <code>910-1188</code></p>
+<h3 id="read-path">Read Path<a class="headerlink" href="#read-path" title="Permanent link">¶</a></h3>
+<p>Decompression occurs in <code>hammer2_strategy_read_completion()</code>:</p>
+<pre class="mermaid"><code>flowchart TB
+    subgraph read["Decompression Read Path"]
+        A[hammer2_xop_strategy_read] --&gt; B[hammer2_chain_lookup]
+        B --&gt; C[hammer2_xop_collect]
+        C --&gt; D[hammer2_strategy_read_completion]
+        D --&gt; E{bref.methods<br/>compression?}
+        E --&gt;|LZ4| F[hammer2_decompress_LZ4_callback]
+        E --&gt;|ZLIB| G[hammer2_decompress_ZLIB_callback]
+        E --&gt;|NONE| H[bcopy direct]
+        F --&gt; I[Copy to bio buffer]
+        G --&gt; I
+        H --&gt; I
+        I --&gt; J[biodone]
+    end
+</code></pre>
+<p>Source: <code>hammer2_strategy.c:441-502</code></p>
+<h3 id="decompression-callbacks">Decompression Callbacks<a class="headerlink" href="#decompression-callbacks" title="Permanent link">¶</a></h3>
+<p><strong>LZ4 Decompression:</strong></p>
+<div class="highlight"><pre><span></span><code><a href="#__codelineno-12-1" id="__codelineno-12-1" name="__codelineno-12-1"></a><span class="kt">void</span><span class="w"> </span><span class="nf">hammer2_decompress_LZ4_callback</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="n">data</span><span class="p">,</span><span class="w"> </span><span class="n">u_int</span><span class="w"> </span><span class="n">bytes</span><span class="p">,</span>
+<a href="#__codelineno-12-2" id="__codelineno-12-2" name="__codelineno-12-2"></a><span class="w">                                     </span><span class="k">struct</span><span class="w"> </span><span class="nc">bio</span><span class="w"> </span><span class="o">*</span><span class="n">bio</span><span class="p">)</span>
+<a href="#__codelineno-12-3" id="__codelineno-12-3" name="__codelineno-12-3"></a><span class="p">{</span>
+<a href="#__codelineno-12-4" id="__codelineno-12-4" name="__codelineno-12-4"></a><span class="w">    </span><span class="n">bp</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">bio</span><span class="o">-&gt;</span><span class="n">bio_buf</span><span class="p">;</span>
+<a href="#__codelineno-12-5" id="__codelineno-12-5" name="__codelineno-12-5"></a>
+<a href="#__codelineno-12-6" id="__codelineno-12-6" name="__codelineno-12-6"></a><span class="w">    </span><span class="cm">/* Read compressed size from prefix */</span>
+<a href="#__codelineno-12-7" id="__codelineno-12-7" name="__codelineno-12-7"></a><span class="w">    </span><span class="n">compressed_size</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="o">*</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="o">*</span><span class="p">)</span><span class="n">data</span><span class="p">;</span>
+<a href="#__codelineno-12-8" id="__codelineno-12-8" name="__codelineno-12-8"></a><span class="w">    </span><span class="n">KKASSERT</span><span class="p">((</span><span class="kt">uint32_t</span><span class="p">)</span><span class="n">compressed_size</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="n">bytes</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="k">sizeof</span><span class="p">(</span><span class="kt">int</span><span class="p">));</span>
+<a href="#__codelineno-12-9" id="__codelineno-12-9" name="__codelineno-12-9"></a>
+<a href="#__codelineno-12-10" id="__codelineno-12-10" name="__codelineno-12-10"></a><span class="w">    </span><span class="cm">/* Decompress */</span>
+<a href="#__codelineno-12-11" id="__codelineno-12-11" name="__codelineno-12-11"></a><span class="w">    </span><span class="n">compressed_buffer</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">objcache_get</span><span class="p">(</span><span class="n">cache_buffer_read</span><span class="p">,</span><span class="w"> </span><span class="n">M_INTWAIT</span><span class="p">);</span>
+<a href="#__codelineno-12-12" id="__codelineno-12-12" name="__codelineno-12-12"></a><span class="w">    </span><span class="n">result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">LZ4_decompress_safe</span><span class="p">(</span><span class="o">&amp;</span><span class="n">data</span><span class="p">[</span><span class="k">sizeof</span><span class="p">(</span><span class="kt">int</span><span class="p">)],</span>
+<a href="#__codelineno-12-13" id="__codelineno-12-13" name="__codelineno-12-13"></a><span class="w">                                 </span><span class="n">compressed_buffer</span><span class="p">,</span>
+<a href="#__codelineno-12-14" id="__codelineno-12-14" name="__codelineno-12-14"></a><span class="w">                                 </span><span class="n">compressed_size</span><span class="p">,</span>
+<a href="#__codelineno-12-15" id="__codelineno-12-15" name="__codelineno-12-15"></a><span class="w">                                 </span><span class="n">bp</span><span class="o">-&gt;</span><span class="n">b_bufsize</span><span class="p">);</span>
+<a href="#__codelineno-12-16" id="__codelineno-12-16" name="__codelineno-12-16"></a>
+<a href="#__codelineno-12-17" id="__codelineno-12-17" name="__codelineno-12-17"></a><span class="w">    </span><span class="cm">/* Copy to destination and zero remainder */</span>
+<a href="#__codelineno-12-18" id="__codelineno-12-18" name="__codelineno-12-18"></a><span class="w">    </span><span class="n">bcopy</span><span class="p">(</span><span class="n">compressed_buffer</span><span class="p">,</span><span class="w"> </span><span class="n">bp</span><span class="o">-&gt;</span><span class="n">b_data</span><span class="p">,</span><span class="w"> </span><span class="n">bp</span><span class="o">-&gt;</span><span class="n">b_bufsize</span><span class="p">);</span>
+<a href="#__codelineno-12-19" id="__codelineno-12-19" name="__codelineno-12-19"></a><span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">result</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">bp</span><span class="o">-&gt;</span><span class="n">b_bufsize</span><span class="p">)</span>
+<a href="#__codelineno-12-20" id="__codelineno-12-20" name="__codelineno-12-20"></a><span class="w">        </span><span class="n">bzero</span><span class="p">(</span><span class="n">bp</span><span class="o">-&gt;</span><span class="n">b_data</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">result</span><span class="p">,</span><span class="w"> </span><span class="n">bp</span><span class="o">-&gt;</span><span class="n">b_bufsize</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">result</span><span class="p">);</span>
+<a href="#__codelineno-12-21" id="__codelineno-12-21" name="__codelineno-12-21"></a>
+<a href="#__codelineno-12-22" id="__codelineno-12-22" name="__codelineno-12-22"></a><span class="w">    </span><span class="n">objcache_put</span><span class="p">(</span><span class="n">cache_buffer_read</span><span class="p">,</span><span class="w"> </span><span class="n">compressed_buffer</span><span class="p">);</span>
+<a href="#__codelineno-12-23" id="__codelineno-12-23" name="__codelineno-12-23"></a><span class="p">}</span>
+</code></pre></div>
+<p>Source: <code>hammer2_strategy.c:180-220</code></p>
+<p><strong>ZLIB Decompression:</strong></p>
+<div class="highlight"><pre><span></span><code><a href="#__codelineno-13-1" id="__codelineno-13-1" name="__codelineno-13-1"></a><span class="kt">void</span><span class="w"> </span><span class="nf">hammer2_decompress_ZLIB_callback</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="n">data</span><span class="p">,</span><span class="w"> </span><span class="n">u_int</span><span class="w"> </span><span class="n">bytes</span><span class="p">,</span>
+<a href="#__codelineno-13-2" id="__codelineno-13-2" name="__codelineno-13-2"></a><span class="w">                                      </span><span class="k">struct</span><span class="w"> </span><span class="nc">bio</span><span class="w"> </span><span class="o">*</span><span class="n">bio</span><span class="p">)</span>
+<a href="#__codelineno-13-3" id="__codelineno-13-3" name="__codelineno-13-3"></a><span class="p">{</span>
+<a href="#__codelineno-13-4" id="__codelineno-13-4" name="__codelineno-13-4"></a><span class="w">    </span><span class="n">bp</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">bio</span><span class="o">-&gt;</span><span class="n">bio_buf</span><span class="p">;</span>
+<a href="#__codelineno-13-5" id="__codelineno-13-5" name="__codelineno-13-5"></a>
+<a href="#__codelineno-13-6" id="__codelineno-13-6" name="__codelineno-13-6"></a><span class="w">    </span><span class="cm">/* Initialize decompressor */</span>
+<a href="#__codelineno-13-7" id="__codelineno-13-7" name="__codelineno-13-7"></a><span class="w">    </span><span class="n">bzero</span><span class="p">(</span><span class="o">&amp;</span><span class="n">strm_decompress</span><span class="p">,</span><span class="w"> </span><span class="k">sizeof</span><span class="p">(</span><span class="n">strm_decompress</span><span class="p">));</span>
+<a href="#__codelineno-13-8" id="__codelineno-13-8" name="__codelineno-13-8"></a><span class="w">    </span><span class="n">ret</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">inflateInit</span><span class="p">(</span><span class="o">&amp;</span><span class="n">strm_decompress</span><span class="p">);</span>
+<a href="#__codelineno-13-9" id="__codelineno-13-9" name="__codelineno-13-9"></a>
+<a href="#__codelineno-13-10" id="__codelineno-13-10" name="__codelineno-13-10"></a><span class="w">    </span><span class="cm">/* Decompress */</span>
+<a href="#__codelineno-13-11" id="__codelineno-13-11" name="__codelineno-13-11"></a><span class="w">    </span><span class="n">compressed_buffer</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">objcache_get</span><span class="p">(</span><span class="n">cache_buffer_read</span><span class="p">,</span><span class="w"> </span><span class="n">M_INTWAIT</span><span class="p">);</span>
+<a href="#__codelineno-13-12" id="__codelineno-13-12" name="__codelineno-13-12"></a><span class="w">    </span><span class="n">strm_decompress</span><span class="p">.</span><span class="n">next_in</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">data</span><span class="p">;</span>
+<a href="#__codelineno-13-13" id="__codelineno-13-13" name="__codelineno-13-13"></a><span class="w">    </span><span class="n">strm_decompress</span><span class="p">.</span><span class="n">avail_in</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">bytes</span><span class="p">;</span>
+<a href="#__codelineno-13-14" id="__codelineno-13-14" name="__codelineno-13-14"></a><span class="w">    </span><span class="n">strm_decompress</span><span class="p">.</span><span class="n">next_out</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">compressed_buffer</span><span class="p">;</span>
+<a href="#__codelineno-13-15" id="__codelineno-13-15" name="__codelineno-13-15"></a><span class="w">    </span><span class="n">strm_decompress</span><span class="p">.</span><span class="n">avail_out</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">bp</span><span class="o">-&gt;</span><span class="n">b_bufsize</span><span class="p">;</span>
+<a href="#__codelineno-13-16" id="__codelineno-13-16" name="__codelineno-13-16"></a>
+<a href="#__codelineno-13-17" id="__codelineno-13-17" name="__codelineno-13-17"></a><span class="w">    </span><span class="n">ret</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">inflate</span><span class="p">(</span><span class="o">&amp;</span><span class="n">strm_decompress</span><span class="p">,</span><span class="w"> </span><span class="n">Z_FINISH</span><span class="p">);</span>
+<a href="#__codelineno-13-18" id="__codelineno-13-18" name="__codelineno-13-18"></a>
+<a href="#__codelineno-13-19" id="__codelineno-13-19" name="__codelineno-13-19"></a><span class="w">    </span><span class="cm">/* Copy to destination */</span>
+<a href="#__codelineno-13-20" id="__codelineno-13-20" name="__codelineno-13-20"></a><span class="w">    </span><span class="n">bcopy</span><span class="p">(</span><span class="n">compressed_buffer</span><span class="p">,</span><span class="w"> </span><span class="n">bp</span><span class="o">-&gt;</span><span class="n">b_data</span><span class="p">,</span><span class="w"> </span><span class="n">bp</span><span class="o">-&gt;</span><span class="n">b_bufsize</span><span class="p">);</span>
+<a href="#__codelineno-13-21" id="__codelineno-13-21" name="__codelineno-13-21"></a><span class="w">    </span><span class="n">result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">bp</span><span class="o">-&gt;</span><span class="n">b_bufsize</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">strm_decompress</span><span class="p">.</span><span class="n">avail_out</span><span class="p">;</span>
+<a href="#__codelineno-13-22" id="__codelineno-13-22" name="__codelineno-13-22"></a><span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">result</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">bp</span><span class="o">-&gt;</span><span class="n">b_bufsize</span><span class="p">)</span>
+<a href="#__codelineno-13-23" id="__codelineno-13-23" name="__codelineno-13-23"></a><span class="w">        </span><span class="n">bzero</span><span class="p">(</span><span class="n">bp</span><span class="o">-&gt;</span><span class="n">b_data</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">result</span><span class="p">,</span><span class="w"> </span><span class="n">strm_decompress</span><span class="p">.</span><span class="n">avail_out</span><span class="p">);</span>
+<a href="#__codelineno-13-24" id="__codelineno-13-24" name="__codelineno-13-24"></a>
+<a href="#__codelineno-13-25" id="__codelineno-13-25" name="__codelineno-13-25"></a><span class="w">    </span><span class="n">objcache_put</span><span class="p">(</span><span class="n">cache_buffer_read</span><span class="p">,</span><span class="w"> </span><span class="n">compressed_buffer</span><span class="p">);</span>
+<a href="#__codelineno-13-26" id="__codelineno-13-26" name="__codelineno-13-26"></a><span class="w">    </span><span class="n">inflateEnd</span><span class="p">(</span><span class="o">&amp;</span><span class="n">strm_decompress</span><span class="p">);</span>
+<a href="#__codelineno-13-27" id="__codelineno-13-27" name="__codelineno-13-27"></a><span class="p">}</span>
+</code></pre></div>
+<p>Source: <code>hammer2_strategy.c:227-271</code></p>
+<h2 id="compression-heuristic">Compression Heuristic<a class="headerlink" href="#compression-heuristic" title="Permanent link">¶</a></h2>
+<p>A per-inode heuristic avoids wasting CPU on incompressible data.</p>
+<h3 id="heuristic-algorithm">Heuristic Algorithm<a class="headerlink" href="#heuristic-algorithm" title="Permanent link">¶</a></h3>
+<div class="highlight"><pre><span></span><code><a href="#__codelineno-14-1" id="__codelineno-14-1" name="__codelineno-14-1"></a><span class="cm">/* In hammer2_inode */</span>
+<a href="#__codelineno-14-2" id="__codelineno-14-2" name="__codelineno-14-2"></a><span class="kt">int</span><span class="w"> </span><span class="n">comp_heuristic</span><span class="p">;</span><span class="w">     </span><span class="cm">/* Compression heuristic counter */</span>
+<a href="#__codelineno-14-3" id="__codelineno-14-3" name="__codelineno-14-3"></a>
+<a href="#__codelineno-14-4" id="__codelineno-14-4" name="__codelineno-14-4"></a><span class="cm">/* Check heuristic before compression attempt */</span>
+<a href="#__codelineno-14-5" id="__codelineno-14-5" name="__codelineno-14-5"></a><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">ip</span><span class="o">-&gt;</span><span class="n">comp_heuristic</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="mi">8</span><span class="w"> </span><span class="o">||</span>
+<a href="#__codelineno-14-6" id="__codelineno-14-6" name="__codelineno-14-6"></a><span class="w">    </span><span class="p">(</span><span class="n">ip</span><span class="o">-&gt;</span><span class="n">comp_heuristic</span><span class="w"> </span><span class="o">&amp;</span><span class="w"> </span><span class="mi">7</span><span class="p">)</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="o">||</span>
+<a href="#__codelineno-14-7" id="__codelineno-14-7" name="__codelineno-14-7"></a><span class="w">    </span><span class="n">hammer2_always_compress</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<a href="#__codelineno-14-8" id="__codelineno-14-8" name="__codelineno-14-8"></a><span class="w">    </span><span class="cm">/* Try compression */</span>
+<a href="#__codelineno-14-9" id="__codelineno-14-9" name="__codelineno-14-9"></a><span class="p">}</span>
+<a href="#__codelineno-14-10" id="__codelineno-14-10" name="__codelineno-14-10"></a>
+<a href="#__codelineno-14-11" id="__codelineno-14-11" name="__codelineno-14-11"></a><span class="cm">/* Update heuristic based on result */</span>
+<a href="#__codelineno-14-12" id="__codelineno-14-12" name="__codelineno-14-12"></a><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">comp_size</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<a href="#__codelineno-14-13" id="__codelineno-14-13" name="__codelineno-14-13"></a><span class="w">    </span><span class="cm">/* Compression failed, increment counter */</span>
+<a href="#__codelineno-14-14" id="__codelineno-14-14" name="__codelineno-14-14"></a><span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">++</span><span class="n">ip</span><span class="o">-&gt;</span><span class="n">comp_heuristic</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mi">128</span><span class="p">)</span>
+<a href="#__codelineno-14-15" id="__codelineno-14-15" name="__codelineno-14-15"></a><span class="w">        </span><span class="n">ip</span><span class="o">-&gt;</span><span class="n">comp_heuristic</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">8</span><span class="p">;</span>
+<a href="#__codelineno-14-16" id="__codelineno-14-16" name="__codelineno-14-16"></a><span class="p">}</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="p">{</span>
+<a href="#__codelineno-14-17" id="__codelineno-14-17" name="__codelineno-14-17"></a><span class="w">    </span><span class="cm">/* Compression succeeded, reset counter */</span>
+<a href="#__codelineno-14-18" id="__codelineno-14-18" name="__codelineno-14-18"></a><span class="w">    </span><span class="n">ip</span><span class="o">-&gt;</span><span class="n">comp_heuristic</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+<a href="#__codelineno-14-19" id="__codelineno-14-19" name="__codelineno-14-19"></a><span class="p">}</span>
+</code></pre></div>
+<p>Source: <code>hammer2_strategy.c:949-1021</code></p>
+<h3 id="heuristic-behavior">Heuristic Behavior<a class="headerlink" href="#heuristic-behavior" title="Permanent link">¶</a></h3>
+<pre class="mermaid"><code>flowchart TB
+    subgraph heuristic["Compression Heuristic"]
+        A[Write request] --&gt; B{heuristic &lt; 8?}
+        B --&gt;|Yes| C[Try compression]
+        B --&gt;|No| D{heuristic &amp; 7 == 0?}
+        D --&gt;|Yes| C
+        D --&gt;|No| E[Skip compression]
+        C --&gt; F{Success?}
+        F --&gt;|Yes| G[Reset heuristic = 0]
+        F --&gt;|No| H[Increment heuristic]
+        H --&gt; I{heuristic &gt; 128?}
+        I --&gt;|Yes| J[Cap at 8]
+        I --&gt;|No| K[Keep value]
+    end
+</code></pre>
+<p>The heuristic ensures:
+- First 8 writes always try compression
+- After failures, only every 8th write tries compression
+- Successful compression resets the counter
+- Maximum counter value is 128</p>
+<h2 id="compressed-block-sizes">Compressed Block Sizes<a class="headerlink" href="#compressed-block-sizes" title="Permanent link">¶</a></h2>
+<p>Compressed data is stored in power-of-2 sized blocks:</p>
+<div class="highlight"><pre><span></span><code><a href="#__codelineno-15-1" id="__codelineno-15-1" name="__codelineno-15-1"></a><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">comp_size</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="mi">1024</span><span class="p">)</span>
+<a href="#__codelineno-15-2" id="__codelineno-15-2" name="__codelineno-15-2"></a><span class="w">    </span><span class="n">comp_block_size</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1024</span><span class="p">;</span>
+<a href="#__codelineno-15-3" id="__codelineno-15-3" name="__codelineno-15-3"></a><span class="k">else</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">comp_size</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="mi">2048</span><span class="p">)</span>
+<a href="#__codelineno-15-4" id="__codelineno-15-4" name="__codelineno-15-4"></a><span class="w">    </span><span class="n">comp_block_size</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">2048</span><span class="p">;</span>
+<a href="#__codelineno-15-5" id="__codelineno-15-5" name="__codelineno-15-5"></a><span class="k">else</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">comp_size</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="mi">4096</span><span class="p">)</span>
+<a href="#__codelineno-15-6" id="__codelineno-15-6" name="__codelineno-15-6"></a><span class="w">    </span><span class="n">comp_block_size</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">4096</span><span class="p">;</span>
+<a href="#__codelineno-15-7" id="__codelineno-15-7" name="__codelineno-15-7"></a><span class="k">else</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">comp_size</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="mi">8192</span><span class="p">)</span>
+<a href="#__codelineno-15-8" id="__codelineno-15-8" name="__codelineno-15-8"></a><span class="w">    </span><span class="n">comp_block_size</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">8192</span><span class="p">;</span>
+<a href="#__codelineno-15-9" id="__codelineno-15-9" name="__codelineno-15-9"></a><span class="k">else</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">comp_size</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="mi">16384</span><span class="p">)</span>
+<a href="#__codelineno-15-10" id="__codelineno-15-10" name="__codelineno-15-10"></a><span class="w">    </span><span class="n">comp_block_size</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">16384</span><span class="p">;</span>
+<a href="#__codelineno-15-11" id="__codelineno-15-11" name="__codelineno-15-11"></a><span class="k">else</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">comp_size</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="mi">32768</span><span class="p">)</span>
+<a href="#__codelineno-15-12" id="__codelineno-15-12" name="__codelineno-15-12"></a><span class="w">    </span><span class="n">comp_block_size</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">32768</span><span class="p">;</span>
+</code></pre></div>
+<p>Source: <code>hammer2_strategy.c:1027-1044</code></p>
+<h3 id="block-size-selection">Block Size Selection<a class="headerlink" href="#block-size-selection" title="Permanent link">¶</a></h3>
+<div class="highlight"><pre><span></span><code><a href="#__codelineno-16-1" id="__codelineno-16-1" name="__codelineno-16-1"></a>Input: 64KB uncompressed data
+<a href="#__codelineno-16-2" id="__codelineno-16-2" name="__codelineno-16-2"></a>       ↓
+<a href="#__codelineno-16-3" id="__codelineno-16-3" name="__codelineno-16-3"></a>Compression: 12KB compressed
+<a href="#__codelineno-16-4" id="__codelineno-16-4" name="__codelineno-16-4"></a>       ↓
+<a href="#__codelineno-16-5" id="__codelineno-16-5" name="__codelineno-16-5"></a>Block size: 16KB (next power of 2)
+<a href="#__codelineno-16-6" id="__codelineno-16-6" name="__codelineno-16-6"></a>       ↓
+<a href="#__codelineno-16-7" id="__codelineno-16-7" name="__codelineno-16-7"></a>Zero-pad: 4KB of zeros added
+<a href="#__codelineno-16-8" id="__codelineno-16-8" name="__codelineno-16-8"></a>       ↓
+<a href="#__codelineno-16-9" id="__codelineno-16-9" name="__codelineno-16-9"></a>Write: 16KB block to disk
+</code></pre></div>
+<p>Padding is required for deduplication to work correctly:</p>
+<div class="highlight"><pre><span></span><code><a href="#__codelineno-17-1" id="__codelineno-17-1" name="__codelineno-17-1"></a><span class="cm">/* Zero the remainder for dedup matching */</span>
+<a href="#__codelineno-17-2" id="__codelineno-17-2" name="__codelineno-17-2"></a><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">comp_size</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">comp_block_size</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<a href="#__codelineno-17-3" id="__codelineno-17-3" name="__codelineno-17-3"></a><span class="w">    </span><span class="n">bzero</span><span class="p">(</span><span class="n">comp_buffer</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">comp_size</span><span class="p">,</span>
+<a href="#__codelineno-17-4" id="__codelineno-17-4" name="__codelineno-17-4"></a><span class="w">          </span><span class="n">comp_block_size</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">comp_size</span><span class="p">);</span>
+<a href="#__codelineno-17-5" id="__codelineno-17-5" name="__codelineno-17-5"></a><span class="p">}</span>
+</code></pre></div>
+<p>Source: <code>hammer2_strategy.c:1050-1053</code></p>
+<h2 id="zero-block-optimization">Zero-Block Optimization<a class="headerlink" href="#zero-block-optimization" title="Permanent link">¶</a></h2>
+<p>All-zero blocks are stored as holes (no physical storage):</p>
+<h3 id="zero-detection">Zero Detection<a class="headerlink" href="#zero-detection" title="Permanent link">¶</a></h3>
+<div class="highlight"><pre><span></span><code><a href="#__codelineno-18-1" id="__codelineno-18-1" name="__codelineno-18-1"></a><span class="kt">int</span><span class="w"> </span><span class="nf">test_block_zeros</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="n">buf</span><span class="p">,</span><span class="w"> </span><span class="kt">size_t</span><span class="w"> </span><span class="n">bytes</span><span class="p">)</span>
+<a href="#__codelineno-18-2" id="__codelineno-18-2" name="__codelineno-18-2"></a><span class="p">{</span>
+<a href="#__codelineno-18-3" id="__codelineno-18-3" name="__codelineno-18-3"></a><span class="w">    </span><span class="kt">size_t</span><span class="w"> </span><span class="n">i</span><span class="p">;</span>
+<a href="#__codelineno-18-4" id="__codelineno-18-4" name="__codelineno-18-4"></a>
+<a href="#__codelineno-18-5" id="__codelineno-18-5" name="__codelineno-18-5"></a><span class="w">    </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">bytes</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">+=</span><span class="w"> </span><span class="k">sizeof</span><span class="p">(</span><span class="kt">long</span><span class="p">))</span><span class="w"> </span><span class="p">{</span>
+<a href="#__codelineno-18-6" id="__codelineno-18-6" name="__codelineno-18-6"></a><span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">*</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="kt">long</span><span class="w"> </span><span class="o">*</span><span class="p">)(</span><span class="n">buf</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">i</span><span class="p">)</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span>
+<a href="#__codelineno-18-7" id="__codelineno-18-7" name="__codelineno-18-7"></a><span class="w">            </span><span class="k">return</span><span class="w"> </span><span class="p">(</span><span class="mi">0</span><span class="p">);</span><span class="w">     </span><span class="cm">/* Not all zeros */</span>
+<a href="#__codelineno-18-8" id="__codelineno-18-8" name="__codelineno-18-8"></a><span class="w">    </span><span class="p">}</span>
+<a href="#__codelineno-18-9" id="__codelineno-18-9" name="__codelineno-18-9"></a><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="p">(</span><span class="mi">1</span><span class="p">);</span><span class="w">             </span><span class="cm">/* All zeros */</span>
+<a href="#__codelineno-18-10" id="__codelineno-18-10" name="__codelineno-18-10"></a><span class="p">}</span>
+</code></pre></div>
+<p>Source: <code>hammer2_strategy.c:1251-1262</code></p>
+<h3 id="zero-write-handling">Zero Write Handling<a class="headerlink" href="#zero-write-handling" title="Permanent link">¶</a></h3>
+<div class="highlight"><pre><span></span><code><a href="#__codelineno-19-1" id="__codelineno-19-1" name="__codelineno-19-1"></a><span class="kt">void</span><span class="w"> </span><span class="nf">zero_write</span><span class="p">(</span><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="n">data</span><span class="p">,</span><span class="w"> </span><span class="n">hammer2_inode_t</span><span class="w"> </span><span class="o">*</span><span class="n">ip</span><span class="p">,</span>
+<a href="#__codelineno-19-2" id="__codelineno-19-2" name="__codelineno-19-2"></a><span class="w">                </span><span class="n">hammer2_chain_t</span><span class="w"> </span><span class="o">**</span><span class="n">parentp</span><span class="p">,</span>
+<a href="#__codelineno-19-3" id="__codelineno-19-3" name="__codelineno-19-3"></a><span class="w">                </span><span class="n">hammer2_key_t</span><span class="w"> </span><span class="n">lbase</span><span class="p">,</span><span class="w"> </span><span class="n">hammer2_tid_t</span><span class="w"> </span><span class="n">mtid</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="o">*</span><span class="n">errorp</span><span class="p">)</span>
+<a href="#__codelineno-19-4" id="__codelineno-19-4" name="__codelineno-19-4"></a><span class="p">{</span>
+<a href="#__codelineno-19-5" id="__codelineno-19-5" name="__codelineno-19-5"></a><span class="w">    </span><span class="cm">/* Look up existing chain */</span>
+<a href="#__codelineno-19-6" id="__codelineno-19-6" name="__codelineno-19-6"></a><span class="w">    </span><span class="n">chain</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">hammer2_chain_lookup</span><span class="p">(</span><span class="n">parentp</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">key_dummy</span><span class="p">,</span>
+<a href="#__codelineno-19-7" id="__codelineno-19-7" name="__codelineno-19-7"></a><span class="w">                                 </span><span class="n">lbase</span><span class="p">,</span><span class="w"> </span><span class="n">lbase</span><span class="p">,</span><span class="w"> </span><span class="n">errorp</span><span class="p">,</span><span class="w"> </span><span class="p">...);</span>
+<a href="#__codelineno-19-8" id="__codelineno-19-8" name="__codelineno-19-8"></a>
+<a href="#__codelineno-19-9" id="__codelineno-19-9" name="__codelineno-19-9"></a><span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">chain</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<a href="#__codelineno-19-10" id="__codelineno-19-10" name="__codelineno-19-10"></a><span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">chain</span><span class="o">-&gt;</span><span class="n">bref</span><span class="p">.</span><span class="n">type</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">HAMMER2_BREF_TYPE_INODE</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<a href="#__codelineno-19-11" id="__codelineno-19-11" name="__codelineno-19-11"></a><span class="w">            </span><span class="cm">/* Zero embedded data */</span>
+<a href="#__codelineno-19-12" id="__codelineno-19-12" name="__codelineno-19-12"></a><span class="w">            </span><span class="n">bzero</span><span class="p">(</span><span class="n">wipdata</span><span class="o">-&gt;</span><span class="n">u</span><span class="p">.</span><span class="n">data</span><span class="p">,</span><span class="w"> </span><span class="n">HAMMER2_EMBEDDED_BYTES</span><span class="p">);</span>
+<a href="#__codelineno-19-13" id="__codelineno-19-13" name="__codelineno-19-13"></a><span class="w">        </span><span class="p">}</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="p">{</span>
+<a href="#__codelineno-19-14" id="__codelineno-19-14" name="__codelineno-19-14"></a><span class="w">            </span><span class="cm">/* Delete the data chain - creates a hole */</span>
+<a href="#__codelineno-19-15" id="__codelineno-19-15" name="__codelineno-19-15"></a><span class="w">            </span><span class="n">hammer2_chain_delete</span><span class="p">(</span><span class="o">*</span><span class="n">parentp</span><span class="p">,</span><span class="w"> </span><span class="n">chain</span><span class="p">,</span><span class="w"> </span><span class="n">mtid</span><span class="p">,</span>
+<a href="#__codelineno-19-16" id="__codelineno-19-16" name="__codelineno-19-16"></a><span class="w">                                 </span><span class="n">HAMMER2_DELETE_PERMANENT</span><span class="p">);</span>
+<a href="#__codelineno-19-17" id="__codelineno-19-17" name="__codelineno-19-17"></a><span class="w">        </span><span class="p">}</span>
+<a href="#__codelineno-19-18" id="__codelineno-19-18" name="__codelineno-19-18"></a><span class="w">    </span><span class="p">}</span>
+<a href="#__codelineno-19-19" id="__codelineno-19-19" name="__codelineno-19-19"></a><span class="w">    </span><span class="cm">/* No chain = already a hole, nothing to do */</span>
+<a href="#__codelineno-19-20" id="__codelineno-19-20" name="__codelineno-19-20"></a><span class="p">}</span>
+</code></pre></div>
+<p>Source: <code>hammer2_strategy.c:1269-1309</code></p>
+<h2 id="buffer-caching">Buffer Caching<a class="headerlink" href="#buffer-caching" title="Permanent link">¶</a></h2>
+<p>Compression uses object caches for temporary buffers:</p>
+<div class="highlight"><pre><span></span><code><a href="#__codelineno-20-1" id="__codelineno-20-1" name="__codelineno-20-1"></a><span class="k">struct</span><span class="w"> </span><span class="nc">objcache</span><span class="w"> </span><span class="o">*</span><span class="n">cache_buffer_read</span><span class="p">;</span><span class="w">     </span><span class="cm">/* Decompression buffers */</span>
+<a href="#__codelineno-20-2" id="__codelineno-20-2" name="__codelineno-20-2"></a><span class="k">struct</span><span class="w"> </span><span class="nc">objcache</span><span class="w"> </span><span class="o">*</span><span class="n">cache_buffer_write</span><span class="p">;</span><span class="w">    </span><span class="cm">/* Compression buffers */</span>
+<a href="#__codelineno-20-3" id="__codelineno-20-3" name="__codelineno-20-3"></a>
+<a href="#__codelineno-20-4" id="__codelineno-20-4" name="__codelineno-20-4"></a><span class="cm">/* Get buffer for compression/decompression */</span>
+<a href="#__codelineno-20-5" id="__codelineno-20-5" name="__codelineno-20-5"></a><span class="n">comp_buffer</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">objcache_get</span><span class="p">(</span><span class="n">cache_buffer_write</span><span class="p">,</span><span class="w"> </span><span class="n">M_INTWAIT</span><span class="p">);</span>
+<a href="#__codelineno-20-6" id="__codelineno-20-6" name="__codelineno-20-6"></a>
+<a href="#__codelineno-20-7" id="__codelineno-20-7" name="__codelineno-20-7"></a><span class="cm">/* Return buffer after use */</span>
+<a href="#__codelineno-20-8" id="__codelineno-20-8" name="__codelineno-20-8"></a><span class="n">objcache_put</span><span class="p">(</span><span class="n">cache_buffer_write</span><span class="p">,</span><span class="w"> </span><span class="n">comp_buffer</span><span class="p">);</span>
+</code></pre></div>
+<p>Source: <code>hammer2_strategy.c:60-61</code>, <code>967-968</code>, <code>1187</code></p>
+<h2 id="check-code-integration">Check Code Integration<a class="headerlink" href="#check-code-integration" title="Permanent link">¶</a></h2>
+<p>Check codes (CRC/hash) are computed on <strong>compressed</strong> data:</p>
+<div class="highlight"><pre><span></span><code><a href="#__codelineno-21-1" id="__codelineno-21-1" name="__codelineno-21-1"></a><span class="cm">/* After compression, set check code on compressed data */</span>
+<a href="#__codelineno-21-2" id="__codelineno-21-2" name="__codelineno-21-2"></a><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">comp_size</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<a href="#__codelineno-21-3" id="__codelineno-21-3" name="__codelineno-21-3"></a><span class="w">    </span><span class="n">chain</span><span class="o">-&gt;</span><span class="n">bref</span><span class="p">.</span><span class="n">methods</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">HAMMER2_ENC_COMP</span><span class="p">(</span><span class="n">comp_algo</span><span class="p">)</span><span class="w"> </span><span class="o">+</span>
+<a href="#__codelineno-21-4" id="__codelineno-21-4" name="__codelineno-21-4"></a><span class="w">                          </span><span class="n">HAMMER2_ENC_CHECK</span><span class="p">(</span><span class="n">check_algo</span><span class="p">);</span>
+<a href="#__codelineno-21-5" id="__codelineno-21-5" name="__codelineno-21-5"></a><span class="w">    </span><span class="n">hammer2_chain_setcheck</span><span class="p">(</span><span class="n">chain</span><span class="p">,</span><span class="w"> </span><span class="n">comp_buffer</span><span class="p">);</span>
+<a href="#__codelineno-21-6" id="__codelineno-21-6" name="__codelineno-21-6"></a><span class="p">}</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="p">{</span>
+<a href="#__codelineno-21-7" id="__codelineno-21-7" name="__codelineno-21-7"></a><span class="w">    </span><span class="n">chain</span><span class="o">-&gt;</span><span class="n">bref</span><span class="p">.</span><span class="n">methods</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">HAMMER2_ENC_COMP</span><span class="p">(</span><span class="n">HAMMER2_COMP_NONE</span><span class="p">)</span><span class="w"> </span><span class="o">+</span>
+<a href="#__codelineno-21-8" id="__codelineno-21-8" name="__codelineno-21-8"></a><span class="w">                          </span><span class="n">HAMMER2_ENC_CHECK</span><span class="p">(</span><span class="n">check_algo</span><span class="p">);</span>
+<a href="#__codelineno-21-9" id="__codelineno-21-9" name="__codelineno-21-9"></a><span class="w">    </span><span class="n">hammer2_chain_setcheck</span><span class="p">(</span><span class="n">chain</span><span class="p">,</span><span class="w"> </span><span class="n">data</span><span class="p">);</span>
+<a href="#__codelineno-21-10" id="__codelineno-21-10" name="__codelineno-21-10"></a><span class="p">}</span>
+</code></pre></div>
+<p>Source: <code>hammer2_strategy.c:1129-1146</code></p>
+<p>This ensures:
+- Check code validates on-disk data integrity
+- Decompression can verify data before expanding
+- Deduplication works on compressed blocks</p>
+<h2 id="performance-considerations">Performance Considerations<a class="headerlink" href="#performance-considerations" title="Permanent link">¶</a></h2>
+<h3 id="cpu-vs-io-tradeoff">CPU vs I/O Tradeoff<a class="headerlink" href="#cpu-vs-io-tradeoff" title="Permanent link">¶</a></h3>
+<table>
+<thead>
+<tr>
+<th>Algorithm</th>
+<th>CPU Cost</th>
+<th>I/O Savings</th>
+<th>Best For</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>NONE</td>
+<td>None</td>
+<td>None</td>
+<td>SSDs, incompressible data</td>
+</tr>
+<tr>
+<td>AUTOZERO</td>
+<td>Minimal</td>
+<td>Variable</td>
+<td>Sparse files</td>
+</tr>
+<tr>
+<td>LZ4</td>
+<td>Low</td>
+<td>Moderate</td>
+<td>General use (default)</td>
+</tr>
+<tr>
+<td>ZLIB</td>
+<td>Moderate</td>
+<td>High</td>
+<td>Archival, slow storage</td>
+</tr>
+</tbody>
+</table>
+<h3 id="compression-ratio-target">Compression Ratio Target<a class="headerlink" href="#compression-ratio-target" title="Permanent link">¶</a></h3>
+<p>HAMMER2 only stores compressed data if it achieves ≥50% reduction:</p>
+<div class="highlight"><pre><span></span><code><a href="#__codelineno-22-1" id="__codelineno-22-1" name="__codelineno-22-1"></a><span class="cm">/* Target: 50% compression or better */</span>
+<a href="#__codelineno-22-2" id="__codelineno-22-2" name="__codelineno-22-2"></a><span class="n">comp_size</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">LZ4_compress_limitedOutput</span><span class="p">(</span>
+<a href="#__codelineno-22-3" id="__codelineno-22-3" name="__codelineno-22-3"></a><span class="w">    </span><span class="n">data</span><span class="p">,</span>
+<a href="#__codelineno-22-4" id="__codelineno-22-4" name="__codelineno-22-4"></a><span class="w">    </span><span class="o">&amp;</span><span class="n">comp_buffer</span><span class="p">[</span><span class="k">sizeof</span><span class="p">(</span><span class="kt">int</span><span class="p">)],</span>
+<a href="#__codelineno-22-5" id="__codelineno-22-5" name="__codelineno-22-5"></a><span class="w">    </span><span class="n">pblksize</span><span class="p">,</span>
+<a href="#__codelineno-22-6" id="__codelineno-22-6" name="__codelineno-22-6"></a><span class="w">    </span><span class="n">pblksize</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="mi">2</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="k">sizeof</span><span class="p">(</span><span class="kt">int64_t</span><span class="p">));</span><span class="w">  </span><span class="cm">/* Max output = input/2 */</span>
+</code></pre></div>
+<p>Source: <code>hammer2_strategy.c:969-973</code></p>
+<h3 id="memory-usage">Memory Usage<a class="headerlink" href="#memory-usage" title="Permanent link">¶</a></h3>
+<table>
+<thead>
+<tr>
+<th>Component</th>
+<th>Memory</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>LZ4 hash table</td>
+<td>16KB</td>
+<td>Per compression call</td>
+</tr>
+<tr>
+<td>Read buffer</td>
+<td>64KB</td>
+<td>Object cached</td>
+</tr>
+<tr>
+<td>Write buffer</td>
+<td>64KB</td>
+<td>Object cached</td>
+</tr>
+<tr>
+<td>ZLIB state</td>
+<td>~256KB</td>
+<td>Internal state</td>
+</tr>
+</tbody>
+</table>
+<h2 id="configuration">Configuration<a class="headerlink" href="#configuration" title="Permanent link">¶</a></h2>
+<h3 id="mount-options">Mount Options<a class="headerlink" href="#mount-options" title="Permanent link">¶</a></h3>
+<p>Compression can be configured at mount time or per-file via <code>hammer2</code> utility.</p>
+<h3 id="sysctl-tuning">Sysctl Tuning<a class="headerlink" href="#sysctl-tuning" title="Permanent link">¶</a></h3>
+<div class="highlight"><pre><span></span><code><a href="#__codelineno-23-1" id="__codelineno-23-1" name="__codelineno-23-1"></a><span class="kt">int</span><span class="w"> </span><span class="n">hammer2_always_compress</span><span class="p">;</span><span class="w">    </span><span class="cm">/* Override heuristic */</span>
+</code></pre></div>
+<p>Setting <code>hammer2_always_compress</code> to 1 disables the compression heuristic,
+forcing compression attempts on every write.</p>
+<h2 id="see-also">See Also<a class="headerlink" href="#see-also" title="Permanent link">¶</a></h2>
+<ul>
+<li><a href="../">HAMMER2 Overview</a> — Filesystem architecture</li>
+<li><a href="../io-subsystem/">I/O Subsystem</a> — Compression in the I/O path</li>
+<li><a href="../on-disk-format/">On-Disk Format</a> — <code>bref.methods</code> encoding</li>
+<li><a href="../chain-layer/">Chain Layer</a> — Data chain handling</li>
+</ul>
+</article>
+</div>
 <script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
-        </div>
-        
-          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
-  
-  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+</div>
+<button class="md-top md-icon" data-md-component="top" hidden="" type="button">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"></path></svg>
   Back to top
 </button>
-        
-      </main>
-      
-        <footer class="md-footer">
-  
-  <div class="md-footer-meta md-typeset">
-    <div class="md-footer-meta__inner md-grid">
-      <div class="md-copyright">
+</main>
+<footer class="md-footer">
+<div class="md-footer-meta md-typeset">
+<div class="md-footer-meta__inner md-grid">
+<div class="md-copyright">
   
   
     Made with
-    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+    <a href="https://squidfunk.github.io/mkdocs-material/" rel="noopener" target="_blank">
       Material for MkDocs
     </a>
-  
 </div>
-      
-    </div>
-  </div>
+</div>
+</div>
 </footer>
-      
-    </div>
-    <div class="md-dialog" data-md-component="dialog">
-      <div class="md-dialog__inner md-typeset"></div>
-    </div>
-    
-    
-    
-      
-      
-      <script id="__config" type="application/json">{"annotate": null, "base": "../../../..", "features": ["navigation.tabs", "navigation.sections", "navigation.expand", "navigation.top", "search.suggest", "search.highlight", "content.code.copy"], "search": "../../../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
-    
-    
-      <script src="../../../../assets/javascripts/bundle.79ae519e.min.js"></script>
-      
-    
-  </body>
+</div>
+<div class="md-dialog" data-md-component="dialog">
+<div class="md-dialog__inner md-typeset"></div>
+</div>
+<script id="__config" type="application/json">{"annotate": null, "base": "../../../..", "features": ["navigation.tabs", "navigation.sections", "navigation.expand", "navigation.top", "search.suggest", "search.highlight", "content.code.copy"], "search": "../../../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+<script src="../../../../assets/javascripts/bundle.79ae519e.min.js"></script>
+<script type="module">import mermaid from "https://unpkg.com/mermaid@10.4.0/dist/mermaid.esm.min.mjs";
+window.mermaidConfig = {default: {
+    startOnLoad: false
+}};</script></body>
 </html>
