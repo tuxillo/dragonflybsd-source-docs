@@ -126,7 +126,19 @@ nav:
       - Memory Mapping: sys/vm/vm_mmap.md
     - vfs/:
       - Overview: sys/vfs/index.md
-      - HAMMER2: sys/vfs/hammer2.md
+      - HAMMER2:
+        - Overview: sys/vfs/hammer2/index.md
+        - On-Disk Format: sys/vfs/hammer2/on-disk-format.md
+        - Chain Layer: sys/vfs/hammer2/chain-layer.md
+        - Inode Layer: sys/vfs/hammer2/inode-layer.md
+        - I/O Subsystem: sys/vfs/hammer2/io-subsystem.md
+        - Flush & Sync: sys/vfs/hammer2/flush-sync.md
+        - Freemap: sys/vfs/hammer2/freemap.md
+        - XOP System: sys/vfs/hammer2/xop-system.md
+        - VFS Integration: sys/vfs/hammer2/vfs-integration.md
+        - Compression: sys/vfs/hammer2/compression.md
+        - Snapshots: sys/vfs/hammer2/snapshots.md
+        - Clustering: sys/vfs/hammer2/clustering.md
       - HAMMER: sys/vfs/hammer.md
       - devfs: sys/vfs/devfs.md
       - procfs: sys/vfs/procfs.md
