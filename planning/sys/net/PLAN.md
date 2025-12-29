@@ -7,66 +7,65 @@ networking subsystem located in `sys/net/`.
 
 The `sys/net/` directory contains the core networking infrastructure including
 network interface management, routing, packet filtering, and various network
-protocols and pseudo-devices. Total: ~100,000 lines across base files and
-subdirectories.
+protocols and pseudo-devices across base files and subdirectories.
 
 ## Directory Structure
 
-### Core Files (~34,000 lines)
+### Core Files
 Base networking infrastructure in `sys/net/`:
 
-| File | Lines | Description |
-|------|-------|-------------|
-| `if.c` | 4,208 | Network interface core |
-| `if.h` / `if_var.h` | 1,395 | Interface definitions and structures |
-| `if_ethersubr.c` | 1,720 | Ethernet support routines |
-| `route.c` | 1,925 | Routing table management |
-| `route.h` | 461 | Routing structures |
-| `rtsock.c` | 1,970 | Routing socket interface |
-| `radix.c` / `radix.h` | 1,643 | Radix tree for routing |
-| `netisr.c` / `netisr.h` | 1,085 | Network ISR dispatch |
-| `bpf.c` / `bpf_filter.c` | 2,371 | Berkeley Packet Filter |
-| `if_poll.c` | 1,630 | Interface polling |
-| `pfil.c` | 457 | Packet filter hooks |
-| `if_clone.c` | 405 | Interface cloning |
-| `if_loop.c` | 417 | Loopback interface |
-| `if_media.c` | 560 | Media selection |
-| `raw_usrreq.c` / `raw_cb.c` | 526 | Raw socket support |
-| `toeplitz.c` | 227 | Toeplitz hash (RSS) |
-| `zlib.c` | 5,391 | Compression library |
+| File | Description |
+|------|-------------|
+| `if.c` | Network interface core |
+| `if.h` / `if_var.h` | Interface definitions and structures |
+| `if_ethersubr.c` | Ethernet support routines |
+| `route.c` | Routing table management |
+| `route.h` | Routing structures |
+| `rtsock.c` | Routing socket interface |
+| `radix.c` / `radix.h` | Radix tree for routing |
+| `netisr.c` / `netisr.h` | Network ISR dispatch |
+| `bpf.c` / `bpf_filter.c` | Berkeley Packet Filter |
+| `if_poll.c` | Interface polling |
+| `pfil.c` | Packet filter hooks |
+| `if_clone.c` | Interface cloning |
+| `if_loop.c` | Loopback interface |
+| `if_media.c` | Media selection |
+| `raw_usrreq.c` / `raw_cb.c` | Raw socket support |
+| `toeplitz.c` | Toeplitz hash (RSS) |
+| `zlib.c` | Compression library |
 
-### Subdirectories (~66,000 lines)
+### Subdirectories
 
-| Directory | Lines | Description |
-|-----------|-------|-------------|
-| `pf/` | 21,554 | Packet Filter firewall (OpenBSD port) |
-| `altq/` | 9,567 | Alternate Queueing (QoS/traffic shaping) |
-| `netmap/` | 8,599 | High-performance packet I/O |
-| `ipfw/` | 8,260 | IP Firewall (FreeBSD legacy) |
-| `wg/` | 6,868 | WireGuard VPN |
-| `bridge/` | 6,535 | Network bridging |
-| `sppp/` | 5,546 | Synchronous PPP |
-| `lagg/` | 4,937 | Link aggregation |
-| `ip_mroute/` | 3,686 | IP multicast routing |
-| `ipfw3_basic/` | 3,315 | IPFW3 basic modules |
-| `dummynet3/` | 3,112 | Traffic shaping (new) |
-| `dummynet/` | 3,083 | Traffic shaping (legacy) |
-| `ipfw3/` | 2,582 | IPFW3 core |
-| `ip6fw/` | 1,507 | IPv6 firewall |
-| `vlan/` | 1,379 | VLAN support |
-| `ipfw3_nat/` | 1,264 | IPFW3 NAT |
-| `tap/` | 1,180 | TAP virtual interface |
-| `tun/` | 1,141 | TUN virtual interface |
-| `sl/` | 1,146 | SLIP |
-| `gre/` | 1,029 | GRE tunneling |
-| `gif/` | 922 | Generic tunnel interface |
-| `ppp_layer/` | 748 | PPP layer |
-| `stf/` | 720 | 6to4 tunnel |
-| `accf_http/` | 365 | HTTP accept filter |
-| `ipfw3_layer4/` | 306 | IPFW3 layer 4 |
-| `ipfw3_layer2/` | 292 | IPFW3 layer 2 |
-| `disc/` | 208 | Discard interface |
-| `accf_data/` | 82 | Data accept filter |
+| Directory | Description |
+|-----------|-------------|
+| `pf/` | Packet Filter firewall (OpenBSD port) |
+| `altq/` | Alternate Queueing (QoS/traffic shaping) |
+| `netmap/` | High-performance packet I/O |
+| `ipfw/` | IP Firewall (FreeBSD legacy) |
+| `wg/` | WireGuard VPN |
+| `bridge/` | Network bridging |
+| `sppp/` | Synchronous PPP |
+| `lagg/` | Link aggregation |
+| `ip_mroute/` | IP multicast routing |
+| `ipfw3_basic/` | IPFW3 basic modules |
+| `dummynet3/` | Traffic shaping (new) |
+| `dummynet/` | Traffic shaping (legacy) |
+| `ipfw3/` | IPFW3 core |
+| `ip6fw/` | IPv6 firewall |
+| `vlan/` | VLAN support |
+| `ipfw3_nat/` | IPFW3 NAT |
+| `tap/` | TAP virtual interface |
+| `tun/` | TUN virtual interface |
+| `sl/` | SLIP |
+| `gre/` | GRE tunneling |
+| `gif/` | Generic tunnel interface |
+| `ppp_layer/` | PPP layer |
+| `stf/` | 6to4 tunnel |
+| `accf_http/` | HTTP accept filter |
+| `ipfw3_layer4/` | IPFW3 layer 4 |
+| `ipfw3_layer2/` | IPFW3 layer 2 |
+| `disc/` | Discard interface |
+| `accf_data/` | Data accept filter |
 
 ---
 
@@ -74,7 +73,7 @@ Base networking infrastructure in `sys/net/`:
 
 ### Phase 1: Network Interface Core
 **Goal**: Understand interface management and data structures.
-**Files** (~8,500 lines):
+**Files**:
 - `sys/net/if.h` - Interface constants and ioctl definitions
 - `sys/net/if_var.h` - `struct ifnet` and related structures
 - `sys/net/if.c` - Interface management implementation
@@ -90,7 +89,7 @@ Base networking infrastructure in `sys/net/`:
 
 ### Phase 2: Network ISR and Message Passing
 **Goal**: Understand DragonFly's network ISR dispatch system.
-**Files** (~1,500 lines):
+**Files**:
 - `sys/net/netisr.h` - Network ISR definitions
 - `sys/net/netisr2.h` - Extended definitions
 - `sys/net/netisr.c` - Network ISR implementation
@@ -105,7 +104,7 @@ Base networking infrastructure in `sys/net/`:
 
 ### Phase 3: Routing Subsystem
 **Goal**: Understand routing table management.
-**Files** (~4,500 lines):
+**Files**:
 - `sys/net/route.h` - Routing structures
 - `sys/net/route.c` - Routing implementation
 - `sys/net/rtsock.c` - Routing socket interface
@@ -121,7 +120,7 @@ Base networking infrastructure in `sys/net/`:
 
 ### Phase 4: Ethernet and Link Layer
 **Goal**: Understand Ethernet frame handling.
-**Files** (~3,000 lines):
+**Files**:
 - `sys/net/ethernet.h` - Ethernet definitions
 - `sys/net/if_ethersubr.c` - Ethernet support routines
 - `sys/net/if_arp.h` - ARP definitions
@@ -137,7 +136,7 @@ Base networking infrastructure in `sys/net/`:
 
 ### Phase 5: Berkeley Packet Filter
 **Goal**: Understand BPF for packet capture.
-**Files** (~3,000 lines):
+**Files**:
 - `sys/net/bpf.h` - BPF definitions
 - `sys/net/bpfdesc.h` - BPF descriptor
 - `sys/net/bpf.c` - BPF implementation
@@ -152,7 +151,7 @@ Base networking infrastructure in `sys/net/`:
 
 ### Phase 6: Packet Filter Hooks and Polling
 **Goal**: Understand packet filter framework and polling.
-**Files** (~2,500 lines):
+**Files**:
 - `sys/net/pfil.h` - Packet filter hooks
 - `sys/net/pfil.c` - pfil implementation
 - `sys/net/if_poll.h` - Polling definitions
@@ -166,7 +165,7 @@ Base networking infrastructure in `sys/net/`:
 
 ### Phase 7: Virtual Interfaces
 **Goal**: Document virtual network interfaces.
-**Directories** (~5,500 lines):
+**Directories**:
 - `sys/net/tun/` - TUN device (IP tunneling)
 - `sys/net/tap/` - TAP device (Ethernet tunneling)
 - `sys/net/vlan/` - 802.1Q VLAN support
@@ -180,7 +179,7 @@ Base networking infrastructure in `sys/net/`:
 
 ### Phase 8: Tunneling Protocols
 **Goal**: Document tunnel interfaces.
-**Directories** (~2,700 lines):
+**Directories**:
 - `sys/net/gif/` - Generic tunnel interface
 - `sys/net/gre/` - GRE tunneling
 - `sys/net/stf/` - 6to4 tunnel
@@ -192,7 +191,7 @@ Base networking infrastructure in `sys/net/`:
 
 ### Phase 9: PPP and Serial
 **Goal**: Document PPP and serial networking.
-**Directories** (~7,500 lines):
+**Directories**:
 - `sys/net/sppp/` - Synchronous PPP
 - `sys/net/sl/` - SLIP
 - `sys/net/ppp_layer/` - PPP layer
@@ -204,7 +203,7 @@ Base networking infrastructure in `sys/net/`:
 
 ### Phase 10: Link Aggregation and Bridging
 **Goal**: Document layer 2 features.
-**Directories** (~11,500 lines):
+**Directories**:
 - `sys/net/bridge/` - Network bridging
 - `sys/net/lagg/` - Link aggregation
 
@@ -216,7 +215,7 @@ Base networking infrastructure in `sys/net/`:
 
 ### Phase 11: Packet Filter (pf)
 **Goal**: Document OpenBSD's pf firewall.
-**Directory** (~21,500 lines):
+**Directory**:
 - `sys/net/pf/` - Complete pf implementation
 
 **Key concepts**:
@@ -228,7 +227,7 @@ Base networking infrastructure in `sys/net/`:
 
 ### Phase 12: IPFW and IPFW3
 **Goal**: Document IP firewall implementations.
-**Directories** (~16,000 lines):
+**Directories**:
 - `sys/net/ipfw/` - Legacy IPFW
 - `sys/net/ipfw3/` - IPFW3 core
 - `sys/net/ipfw3_basic/` - Basic modules
@@ -245,7 +244,7 @@ Base networking infrastructure in `sys/net/`:
 
 ### Phase 13: Traffic Shaping (ALTQ/Dummynet)
 **Goal**: Document QoS and traffic shaping.
-**Directories** (~15,800 lines):
+**Directories**:
 - `sys/net/altq/` - ALTQ framework
 - `sys/net/dummynet/` - Legacy dummynet
 - `sys/net/dummynet3/` - New dummynet
@@ -258,7 +257,7 @@ Base networking infrastructure in `sys/net/`:
 
 ### Phase 14: Netmap
 **Goal**: Document high-performance packet I/O.
-**Directory** (~8,600 lines):
+**Directory**:
 - `sys/net/netmap/` - Netmap framework
 
 **Key concepts**:
@@ -269,7 +268,7 @@ Base networking infrastructure in `sys/net/`:
 
 ### Phase 15: WireGuard
 **Goal**: Document WireGuard VPN implementation.
-**Directory** (~6,900 lines):
+**Directory**:
 - `sys/net/wg/` - WireGuard implementation
 
 **Key concepts**:
@@ -280,7 +279,7 @@ Base networking infrastructure in `sys/net/`:
 
 ### Phase 16: Multicast Routing
 **Goal**: Document IP multicast routing.
-**Directory** (~3,700 lines):
+**Directory**:
 - `sys/net/ip_mroute/` - Multicast routing
 
 **Key concepts**:

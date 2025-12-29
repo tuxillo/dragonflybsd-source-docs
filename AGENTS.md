@@ -18,6 +18,7 @@
    - These documentation files will be the consumable output for users trying to understand the DragonFly BSD kernel.
 
 5. **Commit discipline**
+   - Use Conventional Commits for all commit messages (for example, `docs(kern): update phase status`).
    - Make small, focused commits frequently.
    - Avoid bundling large, unrelated changes into a single commit.
    - Before committing, review and adjust documentation for accuracy, clarity, and completeness.

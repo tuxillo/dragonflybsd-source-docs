@@ -451,64 +451,60 @@ Each phase is mostly self-contained after earlier dependencies, allowing focused
 
 ### Completed Phases
 
-| Phase | Topic | Documentation | Lines | Commit |
-|-------|-------|---------------|-------|--------|
-| **0** | LWKT Threading | `lwkt.md` | 740 | ✅ |
-| **1a** | Synchronization | `synchronization.md` | 915 | ✅ |
-| **1b** | Time & Timers | `time.md` | 1,403 | ✅ |
-| **2** | Memory Allocation | `memory.md` | 2,793 | ✅ |
-| **3** | Initialization | `initialization.md` | 1,167 | ✅ |
-| **4a** | Process Lifecycle | `processes.md` | 1,133 | ✅ |
-| **4b** | Resources/Credentials | `resources.md` | 857 | ✅ |
-| **4c** | Signals | `signals.md` | 1,018 | ✅ |
-| **5** | Scheduling | `scheduling.md` | 923 | ✅ |
-| **6a** | VFS Core | `vfs/index.md` | 722 | ✅ |
-| **6b** | VFS Name Lookup | `vfs/namecache.md` | 837 | ✅ |
-| **6c** | VFS Mounting | `vfs/mounting.md` | 1,181 | ✅ |
-| **6d** | VFS Buffer Cache | `vfs/buffer-cache.md` | 1,666 | ✅ |
-| **6e** | VFS Operations | `vfs/vfs-operations.md` | 847 | ✅ |
-| **6e** | VFS Journaling | `vfs/journaling.md` | 1,214 | ✅ |
-| **6e** | VFS Locking | `vfs/vfs-locking.md` | 569 | ✅ |
-| **6e** | VFS Extensions | `vfs/vfs-extensions.md` | 627 | ✅ |
-| **7a1** | Mbufs | `ipc/mbufs.md` | 801 | `16b4658` |
-| **7a2** | Sockets | `ipc/sockets.md` | 1,098 | `10f10b0` |
-| **7a3** | Unix Domain Sockets | `ipc/unix-sockets.md` | 812 | `c85db6f` |
-| **7a4** | Protocol Dispatch | `ipc/protocol-dispatch.md` | 825 | `8d06674` |
-| **7c1** | Pipes | `ipc/pipes.md` | 510 | `4473f57` |
-| **7c2** | POSIX Message Queues | `ipc/mqueue.md` | 368 | `5fae267` |
-| **7b1** | SysV Message Queues | `ipc/sysv-msg.md` | 312 | `0de9e53` |
-| **7b2** | SysV Semaphores | `ipc/sysv-sem.md` | 345 | `88f6aae` |
-| **7b3** | SysV Shared Memory | `ipc/sysv-shm.md` | 340 | `3d4525b` |
-| **8a** | Devices & Drivers | `devices.md` | 877 | ✅ |
-| **8a** | NewBus Framework | `newbus.md` | 783 | ✅ |
-| **8a** | Bus Resources & DMA | `bus-resources.md` | 547 | ✅ |
-| **8b** | Disk Subsystem | `disk.md` | 988 | ✅ |
-| **8d** | Firmware Loading | `firmware.md` | 347 | ✅ |
-| **9a** | System Calls | `syscalls.md` | 485 | `87b914f` |
-| **9b** | Kernel Linker (KLD) | `kld.md` | 675 | `52027b4` |
-| **10a** | Tracing & Debugging | `tracing.md` | 534 | `d7c0a1c` |
-| **10b** | Sysctl Framework | `sysctl.md` | 656 | `571d0b6` |
-| **10c** | Accounting & Sensors | `accounting.md` | 624 | `5535505` |
-| **10d** | Security | `security.md` | 615 | `8a6bc2a` |
-| **11a** | TTY Subsystem | `tty.md` | 1,092 | `9e00ccf` |
-| **11b** | Pseudo-Terminals | `tty-pty.md` | 1,078 | `5d3204e` |
-| **12a** | Event Notification | `kevent.md` | 1,259 | ✅ |
-| **12b** | Task Queues | `taskqueue.md` | 990 | ✅ |
-| **12c** | Random Numbers | `random.md` | 754 | ✅ |
-| **12d** | Checkpoint/Restart | `checkpoint.md` | 830 | ✅ |
-| **12e** | Distributed Messaging | `dmsg.md` | 580 | ✅ |
-| **12f** | Shutdown & Panic | `shutdown.md` | 670 | ✅ |
-| **12g** | Kernel Utilities | `utilities.md` | 556 | ✅ |
+| Phase | Topic | Documentation | Commit |
+|-------|-------|---------------|--------|
+| **0** | LWKT Threading | `lwkt.md` | ✅ |
+| **1a** | Synchronization | `synchronization.md` | ✅ |
+| **1b** | Time & Timers | `time.md` | ✅ |
+| **2** | Memory Allocation | `memory.md` | ✅ |
+| **3** | Initialization | `initialization.md` | ✅ |
+| **4a** | Process Lifecycle | `processes.md` | ✅ |
+| **4b** | Resources/Credentials | `resources.md` | ✅ |
+| **4c** | Signals | `signals.md` | ✅ |
+| **5** | Scheduling | `scheduling.md` | ✅ |
+| **6a** | VFS Core | `vfs/index.md` | ✅ |
+| **6b** | VFS Name Lookup | `vfs/namecache.md` | ✅ |
+| **6c** | VFS Mounting | `vfs/mounting.md` | ✅ |
+| **6d** | VFS Buffer Cache | `vfs/buffer-cache.md` | ✅ |
+| **6e** | VFS Operations | `vfs/vfs-operations.md` | ✅ |
+| **6e** | VFS Journaling | `vfs/journaling.md` | ✅ |
+| **6e** | VFS Locking | `vfs/vfs-locking.md` | ✅ |
+| **6e** | VFS Extensions | `vfs/vfs-extensions.md` | ✅ |
+| **7a1** | Mbufs | `ipc/mbufs.md` | `16b4658` |
+| **7a2** | Sockets | `ipc/sockets.md` | `10f10b0` |
+| **7a3** | Unix Domain Sockets | `ipc/unix-sockets.md` | `c85db6f` |
+| **7a4** | Protocol Dispatch | `ipc/protocol-dispatch.md` | `8d06674` |
+| **7c1** | Pipes | `ipc/pipes.md` | `4473f57` |
+| **7c2** | POSIX Message Queues | `ipc/mqueue.md` | `5fae267` |
+| **7b1** | SysV Message Queues | `ipc/sysv-msg.md` | `0de9e53` |
+| **7b2** | SysV Semaphores | `ipc/sysv-sem.md` | `88f6aae` |
+| **7b3** | SysV Shared Memory | `ipc/sysv-shm.md` | `3d4525b` |
+| **8a** | Devices & Drivers | `devices.md` | ✅ |
+| **8a** | NewBus Framework | `newbus.md` | ✅ |
+| **8a** | Bus Resources & DMA | `bus-resources.md` | ✅ |
+| **8b** | Disk Subsystem | `disk.md` | ✅ |
+| **8d** | Firmware Loading | `firmware.md` | ✅ |
+| **9a** | System Calls | `syscalls.md` | `87b914f` |
+| **9b** | Kernel Linker (KLD) | `kld.md` | `52027b4` |
+| **10a** | Tracing & Debugging | `tracing.md` | `d7c0a1c` |
+| **10b** | Sysctl Framework | `sysctl.md` | `571d0b6` |
+| **10c** | Accounting & Sensors | `accounting.md` | `5535505` |
+| **10d** | Security | `security.md` | `8a6bc2a` |
+| **11a** | TTY Subsystem | `tty.md` | `9e00ccf` |
+| **11b** | Pseudo-Terminals | `tty-pty.md` | `5d3204e` |
+| **12a** | Event Notification | `kevent.md` | ✅ |
+| **12b** | Task Queues | `taskqueue.md` | ✅ |
+| **12c** | Random Numbers | `random.md` | ✅ |
+| **12d** | Checkpoint/Restart | `checkpoint.md` | ✅ |
+| **12e** | Distributed Messaging | `dmsg.md` | ✅ |
+| **12f** | Shutdown & Panic | `shutdown.md` | ✅ |
+| **12g** | Kernel Utilities | `utilities.md` | ✅ |
 
-**Total completed:** ~38,400+ lines of documentation
+**Total completed:** sys/kern documentation complete
 
 ### Pending Phases
 
-| Phase | Topic | Status |
-|-------|-------|--------|
-| **12g** | Kernel Utilities | ✅ Complete |
-
-All `sys/kern/` documentation phases are now complete!
+None — all `sys/kern/` documentation phases are complete.
 
 ---
 
@@ -516,53 +512,53 @@ All `sys/kern/` documentation phases are now complete!
 
 ### Overview
 
-Phase 8 covers **~10,500 lines** across **17 source files** in four subphases:
+Phase 8 covers **17 source files** in four subphases:
 
-| Subphase | Files | Lines | Description |
-|----------|-------|-------|-------------|
-| **8a** | 6 files | ~6,377 | Device/Bus Framework (NewBus, dev_ops, rman) |
-| **8b** | 8 files | ~4,499 | Disk Layer (partitioning, labels, MBR/GPT) |
-| **8c** | 2 files | ~251 | I/O Scheduling (stubs + write throttling) |
-| **8d** | 1 file | ~540 | Firmware Loading |
+| Subphase | Files | Description |
+|----------|-------|-------------|
+| **8a** | 6 files | Device/Bus Framework (NewBus, dev_ops, rman) |
+| **8b** | 8 files | Disk Layer (partitioning, labels, MBR/GPT) |
+| **8c** | 2 files | I/O Scheduling (stubs + write throttling) |
+| **8d** | 1 file | Firmware Loading |
 
 ### Source Files
 
-#### 8a: Device/Bus Framework (~6,377 lines)
+#### 8a: Device/Bus Framework
 
-| File | Lines | Purpose |
-|------|-------|---------|
-| `kern_conf.c` | 514 | Device number primitives, `make_dev()`/`destroy_dev()`, devfs integration |
-| `kern_device.c` | 791 | Device operations dispatch (`dev_d*`), MPSAFE handling, default handlers |
-| `subr_bus.c` | 3,991 | **NewBus core** - devclass, device/driver model, /dev/devctl, resources |
-| `subr_autoconf.c` | 202 | Interrupt-driven configuration hooks |
-| `subr_busdma.c` | 144 | Bus DMA helper functions |
-| `subr_rman.c` | 735 | Resource manager (I/O ports, memory, IRQs) |
+| File | Purpose |
+|------|---------|
+| `kern_conf.c` | Device number primitives, `make_dev()`/`destroy_dev()`, devfs integration |
+| `kern_device.c` | Device operations dispatch (`dev_d*`), MPSAFE handling, default handlers |
+| `subr_bus.c` | **NewBus core** - devclass, device/driver model, /dev/devctl, resources |
+| `subr_autoconf.c` | Interrupt-driven configuration hooks |
+| `subr_busdma.c` | Bus DMA helper functions |
+| `subr_rman.c` | Resource manager (I/O ports, memory, IRQs) |
 
-#### 8b: Disk Layer (~4,499 lines)
+#### 8b: Disk Layer
 
-| File | Lines | Purpose |
-|------|-------|---------|
-| `subr_disk.c` | 1,601 | **Core disk layer** - creation, probing, slice management, BIO dispatch |
-| `subr_devstat.c` | 315 | Device I/O statistics (for `iostat`) |
-| `subr_diskslice.c` | 907 | Disk slicing framework, ioctl handlers |
-| `subr_disklabel32.c` | 662 | Traditional BSD 32-bit disklabels |
-| `subr_disklabel64.c` | 544 | **DragonFly 64-bit disklabels** (native format) |
-| `subr_diskmbr.c` | 556 | MBR partition table parsing |
-| `subr_diskgpt.c` | 244 | GPT partition table parsing |
-| `subr_diskiocom.c` | 670 | Disk dmsg protocol (clustered storage) |
+| File | Purpose |
+|------|---------|
+| `subr_disk.c` | **Core disk layer** - creation, probing, slice management, BIO dispatch |
+| `subr_devstat.c` | Device I/O statistics (for `iostat`) |
+| `subr_diskslice.c` | Disk slicing framework, ioctl handlers |
+| `subr_disklabel32.c` | Traditional BSD 32-bit disklabels |
+| `subr_disklabel64.c` | **DragonFly 64-bit disklabels** (native format) |
+| `subr_diskmbr.c` | MBR partition table parsing |
+| `subr_diskgpt.c` | GPT partition table parsing |
+| `subr_diskiocom.c` | Disk dmsg protocol (clustered storage) |
 
-#### 8c: I/O Scheduling (~251 lines)
+#### 8c: I/O Scheduling
 
-| File | Lines | Status | Purpose |
-|------|-------|--------|---------|
-| `kern_dsched.c` | 81 | **STUB** | Disk scheduling framework (empty implementations) |
-| `kern_iosched.c` | 170 | Active | Write throttling for I/O fairness |
+| File | Status | Purpose |
+|------|--------|---------|
+| `kern_dsched.c` | **STUB** | Disk scheduling framework (empty implementations) |
+| `kern_iosched.c` | Active | Write throttling for I/O fairness |
 
-#### 8d: Firmware (~540 lines)
+#### 8d: Firmware
 
-| File | Lines | Purpose |
-|------|-------|---------|
-| `subr_firmware.c` | 540 | Firmware image registry and loading |
+| File | Purpose |
+|------|---------|
+| `subr_firmware.c` | Firmware image registry and loading |
 
 ### Key Data Structures
 
@@ -601,14 +597,13 @@ docs/sys/kern/
 └── firmware.md             # Firmware loading subsystem
 ```
 
-### Estimated Documentation Sizes
+### Documentation Scope
 
-| Document | Est. Lines | Content |
-|----------|------------|---------|
-| `devices.md` | 800-1000 | dev_ops, make_dev, NewBus, devclass, bus methods |
-| `disk.md` | 600-800 | Disk layer, slices, labels, MBR/GPT, I/O sched |
-| `firmware.md` | 250-350 | Firmware registry, loading |
-| **Total** | **1650-2150** | |
+| Document | Content |
+|----------|---------|
+| `devices.md` | dev_ops, make_dev, NewBus, devclass, bus methods |
+| `disk.md` | Disk layer, slices, labels, MBR/GPT, I/O sched |
+| `firmware.md` | Firmware registry, loading |
 
 ### Execution Order
 

@@ -1,55 +1,55 @@
 # `sys/vfs/` Reading and Documentation Plan
 
-This plan organizes the DragonFly BSD filesystem implementations (`sys/vfs/`) into logical reading phases. The directory contains 23 filesystem implementations totaling approximately 189,000 lines of code.
+This plan organizes the DragonFly BSD filesystem implementations (`sys/vfs/`) into logical reading phases. The directory contains 23 filesystem implementations.
 
 ## Overview of `sys/vfs/` filesystems
 
 The filesystems can be grouped by purpose and complexity:
 
 ### DragonFly-native filesystems (highest priority)
-| Filesystem | Lines | Description |
-|------------|-------|-------------|
-| **hammer2** | ~40,800 | DragonFly's current native filesystem with clustering, dedup, compression |
-| **hammer** | ~34,600 | DragonFly's legacy filesystem (predecessor to HAMMER2) |
+| Filesystem | Description |
+|------------|-------------|
+| **hammer2** | DragonFly's current native filesystem with clustering, dedup, compression |
+| **hammer** | DragonFly's legacy filesystem (predecessor to HAMMER2) |
 
 ### Pseudo/virtual filesystems
-| Filesystem | Lines | Description |
-|------------|-------|-------------|
-| **devfs** | ~6,400 | Device filesystem — dynamic `/dev` management |
-| **procfs** | ~3,800 | Process filesystem — `/proc` interface |
-| **tmpfs** | ~5,000 | Memory-based temporary filesystem |
-| **nullfs** | ~770 | Null/loopback filesystem (mount elsewhere) |
-| **deadfs** | ~210 | Dead vnode operations (revoked vnodes) |
-| **fifofs** | ~750 | FIFO (named pipe) filesystem |
-| **mfs** | ~700 | Memory filesystem (legacy) |
+| Filesystem | Description |
+|------------|-------------|
+| **devfs** | Device filesystem — dynamic `/dev` management |
+| **procfs** | Process filesystem — `/proc` interface |
+| **tmpfs** | Memory-based temporary filesystem |
+| **nullfs** | Null/loopback filesystem (mount elsewhere) |
+| **deadfs** | Dead vnode operations (revoked vnodes) |
+| **fifofs** | FIFO (named pipe) filesystem |
+| **mfs** | Memory filesystem (legacy) |
 
 ### Traditional Unix filesystems
-| Filesystem | Lines | Description |
-|------------|-------|-------------|
-| **ufs** | ~19,400 | BSD Unix File System (FFS/UFS) |
-| **nfs** | ~24,700 | Network File System client |
+| Filesystem | Description |
+|------------|-------------|
+| **ufs** | BSD Unix File System (FFS/UFS) |
+| **nfs** | Network File System client |
 
 ### Compatibility filesystems (read-only or limited write)
-| Filesystem | Lines | Description |
-|------------|-------|-------------|
-| **ext2fs** | ~12,400 | Linux ext2/ext3 filesystem support |
-| **msdosfs** | ~8,100 | FAT12/FAT16/FAT32 filesystem |
-| **ntfs** | ~4,700 | Windows NTFS (read-only) |
-| **isofs** | ~4,600 | ISO 9660 CD-ROM filesystem |
-| **udf** | ~3,000 | Universal Disk Format (DVD/Blu-ray) |
-| **hpfs** | ~4,500 | OS/2 High Performance File System |
+| Filesystem | Description |
+|------------|-------------|
+| **ext2fs** | Linux ext2/ext3 filesystem support |
+| **msdosfs** | FAT12/FAT16/FAT32 filesystem |
+| **ntfs** | Windows NTFS (read-only) |
+| **isofs** | ISO 9660 CD-ROM filesystem |
+| **udf** | Universal Disk Format (DVD/Blu-ray) |
+| **hpfs** | OS/2 High Performance File System |
 
 ### Network/distributed filesystems
-| Filesystem | Lines | Description |
-|------------|-------|-------------|
-| **smbfs** | ~4,700 | SMB/CIFS client filesystem |
-| **fuse** | ~5,500 | Filesystem in Userspace framework |
+| Filesystem | Description |
+|------------|-------------|
+| **smbfs** | SMB/CIFS client filesystem |
+| **fuse** | Filesystem in Userspace framework |
 
 ### Specialized filesystems
-| Filesystem | Lines | Description |
-|------------|-------|-------------|
-| **autofs** | ~1,800 | Automounter filesystem |
-| **dirfs** | ~3,100 | Directory-based filesystem (vkernel) |
+| Filesystem | Description |
+|------------|-------------|
+| **autofs** | Automounter filesystem |
+| **dirfs** | Directory-based filesystem (vkernel) |
 
 ---
 
@@ -60,19 +60,19 @@ The filesystems are organized into phases based on complexity and importance to 
 ### Phase 1: Simple pseudo-filesystems (foundation)
 **Goal:** Understand basic VFS implementation patterns with minimal complexity.
 
-**1a. deadfs** (~210 lines) — simplest possible filesystem
+**1a. deadfs** — simplest possible filesystem
 - `dead_vnops.c` — vnode operations that always fail
 - Outcome: understand vnode operation structure
 
-**1b. fifofs** (~750 lines) — named pipe support
+**1b. fifofs** — named pipe support
 - Understand FIFO vnode operations
 - Outcome: see how special file types integrate with VFS
 
-**1c. nullfs** (~770 lines) — loopback/stacking filesystem
+**1c. nullfs** — loopback/stacking filesystem
 - Understand filesystem layering/stacking
 - Outcome: see how one filesystem can wrap another
 
-**1d. mfs** (~700 lines) — memory filesystem (legacy)
+**1d. mfs** — memory filesystem (legacy)
 - Simple memory-backed block device
 - Outcome: understand block-based filesystem basics
 
@@ -81,7 +81,7 @@ The filesystems are organized into phases based on complexity and importance to 
 ### Phase 2: Memory and device filesystems
 **Goal:** Understand dynamic filesystem construction.
 
-**2a. tmpfs** (~5,000 lines) — modern memory filesystem
+**2a. tmpfs** — modern memory filesystem
 Files:
 - `tmpfs_subr.c` — node management, memory allocation
 - `tmpfs_vnops.c` — vnode operations
@@ -90,7 +90,7 @@ Files:
 
 Outcome: understand a complete, modern pseudo-filesystem implementation.
 
-**2b. devfs** (~6,400 lines) — device filesystem
+**2b. devfs** — device filesystem
 Files:
 - `devfs_core.c` — device node management
 - `devfs_vnops.c` — vnode operations
@@ -99,7 +99,7 @@ Files:
 
 Outcome: understand dynamic device node creation and management.
 
-**2c. procfs** (~3,800 lines) — process filesystem
+**2c. procfs** — process filesystem
 Files:
 - `procfs_subr.c` — proc node support
 - `procfs_vnops.c` — vnode operations
@@ -113,7 +113,7 @@ Outcome: understand how kernel data is exposed via filesystem interface.
 ### Phase 3: Traditional disk filesystems
 **Goal:** Understand on-disk filesystem structures and operations.
 
-**3a. ufs** (~19,400 lines) — BSD Unix File System
+**3a. ufs** — BSD Unix File System
 Key files:
 - `ufs/ufs_vnops.c` — vnode operations
 - `ufs/ufs_vfsops.c` — VFS operations
@@ -124,7 +124,7 @@ Key files:
 
 Outcome: understand traditional Unix filesystem implementation.
 
-**3b. ext2fs** (~12,400 lines) — Linux ext2/ext3
+**3b. ext2fs** — Linux ext2/ext3
 Key files:
 - `ext2fs_vnops.c` — vnode operations
 - `ext2fs_vfsops.c` — VFS operations
@@ -138,7 +138,7 @@ Outcome: understand ext2 on-disk format and Linux compatibility.
 ### Phase 4: Network filesystems
 **Goal:** Understand distributed filesystem protocols.
 
-**4a. nfs** (~24,700 lines) — Network File System
+**4a. nfs** — Network File System
 Key files:
 - `nfs_vnops.c` — vnode operations
 - `nfs_vfsops.c` — VFS operations
@@ -149,7 +149,7 @@ Key files:
 
 Outcome: understand NFS protocol, RPC, caching strategies.
 
-**4b. smbfs** (~4,700 lines) — SMB/CIFS client
+**4b. smbfs** — SMB/CIFS client
 Key files:
 - `smbfs_vnops.c` — vnode operations
 - `smbfs_vfsops.c` — VFS operations
@@ -163,7 +163,7 @@ Outcome: understand SMB protocol integration.
 ### Phase 5: Userspace and automount filesystems
 **Goal:** Understand filesystems that delegate to userspace.
 
-**5a. fuse** (~5,500 lines) — Filesystem in Userspace
+**5a. fuse** — Filesystem in Userspace
 Key files:
 - `fuse_vnops.c` — vnode operations
 - `fuse_vfsops.c` — VFS operations
@@ -172,7 +172,7 @@ Key files:
 
 Outcome: understand FUSE protocol and kernel-userspace boundary.
 
-**5b. autofs** (~1,800 lines) — automounter
+**5b. autofs** — automounter
 Key files:
 - `autofs_vnops.c` — vnode operations
 - `autofs_vfsops.c` — VFS operations
@@ -185,7 +185,7 @@ Outcome: understand on-demand mounting.
 ### Phase 6: Media filesystems
 **Goal:** Understand read-only and media-specific filesystems.
 
-**6a. isofs** (~4,600 lines) — ISO 9660
+**6a. isofs** — ISO 9660
 Key files:
 - `cd9660_vnops.c` — vnode operations
 - `cd9660_vfsops.c` — VFS operations
@@ -194,7 +194,7 @@ Key files:
 
 Outcome: understand CD/DVD filesystem format.
 
-**6b. msdosfs** (~8,100 lines) — FAT filesystem
+**6b. msdosfs** — FAT filesystem
 Key files:
 - `msdosfs_vnops.c` — vnode operations
 - `msdosfs_vfsops.c` — VFS operations
@@ -203,14 +203,14 @@ Key files:
 
 Outcome: understand FAT12/16/32 format.
 
-**6c. udf** (~3,000 lines) — Universal Disk Format
+**6c. udf** — Universal Disk Format
 Key files:
 - `udf_vnops.c` — vnode operations
 - `udf_vfsops.c` — VFS operations
 
 Outcome: understand DVD/Blu-ray filesystem.
 
-**6d. ntfs** (~4,700 lines) — NTFS (read-only)
+**6d. ntfs** — NTFS (read-only)
 Key files:
 - `ntfs_vnops.c` — vnode operations
 - `ntfs_vfsops.c` — VFS operations
@@ -223,7 +223,7 @@ Outcome: understand NTFS MFT structure.
 ### Phase 7: HAMMER (legacy native filesystem)
 **Goal:** Understand DragonFly's first native filesystem.
 
-**hammer** (~34,600 lines) — HAMMER filesystem
+**hammer** — HAMMER filesystem
 Key files (read in order):
 1. `hammer.h` — main header, structures
 2. `hammer_ondisk.c` — on-disk format
@@ -244,7 +244,7 @@ Outcome: comprehensive understanding of HAMMER design and implementation.
 ### Phase 8: HAMMER2 (current native filesystem)
 **Goal:** Master DragonFly's primary filesystem.
 
-**hammer2** (~40,800 lines) — HAMMER2 filesystem
+**hammer2** — HAMMER2 filesystem
 Key files (read in order):
 1. `hammer2.h` — main header, core structures
 2. `hammer2_ondisk.c` — on-disk format
@@ -269,10 +269,10 @@ Outcome: expert-level understanding of HAMMER2 architecture.
 ### Phase 9: Specialized filesystems (optional)
 **Goal:** Document remaining specialized filesystems.
 
-**9a. hpfs** (~4,500 lines) — OS/2 filesystem
+**9a. hpfs** — OS/2 filesystem
 - Legacy, low priority
 
-**9b. dirfs** (~3,100 lines) — vkernel directory filesystem
+**9b. dirfs** — vkernel directory filesystem
 - Specialized for virtual kernel use
 
 ---

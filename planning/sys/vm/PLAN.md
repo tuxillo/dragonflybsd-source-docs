@@ -43,23 +43,22 @@ Next phase
 
 ## Overview of Target Files
 
-| File | Lines | Purpose |
-|------|-------|---------|
-| `vm.h` | 135 | Core VM types and constants |
-| `vm_param.h` | 155 | VM parameters and tunables |
-| `vm_page.h` | 577 | `struct vm_page` definition, page flags |
-| `vm_page2.h` | 600 | Inline page functions, busy handling |
-| `vm_object.h` | 388 | `struct vm_object` definition |
-| `vm_map.h` | 654 | Address space structures (`vm_map`, `vm_map_entry`) |
-| `vm_page.c` | 4,241 | Physical page management implementation |
-| `vm_object.c` | 2,034 | VM object management |
-| `vm_map.c` | 4,781 | Address space management |
-| `vm_fault.c` | 3,243 | Page fault handling |
-| `vm_pageout.c` | 2,895 | Pageout daemon |
-| `swap_pager.c` | 2,600 | Swap subsystem |
-| `vnode_pager.c` | 832 | File-backed page I/O |
-| `vm_mmap.c` | 1,530 | mmap implementation |
-| **Total** | **~24,665** | |
+| File | Purpose |
+|------|---------|
+| `vm.h` | Core VM types and constants |
+| `vm_param.h` | VM parameters and tunables |
+| `vm_page.h` | `struct vm_page` definition, page flags |
+| `vm_page2.h` | Inline page functions, busy handling |
+| `vm_object.h` | `struct vm_object` definition |
+| `vm_map.h` | Address space structures (`vm_map`, `vm_map_entry`) |
+| `vm_page.c` | Physical page management implementation |
+| `vm_object.c` | VM object management |
+| `vm_map.c` | Address space management |
+| `vm_fault.c` | Page fault handling |
+| `vm_pageout.c` | Pageout daemon |
+| `swap_pager.c` | Swap subsystem |
+| `vnode_pager.c` | File-backed page I/O |
+| `vm_mmap.c` | mmap implementation |
 
 ---
 
@@ -68,12 +67,12 @@ Next phase
 ### Phase 1: Core Data Structures (Headers) ✅ COMPLETE
 **Goal:** Understand fundamental VM data structures before implementations.
 
-| Step | File(s) | Lines | Focus |
-|------|---------|-------|-------|
-| 1.1 | `vm.h`, `vm_param.h` | ~290 | Basic types, constants, tunables |
-| 1.2 | `vm_page.h`, `vm_page2.h` | ~1,177 | `struct vm_page`, page states/flags, busy handling |
-| 1.3 | `vm_object.h` | ~388 | `struct vm_object`, object types |
-| 1.4 | `vm_map.h` | ~654 | `struct vm_map`, `vm_map_entry`, `vm_map_backing` |
+| Step | File(s) | Focus |
+|------|---------|-------|
+| 1.1 | `vm.h`, `vm_param.h` | Basic types, constants, tunables |
+| 1.2 | `vm_page.h`, `vm_page2.h` | `struct vm_page`, page states/flags, busy handling |
+| 1.3 | `vm_object.h` | `struct vm_object`, object types |
+| 1.4 | `vm_map.h` | `struct vm_map`, `vm_map_entry`, `vm_map_backing` |
 
 **Output:** `docs/sys/vm/index.md` - VM architecture overview (from header notes)
 
@@ -82,11 +81,11 @@ Next phase
 ### Phase 2: Physical Page Management (`vm_page.c`)
 **Goal:** Understand physical page allocation, free lists, and state transitions.
 
-| Step | Lines | Focus |
-|------|-------|-------|
-| 2.1 | 0-1500 | Page allocation, free queues, coloring |
-| 2.2 | 1500-3000 | Page state transitions, busy handling |
-| 2.3 | 3000-4241 | Remaining functions |
+| Step | Focus |
+|------|-------|
+| 2.1 | Page allocation, free queues, coloring |
+| 2.2 | Page state transitions, busy handling |
+| 2.3 | Remaining functions |
 
 **Output:** `docs/sys/vm/vm_page.md` - Physical page management
 
@@ -95,10 +94,10 @@ Next phase
 ### Phase 3: VM Objects (`vm_object.c`)
 **Goal:** Understand VM object lifecycle and shadow chains.
 
-| Step | Lines | Focus |
-|------|-------|-------|
-| 3.1 | 0-1000 | Object creation, reference counting |
-| 3.2 | 1000-2034 | Shadow objects, collapse, paging |
+| Step | Focus |
+|------|-------|
+| 3.1 | Object creation, reference counting |
+| 3.2 | Shadow objects, collapse, paging |
 
 **Output:** `docs/sys/vm/vm_object.md` - VM objects
 
@@ -107,11 +106,11 @@ Next phase
 ### Phase 4: Address Space Management (`vm_map.c`)
 **Goal:** Understand address space structures and operations.
 
-| Step | Lines | Focus |
-|------|-------|-------|
-| 4.1 | 0-1500 | vmspace, map creation, entry management |
-| 4.2 | 1500-3000 | Lookups, clipping, entry operations |
-| 4.3 | 3000-4781 | COW, forking, protection |
+| Step | Focus |
+|------|-------|
+| 4.1 | vmspace, map creation, entry management |
+| 4.2 | Lookups, clipping, entry operations |
+| 4.3 | COW, forking, protection |
 
 **Output:** `docs/sys/vm/vm_map.md` - Address space management
 
@@ -120,10 +119,10 @@ Next phase
 ### Phase 5: Page Fault Handling (`vm_fault.c`)
 **Goal:** Understand page fault resolution and COW.
 
-| Step | Lines | Focus |
-|------|-------|-------|
-| 5.1 | 0-1500 | Fault state, main entry points |
-| 5.2 | 1500-3243 | Core fault logic, COW handling |
+| Step | Focus |
+|------|-------|
+| 5.1 | Fault state, main entry points |
+| 5.2 | Core fault logic, COW handling |
 
 **Output:** `docs/sys/vm/vm_fault.md` - Page fault handling
 
@@ -132,12 +131,12 @@ Next phase
 ### Phase 6: Pageout and Swap
 **Goal:** Understand memory reclamation and swap management.
 
-| Step | File | Lines | Focus |
-|------|------|-------|-------|
-| 6.1 | `vm_pageout.c` | 0-1500 | Pageout daemon, page scanning |
-| 6.2 | `vm_pageout.c` | 1500-2895 | Page laundering, OOM |
-| 6.3 | `swap_pager.c` | 0-1300 | Swap allocation, metadata |
-| 6.4 | `swap_pager.c` | 1300-2600 | Swap I/O |
+| Step | File | Focus |
+|------|------|-------|
+| 6.1 | `vm_pageout.c` | Pageout daemon, page scanning |
+| 6.2 | `vm_pageout.c` | Page laundering, OOM |
+| 6.3 | `swap_pager.c` | Swap allocation, metadata |
+| 6.4 | `swap_pager.c` | Swap I/O |
 
 **Output:** `docs/sys/vm/vm_pageout.md` - Pageout daemon and swap
 
@@ -146,10 +145,10 @@ Next phase
 ### Phase 7: Pagers and mmap
 **Goal:** Understand vnode pager and mmap syscalls.
 
-| Step | File | Lines | Focus |
-|------|------|-------|-------|
-| 7.1 | `vnode_pager.c` | 0-832 | File-backed page I/O |
-| 7.2 | `vm_mmap.c` | 0-1530 | mmap/munmap/mprotect |
+| Step | File | Focus |
+|------|------|-------|
+| 7.1 | `vnode_pager.c` | File-backed page I/O |
+| 7.2 | `vm_mmap.c` | mmap/munmap/mprotect |
 
 **Output:** `docs/sys/vm/vm_mmap.md` - Pagers and memory mapping
 
@@ -178,7 +177,7 @@ Next phase
 
 #### 1.1 vm.h, vm_param.h
 
-**vm.h** (136 lines) - Core VM types and constants
+**vm.h** - Core VM types and constants
 
 Types defined:
 - `vm_inherit_t` (char) - Inheritance codes for fork behavior
@@ -206,7 +205,7 @@ Types defined:
 
 Forward declarations: `struct vm_map_entry`, `struct vm_map`, `struct vm_object`, `struct vm_page`
 
-**vm_param.h** (156 lines) - VM parameters and tunables
+**vm_param.h** - VM parameters and tunables
 
 CTL_VM sysctl identifiers:
 - `VM_METER` (1) - struct vmmeter
@@ -235,7 +234,7 @@ Size limit globals: `maxtsiz`, `dfldsiz`, `maxdsiz`, `dflssiz`, `maxssiz`, `sgro
 
 #### 1.2 vm_page.h, vm_page2.h
 
-**vm_page.h** (578 lines) - Core page structure and page queue definitions
+**vm_page.h** - Core page structure and page queue definitions
 
 `struct vm_page` (128 bytes, 3.125% memory overhead for 4K pages):
 ```c
@@ -320,7 +319,7 @@ Locking rules (from header comments):
 3. Unlocked: hold_count changes, PG_RAM, dirty if PG_WRITEABLE set, PG_REFERENCED if PG_MAPPED
 4. Queue changes require m->spin + queue spinlock
 
-**vm_page2.h** (601 lines) - Inline functions and paging thresholds
+**vm_page2.h** - Inline functions and paging thresholds
 
 Per-CPU vmstats caching (SMP optimization):
 - Each CPU collects adjustments in `gd->gd_vmstats_adj`
@@ -375,7 +374,7 @@ Dirty bit manipulation:
 
 #### 1.3 vm_object.h
 
-**vm_object.h** (389 lines) - VM object structure and operations
+**vm_object.h** - VM object structure and operations
 
 Object types (`enum obj_type`):
 - `OBJT_DEFAULT` - Anonymous memory (initially no backing)
@@ -497,7 +496,7 @@ Key functions:
 
 #### 1.4 vm_map.h
 
-**vm_map.h** (655 lines) - Address space structures and operations
+**vm_map.h** - Address space structures and operations
 
 Subsystem identifiers (`vm_subsys_t`) - Debugging aid for tracking map entry origins:
 - `VM_SUBSYS_KMALLOC`, `VM_SUBSYS_STACK`, `VM_SUBSYS_IMGACT`, `VM_SUBSYS_EFI`
@@ -699,7 +698,7 @@ Key functions:
 
 ### Phase 2: Physical Page Management
 
-**vm_page.c** (4,242 lines) - Physical page allocation and queue management
+**vm_page.c** - Physical page allocation and queue management
 
 #### Global Data Structures
 
@@ -1096,7 +1095,7 @@ PQ_ACTIVE ←→ PQ_INACTIVE
 
 ### Phase 3: VM Objects
 
-**vm_object.c** (~2,034 lines) - VM object lifecycle, reference counting, and page management
+**vm_object.c** - VM object lifecycle, reference counting, and page management
 
 #### Global Data Structures
 
@@ -1365,7 +1364,7 @@ Marks object as potentially dirty:
 
 ### Phase 4: Address Space Management
 
-**vm_map.c** (~4,781 lines) - Address space management, vmspace lifecycle, map entries
+**vm_map.c** - Address space management, vmspace lifecycle, map entries
 
 #### 4.1 Global Data Structures and Tunables (lines 0-200)
 
@@ -2181,7 +2180,7 @@ Core fault lookup function:
 
 ### Phase 5: Page Fault Handling
 
-**vm_fault.c** (~3,243 lines) - Page fault handling, COW, prefaulting
+**vm_fault.c** - Page fault handling, COW, prefaulting
 
 #### 5.1 Data Structures and Tunables (lines 0-210)
 

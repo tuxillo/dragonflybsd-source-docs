@@ -4,16 +4,16 @@ This plan captures the structure, key concepts, and documentation approach for P
 
 ## Overview
 
-Phase 7 covers **~18,850 lines** across **17 source files** in six subphases:
+Phase 7 covers **17 source files** in six subphases:
 
-| Subphase | Files | Lines | Description |
-|----------|-------|-------|-------------|
-| 7a1 | 2 files | ~3,160 | Mbufs - memory buffer system |
-| 7a2 | 3 files | ~4,178 | Socket core - socket layer and buffers |
-| 7a3 | 5 files | ~3,852 | Protocols - domains, Unix sockets, message-passing |
-| 7a4 | 1 file | ~1,973 | Socket syscalls - user interface |
-| 7b | 4 SysV files | ~3,055 | Message queues, semaphores, shared memory |
-| 7c | 2 other IPC | ~2,630 | Pipes, POSIX message queues |
+| Subphase | Files | Description |
+|----------|-------|-------------|
+| 7a1 | 2 files | Mbufs - memory buffer system |
+| 7a2 | 3 files | Socket core - socket layer and buffers |
+| 7a3 | 5 files | Protocols - domains, Unix sockets, message-passing |
+| 7a4 | 1 file | Socket syscalls - user interface |
+| 7b | 4 SysV files | Message queues, semaphores, shared memory |
+| 7c | 2 other IPC | Pipes, POSIX message queues |
 
 ---
 
@@ -21,50 +21,50 @@ Phase 7 covers **~18,850 lines** across **17 source files** in six subphases:
 
 ### 7a1: Mbufs (Memory Buffers)
 
-| File | Lines | Purpose |
-|------|-------|---------|
-| `uipc_mbuf.c` | 2755 | Mbuf allocation, manipulation, per-CPU caching |
-| `uipc_mbuf2.c` | 405 | Packet tags, additional mbuf utilities |
+| File | Purpose |
+|------|---------|
+| `uipc_mbuf.c` | Mbuf allocation, manipulation, per-CPU caching |
+| `uipc_mbuf2.c` | Packet tags, additional mbuf utilities |
 
 ### 7a2: Socket Core
 
-| File | Lines | Purpose |
-|------|-------|---------|
-| `uipc_socket.c` | 2698 | Core socket operations (create, bind, listen, connect, send, recv, close) |
-| `uipc_socket2.c` | 876 | Socket state management, wakeup, connection acceptance |
-| `uipc_sockbuf.c` | 604 | Socket buffer (sockbuf) management, append, drop, flush |
+| File | Purpose |
+|------|---------|
+| `uipc_socket.c` | Core socket operations (create, bind, listen, connect, send, recv, close) |
+| `uipc_socket2.c` | Socket state management, wakeup, connection acceptance |
+| `uipc_sockbuf.c` | Socket buffer (sockbuf) management, append, drop, flush |
 
 ### 7a3: Protocols and Unix Domain Sockets
 
-| File | Lines | Purpose |
-|------|-------|---------|
-| `uipc_domain.c` | 240 | Protocol domain registration and lookup |
-| `uipc_proto.c` | 98 | Local (Unix) domain protocol definitions |
-| `uipc_usrreq.c` | 2571 | Unix domain socket implementation |
-| `uipc_msg.c` | 791 | DragonFly message-based socket operations |
-| `uipc_accf.c` | 152 | Accept filter framework |
+| File | Purpose |
+|------|---------|
+| `uipc_domain.c` | Protocol domain registration and lookup |
+| `uipc_proto.c` | Local (Unix) domain protocol definitions |
+| `uipc_usrreq.c` | Unix domain socket implementation |
+| `uipc_msg.c` | DragonFly message-based socket operations |
+| `uipc_accf.c` | Accept filter framework |
 
 ### 7a4: Socket System Calls
 
-| File | Lines | Purpose |
-|------|-------|---------|
-| `uipc_syscalls.c` | 1973 | Socket system calls (socket, bind, connect, accept, send, recv, etc.) |
+| File | Purpose |
+|------|---------|
+| `uipc_syscalls.c` | Socket system calls (socket, bind, connect, accept, send, recv, etc.) |
 
 ### 7b: System V IPC
 
-| File | Lines | Purpose |
-|------|-------|---------|
-| `sysv_ipc.c` | 69 | Common SysV IPC permission checking |
-| `sysv_msg.c` | 1096 | SysV message queues |
-| `sysv_sem.c` | 1163 | SysV semaphores |
-| `sysv_shm.c` | 727 | SysV shared memory |
+| File | Purpose |
+|------|---------|
+| `sysv_ipc.c` | Common SysV IPC permission checking |
+| `sysv_msg.c` | SysV message queues |
+| `sysv_sem.c` | SysV semaphores |
+| `sysv_shm.c` | SysV shared memory |
 
 ### 7c: Other IPC
 
-| File | Lines | Purpose |
-|------|-------|---------|
-| `sys_pipe.c` | 1461 | Pipe implementation (VM-backed) |
-| `sys_mqueue.c` | 1170 | POSIX message queues |
+| File | Purpose |
+|------|---------|
+| `sys_pipe.c` | Pipe implementation (VM-backed) |
+| `sys_mqueue.c` | POSIX message queues |
 
 ---
 
@@ -519,13 +519,13 @@ All IPC mechanisms respect jail restrictions:
 
 ## Documentation Approach
 
-### index.md - IPC Overview (~400 lines)
+### index.md - IPC Overview
 - IPC mechanisms in DragonFly: sockets, SysV IPC, pipes, POSIX mqueues
 - Socket architecture overview
 - DragonFly's message-passing design philosophy
 - How IPC relates to rest of kernel (VFS, VM, processes)
 
-### sockets.md - Socket Core (~600 lines)
+### sockets.md - Socket Core
 - `struct socket` and `struct signalsockbuf` in detail
 - Socket lifecycle: create → bind → listen → accept/connect → send/recv → close
 - Socket states and transitions
@@ -533,7 +533,7 @@ All IPC mechanisms respect jail restrictions:
 - Reference counting and `sofree()`
 - DragonFly async/sync duality
 
-### mbufs.md - Memory Buffers (~500 lines)
+### mbufs.md - Memory Buffers
 - Mbuf structure and types
 - Mbuf chains and packets
 - External storage (clusters)
@@ -542,7 +542,7 @@ All IPC mechanisms respect jail restrictions:
 - Manipulation (m_pullup, m_copydata, m_adj)
 - Packet tags
 
-### protocols.md - Protocol Framework (~600 lines)
+### protocols.md - Protocol Framework
 - Protocol domains and `struct domain`
 - Protocol switch (`struct protosw`)
 - User request handlers (`struct pr_usrreqs`)
@@ -551,7 +551,7 @@ All IPC mechanisms respect jail restrictions:
 - File descriptor passing
 - Accept filters
 
-### socket-syscalls.md - System Calls (~400 lines)
+### socket-syscalls.md - System Calls
 - Socket creation and binding
 - Connection establishment (connect, listen, accept)
 - Data transfer (send, recv variants)
@@ -559,14 +559,14 @@ All IPC mechanisms respect jail restrictions:
 - Socket options
 - Shutdown and close
 
-### sysv-ipc.md - System V IPC (~500 lines)
+### sysv-ipc.md - System V IPC
 - Common permission model
 - Message queues: data structures, segmented storage
 - Semaphores: pool tokens, generation counters, undo
 - Shared memory: VM integration, dual-pager support
 - DragonFly-specific: token synchronization, jail support
 
-### pipes.md - Pipes and POSIX Mqueues (~400 lines)
+### pipes.md - Pipes and POSIX Mqueues
 - Pipe architecture: VM-backed circular buffers
 - Full-duplex design (bufferA/bufferB)
 - Optimizations: busy-wait, per-CPU caching
@@ -574,18 +574,17 @@ All IPC mechanisms respect jail restrictions:
 
 ---
 
-## Estimated Documentation Sizes
+## Documentation Scope
 
-| File | Est. Lines | Complexity |
-|------|------------|------------|
-| `index.md` | 300-400 | Medium |
-| `sockets.md` | 500-600 | High |
-| `mbufs.md` | 400-500 | High |
-| `protocols.md` | 500-600 | High |
-| `socket-syscalls.md` | 300-400 | Medium |
-| `sysv-ipc.md` | 400-500 | Medium |
-| `pipes.md` | 300-400 | Medium |
-| **Total** | **2700-3400** | |
+| File | Complexity |
+|------|------------|
+| `index.md` | Medium |
+| `sockets.md` | High |
+| `mbufs.md` | High |
+| `protocols.md` | High |
+| `socket-syscalls.md` | Medium |
+| `sysv-ipc.md` | Medium |
+| `pipes.md` | Medium |
 
 ---
 
