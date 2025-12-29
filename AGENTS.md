@@ -28,3 +28,6 @@
 
 7. **System safety**
    - Do not run commands that are dangerous to the host operating system (for example, destructive filesystem operations, disk formatting, low-level system reconfiguration, or privilege-escalation tooling).
+
+8. Tasks tracking
+   - beads is used for task tracking (https://github.com/steveyegge/beads). It's installed in the system as `bd`.
