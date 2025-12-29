@@ -22,3 +22,15 @@ ENV/
 # OS
 .DS_Store
 Thumbs.db
+
+# bv (beads viewer) local config and caches
+.bv/
+
+# beads daemon runtime files
+.beads/daemon.log
+.beads/daemon.pid
+.beads/daemon.lock
+.beads/bd.sock
+.beads/*.db-wal
+.beads/*.db-shm
+.beads/*.db-journal
